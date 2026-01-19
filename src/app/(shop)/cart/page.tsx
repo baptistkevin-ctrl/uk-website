@@ -2,7 +2,18 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react'
+import {
+  Minus,
+  Plus,
+  Trash2,
+  ShoppingBag,
+  ArrowRight,
+  ArrowLeft,
+  Truck,
+  Shield,
+  Clock,
+  Tag,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
@@ -14,160 +25,260 @@ export default function CartPage() {
 
   const deliveryFee = subtotal >= 5000 ? 0 : 399 // Free delivery over £50
   const total = subtotal + deliveryFee
+  const amountUntilFreeDelivery = 5000 - subtotal
+  const freeDeliveryProgress = Math.min((subtotal / 5000) * 100, 100)
 
   if (items.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-md mx-auto text-center">
-          <ShoppingBag className="h-24 w-24 text-gray-300 mx-auto mb-6" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Your cart is empty
-          </h1>
-          <p className="text-gray-500 mb-8">
-            Looks like you haven't added any items to your cart yet.
-          </p>
-          <Button size="lg" asChild>
-            <Link href="/products">
-              Start Shopping
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Link>
-          </Button>
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-md mx-auto text-center">
+            <div className="w-24 h-24 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mx-auto mb-6">
+              <ShoppingBag className="h-12 w-12 text-slate-400" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h1>
+            <p className="text-gray-500 mb-8">
+              Looks like you haven&apos;t added any items to your cart yet.
+            </p>
+            <Button
+              size="lg"
+              asChild
+              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25"
+            >
+              <Link href="/products">
+                Start Shopping
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <div className="container mx-auto px-4 py-8">
+        <Link
+          href="/products"
+          className="inline-flex items-center text-sm text-gray-500 hover:text-emerald-600 mb-6 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Continue Shopping
+        </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Cart Items */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>{itemCount} items</CardTitle>
-              <Button variant="ghost" size="sm" onClick={clearCart} className="text-red-500 hover:text-red-600">
-                Clear Cart
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <ul className="divide-y">
-                {items.map((item) => (
-                  <li key={item.product.id} className="py-6 first:pt-0 last:pb-0">
-                    <div className="flex gap-4">
-                      {/* Product Image */}
-                      <div className="relative h-24 w-24 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                        {item.product.image_url ? (
-                          <Image
-                            src={item.product.image_url}
-                            alt={item.product.name}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-300">
-                            <ShoppingBag className="h-8 w-8" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Product Details */}
-                      <div className="flex-1 min-w-0">
-                        <Link
-                          href={`/products/${item.product.slug}`}
-                          className="font-medium text-gray-900 hover:text-green-700"
-                        >
-                          {item.product.name}
-                        </Link>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {formatPrice(item.product.price_pence)} each
-                        </p>
-
-                        {/* Quantity controls */}
-                        <div className="flex items-center gap-4 mt-3">
-                          <div className="flex items-center border rounded-md">
-                            <button
-                              onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                              className="p-2 hover:bg-gray-100"
-                            >
-                              <Minus className="h-4 w-4" />
-                            </button>
-                            <span className="w-10 text-center text-sm font-medium">
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                              className="p-2 hover:bg-gray-100"
-                            >
-                              <Plus className="h-4 w-4" />
-                            </button>
-                          </div>
-                          <button
-                            onClick={() => removeItem(item.product.id)}
-                            className="text-red-500 hover:text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Line Total */}
-                      <div className="text-right">
-                        <p className="font-medium text-gray-900">
-                          {formatPrice(item.product.price_pence * item.quantity)}
-                        </p>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
+            <p className="text-gray-500 mt-1">{itemCount} items in your cart</p>
+          </div>
+          <Button
+            variant="ghost"
+            className="text-red-500 hover:text-red-600 hover:bg-red-50 self-start"
+            onClick={clearCart}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Clear Cart
+          </Button>
         </div>
 
-        {/* Order Summary */}
-        <div>
-          <Card className="sticky top-24">
-            <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between text-gray-600">
-                <span>Subtotal</span>
-                <span>{formatPrice(subtotal)}</span>
+        {/* Free Delivery Progress */}
+        {amountUntilFreeDelivery > 0 && (
+          <Card className="mb-8 border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
+                  <Truck className="h-5 w-5 text-emerald-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-emerald-900">
+                    Add {formatPrice(amountUntilFreeDelivery)} more for FREE delivery!
+                  </p>
+                  <p className="text-sm text-emerald-700">Free delivery on orders over £50</p>
+                </div>
               </div>
-              <div className="flex justify-between text-gray-600">
-                <span>Delivery</span>
-                <span>
-                  {deliveryFee === 0 ? (
-                    <span className="text-green-600">Free</span>
-                  ) : (
-                    formatPrice(deliveryFee)
-                  )}
-                </span>
+              <div className="h-2 bg-emerald-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-500"
+                  style={{ width: `${freeDeliveryProgress}%` }}
+                />
               </div>
-              {deliveryFee > 0 && (
-                <p className="text-sm text-gray-500">
-                  Add {formatPrice(5000 - subtotal)} more for free delivery
-                </p>
-              )}
-              <Separator />
-              <div className="flex justify-between text-lg font-semibold">
-                <span>Total</span>
-                <span>{formatPrice(total)}</span>
-              </div>
-              <Button className="w-full" size="lg" asChild>
-                <Link href="/checkout">
-                  Proceed to Checkout
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="/products">Continue Shopping</Link>
-              </Button>
             </CardContent>
           </Card>
+        )}
+
+        {amountUntilFreeDelivery <= 0 && (
+          <Card className="mb-8 border-emerald-200 bg-emerald-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shrink-0">
+                  <Truck className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-emerald-900">
+                    You&apos;ve unlocked FREE delivery!
+                  </p>
+                  <p className="text-sm text-emerald-700">
+                    Your order qualifies for free delivery
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Cart Items */}
+          <div className="lg:col-span-2">
+            <Card className="shadow-sm">
+              <CardContent className="p-0">
+                <ul className="divide-y">
+                  {items.map((item) => (
+                    <li key={item.product.id} className="p-6">
+                      <div className="flex gap-4">
+                        {/* Product Image */}
+                        <Link
+                          href={`/products/${item.product.slug}`}
+                          className="relative h-24 w-24 rounded-xl overflow-hidden bg-gray-100 shrink-0 group"
+                        >
+                          {item.product.image_url ? (
+                            <Image
+                              src={item.product.image_url}
+                              alt={item.product.name}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-300">
+                              <ShoppingBag className="h-8 w-8" />
+                            </div>
+                          )}
+                        </Link>
+
+                        {/* Product Details */}
+                        <div className="flex-1 min-w-0">
+                          <Link
+                            href={`/products/${item.product.slug}`}
+                            className="font-semibold text-gray-900 hover:text-emerald-600 transition-colors line-clamp-2"
+                          >
+                            {item.product.name}
+                          </Link>
+                          <p className="text-sm text-gray-500 mt-1">
+                            {formatPrice(item.product.price_pence)} each
+                          </p>
+
+                          {/* Quantity controls */}
+                          <div className="flex items-center gap-4 mt-4">
+                            <div className="flex items-center border rounded-xl overflow-hidden">
+                              <button
+                                onClick={() =>
+                                  updateQuantity(item.product.id, item.quantity - 1)
+                                }
+                                className="p-2.5 hover:bg-gray-100 transition-colors"
+                              >
+                                <Minus className="h-4 w-4" />
+                              </button>
+                              <span className="w-12 text-center text-sm font-semibold">
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  updateQuantity(item.product.id, item.quantity + 1)
+                                }
+                                className="p-2.5 hover:bg-gray-100 transition-colors"
+                              >
+                                <Plus className="h-4 w-4" />
+                              </button>
+                            </div>
+                            <button
+                              onClick={() => removeItem(item.product.id)}
+                              className="p-2 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Line Total */}
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-gray-900">
+                            {formatPrice(item.product.price_pence * item.quantity)}
+                          </p>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Order Summary */}
+          <div>
+            <Card className="sticky top-24 shadow-lg">
+              <CardHeader className="bg-slate-50 rounded-t-xl">
+                <CardTitle className="flex items-center gap-2">
+                  <Tag className="h-5 w-5 text-emerald-600" />
+                  Order Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-6">
+                <div className="flex justify-between text-gray-600">
+                  <span>Subtotal ({itemCount} items)</span>
+                  <span>{formatPrice(subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-gray-600">
+                  <span>Delivery</span>
+                  <span>
+                    {deliveryFee === 0 ? (
+                      <span className="text-emerald-600 font-semibold">FREE</span>
+                    ) : (
+                      formatPrice(deliveryFee)
+                    )}
+                  </span>
+                </div>
+
+                <Separator />
+
+                <div className="flex justify-between text-xl font-bold">
+                  <span>Total</span>
+                  <span className="text-emerald-600">{formatPrice(total)}</span>
+                </div>
+
+                <Button
+                  className="w-full h-12 text-base bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25"
+                  size="lg"
+                  asChild
+                >
+                  <Link href="/checkout">
+                    Proceed to Checkout
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/products">Continue Shopping</Link>
+                </Button>
+
+                {/* Trust badges */}
+                <div className="pt-4 space-y-3">
+                  <Separator />
+                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <Shield className="h-4 w-4 text-emerald-600" />
+                    <span>Secure checkout</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <Truck className="h-4 w-4 text-emerald-600" />
+                    <span>Same-day delivery available</span>
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-600">
+                    <Clock className="h-4 w-4 text-emerald-600" />
+                    <span>Fresh products guaranteed</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

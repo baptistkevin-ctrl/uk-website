@@ -7,7 +7,20 @@ import Image from 'next/image'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Loader2, ShoppingBag, CreditCard, MapPin, Calendar, ArrowLeft } from 'lucide-react'
+import {
+  Loader2,
+  ShoppingBag,
+  CreditCard,
+  MapPin,
+  ArrowLeft,
+  User,
+  LogIn,
+  Check,
+  Shield,
+  Clock,
+  Gift,
+  Truck,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -38,6 +51,7 @@ export default function CheckoutPage() {
   const { user, loading: authLoading } = useAuth()
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showGuestBenefits, setShowGuestBenefits] = useState(true)
 
   const deliveryFee = subtotal >= 5000 ? 0 : 399
   const total = subtotal + deliveryFee
@@ -51,10 +65,13 @@ export default function CheckoutPage() {
     resolver: zodResolver(checkoutSchema),
   })
 
-  // Pre-fill email if user is logged in
+  // Pre-fill email and name if user is logged in
   useEffect(() => {
     if (user?.email) {
       setValue('email', user.email)
+      if (user.user_metadata?.full_name) {
+        setValue('fullName', user.user_metadata.full_name)
+      }
     }
   }, [user, setValue])
 
@@ -129,241 +146,384 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Link
-        href="/cart"
-        className="inline-flex items-center text-sm text-gray-500 hover:text-green-600 mb-6"
-      >
-        <ArrowLeft className="h-4 w-4 mr-1" />
-        Back to cart
-      </Link>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <div className="container mx-auto px-4 py-8">
+        <Link
+          href="/cart"
+          className="inline-flex items-center text-sm text-gray-500 hover:text-emerald-600 mb-6 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back to cart
+        </Link>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Checkout</h1>
+        <p className="text-gray-500 mb-8">Complete your order securely</p>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Checkout Form */}
-          <div className="lg:col-span-2 space-y-6">
-            {error && (
-              <div className="p-4 rounded-md bg-red-50 text-red-600">
-                {error}
+        {/* Guest Checkout Banner - Show only for non-logged in users */}
+        {!user && !authLoading && showGuestBenefits && (
+          <div className="mb-8 relative">
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg">
+              <button
+                onClick={() => setShowGuestBenefits(false)}
+                className="absolute top-4 right-4 text-white/70 hover:text-white"
+              >
+                &times;
+              </button>
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <User className="h-5 w-5" />
+                    <span className="font-semibold">Checking out as Guest</span>
+                  </div>
+                  <p className="text-white/90 text-sm mb-4 lg:mb-0">
+                    Create an account to track orders, save addresses, and get exclusive offers!
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link
+                    href={`/auth/login?redirect=/checkout`}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition-colors"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    Sign In
+                  </Link>
+                  <Link
+                    href={`/auth/register?redirect=/checkout`}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/20 text-white rounded-xl font-semibold hover:bg-white/30 transition-colors"
+                  >
+                    Create Account
+                  </Link>
+                </div>
               </div>
-            )}
 
-            {/* Contact Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Contact Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      placeholder="John Smith"
-                      {...register('fullName')}
-                    />
-                    {errors.fullName && (
-                      <p className="text-sm text-red-500">{errors.fullName.message}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      {...register('email')}
-                    />
-                    {errors.email && (
-                      <p className="text-sm text-red-500">{errors.email.message}</p>
-                    )}
+              {/* Benefits grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/20">
+                <div className="flex items-start gap-3">
+                  <Clock className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-sm">Order History</p>
+                    <p className="text-xs text-white/70">Track all your orders</p>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+44 7123 456789"
-                    {...register('phone')}
-                  />
-                  {errors.phone && (
-                    <p className="text-sm text-red-500">{errors.phone.message}</p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Delivery Address */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Delivery Address
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="addressLine1">Address Line 1</Label>
-                  <Input
-                    id="addressLine1"
-                    placeholder="123 High Street"
-                    {...register('addressLine1')}
-                  />
-                  {errors.addressLine1 && (
-                    <p className="text-sm text-red-500">{errors.addressLine1.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="addressLine2">Address Line 2 (Optional)</Label>
-                  <Input
-                    id="addressLine2"
-                    placeholder="Flat 4"
-                    {...register('addressLine2')}
-                  />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="city">City</Label>
-                    <Input
-                      id="city"
-                      placeholder="London"
-                      {...register('city')}
-                    />
-                    {errors.city && (
-                      <p className="text-sm text-red-500">{errors.city.message}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="county">County (Optional)</Label>
-                    <Input
-                      id="county"
-                      placeholder="Greater London"
-                      {...register('county')}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="postcode">Postcode</Label>
-                    <Input
-                      id="postcode"
-                      placeholder="SW1A 1AA"
-                      {...register('postcode')}
-                    />
-                    {errors.postcode && (
-                      <p className="text-sm text-red-500">{errors.postcode.message}</p>
-                    )}
+                <div className="flex items-start gap-3">
+                  <MapPin className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-sm">Saved Addresses</p>
+                    <p className="text-xs text-white/70">Faster checkout</p>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="deliveryInstructions">Delivery Instructions (Optional)</Label>
-                  <Input
-                    id="deliveryInstructions"
-                    placeholder="Leave with neighbour, ring doorbell twice, etc."
-                    {...register('deliveryInstructions')}
-                  />
+                <div className="flex items-start gap-3">
+                  <Gift className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-sm">Exclusive Offers</p>
+                    <p className="text-xs text-white/70">Member discounts</p>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+                <div className="flex items-start gap-3">
+                  <Truck className="h-5 w-5 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-sm">Priority Delivery</p>
+                    <p className="text-xs text-white/70">Early time slots</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        )}
 
-          {/* Order Summary */}
-          <div>
-            <Card className="sticky top-24">
-              <CardHeader>
-                <CardTitle>Order Summary</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Items */}
-                <ul className="space-y-3">
-                  {items.map((item) => (
-                    <li key={item.product.id} className="flex gap-3">
-                      <div className="relative h-16 w-16 rounded overflow-hidden bg-gray-100 shrink-0">
-                        {item.product.image_url ? (
-                          <Image
-                            src={item.product.image_url}
-                            alt={item.product.name}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-300">
-                            <ShoppingBag className="h-6 w-6" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {item.product.name}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          Qty: {item.quantity}
-                        </p>
-                      </div>
-                      <p className="text-sm font-medium">
-                        {formatPrice(item.product.price_pence * item.quantity)}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-
-                <Separator />
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-gray-600">
-                    <span>Subtotal</span>
-                    <span>{formatPrice(subtotal)}</span>
-                  </div>
-                  <div className="flex justify-between text-gray-600">
-                    <span>Delivery</span>
-                    <span>
-                      {deliveryFee === 0 ? (
-                        <span className="text-green-600">Free</span>
-                      ) : (
-                        formatPrice(deliveryFee)
-                      )}
-                    </span>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="flex justify-between text-lg font-semibold">
-                  <span>Total</span>
-                  <span>{formatPrice(total)}</span>
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full"
-                  size="lg"
-                  disabled={isProcessing}
-                >
-                  {isProcessing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      <CreditCard className="mr-2 h-4 w-4" />
-                      Pay {formatPrice(total)}
-                    </>
-                  )}
-                </Button>
-
-                <p className="text-xs text-gray-500 text-center">
-                  Secure payment powered by Stripe
+        {/* Logged in user banner */}
+        {user && !authLoading && (
+          <div className="mb-8">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-4">
+              <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shrink-0">
+                <Check className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-emerald-900">
+                  Welcome back, {user.user_metadata?.full_name || user.email?.split('@')[0]}!
                 </p>
-              </CardContent>
-            </Card>
+                <p className="text-sm text-emerald-700">
+                  You&apos;re signed in. Your order will be saved to your account.
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-      </form>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Checkout Form */}
+            <div className="lg:col-span-2 space-y-6">
+              {error && (
+                <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-600">
+                  {error}
+                </div>
+              )}
+
+              {/* Contact Info */}
+              <Card className="shadow-sm border-slate-200">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
+                      <User className="h-4 w-4 text-emerald-600" />
+                    </div>
+                    Contact Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="fullName" className="text-sm font-medium">
+                        Full Name
+                      </Label>
+                      <Input
+                        id="fullName"
+                        placeholder="John Smith"
+                        className="h-11"
+                        {...register('fullName')}
+                      />
+                      {errors.fullName && (
+                        <p className="text-sm text-red-500">{errors.fullName.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-sm font-medium">
+                        Email
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        className="h-11"
+                        {...register('email')}
+                        disabled={!!user}
+                      />
+                      {errors.email && (
+                        <p className="text-sm text-red-500">{errors.email.message}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm font-medium">
+                      Phone Number
+                    </Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      placeholder="+44 7123 456789"
+                      className="h-11"
+                      {...register('phone')}
+                    />
+                    {errors.phone && (
+                      <p className="text-sm text-red-500">{errors.phone.message}</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Delivery Address */}
+              <Card className="shadow-sm border-slate-200">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <MapPin className="h-4 w-4 text-blue-600" />
+                    </div>
+                    Delivery Address
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="addressLine1" className="text-sm font-medium">
+                      Address Line 1
+                    </Label>
+                    <Input
+                      id="addressLine1"
+                      placeholder="123 High Street"
+                      className="h-11"
+                      {...register('addressLine1')}
+                    />
+                    {errors.addressLine1 && (
+                      <p className="text-sm text-red-500">{errors.addressLine1.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="addressLine2" className="text-sm font-medium">
+                      Address Line 2 <span className="text-gray-400 font-normal">(Optional)</span>
+                    </Label>
+                    <Input
+                      id="addressLine2"
+                      placeholder="Flat 4"
+                      className="h-11"
+                      {...register('addressLine2')}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="city" className="text-sm font-medium">
+                        City
+                      </Label>
+                      <Input
+                        id="city"
+                        placeholder="London"
+                        className="h-11"
+                        {...register('city')}
+                      />
+                      {errors.city && (
+                        <p className="text-sm text-red-500">{errors.city.message}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="county" className="text-sm font-medium">
+                        County <span className="text-gray-400 font-normal">(Optional)</span>
+                      </Label>
+                      <Input
+                        id="county"
+                        placeholder="Greater London"
+                        className="h-11"
+                        {...register('county')}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="postcode" className="text-sm font-medium">
+                        Postcode
+                      </Label>
+                      <Input
+                        id="postcode"
+                        placeholder="SW1A 1AA"
+                        className="h-11"
+                        {...register('postcode')}
+                      />
+                      {errors.postcode && (
+                        <p className="text-sm text-red-500">{errors.postcode.message}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="deliveryInstructions" className="text-sm font-medium">
+                      Delivery Instructions{' '}
+                      <span className="text-gray-400 font-normal">(Optional)</span>
+                    </Label>
+                    <Input
+                      id="deliveryInstructions"
+                      placeholder="Leave with neighbour, ring doorbell twice, etc."
+                      className="h-11"
+                      {...register('deliveryInstructions')}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Security Badge */}
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
+                <Shield className="h-5 w-5 text-emerald-600" />
+                <p className="text-sm text-gray-600">
+                  Your payment information is encrypted and secure. We never store your card
+                  details.
+                </p>
+              </div>
+            </div>
+
+            {/* Order Summary */}
+            <div>
+              <Card className="sticky top-24 shadow-lg border-slate-200">
+                <CardHeader className="bg-slate-50 rounded-t-xl">
+                  <CardTitle className="flex items-center gap-2">
+                    <ShoppingBag className="h-5 w-5 text-emerald-600" />
+                    Order Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-6">
+                  {/* Items */}
+                  <ul className="space-y-3 max-h-64 overflow-y-auto">
+                    {items.map((item) => (
+                      <li key={item.product.id} className="flex gap-3">
+                        <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                          {item.product.image_url ? (
+                            <Image
+                              src={item.product.image_url}
+                              alt={item.product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-300">
+                              <ShoppingBag className="h-6 w-6" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {item.product.name}
+                          </p>
+                          <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                        </div>
+                        <p className="text-sm font-semibold">
+                          {formatPrice(item.product.price_pence * item.quantity)}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Separator />
+
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-gray-600">
+                      <span>Subtotal</span>
+                      <span>{formatPrice(subtotal)}</span>
+                    </div>
+                    <div className="flex justify-between text-gray-600">
+                      <span>Delivery</span>
+                      <span>
+                        {deliveryFee === 0 ? (
+                          <span className="text-emerald-600 font-medium">Free</span>
+                        ) : (
+                          formatPrice(deliveryFee)
+                        )}
+                      </span>
+                    </div>
+                    {deliveryFee > 0 && (
+                      <p className="text-xs text-gray-500 bg-emerald-50 p-2 rounded-lg">
+                        Add {formatPrice(5000 - subtotal)} more for free delivery!
+                      </p>
+                    )}
+                  </div>
+
+                  <Separator />
+
+                  <div className="flex justify-between text-lg font-bold">
+                    <span>Total</span>
+                    <span className="text-emerald-600">{formatPrice(total)}</span>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full h-12 text-base bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25"
+                    size="lg"
+                    disabled={isProcessing}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <CreditCard className="mr-2 h-5 w-5" />
+                        Pay {formatPrice(total)}
+                      </>
+                    )}
+                  </Button>
+
+                  <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
+                    <Shield className="h-4 w-4" />
+                    <span>Secure payment powered by Stripe</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

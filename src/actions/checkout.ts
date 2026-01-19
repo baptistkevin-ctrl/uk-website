@@ -39,7 +39,7 @@ export async function createCheckoutSession({
   customerInfo,
   deliveryAddress,
   deliveryFee,
-}: CreateCheckoutSessionParams): Promise<{ url?: string; error?: string }> {
+}: CreateCheckoutSessionParams): Promise<{ url?: string; error?: string; orderNumber?: string }> {
   try {
     const supabase = await createClient()
 
@@ -92,6 +92,7 @@ export async function createCheckoutSession({
       metadata: {
         orderNumber,
         userId: user?.id || '',
+        customerEmail: customerInfo.email,
         customerName: customerInfo.name,
         customerPhone: customerInfo.phone,
         deliveryAddressLine1: deliveryAddress.line1,
@@ -105,14 +106,14 @@ export async function createCheckoutSession({
         total: total.toString(),
         items: JSON.stringify(items),
       },
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order=${orderNumber}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout`,
       shipping_address_collection: {
         allowed_countries: ['GB'],
       },
     })
 
-    return { url: session.url! }
+    return { url: session.url!, orderNumber }
   } catch (error) {
     console.error('Checkout error:', error)
     return { error: 'Failed to create checkout session. Please try again.' }
