@@ -41,9 +41,15 @@ export default function VendorLayout({
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Skip auth check for vendor login page
+    if (pathname === '/vendor/login') {
+      setLoading(false)
+      return
+    }
+
     const checkVendorAccess = async () => {
       if (!user) {
-        router.push('/login?redirect=/vendor/dashboard')
+        router.push('/vendor/login')
         return
       }
 
@@ -67,7 +73,7 @@ export default function VendorLayout({
     }
 
     checkVendorAccess()
-  }, [user, router])
+  }, [user, router, pathname])
 
   if (loading) {
     return (
@@ -75,6 +81,11 @@ export default function VendorLayout({
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
       </div>
     )
+  }
+
+  // Render login page without sidebar
+  if (pathname === '/vendor/login') {
+    return <>{children}</>
   }
 
   return (

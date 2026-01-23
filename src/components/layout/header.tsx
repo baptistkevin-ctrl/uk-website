@@ -334,6 +334,13 @@ export function Header() {
                 </Button>
               </Link>
 
+              {/* Vendor Login - Desktop only */}
+              <Link href="/vendor/login" className="hidden lg:block">
+                <Button variant="ghost" size="sm" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50">
+                  Vendor Login
+                </Button>
+              </Link>
+
               {/* User menu */}
               {user ? (
                 <DropdownMenu>
