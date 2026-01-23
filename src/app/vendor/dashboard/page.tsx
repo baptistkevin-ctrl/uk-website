@@ -16,7 +16,7 @@ import {
   Clock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice } from '@/lib/utils/format'
 
 interface VendorStats {
   totalProducts: number
