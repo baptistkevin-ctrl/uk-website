@@ -16,14 +16,28 @@ import {
   PoundSterling,
   Users,
   Plus,
+  RefreshCw,
 } from 'lucide-react'
 import { formatPrice } from '@/lib/utils/format'
+import { createClient } from '@/lib/supabase/client'
 
 interface DashboardStats {
   totalProducts: number
   activeProducts: number
   lowStockProducts: number
   totalOrders: number
+  pendingOrders: number
+  totalRevenue: number
+  todayOrders: number
+}
+
+interface RecentOrder {
+  id: string
+  order_number: string
+  status: string
+  total: number
+  created_at: string
+  customer_email: string
 }
 
 export default function AdminDashboard() {
@@ -32,66 +46,112 @@ export default function AdminDashboard() {
     activeProducts: 0,
     lowStockProducts: 0,
     totalOrders: 0,
+    pendingOrders: 0,
+    totalRevenue: 0,
+    todayOrders: 0,
   })
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([])
   const [loading, setLoading] = useState(true)
+  const supabase = createClient()
+
+  const fetchDashboardData = async () => {
+    setLoading(true)
+    try {
+      // Fetch products
+      const productsRes = await fetch('/api/products?includeInactive=true')
+      const products = await productsRes.json()
+
+      if (Array.isArray(products)) {
+        setStats((prev) => ({
+          ...prev,
+          totalProducts: products.length,
+          activeProducts: products.filter((p: any) => p.is_active).length,
+          lowStockProducts: products.filter((p: any) => p.stock_quantity <= p.low_stock_threshold).length,
+        }))
+      }
+
+      // Fetch orders
+      const { data: orders, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (orders && !error) {
+        const today = new Date().toISOString().split('T')[0]
+        const todayOrders = orders.filter((o: any) => o.created_at.startsWith(today))
+        const pendingOrders = orders.filter((o: any) => o.status === 'pending' || o.status === 'processing')
+        const totalRevenue = orders
+          .filter((o: any) => o.status !== 'cancelled')
+          .reduce((sum: number, o: any) => sum + (o.total || 0), 0)
+
+        setStats((prev) => ({
+          ...prev,
+          totalOrders: orders.length,
+          pendingOrders: pendingOrders.length,
+          totalRevenue,
+          todayOrders: todayOrders.length,
+        }))
+
+        setRecentOrders(orders.slice(0, 5).map((o: any) => ({
+          id: o.id,
+          order_number: o.order_number,
+          status: o.status,
+          total: o.total,
+          created_at: o.created_at,
+          customer_email: o.customer_email,
+        })))
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
+    }
+    setLoading(false)
+  }
 
   useEffect(() => {
-    fetch('/api/products?includeInactive=true')
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setStats((prev) => ({
-            ...prev,
-            totalProducts: data.length,
-            activeProducts: data.filter((p: any) => p.is_active).length,
-            lowStockProducts: data.filter((p: any) => p.stock_quantity <= p.low_stock_threshold).length,
-          }))
-        }
-        setLoading(false)
-      })
-      .catch(() => setLoading(false))
+    fetchDashboardData()
   }, [])
 
   const statCards = [
     {
-      title: 'Total Products',
-      value: stats.totalProducts,
-      change: '+12%',
+      title: 'Total Revenue',
+      value: formatPrice(stats.totalRevenue),
+      isPrice: true,
+      change: '+24%',
       trend: 'up',
-      icon: Package,
+      icon: PoundSterling,
       gradient: 'from-emerald-500 to-teal-600',
       bgLight: 'bg-emerald-50',
-      href: '/admin/products',
-    },
-    {
-      title: 'Active Products',
-      value: stats.activeProducts,
-      change: '+8%',
-      trend: 'up',
-      icon: CheckCircle2,
-      gradient: 'from-blue-500 to-indigo-600',
-      bgLight: 'bg-blue-50',
-      href: '/admin/products?filter=active',
-    },
-    {
-      title: 'Low Stock',
-      value: stats.lowStockProducts,
-      change: stats.lowStockProducts > 0 ? 'Alert' : 'OK',
-      trend: stats.lowStockProducts > 0 ? 'down' : 'up',
-      icon: AlertTriangle,
-      gradient: 'from-amber-500 to-orange-600',
-      bgLight: 'bg-amber-50',
-      href: '/admin/products?filter=low-stock',
+      href: '/admin/orders',
     },
     {
       title: 'Total Orders',
       value: stats.totalOrders,
-      change: '+24%',
+      change: `${stats.todayOrders} today`,
       trend: 'up',
       icon: ShoppingCart,
+      gradient: 'from-blue-500 to-indigo-600',
+      bgLight: 'bg-blue-50',
+      href: '/admin/orders',
+    },
+    {
+      title: 'Pending Orders',
+      value: stats.pendingOrders,
+      change: stats.pendingOrders > 0 ? 'Action needed' : 'All clear',
+      trend: stats.pendingOrders > 0 ? 'down' : 'up',
+      icon: Clock,
+      gradient: 'from-amber-500 to-orange-600',
+      bgLight: 'bg-amber-50',
+      href: '/admin/orders?status=pending',
+    },
+    {
+      title: 'Total Products',
+      value: stats.totalProducts,
+      change: `${stats.lowStockProducts} low stock`,
+      trend: stats.lowStockProducts > 3 ? 'down' : 'up',
+      icon: Package,
       gradient: 'from-purple-500 to-pink-600',
       bgLight: 'bg-purple-50',
-      href: '/admin/orders',
+      href: '/admin/products',
     },
   ]
 
@@ -105,13 +165,23 @@ export default function AdminDashboard() {
           </h1>
           <p className="text-slate-500 mt-1">Welcome back! Here&apos;s what&apos;s happening with your store.</p>
         </div>
-        <Link
-          href="/admin/products/new"
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
-        >
-          <Plus className="w-5 h-5" />
-          Add Product
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={fetchDashboardData}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-all disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            Refresh
+          </button>
+          <Link
+            href="/admin/products/new"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
+          >
+            <Plus className="w-5 h-5" />
+            Add Product
+          </Link>
+        </div>
       </div>
 
       {/* Stats grid */}
@@ -152,7 +222,7 @@ export default function AdminDashboard() {
                 {loading ? (
                   <span className="inline-block w-16 h-10 bg-slate-200 rounded-lg animate-pulse" />
                 ) : (
-                  stat.value.toLocaleString()
+                  typeof stat.value === 'string' ? stat.value : stat.value.toLocaleString()
                 )}
               </h3>
               <p className="text-slate-500 font-medium">{stat.title}</p>
@@ -272,12 +342,12 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Recent activity */}
+      {/* Recent Orders */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Recent Activity</h2>
-            <p className="text-slate-500 text-sm mt-0.5">Latest updates from your store</p>
+            <h2 className="text-xl font-bold text-slate-900">Recent Orders</h2>
+            <p className="text-slate-500 text-sm mt-0.5">Latest orders from your store</p>
           </div>
           <Link
             href="/admin/orders"
@@ -287,41 +357,58 @@ export default function AdminDashboard() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[
-            { action: 'New product added', item: 'Organic Bananas', time: '2 min ago', icon: Package, color: 'emerald' },
-            { action: 'Order received', item: 'Order #FM-1234', time: '15 min ago', icon: ShoppingCart, color: 'blue' },
-            { action: 'Low stock alert', item: 'Fresh Milk 2L', time: '1 hour ago', icon: AlertTriangle, color: 'amber' },
-            { action: 'Order delivered', item: 'Order #FM-1230', time: '2 hours ago', icon: CheckCircle2, color: 'purple' },
-          ].map((activity, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors cursor-pointer"
-            >
-              <div className={`p-3 rounded-xl ${
-                activity.color === 'emerald' ? 'bg-emerald-100' :
-                activity.color === 'blue' ? 'bg-blue-100' :
-                activity.color === 'amber' ? 'bg-amber-100' :
-                'bg-purple-100'
-              }`}>
-                <activity.icon className={`w-5 h-5 ${
-                  activity.color === 'emerald' ? 'text-emerald-600' :
-                  activity.color === 'blue' ? 'text-blue-600' :
-                  activity.color === 'amber' ? 'text-amber-600' :
-                  'text-purple-600'
-                }`} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-900 truncate">{activity.action}</p>
-                <p className="text-sm text-slate-500 truncate">{activity.item}</p>
-              </div>
-              <div className="flex items-center gap-1.5 text-slate-400 text-xs whitespace-nowrap">
-                <Clock className="w-3.5 h-3.5" />
-                {activity.time}
-              </div>
-            </div>
-          ))}
-        </div>
+        {recentOrders.length === 0 ? (
+          <div className="text-center py-12">
+            <ShoppingCart className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+            <p className="text-slate-500 font-medium">No orders yet</p>
+            <p className="text-slate-400 text-sm">Orders will appear here when customers place them</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-100">
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-slate-600">Order</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-slate-600">Customer</th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-slate-600">Status</th>
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-slate-600">Total</th>
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-slate-600">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOrders.map((order) => (
+                  <tr key={order.id} className="border-b border-slate-50 hover:bg-slate-50 transition-colors">
+                    <td className="py-4 px-4">
+                      <Link href={`/admin/orders/${order.id}`} className="font-semibold text-slate-900 hover:text-emerald-600">
+                        #{order.order_number}
+                      </Link>
+                    </td>
+                    <td className="py-4 px-4 text-slate-600 text-sm">{order.customer_email}</td>
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${
+                        order.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' :
+                        order.status === 'shipped' ? 'bg-blue-100 text-blue-700' :
+                        order.status === 'processing' ? 'bg-amber-100 text-amber-700' :
+                        order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                        'bg-slate-100 text-slate-700'
+                      }`}>
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-right font-semibold text-slate-900">{formatPrice(order.total)}</td>
+                    <td className="py-4 px-4 text-right text-slate-500 text-sm">
+                      {new Date(order.created_at).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )

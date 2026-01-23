@@ -1,0 +1,83 @@
+import { Shield } from 'lucide-react'
+
+export default function PrivacyPage() {
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4 max-w-4xl">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <Shield className="h-6 w-6 text-emerald-600" />
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900">Privacy Policy</h1>
+          </div>
+
+          <div className="prose prose-gray max-w-none">
+            <p className="text-gray-600 text-lg mb-8">
+              Last updated: January 2025
+            </p>
+
+            <section className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">1. Information We Collect</h2>
+              <p className="text-gray-600 mb-4">
+                We collect information you provide directly to us, including your name, email address, postal address, phone number, and payment information when you create an account or place an order.
+              </p>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">2. How We Use Your Information</h2>
+              <p className="text-gray-600 mb-4">We use the information we collect to:</p>
+              <ul className="list-disc pl-6 text-gray-600 space-y-2">
+                <li>Process and deliver your orders</li>
+                <li>Send order confirmations and updates</li>
+                <li>Respond to your comments and questions</li>
+                <li>Send marketing communications (with your consent)</li>
+                <li>Improve our services and develop new features</li>
+              </ul>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">3. Information Sharing</h2>
+              <p className="text-gray-600 mb-4">
+                We do not sell your personal information. We may share your information with service providers who assist us in operating our business, such as payment processors and delivery partners.
+              </p>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">4. Data Security</h2>
+              <p className="text-gray-600 mb-4">
+                We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.
+              </p>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">5. Your Rights</h2>
+              <p className="text-gray-600 mb-4">Under GDPR, you have the right to:</p>
+              <ul className="list-disc pl-6 text-gray-600 space-y-2">
+                <li>Access your personal data</li>
+                <li>Correct inaccurate data</li>
+                <li>Request deletion of your data</li>
+                <li>Object to processing of your data</li>
+                <li>Data portability</li>
+              </ul>
+            </section>
+
+            <section className="mb-8">
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">6. Data Retention</h2>
+              <p className="text-gray-600 mb-4">
+                We retain your personal information for as long as necessary to fulfill the purposes outlined in this policy, unless a longer retention period is required by law.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">7. Contact Us</h2>
+              <p className="text-gray-600">
+                For any privacy-related questions or to exercise your rights, contact us at privacy@freshgroceries.co.uk
+              </p>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

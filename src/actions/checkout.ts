@@ -2,6 +2,7 @@
 
 import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@/lib/supabase/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { generateOrderNumber } from '@/lib/utils/format'
 
 interface CheckoutItem {
@@ -10,6 +11,7 @@ interface CheckoutItem {
   price: number // in pence
   quantity: number
   image?: string | null
+  vendorId?: string | null
 }
 
 interface CustomerInfo {
@@ -42,15 +44,67 @@ export async function createCheckoutSession({
 }: CreateCheckoutSessionParams): Promise<{ url?: string; error?: string; orderNumber?: string }> {
   try {
     const supabase = await createClient()
+    const supabaseAdmin = getSupabaseAdmin()
 
     // Get current user if logged in
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    // Calculate totals
+    // Fetch product details with vendor info
+    const productIds = items.map(item => item.productId)
+    const { data: products } = await supabaseAdmin
+      .from('products')
+      .select('id, vendor_id')
+      .in('id', productIds)
+
+    // Create a map of product to vendor
+    const productVendorMap = new Map<string, string | null>()
+    products?.forEach(p => {
+      productVendorMap.set(p.id, p.vendor_id)
+    })
+
+    // Enrich items with vendor IDs
+    const enrichedItems = items.map(item => ({
+      ...item,
+      vendorId: productVendorMap.get(item.productId) || null
+    }))
+
+    // Get unique vendor IDs and fetch their commission rates
+    const vendorIds = [...new Set(enrichedItems.map(i => i.vendorId).filter(Boolean))] as string[]
+
+    let vendorCommissions: Record<string, number> = {}
+    if (vendorIds.length > 0) {
+      const { data: vendors } = await supabaseAdmin
+        .from('vendors')
+        .select('id, commission_rate, stripe_account_id')
+        .in('id', vendorIds)
+
+      vendors?.forEach(v => {
+        vendorCommissions[v.id] = v.commission_rate || 15
+      })
+    }
+
+    // Calculate totals and vendor breakdowns
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
     const total = subtotal + deliveryFee
+
+    // Calculate vendor amounts for metadata
+    const vendorBreakdown: Record<string, { amount: number; commission: number; net: number }> = {}
+    enrichedItems.forEach(item => {
+      const itemTotal = item.price * item.quantity
+      const vendorId = item.vendorId || 'platform'
+      const commissionRate = item.vendorId ? (vendorCommissions[item.vendorId] || 15) : 0
+      const commission = Math.round(itemTotal * (commissionRate / 100))
+      const net = itemTotal - commission
+
+      if (!vendorBreakdown[vendorId]) {
+        vendorBreakdown[vendorId] = { amount: 0, commission: 0, net: 0 }
+      }
+      vendorBreakdown[vendorId].amount += itemTotal
+      vendorBreakdown[vendorId].commission += commission
+      vendorBreakdown[vendorId].net += net
+    })
 
     // Create order number
     const orderNumber = generateOrderNumber()
@@ -104,7 +158,8 @@ export async function createCheckoutSession({
         subtotal: subtotal.toString(),
         deliveryFee: deliveryFee.toString(),
         total: total.toString(),
-        items: JSON.stringify(items),
+        items: JSON.stringify(enrichedItems),
+        vendorBreakdown: JSON.stringify(vendorBreakdown),
       },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order=${orderNumber}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout`,

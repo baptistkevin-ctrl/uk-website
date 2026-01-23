@@ -2,12 +2,24 @@
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { Suspense, useState, useCallback } from 'react'
-import { Search, SlidersHorizontal, X, Loader2 } from 'lucide-react'
+import {
+  Search,
+  SlidersHorizontal,
+  X,
+  ArrowUpDown,
+  Leaf,
+  Heart,
+  Wheat,
+  Sparkles,
+  Filter,
+  Check
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Separator } from '@/components/ui/separator'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import {
   Select,
   SelectContent,
@@ -24,18 +36,18 @@ import {
 } from '@/components/ui/sheet'
 
 const sortOptions = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'name', label: 'Name A-Z' },
-  { value: 'price_asc', label: 'Price: Low to High' },
-  { value: 'price_desc', label: 'Price: High to Low' },
-  { value: 'newest', label: 'Newest First' },
+  { value: 'featured', label: 'Featured', icon: Sparkles },
+  { value: 'name', label: 'Name A-Z', icon: ArrowUpDown },
+  { value: 'price_asc', label: 'Price: Low to High', icon: ArrowUpDown },
+  { value: 'price_desc', label: 'Price: High to Low', icon: ArrowUpDown },
+  { value: 'newest', label: 'Newest First', icon: Sparkles },
 ]
 
 const dietaryFilters = [
-  { key: 'vegan', label: 'Vegan' },
-  { key: 'vegetarian', label: 'Vegetarian' },
-  { key: 'gluten_free', label: 'Gluten Free' },
-  { key: 'organic', label: 'Organic' },
+  { key: 'vegan', label: 'Vegan', icon: Leaf, color: 'emerald', description: 'Plant-based products' },
+  { key: 'vegetarian', label: 'Vegetarian', icon: Heart, color: 'green', description: 'No meat products' },
+  { key: 'gluten_free', label: 'Gluten Free', icon: Wheat, color: 'amber', description: 'Wheat-free options' },
+  { key: 'organic', label: 'Organic', icon: Sparkles, color: 'lime', description: 'Certified organic' },
 ]
 
 function ProductFiltersContent() {
@@ -97,87 +109,138 @@ function ProductFiltersContent() {
     searchParams.has('organic') ||
     searchParams.has('sort')
 
+  const activeFilterCount = [
+    searchParams.has('search'),
+    searchParams.has('vegan'),
+    searchParams.has('vegetarian'),
+    searchParams.has('gluten_free'),
+    searchParams.has('organic'),
+  ].filter(Boolean).length
+
   const FiltersContent = () => (
     <div className="space-y-6">
       {/* Search */}
-      <div>
-        <Label className="text-sm font-medium mb-2 block">Search</Label>
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              type="search"
-              placeholder="Search products..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <Button type="submit" size="icon">
-            <Search className="h-4 w-4" />
-          </Button>
-        </form>
-      </div>
-
-      <Separator />
+      <Card className="border-slate-200 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Search className="h-4 w-4 text-emerald-600" />
+            Search Products
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <div className="relative flex-1">
+              <Input
+                type="search"
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pr-10"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            <Button type="submit" size="icon" className="bg-emerald-600 hover:bg-emerald-700 shrink-0">
+              <Search className="h-4 w-4" />
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
 
       {/* Sort */}
-      <div>
-        <Label className="text-sm font-medium mb-2 block">Sort By</Label>
-        <Select
-          value={searchParams.get('sort') || 'featured'}
-          onValueChange={handleSort}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            {sortOptions.map((option) => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <Separator />
+      <Card className="border-slate-200 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <ArrowUpDown className="h-4 w-4 text-emerald-600" />
+            Sort By
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <Select
+            value={searchParams.get('sort') || 'featured'}
+            onValueChange={handleSort}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              {sortOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  <div className="flex items-center gap-2">
+                    <option.icon className="h-4 w-4 text-gray-400" />
+                    {option.label}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
 
       {/* Dietary Filters */}
-      <div>
-        <Label className="text-sm font-medium mb-3 block">Dietary</Label>
-        <div className="space-y-2">
-          {dietaryFilters.map((filter) => (
-            <label
-              key={filter.key}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                checked={searchParams.get(filter.key) === 'true'}
-                onChange={(e) =>
-                  handleDietaryFilter(filter.key, e.target.checked)
-                }
-                className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
-              />
-              <span className="text-sm text-gray-700">{filter.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+      <Card className="border-slate-200 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <Filter className="h-4 w-4 text-emerald-600" />
+            Dietary Preferences
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="space-y-2">
+            {dietaryFilters.map((filter) => {
+              const isActive = searchParams.get(filter.key) === 'true'
+              const Icon = filter.icon
+              return (
+                <button
+                  key={filter.key}
+                  onClick={() => handleDietaryFilter(filter.key, !isActive)}
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all duration-200 ${
+                    isActive
+                      ? 'border-emerald-500 bg-emerald-50'
+                      : 'border-slate-100 bg-slate-50 hover:border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                    isActive ? 'bg-emerald-500 text-white' : 'bg-white text-gray-400'
+                  }`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <p className={`text-sm font-medium ${isActive ? 'text-emerald-700' : 'text-gray-700'}`}>
+                      {filter.label}
+                    </p>
+                    <p className="text-xs text-gray-500">{filter.description}</p>
+                  </div>
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    isActive
+                      ? 'border-emerald-500 bg-emerald-500'
+                      : 'border-gray-300'
+                  }`}>
+                    {isActive && <Check className="h-3 w-3 text-white" />}
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       {hasActiveFilters && (
-        <>
-          <Separator />
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={clearFilters}
-          >
-            <X className="h-4 w-4 mr-2" />
-            Clear Filters
-          </Button>
-        </>
+        <Button
+          variant="outline"
+          className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+          onClick={clearFilters}
+        >
+          <X className="h-4 w-4 mr-2" />
+          Clear All Filters
+        </Button>
       )}
     </div>
   )
@@ -185,41 +248,69 @@ function ProductFiltersContent() {
   return (
     <>
       {/* Desktop Filters */}
-      <div className="hidden lg:block sticky top-24">
-        <h2 className="font-semibold text-gray-900 mb-4">Filters</h2>
+      <div className="hidden lg:block">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-gray-900 flex items-center gap-2">
+            <SlidersHorizontal className="h-5 w-5 text-emerald-600" />
+            Filters
+          </h2>
+          {activeFilterCount > 0 && (
+            <Badge className="bg-emerald-100 text-emerald-700">
+              {activeFilterCount} active
+            </Badge>
+          )}
+        </div>
         <FiltersContent />
       </div>
 
       {/* Mobile Filters */}
-      <div className="lg:hidden flex items-center gap-4 mb-4">
-        <form onSubmit={handleSearch} className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              type="search"
-              placeholder="Search products..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-        </form>
+      <div className="lg:hidden">
+        <Card className="border-slate-200 shadow-sm mb-4">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <form onSubmit={handleSearch} className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    type="search"
+                    placeholder="Search products..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </form>
 
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon">
-              <SlidersHorizontal className="h-4 w-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left">
-            <SheetHeader>
-              <SheetTitle>Filters</SheetTitle>
-            </SheetHeader>
-            <div className="mt-6">
-              <FiltersContent />
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" className="shrink-0 relative">
+                    <SlidersHorizontal className="h-4 w-4 mr-2" />
+                    Filters
+                    {activeFilterCount > 0 && (
+                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-emerald-600">
+                        {activeFilterCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-full sm:max-w-md overflow-y-auto">
+                  <SheetHeader className="mb-6">
+                    <SheetTitle className="flex items-center gap-2">
+                      <SlidersHorizontal className="h-5 w-5 text-emerald-600" />
+                      Filters
+                      {activeFilterCount > 0 && (
+                        <Badge className="bg-emerald-100 text-emerald-700">
+                          {activeFilterCount} active
+                        </Badge>
+                      )}
+                    </SheetTitle>
+                  </SheetHeader>
+                  <FiltersContent />
+                </SheetContent>
+              </Sheet>
             </div>
-          </SheetContent>
-        </Sheet>
+          </CardContent>
+        </Card>
       </div>
     </>
   )
@@ -228,24 +319,32 @@ function ProductFiltersContent() {
 function FiltersSkeleton() {
   return (
     <div className="space-y-6">
-      <div>
-        <Skeleton className="h-4 w-16 mb-2" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-      <Separator />
-      <div>
-        <Skeleton className="h-4 w-16 mb-2" />
-        <Skeleton className="h-10 w-full" />
-      </div>
-      <Separator />
-      <div>
-        <Skeleton className="h-4 w-16 mb-3" />
-        <div className="space-y-2">
+      <Card className="border-slate-200">
+        <CardHeader className="pb-3">
+          <Skeleton className="h-5 w-32" />
+        </CardHeader>
+        <CardContent className="pt-0">
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
+      </Card>
+      <Card className="border-slate-200">
+        <CardHeader className="pb-3">
+          <Skeleton className="h-5 w-24" />
+        </CardHeader>
+        <CardContent className="pt-0">
+          <Skeleton className="h-10 w-full" />
+        </CardContent>
+      </Card>
+      <Card className="border-slate-200">
+        <CardHeader className="pb-3">
+          <Skeleton className="h-5 w-36" />
+        </CardHeader>
+        <CardContent className="pt-0 space-y-2">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-5 w-24" />
+            <Skeleton key={i} className="h-16 w-full rounded-xl" />
           ))}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

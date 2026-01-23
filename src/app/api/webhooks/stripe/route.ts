@@ -4,6 +4,10 @@ import Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@supabase/supabase-js'
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: '2024-11-20.acacia',
+})
+
 function getSupabaseAdmin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -73,8 +77,9 @@ async function createOrder(session: Stripe.Checkout.Session) {
   }
 
   try {
-    // Parse items from metadata
+    // Parse items and vendor breakdown from metadata
     const items = JSON.parse(metadata.items || '[]')
+    const vendorBreakdown = JSON.parse(metadata.vendorBreakdown || '{}')
 
     // Create order
     const { data: order, error: orderError } = await supabaseAdmin
@@ -109,8 +114,8 @@ async function createOrder(session: Stripe.Checkout.Session) {
       return
     }
 
-    // Create order items
-    const orderItems = items.map((item: { productId: string; name: string; price: number; quantity: number; image?: string }) => ({
+    // Create order items with vendor info
+    const orderItems = items.map((item: { productId: string; name: string; price: number; quantity: number; image?: string; vendorId?: string }) => ({
       order_id: order.id,
       product_id: item.productId,
       product_name: item.name,
@@ -118,6 +123,7 @@ async function createOrder(session: Stripe.Checkout.Session) {
       quantity: item.quantity,
       unit_price_pence: item.price,
       total_price_pence: item.price * item.quantity,
+      vendor_id: item.vendorId || null,
     }))
 
     const { error: itemsError } = await supabaseAdmin
@@ -136,8 +142,111 @@ async function createOrder(session: Stripe.Checkout.Session) {
       })
     }
 
+    // Process vendor orders and transfers
+    await processVendorPayments(order.id, vendorBreakdown, session.payment_intent as string, supabaseAdmin)
+
     console.log('Order created successfully:', order.order_number)
   } catch (error) {
     console.error('Error processing webhook:', error)
+  }
+}
+
+async function processVendorPayments(
+  orderId: string,
+  vendorBreakdown: Record<string, { amount: number; commission: number; net: number }>,
+  paymentIntentId: string,
+  supabaseAdmin: ReturnType<typeof getSupabaseAdmin>
+) {
+  // Get vendor Stripe account IDs
+  const vendorIds = Object.keys(vendorBreakdown).filter(id => id !== 'platform')
+
+  if (vendorIds.length === 0) {
+    console.log('No vendor items in this order')
+    return
+  }
+
+  // Fetch vendor details
+  const { data: vendors } = await supabaseAdmin
+    .from('vendors')
+    .select('id, stripe_account_id, commission_rate')
+    .in('id', vendorIds)
+
+  if (!vendors || vendors.length === 0) {
+    console.log('No vendors found')
+    return
+  }
+
+  // Create vendor orders and initiate transfers
+  for (const vendor of vendors) {
+    const breakdown = vendorBreakdown[vendor.id]
+    if (!breakdown) continue
+
+    // Create vendor order record
+    const { data: vendorOrder, error: vendorOrderError } = await supabaseAdmin
+      .from('vendor_orders')
+      .insert({
+        order_id: orderId,
+        vendor_id: vendor.id,
+        total_amount: breakdown.amount,
+        commission_amount: breakdown.commission,
+        vendor_amount: breakdown.net,
+        status: 'pending',
+      })
+      .select()
+      .single()
+
+    if (vendorOrderError) {
+      console.error(`Error creating vendor order for ${vendor.id}:`, vendorOrderError)
+      continue
+    }
+
+    // If vendor has a Stripe Connect account, initiate transfer
+    if (vendor.stripe_account_id && breakdown.net > 0) {
+      try {
+        const transfer = await stripe.transfers.create({
+          amount: breakdown.net,
+          currency: 'gbp',
+          destination: vendor.stripe_account_id,
+          transfer_group: orderId,
+          source_transaction: paymentIntentId,
+          metadata: {
+            order_id: orderId,
+            vendor_id: vendor.id,
+            vendor_order_id: vendorOrder.id,
+          },
+        })
+
+        // Update vendor order with transfer info
+        await supabaseAdmin
+          .from('vendor_orders')
+          .update({
+            stripe_transfer_id: transfer.id,
+            status: 'transferred',
+          })
+          .eq('id', vendorOrder.id)
+
+        console.log(`Transfer ${transfer.id} created for vendor ${vendor.id}`)
+      } catch (transferError) {
+        console.error(`Error creating transfer for vendor ${vendor.id}:`, transferError)
+
+        // Mark as pending payout (will need manual transfer)
+        await supabaseAdmin
+          .from('vendor_orders')
+          .update({
+            status: 'pending_payout',
+          })
+          .eq('id', vendorOrder.id)
+      }
+    } else {
+      // Vendor doesn't have Stripe connected yet
+      await supabaseAdmin
+        .from('vendor_orders')
+        .update({
+          status: 'pending_payout',
+        })
+        .eq('id', vendorOrder.id)
+
+      console.log(`Vendor ${vendor.id} doesn't have Stripe connected - marked as pending payout`)
+    }
   }
 }

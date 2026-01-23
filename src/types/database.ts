@@ -149,6 +149,8 @@ export interface Database {
           images: string[] | null
           is_active: boolean
           is_featured: boolean
+          has_offer: boolean
+          offer_badge: string | null
           meta_title: string | null
           meta_description: string | null
           created_at: string
@@ -182,6 +184,8 @@ export interface Database {
           images?: string[] | null
           is_active?: boolean
           is_featured?: boolean
+          has_offer?: boolean
+          offer_badge?: string | null
           meta_title?: string | null
           meta_description?: string | null
           created_at?: string
@@ -215,6 +219,8 @@ export interface Database {
           images?: string[] | null
           is_active?: boolean
           is_featured?: boolean
+          has_offer?: boolean
+          offer_badge?: string | null
           meta_title?: string | null
           meta_description?: string | null
           created_at?: string

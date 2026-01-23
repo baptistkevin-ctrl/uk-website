@@ -36,13 +36,16 @@ export async function PUT(
     .update(body)
     .eq('id', id)
     .select()
-    .single()
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(data)
+  if (!data || data.length === 0) {
+    return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+  }
+
+  return NextResponse.json(data[0])
 }
 
 // DELETE product

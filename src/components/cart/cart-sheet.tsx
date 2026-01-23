@@ -2,15 +2,27 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Truck } from 'lucide-react'
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Truck, Tag, Sparkles } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
 import { useCart } from '@/hooks/use-cart'
 import { formatPrice } from '@/lib/utils/format'
 
 export function CartSheet() {
-  const { items, isOpen, closeCart, removeItem, updateQuantity, subtotal, itemCount } = useCart()
+  const {
+    itemsWithSavings,
+    isOpen,
+    closeCart,
+    removeItem,
+    updateQuantity,
+    subtotal,
+    subtotalBeforeDiscounts,
+    totalSavings,
+    hasOffersApplied,
+    itemCount
+  } = useCart()
 
   const deliveryFee = subtotal >= 5000 ? 0 : 399
   const amountUntilFreeDelivery = 5000 - subtotal
@@ -31,7 +43,7 @@ export function CartSheet() {
           </SheetTitle>
         </SheetHeader>
 
-        {items.length === 0 ? (
+        {itemsWithSavings.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
             <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mb-4">
               <ShoppingBag className="h-10 w-10 text-slate-300" />
@@ -84,8 +96,8 @@ export function CartSheet() {
 
             <div className="flex-1 overflow-y-auto py-4 px-6">
               <ul className="space-y-4">
-                {items.map((item) => (
-                  <li key={item.product.id} className="bg-slate-50 rounded-xl p-3">
+                {itemsWithSavings.map((item) => (
+                  <li key={item.product.id} className={`rounded-xl p-3 ${item.offerApplied ? 'bg-orange-50 border border-orange-200' : 'bg-slate-50'}`}>
                     <div className="flex gap-3">
                       <div className="relative h-20 w-20 rounded-lg overflow-hidden bg-white shrink-0">
                         {item.product.image_url ? (
@@ -100,14 +112,26 @@ export function CartSheet() {
                             <ShoppingBag className="h-8 w-8" />
                           </div>
                         )}
+                        {item.offerApplied && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
+                            <Tag className="h-3 w-3 text-white" />
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-semibold text-gray-900 line-clamp-2">
                           {item.product.name}
                         </h4>
-                        <p className="text-sm text-gray-500 mt-0.5">
-                          {formatPrice(item.product.price_pence)}
-                        </p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <p className="text-sm text-gray-500">
+                            {formatPrice(item.product.price_pence)} each
+                          </p>
+                          {item.offerBadge && (
+                            <Badge className="bg-orange-500 hover:bg-orange-600 text-white text-[10px] px-1.5 py-0">
+                              {item.offerBadge}
+                            </Badge>
+                          )}
+                        </div>
                         <div className="flex items-center justify-between mt-2">
                           <div className="flex items-center border rounded-lg bg-white overflow-hidden">
                             <button
@@ -139,9 +163,23 @@ export function CartSheet() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-gray-900">
-                          {formatPrice(item.product.price_pence * item.quantity)}
-                        </p>
+                        {item.offerApplied ? (
+                          <>
+                            <p className="text-xs text-gray-400 line-through">
+                              {formatPrice(item.originalPrice)}
+                            </p>
+                            <p className="text-sm font-bold text-orange-600">
+                              {formatPrice(item.discountedPrice)}
+                            </p>
+                            <p className="text-[10px] text-emerald-600 font-medium">
+                              Save {formatPrice(item.savings)}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-sm font-bold text-gray-900">
+                            {formatPrice(item.originalPrice)}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </li>
@@ -150,11 +188,36 @@ export function CartSheet() {
             </div>
 
             <div className="border-t p-6 space-y-4 bg-slate-50">
+              {/* Savings Banner */}
+              {hasOffersApplied && totalSavings > 0 && (
+                <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl p-3 flex items-center gap-3 text-white shadow-lg shadow-emerald-500/25">
+                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                    <Sparkles className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">Multi-buy savings applied!</p>
+                    <p className="text-xs opacity-90">You're saving {formatPrice(totalSavings)} with offers</p>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
+                {hasOffersApplied && (
+                  <div className="flex justify-between text-sm text-gray-400">
+                    <span>Original price</span>
+                    <span className="line-through">{formatPrice(subtotalBeforeDiscounts)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Subtotal</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
+                {hasOffersApplied && (
+                  <div className="flex justify-between text-sm text-emerald-600 font-medium">
+                    <span>Offer savings</span>
+                    <span>-{formatPrice(totalSavings)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Delivery</span>
                   <span>

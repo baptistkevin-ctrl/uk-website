@@ -118,8 +118,12 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
               {/* Progress bar */}
               <div className="absolute top-4 left-0 right-0 h-1 bg-gray-200 rounded">
                 <div
-                  className="h-full bg-green-600 rounded transition-all"
-                  style={{ width: `${(currentStep / (statusSteps.length - 1)) * 100}%` }}
+                  className={`h-full bg-green-600 rounded transition-all ${
+                    currentStep === 0 ? 'w-0' :
+                    currentStep === 1 ? 'w-1/3' :
+                    currentStep === 2 ? 'w-2/3' :
+                    'w-full'
+                  }`}
                 />
               </div>
 

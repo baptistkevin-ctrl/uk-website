@@ -20,12 +20,15 @@ import {
   Clock,
   Gift,
   Truck,
+  Tag,
+  Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
+import { Badge } from '@/components/ui/badge'
 import { useCart } from '@/hooks/use-cart'
 import { useAuth } from '@/hooks/use-auth'
 import { formatPrice } from '@/lib/utils/format'
@@ -47,7 +50,15 @@ type CheckoutForm = z.infer<typeof checkoutSchema>
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { items, subtotal, clearCart } = useCart()
+  const {
+    items,
+    itemsWithSavings,
+    subtotal,
+    subtotalBeforeDiscounts,
+    totalSavings,
+    hasOffersApplied,
+    clearCart
+  } = useCart()
   const { user, loading: authLoading } = useAuth()
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -85,11 +96,12 @@ export default function CheckoutPage() {
     setError(null)
 
     try {
+      // Use itemsWithSavings to pass discounted prices to Stripe
       const result = await createCheckoutSession({
-        items: items.map((item) => ({
+        items: itemsWithSavings.map((item) => ({
           productId: item.product.id,
-          name: item.product.name,
-          price: item.product.price_pence,
+          name: item.offerApplied ? `${item.product.name} (${item.offerBadge})` : item.product.name,
+          price: Math.round(item.discountedPrice / item.quantity), // Unit price after discount
           quantity: item.quantity,
           image: item.product.image_url,
         })),
@@ -433,10 +445,23 @@ export default function CheckoutPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-6">
+                  {/* Savings Banner */}
+                  {hasOffersApplied && totalSavings > 0 && (
+                    <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl p-3 flex items-center gap-3 text-white">
+                      <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+                        <Sparkles className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold">You're saving {formatPrice(totalSavings)}!</p>
+                        <p className="text-xs opacity-90">Multi-buy offers applied</p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Items */}
                   <ul className="space-y-3 max-h-64 overflow-y-auto">
-                    {items.map((item) => (
-                      <li key={item.product.id} className="flex gap-3">
+                    {itemsWithSavings.map((item) => (
+                      <li key={item.product.id} className={`flex gap-3 p-2 rounded-lg ${item.offerApplied ? 'bg-orange-50' : ''}`}>
                         <div className="relative h-16 w-16 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                           {item.product.image_url ? (
                             <Image
@@ -450,16 +475,41 @@ export default function CheckoutPage() {
                               <ShoppingBag className="h-6 w-6" />
                             </div>
                           )}
+                          {item.offerApplied && (
+                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
+                              <Tag className="h-3 w-3 text-white" />
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-900 truncate">
                             {item.product.name}
                           </p>
-                          <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                            {item.offerBadge && (
+                              <Badge className="bg-orange-500 text-white text-[10px] px-1.5 py-0">
+                                {item.offerBadge}
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-sm font-semibold">
-                          {formatPrice(item.product.price_pence * item.quantity)}
-                        </p>
+                        <div className="text-right">
+                          {item.offerApplied ? (
+                            <>
+                              <p className="text-xs text-gray-400 line-through">
+                                {formatPrice(item.originalPrice)}
+                              </p>
+                              <p className="text-sm font-semibold text-orange-600">
+                                {formatPrice(item.discountedPrice)}
+                              </p>
+                            </>
+                          ) : (
+                            <p className="text-sm font-semibold">
+                              {formatPrice(item.originalPrice)}
+                            </p>
+                          )}
+                        </div>
                       </li>
                     ))}
                   </ul>
@@ -467,10 +517,22 @@ export default function CheckoutPage() {
                   <Separator />
 
                   <div className="space-y-3">
+                    {hasOffersApplied && (
+                      <div className="flex justify-between text-sm text-gray-400">
+                        <span>Original price</span>
+                        <span className="line-through">{formatPrice(subtotalBeforeDiscounts)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-gray-600">
                       <span>Subtotal</span>
                       <span>{formatPrice(subtotal)}</span>
                     </div>
+                    {hasOffersApplied && totalSavings > 0 && (
+                      <div className="flex justify-between text-sm text-emerald-600 font-medium">
+                        <span>Offer savings</span>
+                        <span>-{formatPrice(totalSavings)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-gray-600">
                       <span>Delivery</span>
                       <span>

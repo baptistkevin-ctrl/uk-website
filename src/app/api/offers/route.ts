@@ -1,0 +1,28 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
+
+// GET active offers (optionally filtered by product IDs)
+export async function GET(request: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin()
+  const { searchParams } = new URL(request.url)
+  const productIds = searchParams.get('products')?.split(',').filter(Boolean)
+
+  let query = supabaseAdmin
+    .from('multibuy_offers')
+    .select('*')
+    .eq('is_active', true)
+    .or('start_date.is.null,start_date.lte.now()')
+    .or('end_date.is.null,end_date.gte.now()')
+
+  if (productIds && productIds.length > 0) {
+    query = query.in('product_id', productIds)
+  }
+
+  const { data, error } = await query
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json(data)
+}

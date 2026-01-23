@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
   Package,
@@ -17,15 +17,24 @@ import {
   ChevronRight,
   Store,
   Bell,
-  Search,
   User,
+  Image as ImageIcon,
+  Tag,
+  Users,
+  FileText,
 } from 'lucide-react'
+import { AdminSearch } from '@/components/admin/AdminSearch'
+import { createClient } from '@/lib/supabase/client'
 
 const sidebarLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/categories', label: 'Categories', icon: FolderTree },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+  { href: '/admin/vendors', label: 'Vendors', icon: Store },
+  { href: '/admin/vendor-applications', label: 'Applications', icon: FileText },
+  { href: '/admin/offers', label: 'Multi-Buy Offers', icon: Tag },
+  { href: '/admin/hero-slides', label: 'Hero Slides', icon: ImageIcon },
   { href: '/admin/delivery', label: 'Delivery', icon: Truck },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
@@ -38,6 +47,14 @@ export default function AdminLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
+  }
 
   const isActive = (href: string) => {
     if (href === '/admin') return pathname === '/admin'
@@ -111,7 +128,10 @@ export default function AdminLayout({
             <Store className="w-5 h-5 text-slate-400 group-hover:text-emerald-400" />
             <span>View Store</span>
           </Link>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200 group mt-1">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200 group mt-1"
+          >
             <LogOut className="w-5 h-5 text-slate-400 group-hover:text-red-400" />
             <span>Logout</span>
           </button>
@@ -132,16 +152,8 @@ export default function AdminLayout({
               </button>
 
               {/* Search bar */}
-              <div className="hidden sm:flex items-center gap-2 bg-slate-100 rounded-xl px-4 py-2.5 w-80">
-                <Search className="w-5 h-5 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Search products, orders..."
-                  className="bg-transparent border-none outline-none text-sm text-slate-600 placeholder:text-slate-400 w-full"
-                />
-                <kbd className="hidden md:inline-flex items-center px-2 py-0.5 text-xs font-medium text-slate-400 bg-white rounded border border-slate-200">
-                  ⌘K
-                </kbd>
+              <div className="hidden sm:block">
+                <AdminSearch />
               </div>
             </div>
 
