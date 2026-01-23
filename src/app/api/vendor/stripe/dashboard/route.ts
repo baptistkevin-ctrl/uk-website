@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
+import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
-})
 
 // Create Stripe Express Dashboard login link
 export async function POST(request: NextRequest) {
@@ -35,7 +31,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create login link for Express dashboard
-    const loginLink = await stripe.accounts.createLoginLink(vendor.stripe_account_id)
+    const loginLink = await getStripe().accounts.createLoginLink(vendor.stripe_account_id)
 
     return NextResponse.json({
       url: loginLink.url

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice } from '@/lib/utils/format'
 
 interface Vendor {
   id: string

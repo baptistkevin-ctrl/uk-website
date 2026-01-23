@@ -4,10 +4,6 @@ import Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@supabase/supabase-js'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
-})
-
 function getSupabaseAdmin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -203,7 +199,7 @@ async function processVendorPayments(
     // If vendor has a Stripe Connect account, initiate transfer
     if (vendor.stripe_account_id && breakdown.net > 0) {
       try {
-        const transfer = await stripe.transfers.create({
+        const transfer = await getStripe().transfers.create({
           amount: breakdown.net,
           currency: 'gbp',
           destination: vendor.stripe_account_id,

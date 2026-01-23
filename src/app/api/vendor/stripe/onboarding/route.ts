@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
+import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
-})
 
 // Create Stripe Connect onboarding link
 export async function POST(request: NextRequest) {
@@ -34,7 +30,7 @@ export async function POST(request: NextRequest) {
 
     // Create account if doesn't exist
     if (!stripeAccountId) {
-      const account = await stripe.accounts.create({
+      const account = await getStripe().accounts.create({
         type: 'express',
         country: 'GB',
         email: vendor.email,
@@ -66,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create onboarding link
-    const accountLink = await stripe.accountLinks.create({
+    const accountLink = await getStripe().accountLinks.create({
       account: stripeAccountId,
       refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/vendor/onboarding?refresh=true`,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/vendor/onboarding?success=true`,

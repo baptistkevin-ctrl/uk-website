@@ -1,11 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import Stripe from 'stripe'
+import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-11-20.acacia',
-})
 
 // Create Stripe Connect account for vendor
 export async function POST(request: NextRequest) {
@@ -39,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Stripe Connect Express account
-    const account = await stripe.accounts.create({
+    const account = await getStripe().accounts.create({
       type: 'express',
       country: 'GB',
       email: vendor.email,
@@ -110,7 +106,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get account details from Stripe
-    const account = await stripe.accounts.retrieve(vendor.stripe_account_id)
+    const account = await getStripe().accounts.retrieve(vendor.stripe_account_id)
 
     // Update vendor record with latest status
     const chargesEnabled = account.charges_enabled

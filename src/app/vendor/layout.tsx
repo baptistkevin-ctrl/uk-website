@@ -35,7 +35,7 @@ export default function VendorLayout({
 }) {
   const router = useRouter()
   const pathname = usePathname()
-  const { user, profile, signOut } = useAuth()
+  const { user, signOut } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [vendorData, setVendorData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
