@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -22,9 +22,11 @@ import {
   Tag,
   Users,
   FileText,
+  Loader2,
 } from 'lucide-react'
 import { AdminSearch } from '@/components/admin/AdminSearch'
 import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/use-auth'
 
 const sidebarLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -46,14 +48,64 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
+  const { user } = useAuth()
+
+  useEffect(() => {
+    const checkAdminAccess = async () => {
+      if (!user) {
+        router.push('/login?redirect=/admin')
+        return
+      }
+
+      try {
+        // Check if user is admin
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        if (profile?.role === 'admin') {
+          setIsAdmin(true)
+        } else {
+          // Not an admin, redirect to home
+          router.push('/')
+        }
+      } catch (error) {
+        console.error('Admin check error:', error)
+        router.push('/')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    checkAdminAccess()
+  }, [user, router, supabase])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-4" />
+          <p className="text-slate-600">Checking access...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAdmin) {
+    return null
   }
 
   const isActive = (href: string) => {

@@ -74,25 +74,23 @@ CREATE TABLE public.vendor_orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE,
   vendor_id UUID REFERENCES public.vendors(id) ON DELETE CASCADE,
-  order_number TEXT NOT NULL,
 
-  -- Amounts
-  subtotal_pence INT NOT NULL,
-  commission_pence INT NOT NULL,
-  payout_pence INT NOT NULL,
+  -- Amounts (in pence)
+  total_amount INT NOT NULL,
+  commission_amount INT NOT NULL,
+  vendor_amount INT NOT NULL,
 
   -- Status
-  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled')),
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'transferred', 'pending_payout', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled')),
+
+  -- Stripe Transfer
+  stripe_transfer_id TEXT,
 
   -- Shipping
   shipped_at TIMESTAMPTZ,
   tracking_number TEXT,
   tracking_url TEXT,
   carrier TEXT,
-
-  -- Payout
-  payout_status TEXT DEFAULT 'pending' CHECK (payout_status IN ('pending', 'processing', 'completed', 'failed')),
-  payout_id UUID,
 
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

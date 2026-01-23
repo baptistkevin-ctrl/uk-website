@@ -58,9 +58,30 @@ function LoginFormContent() {
   const onSubmit = async (data: LoginForm) => {
     try {
       setError(null)
-      await signIn(data.email, data.password)
-      const redirectTo = searchParams.get('redirectTo') || '/'
-      router.push(redirectTo)
+      const { user } = await signIn(data.email, data.password)
+
+      // Check user role to determine redirect
+      const redirectParam = searchParams.get('redirectTo')
+      if (redirectParam) {
+        router.push(redirectParam)
+        router.refresh()
+        return
+      }
+
+      // Fetch user profile to check role
+      const res = await fetch('/api/user/profile')
+      if (res.ok) {
+        const profile = await res.json()
+        if (profile.role === 'admin') {
+          router.push('/admin')
+        } else if (profile.is_vendor || profile.role === 'vendor') {
+          router.push('/vendor/dashboard')
+        } else {
+          router.push('/')
+        }
+      } else {
+        router.push('/')
+      }
       router.refresh()
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to sign in'
