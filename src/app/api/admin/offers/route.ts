@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 // GET all multi-buy offers
 export async function GET(request: NextRequest) {
   const supabaseAdmin = getSupabaseAdmin()

@@ -214,7 +214,7 @@ function CheckoutSuccessContent() {
                       Use your order number and email to track your delivery status
                     </p>
                     <Button variant="outline" size="sm" asChild>
-                      <Link href={`/track-order${orderNumber ? `?order=${orderNumber}` : ''}`}>
+                      <Link href={`/track-order${orderNumber ? `?order=${orderNumber}` : ''}` as any}>
                         Track Order Status
                       </Link>
                     </Button>
@@ -245,7 +245,7 @@ function CheckoutSuccessContent() {
                     asChild
                     className="bg-white text-emerald-600 hover:bg-emerald-50"
                   >
-                    <Link href="/auth/register">Create Free Account</Link>
+                    <Link href="/register">Create Free Account</Link>
                   </Button>
                   <Button
                     variant="ghost"

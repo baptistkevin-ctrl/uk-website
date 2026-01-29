@@ -4,11 +4,25 @@ import { useState } from 'react'
 import { Minus, Plus, ShoppingCart, Check, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/hooks/use-cart'
-import type { Product } from '@/types/database'
+
+// Simplified product type for adding to cart
+export interface CartableProduct {
+  id: string
+  name: string
+  slug: string
+  price_pence: number
+  image_url: string | null
+  compare_at_price_pence?: number | null
+  unit?: string | null
+  unit_value?: number | null
+  stock_quantity?: number
+  vendor_id?: string | null
+}
 
 interface AddToCartButtonProps {
-  product: Product
+  product: CartableProduct
   disabled?: boolean
+  size?: 'sm' | 'default' | 'lg'
 }
 
 export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {

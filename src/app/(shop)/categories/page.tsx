@@ -18,6 +18,8 @@ import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Categories | Fresh Groceries',
   description: 'Browse our product categories',

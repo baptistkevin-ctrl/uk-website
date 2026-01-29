@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 // GET vendor's products
 export async function GET(request: NextRequest) {
   try {
@@ -89,18 +91,24 @@ export async function POST(request: NextRequest) {
     const {
       name,
       description,
-      price,
-      sale_price,
+      price_pence,
+      compare_at_price_pence,
       category_id,
       stock_quantity,
+      low_stock_threshold,
       unit,
+      weight,
       image_url,
       images,
-      is_active,
-      dietary_info
+      sku,
+      barcode,
+      is_organic,
+      is_gluten_free,
+      is_vegan,
+      is_vegetarian,
     } = body
 
-    if (!name || !price) {
+    if (!name || !price_pence) {
       return NextResponse.json({ error: 'Name and price are required' }, { status: 400 })
     }
 
@@ -129,15 +137,22 @@ export async function POST(request: NextRequest) {
         name,
         slug,
         description,
-        price: Math.round(price * 100), // Convert to pence
-        sale_price: sale_price ? Math.round(sale_price * 100) : null,
-        category_id,
+        price: price_pence,
+        compare_at_price: compare_at_price_pence || null,
+        category_id: category_id || null,
         stock_quantity: stock_quantity || 0,
+        low_stock_threshold: low_stock_threshold || 10,
         unit: unit || 'each',
+        weight: weight || null,
         image_url,
         images: images || [],
-        is_active: is_active ?? true,
-        dietary_info: dietary_info || {}
+        sku: sku || null,
+        barcode: barcode || null,
+        is_active: true,
+        is_organic: is_organic || false,
+        is_gluten_free: is_gluten_free || false,
+        is_vegan: is_vegan || false,
+        is_vegetarian: is_vegetarian || false,
       })
       .select()
       .single()

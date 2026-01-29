@@ -19,7 +19,10 @@ import {
   Heart,
   X,
   ChevronRight,
-  Grid3X3
+  Grid3X3,
+  Zap,
+  Bell,
+  Gift
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,6 +39,8 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/co
 import { cn } from '@/lib/utils/cn'
 import { useCart } from '@/hooks/use-cart'
 import { useAuth } from '@/hooks/use-auth'
+import { useWishlistStore } from '@/hooks/use-wishlist'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 
 interface Category {
   name: string
@@ -68,6 +73,7 @@ export function Header() {
   const [categories, setCategories] = useState<Category[]>(fallbackCategories)
   const { itemCount, openCart } = useCart()
   const { user, signOut } = useAuth()
+  const wishlistCount = useWishlistStore((state) => state.productIds.size)
 
   // Fetch categories from API
   useEffect(() => {
@@ -185,6 +191,41 @@ export function Header() {
                           <Package className="h-5 w-5 text-emerald-600" />
                         </div>
                         <span className="font-medium">All Products</span>
+                      </Link>
+                      <Link
+                        href="/deals"
+                        className="flex items-center gap-3 py-3 px-3 text-gray-700 hover:bg-orange-50 hover:text-orange-700 rounded-xl transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <div className="w-9 h-9 bg-orange-100 rounded-lg flex items-center justify-center">
+                          <Zap className="h-5 w-5 text-orange-600" />
+                        </div>
+                        <span className="font-medium">Flash Deals</span>
+                      </Link>
+                      <Link
+                        href="/gift-cards"
+                        className="flex items-center gap-3 py-3 px-3 text-gray-700 hover:bg-purple-50 hover:text-purple-700 rounded-xl transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <div className="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <Gift className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <span className="font-medium">Gift Cards</span>
+                      </Link>
+                      <Link
+                        href="/account/wishlist"
+                        className="flex items-center justify-between py-3 px-3 text-gray-700 hover:bg-pink-50 hover:text-pink-700 rounded-xl transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 bg-pink-100 rounded-lg flex items-center justify-center">
+                            <Heart className="h-5 w-5 text-pink-600" />
+                          </div>
+                          <span className="font-medium">Wishlist</span>
+                        </div>
+                        {wishlistCount > 0 && (
+                          <Badge className="bg-pink-600">{wishlistCount}</Badge>
+                        )}
                       </Link>
                       <Link
                         href="/categories"
@@ -327,19 +368,40 @@ export function Header() {
                 </Button>
               </Link>
 
-              {/* Sell with us - Desktop only */}
-              <Link href="/sell" className="hidden lg:block">
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-emerald-700 hover:bg-emerald-50">
-                  Sell with us
+              {/* Flash Deals - Desktop only */}
+              <Link href="/deals" className="hidden xl:block">
+                <Button variant="ghost" size="sm" className="text-orange-600 hover:text-orange-700 hover:bg-orange-50">
+                  <Zap className="h-4 w-4 mr-1" />
+                  Deals
                 </Button>
               </Link>
 
-              {/* Vendor Login - Desktop only */}
-              <Link href="/vendor/login" className="hidden lg:block">
+              {/* Gift Cards - Desktop only */}
+              <Link href="/gift-cards" className="hidden xl:block">
                 <Button variant="ghost" size="sm" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50">
-                  Vendor Login
+                  <Gift className="h-4 w-4 mr-1" />
+                  Gift Cards
                 </Button>
               </Link>
+
+              {/* Wishlist button */}
+              <Link href="/account/wishlist" className="hidden sm:block">
+                <Button variant="ghost" size="icon" className="hover:bg-pink-50 relative">
+                  <Heart className="h-5 w-5 text-gray-700 group-hover:text-pink-600" />
+                  {wishlistCount > 0 && (
+                    <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-pink-600 text-white text-xs font-bold flex items-center justify-center shadow-lg shadow-pink-600/30">
+                      {wishlistCount > 99 ? '99+' : wishlistCount}
+                    </span>
+                  )}
+                </Button>
+              </Link>
+
+              {/* Notifications - only for logged in users */}
+              {user && (
+                <div className="hidden sm:block">
+                  <NotificationBell />
+                </div>
+              )}
 
               {/* User menu */}
               {user ? (
@@ -378,6 +440,25 @@ export function Header() {
                           <MapPin className="h-4 w-4 text-gray-600" />
                         </div>
                         <span>Addresses</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="py-2.5 px-3 cursor-pointer rounded-lg">
+                      <Link href="/account/wishlist" className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center">
+                          <Heart className="h-4 w-4 text-pink-600" />
+                        </div>
+                        <span>Wishlist</span>
+                        {wishlistCount > 0 && (
+                          <Badge className="ml-auto bg-pink-600 text-xs">{wishlistCount}</Badge>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild className="py-2.5 px-3 cursor-pointer rounded-lg">
+                      <Link href="/account/notifications" className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <Bell className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <span>Notifications</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="my-2" />

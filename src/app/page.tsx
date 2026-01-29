@@ -12,13 +12,17 @@ import {
   Heart,
   Zap,
   Award,
+  Flame,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { ProductCard } from '@/components/products/product-card'
 import { HeroSlider } from '@/components/home/HeroSlider'
+import { DealCard } from '@/components/deals'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+
+export const dynamic = 'force-dynamic'
 
 const features = [
   {
@@ -113,6 +117,29 @@ export default async function HomePage() {
     .eq('is_active', true)
     .eq('is_featured', true)
     .limit(8)
+
+  // Fetch active flash deals
+  const { data: flashDeals } = await supabase
+    .from('flash_deals')
+    .select(`
+      *,
+      product:products(
+        id,
+        name,
+        slug,
+        short_description,
+        price_pence,
+        compare_at_price_pence,
+        image_url,
+        is_organic,
+        is_vegan
+      )
+    `)
+    .eq('is_active', true)
+    .gt('ends_at', new Date().toISOString())
+    .lte('starts_at', new Date().toISOString())
+    .order('ends_at', { ascending: true })
+    .limit(4)
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -309,6 +336,51 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Flash Deals Section */}
+        {flashDeals && flashDeals.length > 0 && (
+          <section className="py-16 lg:py-20 bg-gradient-to-r from-orange-50 via-red-50 to-pink-50">
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between mb-10">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                      <Flame className="h-3 w-3" />
+                      HOT DEALS
+                    </div>
+                  </div>
+                  <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
+                    Flash Deals
+                  </h2>
+                  <p className="text-gray-500 mt-1">Limited time offers - grab them before they're gone!</p>
+                </div>
+                <Link
+                  href="/deals"
+                  className="hidden sm:flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold group"
+                >
+                  View All Deals
+                  <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {flashDeals.map((deal) => (
+                  <DealCard key={deal.id} deal={deal} />
+                ))}
+              </div>
+
+              <div className="mt-8 text-center sm:hidden">
+                <Link
+                  href="/deals"
+                  className="inline-flex items-center gap-2 text-orange-600 font-semibold"
+                >
+                  View All Deals
+                  <ChevronRight className="h-5 w-5" />
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* Featured Products */}
         <section className="py-16 lg:py-20 bg-white">

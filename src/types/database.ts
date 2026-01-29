@@ -153,6 +153,10 @@ export interface Database {
           offer_badge: string | null
           meta_title: string | null
           meta_description: string | null
+          avg_rating: number
+          review_count: number
+          vendor_id: string | null
+          approval_status: 'pending' | 'approved' | 'rejected'
           created_at: string
           updated_at: string
         }
@@ -188,6 +192,10 @@ export interface Database {
           offer_badge?: string | null
           meta_title?: string | null
           meta_description?: string | null
+          avg_rating?: number
+          review_count?: number
+          vendor_id?: string | null
+          approval_status?: 'pending' | 'approved' | 'rejected'
           created_at?: string
           updated_at?: string
         }
@@ -223,6 +231,10 @@ export interface Database {
           offer_badge?: string | null
           meta_title?: string | null
           meta_description?: string | null
+          avg_rating?: number
+          review_count?: number
+          vendor_id?: string | null
+          approval_status?: 'pending' | 'approved' | 'rejected'
           created_at?: string
           updated_at?: string
         }
@@ -470,6 +482,298 @@ export interface Database {
           created_at?: string
         }
       }
+      product_reviews: {
+        Row: {
+          id: string
+          product_id: string
+          user_id: string
+          order_id: string | null
+          rating: number
+          title: string | null
+          content: string | null
+          images: string[]
+          is_verified_purchase: boolean
+          status: 'pending' | 'approved' | 'rejected'
+          helpful_count: number
+          not_helpful_count: number
+          admin_notes: string | null
+          reviewed_by: string | null
+          reviewed_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          user_id: string
+          order_id?: string | null
+          rating: number
+          title?: string | null
+          content?: string | null
+          images?: string[]
+          is_verified_purchase?: boolean
+          status?: 'pending' | 'approved' | 'rejected'
+          helpful_count?: number
+          not_helpful_count?: number
+          admin_notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          user_id?: string
+          order_id?: string | null
+          rating?: number
+          title?: string | null
+          content?: string | null
+          images?: string[]
+          is_verified_purchase?: boolean
+          status?: 'pending' | 'approved' | 'rejected'
+          helpful_count?: number
+          not_helpful_count?: number
+          admin_notes?: string | null
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      review_votes: {
+        Row: {
+          id: string
+          review_id: string
+          user_id: string
+          is_helpful: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          review_id: string
+          user_id: string
+          is_helpful: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          review_id?: string
+          user_id?: string
+          is_helpful?: boolean
+          created_at?: string
+        }
+      }
+      wishlists: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          is_public: boolean
+          share_token: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name?: string
+          is_public?: boolean
+          share_token?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          is_public?: boolean
+          share_token?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      wishlist_items: {
+        Row: {
+          id: string
+          wishlist_id: string
+          product_id: string
+          added_price_pence: number | null
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          wishlist_id: string
+          product_id: string
+          added_price_pence?: number | null
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          wishlist_id?: string
+          product_id?: string
+          added_price_pence?: number | null
+          notes?: string | null
+          created_at?: string
+        }
+      }
+      flash_deals: {
+        Row: {
+          id: string
+          title: string
+          slug: string
+          description: string | null
+          product_id: string
+          deal_price_pence: number
+          original_price_pence: number
+          discount_percentage: number
+          starts_at: string
+          ends_at: string
+          max_quantity: number | null
+          claimed_quantity: number
+          is_active: boolean
+          is_featured: boolean
+          banner_image_url: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          slug: string
+          description?: string | null
+          product_id: string
+          deal_price_pence: number
+          original_price_pence: number
+          starts_at: string
+          ends_at: string
+          max_quantity?: number | null
+          claimed_quantity?: number
+          is_active?: boolean
+          is_featured?: boolean
+          banner_image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          slug?: string
+          description?: string | null
+          product_id?: string
+          deal_price_pence?: number
+          original_price_pence?: number
+          starts_at?: string
+          ends_at?: string
+          max_quantity?: number | null
+          claimed_quantity?: number
+          is_active?: boolean
+          is_featured?: boolean
+          banner_image_url?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      vendors: {
+        Row: {
+          id: string
+          user_id: string
+          business_name: string
+          slug: string
+          description: string | null
+          logo_url: string | null
+          banner_url: string | null
+          email: string
+          phone: string | null
+          address_line_1: string | null
+          address_line_2: string | null
+          city: string | null
+          postcode: string | null
+          country: string
+          company_number: string | null
+          vat_number: string | null
+          stripe_account_id: string | null
+          stripe_onboarding_complete: boolean
+          stripe_charges_enabled: boolean
+          stripe_payouts_enabled: boolean
+          status: 'pending' | 'approved' | 'suspended' | 'rejected'
+          is_verified: boolean
+          verified_at: string | null
+          commission_rate: number
+          total_sales_pence: number
+          total_orders: number
+          rating: number
+          review_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          business_name: string
+          slug: string
+          description?: string | null
+          logo_url?: string | null
+          banner_url?: string | null
+          email: string
+          phone?: string | null
+          address_line_1?: string | null
+          address_line_2?: string | null
+          city?: string | null
+          postcode?: string | null
+          country?: string
+          company_number?: string | null
+          vat_number?: string | null
+          stripe_account_id?: string | null
+          stripe_onboarding_complete?: boolean
+          stripe_charges_enabled?: boolean
+          stripe_payouts_enabled?: boolean
+          status?: 'pending' | 'approved' | 'suspended' | 'rejected'
+          is_verified?: boolean
+          verified_at?: string | null
+          commission_rate?: number
+          total_sales_pence?: number
+          total_orders?: number
+          rating?: number
+          review_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          business_name?: string
+          slug?: string
+          description?: string | null
+          logo_url?: string | null
+          banner_url?: string | null
+          email?: string
+          phone?: string | null
+          address_line_1?: string | null
+          address_line_2?: string | null
+          city?: string | null
+          postcode?: string | null
+          country?: string
+          company_number?: string | null
+          vat_number?: string | null
+          stripe_account_id?: string | null
+          stripe_onboarding_complete?: boolean
+          stripe_charges_enabled?: boolean
+          stripe_payouts_enabled?: boolean
+          status?: 'pending' | 'approved' | 'suspended' | 'rejected'
+          is_verified?: boolean
+          verified_at?: string | null
+          commission_rate?: number
+          total_sales_pence?: number
+          total_orders?: number
+          rating?: number
+          review_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -501,6 +805,12 @@ export type CartItem = Tables<'cart_items'>
 export type DeliverySlot = Tables<'delivery_slots'>
 export type Order = Tables<'orders'>
 export type OrderItem = Tables<'order_items'>
+export type ProductReview = Tables<'product_reviews'>
+export type ReviewVote = Tables<'review_votes'>
+export type Wishlist = Tables<'wishlists'>
+export type WishlistItem = Tables<'wishlist_items'>
+export type FlashDeal = Tables<'flash_deals'>
+export type Vendor = Tables<'vendors'>
 
 // Extended types with relations
 export type CartItemWithProduct = CartItem & {
@@ -513,4 +823,20 @@ export type OrderWithItems = Order & {
 
 export type ProductWithCategories = Product & {
   categories: Category[]
+}
+
+export type ProductWithVendor = Product & {
+  vendor: Vendor | null
+}
+
+export type ReviewWithUser = ProductReview & {
+  profiles: Pick<Profile, 'full_name' | 'email'>
+}
+
+export type WishlistWithItems = Wishlist & {
+  wishlist_items: (WishlistItem & { product: Product })[]
+}
+
+export type FlashDealWithProduct = FlashDeal & {
+  product: Product
 }

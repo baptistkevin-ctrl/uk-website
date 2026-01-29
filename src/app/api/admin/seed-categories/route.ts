@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 // Default grocery categories with Unsplash images
 const defaultCategories = [
   {

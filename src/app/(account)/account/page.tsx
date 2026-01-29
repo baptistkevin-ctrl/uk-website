@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { formatPrice, formatDate } from '@/lib/utils/format'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'My Account',
 }

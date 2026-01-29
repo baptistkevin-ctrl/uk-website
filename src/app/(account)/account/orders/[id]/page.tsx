@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { formatPrice, formatDate } from '@/lib/utils/format'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata = {
   title: 'Order Details',
 }

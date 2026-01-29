@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -23,7 +23,7 @@ interface OnboardingStep {
   completed: boolean
 }
 
-export default function VendorOnboarding() {
+function VendorOnboardingContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [vendor, setVendor] = useState<any>(null)
@@ -302,5 +302,21 @@ export default function VendorOnboarding() {
         </div>
       </div>
     </div>
+  )
+}
+
+function VendorOnboardingLoading() {
+  return (
+    <div className="p-8 flex items-center justify-center min-h-[50vh]">
+      <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+    </div>
+  )
+}
+
+export default function VendorOnboarding() {
+  return (
+    <Suspense fallback={<VendorOnboardingLoading />}>
+      <VendorOnboardingContent />
+    </Suspense>
   )
 }

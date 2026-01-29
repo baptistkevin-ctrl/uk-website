@@ -1,8 +1,92 @@
 import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
+import {
+  checkRateLimit,
+  rateLimitConfigs,
+  addRateLimitHeaders,
+  checkCsrf,
+  isCsrfExempt,
+  setCsrfTokenCookie,
+  generateCsrfToken,
+  logRateLimitViolation,
+  threatCheck,
+  validateContentLength,
+  recordSecurityEvent,
+  logSecurityEvent
+} from '@/lib/security'
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+
+  // Skip security checks for static assets
+  if (pathname.match(/\.(ico|png|jpg|jpeg|gif|svg|css|js|woff|woff2)$/)) {
+    return NextResponse.next({ request })
+  }
+
+  // Threat detection for API routes
+  if (pathname.startsWith('/api/')) {
+    // Validate request size
+    const sizeCheck = validateContentLength(request)
+    if (!sizeCheck.valid && sizeCheck.error) {
+      return sizeCheck.error
+    }
+
+    // Run threat detection
+    const threatResult = await threatCheck(request)
+    if (!threatResult.safe && threatResult.error) {
+      // Log the threat
+      const forwarded = request.headers.get('x-forwarded-for')
+      const ip = forwarded?.split(',')[0].trim() || 'unknown'
+      recordSecurityEvent({
+        type: 'injection_attempt',
+        severity: 'high',
+        ip,
+        description: `Threat detected: ${threatResult.threats?.join(', ')}`,
+        metadata: { path: pathname, threats: threatResult.threats }
+      })
+      return threatResult.error
+    }
+  }
+
+  // Rate limiting for auth endpoints
+  if (pathname.startsWith('/api/auth') || pathname.startsWith('/auth')) {
+    const rateLimit = checkRateLimit(request, rateLimitConfigs.auth)
+    if (!rateLimit.allowed) {
+      // Log rate limit violation
+      logRateLimitViolation(request, pathname, rateLimit.identifier)
+      const response = NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+      return addRateLimitHeaders(response, rateLimit)
+    }
+  }
+
+  // Rate limiting for sensitive endpoints
+  if (pathname.startsWith('/api/admin') || pathname.startsWith('/api/upload')) {
+    const rateLimitResult = checkRateLimit(request, rateLimitConfigs.sensitive)
+    if (!rateLimitResult.allowed) {
+      logRateLimitViolation(request, pathname, rateLimitResult.identifier)
+      const response = NextResponse.json(
+        { error: 'Rate limit exceeded. Please slow down.' },
+        { status: 429 }
+      )
+      return addRateLimitHeaders(response, rateLimitResult)
+    }
+  }
+
+  // CSRF protection for API POST/PUT/DELETE requests
+  if (pathname.startsWith('/api/') && !isCsrfExempt(pathname)) {
+    const method = request.method
+    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
+      const csrfResult = await checkCsrf(request)
+      if (!csrfResult.valid && csrfResult.error) {
+        return csrfResult.error
+      }
+    }
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -39,33 +123,31 @@ export async function updateSession(request: NextRequest) {
   const adminPaths = ['/admin']
   const authPaths = ['/login', '/register']
 
-  const path = request.nextUrl.pathname
-
   // Redirect unauthenticated users from protected routes
-  if (!user && protectedPaths.some((p) => path.startsWith(p))) {
+  if (!user && protectedPaths.some((p) => pathname.startsWith(p))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
-    url.searchParams.set('redirectTo', path)
+    url.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(url)
   }
 
   // Redirect unauthenticated users from admin routes
-  if (!user && adminPaths.some((p) => path.startsWith(p))) {
+  if (!user && adminPaths.some((p) => pathname.startsWith(p))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
-    url.searchParams.set('redirectTo', path)
+    url.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(url)
   }
 
   // Redirect authenticated users from auth pages
-  if (user && authPaths.some((p) => path.startsWith(p))) {
+  if (user && authPaths.some((p) => pathname.startsWith(p))) {
     const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)
   }
 
   // Check admin access using service role to bypass RLS
-  if (user && adminPaths.some((p) => path.startsWith(p))) {
+  if (user && adminPaths.some((p) => pathname.startsWith(p))) {
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -77,11 +159,17 @@ export async function updateSession(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    if (profile?.role !== 'admin') {
+    if (!['admin', 'super_admin'].includes(profile?.role || '')) {
       const url = request.nextUrl.clone()
       url.pathname = '/'
       return NextResponse.redirect(url)
     }
+  }
+
+  // Set CSRF token cookie if not present
+  if (!request.cookies.get('csrf_token')) {
+    const csrfToken = await generateCsrfToken()
+    supabaseResponse = setCsrfTokenCookie(supabaseResponse, csrfToken)
   }
 
   return supabaseResponse

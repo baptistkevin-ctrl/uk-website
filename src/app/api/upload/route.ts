@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAuth } from '@/lib/auth/verify'
+import { logFileUpload, sanitizeFilename } from '@/lib/security'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
+  // Verify user authentication
+  const auth = await requireAuth(request)
+  if (!auth.success) return auth.error
+
   const formData = await request.formData()
   const file = formData.get('file') as File
 
@@ -27,7 +35,9 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const fileExt = file.name.split('.').pop()
+  // Sanitize filename to prevent path traversal
+  const sanitizedOriginalName = sanitizeFilename(file.name)
+  const fileExt = sanitizedOriginalName.split('.').pop() || 'jpg'
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
   const filePath = `products/${fileName}`
 
@@ -48,6 +58,18 @@ export async function POST(request: NextRequest) {
   const {
     data: { publicUrl },
   } = supabaseAdmin.storage.from('product-images').getPublicUrl(filePath)
+
+  // Log file upload for audit trail
+  if (auth.user) {
+    await logFileUpload(
+      request,
+      { id: auth.user.id, email: auth.user.email || '', role: auth.profile?.role || 'user' },
+      sanitizedOriginalName,
+      file.size,
+      file.type,
+      filePath
+    )
+  }
 
   return NextResponse.json({ url: publicUrl })
 }

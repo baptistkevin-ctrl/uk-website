@@ -22,6 +22,7 @@ import {
   Truck,
   Tag,
   Sparkles,
+  Calendar,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -33,6 +34,7 @@ import { useCart } from '@/hooks/use-cart'
 import { useAuth } from '@/hooks/use-auth'
 import { formatPrice } from '@/lib/utils/format'
 import { createCheckoutSession } from '@/actions/checkout'
+import { DeliverySlotPicker } from '@/components/delivery/delivery-slot-picker'
 
 const checkoutSchema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -64,17 +66,82 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null)
   const [showGuestBenefits, setShowGuestBenefits] = useState(true)
 
-  const deliveryFee = subtotal >= 5000 ? 0 : 399
+  // Delivery slot state
+  const [postcodeConfirmed, setPostcodeConfirmed] = useState(false)
+  const [deliveryPostcode, setDeliveryPostcode] = useState('')
+  const [selectedDeliverySlot, setSelectedDeliverySlot] = useState<{
+    slot_id: string
+    delivery_date: string
+    start_time: string
+    end_time: string
+    price_pence: number
+    is_express: boolean
+  } | null>(null)
+  const [deliveryZone, setDeliveryZone] = useState<{
+    id: string
+    name: string
+    base_fee_pence: number
+    free_delivery_threshold_pence: number | null
+    min_order_pence: number
+  } | null>(null)
+  const [deliveryReservationId, setDeliveryReservationId] = useState<string | null>(null)
+
+  // Calculate delivery fee based on zone and slot
+  const getDeliveryFee = () => {
+    if (!deliveryZone) return subtotal >= 5000 ? 0 : 399 // Fallback
+
+    let baseFee = deliveryZone.base_fee_pence
+    // Free delivery threshold check
+    if (deliveryZone.free_delivery_threshold_pence && subtotal >= deliveryZone.free_delivery_threshold_pence) {
+      baseFee = 0
+    }
+
+    // Add slot premium for express delivery
+    const slotPremium = selectedDeliverySlot?.price_pence || 0
+    return baseFee + slotPremium
+  }
+
+  const deliveryFee = getDeliveryFee()
   const total = subtotal + deliveryFee
 
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
   })
+
+  const watchedPostcode = watch('postcode')
+
+  // Handler for delivery slot selection
+  const handleSlotSelected = (
+    slot: typeof selectedDeliverySlot,
+    zone: typeof deliveryZone,
+    reservationId: string
+  ) => {
+    setSelectedDeliverySlot(slot)
+    setDeliveryZone(zone)
+    setDeliveryReservationId(reservationId)
+  }
+
+  // Handle postcode confirmation
+  const handlePostcodeConfirm = () => {
+    if (watchedPostcode && watchedPostcode.length >= 5) {
+      setDeliveryPostcode(watchedPostcode.toUpperCase())
+      setPostcodeConfirmed(true)
+    }
+  }
+
+  // Reset delivery slot when postcode changes
+  const handlePostcodeChange = () => {
+    setPostcodeConfirmed(false)
+    setSelectedDeliverySlot(null)
+    setDeliveryZone(null)
+    setDeliveryReservationId(null)
+  }
 
   // Pre-fill email and name if user is logged in
   useEffect(() => {
@@ -193,14 +260,14 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link
-                    href={`/auth/login?redirect=/checkout`}
+                    href={'/login?redirect=/checkout' as any}
                     className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition-colors"
                   >
                     <LogIn className="h-4 w-4" />
                     Sign In
                   </Link>
                   <Link
-                    href={`/auth/register?redirect=/checkout`}
+                    href={'/register?redirect=/checkout' as any}
                     className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/20 text-white rounded-xl font-semibold hover:bg-white/30 transition-colors"
                   >
                     Create Account
@@ -422,8 +489,60 @@ export default function CheckoutPage() {
                       {...register('deliveryInstructions')}
                     />
                   </div>
+
+                  {/* Postcode confirmation for delivery slots */}
+                  {watchedPostcode && watchedPostcode.length >= 5 && !postcodeConfirmed && (
+                    <Button
+                      type="button"
+                      onClick={handlePostcodeConfirm}
+                      className="w-full bg-emerald-600 hover:bg-emerald-700"
+                    >
+                      Check Delivery Slots for {watchedPostcode.toUpperCase()}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
+
+              {/* Delivery Slot Selection */}
+              {postcodeConfirmed && deliveryPostcode && (
+                <Card className="shadow-sm border-slate-200">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                        <Calendar className="h-4 w-4 text-green-600" />
+                      </div>
+                      Choose Delivery Slot
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <DeliverySlotPicker
+                      postcode={deliveryPostcode}
+                      orderTotalPence={subtotal}
+                      onSlotSelected={handleSlotSelected}
+                      onPostcodeChange={handlePostcodeChange}
+                      selectedSlotId={selectedDeliverySlot?.slot_id}
+                    />
+
+                    {/* Selected slot summary */}
+                    {selectedDeliverySlot && (
+                      <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
+                        <div className="flex items-center gap-2 text-green-700 font-medium mb-1">
+                          <Check className="h-4 w-4" />
+                          Delivery slot selected
+                        </div>
+                        <p className="text-sm text-green-600">
+                          {new Date(selectedDeliverySlot.delivery_date).toLocaleDateString('en-GB', {
+                            weekday: 'long',
+                            day: 'numeric',
+                            month: 'long'
+                          })}, {selectedDeliverySlot.start_time.slice(0, 5)} - {selectedDeliverySlot.end_time.slice(0, 5)}
+                          {selectedDeliverySlot.is_express && ' (Express)'}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Security Badge */}
               <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
@@ -533,21 +652,52 @@ export default function CheckoutPage() {
                         <span>-{formatPrice(totalSavings)}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-gray-600">
-                      <span>Delivery</span>
-                      <span>
-                        {deliveryFee === 0 ? (
-                          <span className="text-emerald-600 font-medium">Free</span>
-                        ) : (
-                          formatPrice(deliveryFee)
-                        )}
-                      </span>
+                    {/* Delivery section with slot info */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-gray-600">
+                        <span>Delivery</span>
+                        <span>
+                          {deliveryFee === 0 ? (
+                            <span className="text-emerald-600 font-medium">Free</span>
+                          ) : (
+                            formatPrice(deliveryFee)
+                          )}
+                        </span>
+                      </div>
+
+                      {/* Delivery slot info */}
+                      {selectedDeliverySlot && (
+                        <div className="text-xs text-gray-500 bg-blue-50 p-2 rounded-lg">
+                          <div className="flex items-center gap-1 text-blue-700 font-medium">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(selectedDeliverySlot.delivery_date).toLocaleDateString('en-GB', {
+                              weekday: 'short',
+                              day: 'numeric',
+                              month: 'short'
+                            })}
+                          </div>
+                          <div className="flex items-center gap-1 text-blue-600">
+                            <Clock className="h-3 w-3" />
+                            {selectedDeliverySlot.start_time.slice(0, 5)} - {selectedDeliverySlot.end_time.slice(0, 5)}
+                            {selectedDeliverySlot.is_express && (
+                              <Badge className="bg-amber-500 text-white text-[9px] px-1 py-0 ml-1">Express</Badge>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Free delivery progress */}
+                      {deliveryFee > 0 && deliveryZone?.free_delivery_threshold_pence && subtotal < deliveryZone.free_delivery_threshold_pence && (
+                        <p className="text-xs text-gray-500 bg-emerald-50 p-2 rounded-lg">
+                          Add {formatPrice(deliveryZone.free_delivery_threshold_pence - subtotal)} more for free delivery!
+                        </p>
+                      )}
+                      {!deliveryZone && deliveryFee > 0 && subtotal < 5000 && (
+                        <p className="text-xs text-gray-500 bg-emerald-50 p-2 rounded-lg">
+                          Add {formatPrice(5000 - subtotal)} more for free delivery!
+                        </p>
+                      )}
                     </div>
-                    {deliveryFee > 0 && (
-                      <p className="text-xs text-gray-500 bg-emerald-50 p-2 rounded-lg">
-                        Add {formatPrice(5000 - subtotal)} more for free delivery!
-                      </p>
-                    )}
                   </div>
 
                   <Separator />

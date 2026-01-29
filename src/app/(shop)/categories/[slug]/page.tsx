@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
+
 interface CategoryPageProps {
   params: Promise<{
     slug: string

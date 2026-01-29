@@ -2,7 +2,20 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Product } from '@/types/database'
+
+// Simplified product type for cart storage
+export interface CartProduct {
+  id: string
+  name: string
+  slug: string
+  price_pence: number
+  image_url: string | null
+  compare_at_price_pence?: number | null
+  unit?: string | null
+  unit_value?: number | null
+  stock_quantity?: number
+  vendor_id?: string | null
+}
 
 export interface MultibuyOffer {
   id: string
@@ -13,7 +26,7 @@ export interface MultibuyOffer {
 }
 
 export interface CartItem {
-  product: Product
+  product: CartProduct
   quantity: number
 }
 
@@ -32,7 +45,7 @@ interface CartState {
   offers: MultibuyOffer[]
   isOpen: boolean
   offersLoaded: boolean
-  addItem: (product: Product, quantity?: number) => void
+  addItem: (product: CartProduct, quantity?: number) => void
   removeItem: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
@@ -51,7 +64,7 @@ export const useCartStore = create<CartState>()(
       isOpen: false,
       offersLoaded: false,
 
-      addItem: (product: Product, quantity = 1) => {
+      addItem: (product: CartProduct, quantity = 1) => {
         const items = get().items
         const existingItem = items.find((item) => item.product.id === product.id)
 

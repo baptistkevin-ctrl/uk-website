@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 // All 100 products organized in 5 batches
 const allProducts = [
   // BATCH 1: Fruits & Vegetables (20 products)

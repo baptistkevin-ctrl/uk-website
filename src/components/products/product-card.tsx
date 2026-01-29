@@ -8,14 +8,50 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { useCart } from '@/hooks/use-cart'
 import { formatPrice } from '@/lib/utils/format'
-import type { Product } from '@/types/database'
+import { WishlistButton } from '@/components/wishlist'
+import { StarRatingCompact } from '@/components/reviews'
 import { useState } from 'react'
 
-interface ProductCardProps {
-  product: Product
+// Simplified product type that accepts partial data from various sources
+export interface ProductCardData {
+  id: string
+  name: string
+  slug: string
+  price_pence: number
+  image_url: string | null
+  compare_at_price_pence?: number | null
+  short_description?: string | null
+  unit?: string | null
+  unit_value?: number | null
+  is_organic?: boolean
+  is_vegan?: boolean
+  is_vegetarian?: boolean
+  is_gluten_free?: boolean
+  is_featured?: boolean
+  has_offer?: boolean
+  offer_badge?: string | null
+  avg_rating?: number
+  review_count?: number
+  stock_quantity?: number
+  track_inventory?: boolean
+  allow_backorder?: boolean
+  low_stock_threshold?: number
+  brand?: string | null
+  vendor?: {
+    id?: string
+    business_name: string
+    slug: string
+    is_verified?: boolean
+  } | null
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+interface ProductCardProps {
+  product: ProductCardData
+  isLoggedIn?: boolean
+  variant?: 'default' | 'horizontal'
+}
+
+export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
   const { addItem, openCart } = useCart()
   const [isAdding, setIsAdding] = useState(false)
   const [justAdded, setJustAdded] = useState(false)
@@ -41,8 +77,10 @@ export function ProductCard({ product }: ProductCardProps) {
     ? Math.round((1 - product.price_pence / product.compare_at_price_pence!) * 100)
     : 0
 
-  const isOutOfStock = product.track_inventory && product.stock_quantity === 0 && !product.allow_backorder
-  const isLowStock = product.track_inventory && product.stock_quantity <= product.low_stock_threshold && product.stock_quantity > 0
+  const stockQty = product.stock_quantity ?? 999
+  const lowStockThreshold = product.low_stock_threshold ?? 5
+  const isOutOfStock = product.track_inventory && stockQty === 0 && !product.allow_backorder
+  const isLowStock = product.track_inventory && stockQty <= lowStockThreshold && stockQty > 0
 
   return (
     <Card className="group overflow-hidden border-slate-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 bg-white">
@@ -121,27 +159,37 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
           )}
 
-          {/* Quick Add Button - Appears on Hover */}
-          {!isOutOfStock && (
-            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-              <Button
-                size="icon"
-                className={`h-10 w-10 rounded-full shadow-lg transition-all duration-300 ${
-                  justAdded
-                    ? 'bg-emerald-500 hover:bg-emerald-600'
-                    : 'bg-white hover:bg-emerald-500 text-emerald-600 hover:text-white'
-                }`}
-                onClick={handleAddToCart}
-                disabled={isAdding}
-              >
-                {justAdded ? (
-                  <Check className="h-5 w-5" />
-                ) : (
-                  <Plus className="h-5 w-5" />
-                )}
-              </Button>
-            </div>
-          )}
+          {/* Wishlist & Quick Add Buttons - Top Right */}
+          <div className="absolute top-3 right-3 flex flex-col gap-2">
+            {/* Wishlist Button - Always visible */}
+            <WishlistButton
+              productId={product.id}
+              isLoggedIn={isLoggedIn}
+              size="sm"
+            />
+
+            {/* Quick Add Button - Appears on Hover */}
+            {!isOutOfStock && (
+              <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                <Button
+                  size="icon"
+                  className={`h-8 w-8 rounded-full shadow-lg transition-all duration-300 ${
+                    justAdded
+                      ? 'bg-emerald-500 hover:bg-emerald-600'
+                      : 'bg-white hover:bg-emerald-500 text-emerald-600 hover:text-white'
+                  }`}
+                  onClick={handleAddToCart}
+                  disabled={isAdding}
+                >
+                  {justAdded ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Plus className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Content */}
@@ -150,6 +198,15 @@ export function ProductCard({ product }: ProductCardProps) {
           <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:text-emerald-600 transition-colors leading-tight">
             {product.name}
           </h3>
+
+          {/* Star Rating */}
+          {product.avg_rating && product.avg_rating > 0 && (
+            <StarRatingCompact
+              rating={product.avg_rating}
+              reviewCount={product.review_count ?? 0}
+              className="mb-1"
+            />
+          )}
 
           {/* Short Description */}
           {product.short_description && (

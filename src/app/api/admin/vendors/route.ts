@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
+import { vendorAudit } from '@/lib/security'
+
+export const dynamic = 'force-dynamic'
 
 // GET all vendors
 export async function GET(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
+
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
   const status = searchParams.get('status')
@@ -27,6 +35,10 @@ export async function GET(request: NextRequest) {
 
 // UPDATE vendor
 export async function PUT(request: NextRequest) {
+  // Verify admin authentication
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
@@ -36,6 +48,13 @@ export async function PUT(request: NextRequest) {
     if (!id) {
       return NextResponse.json({ error: 'Vendor ID is required' }, { status: 400 })
     }
+
+    // Get current vendor for audit logging
+    const { data: currentVendor } = await supabaseAdmin
+      .from('vendors')
+      .select('*')
+      .eq('id', id)
+      .single()
 
     const { data, error } = await supabaseAdmin
       .from('vendors')
@@ -69,6 +88,18 @@ export async function PUT(request: NextRequest) {
           })
           .eq('id', vendor.user_id)
       }
+    }
+
+    // Log audit event
+    if (auth.user && auth.profile) {
+      await vendorAudit.logUpdate(
+        request,
+        { id: auth.user.id, email: auth.user.email || '', role: auth.profile.role },
+        id,
+        data.business_name || id,
+        currentVendor || {},
+        updates
+      )
     }
 
     return NextResponse.json(data)

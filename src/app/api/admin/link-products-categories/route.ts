@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 // Map product keywords to category slugs
 const productCategoryMapping: Record<string, string[]> = {
   // Fruits & Vegetables

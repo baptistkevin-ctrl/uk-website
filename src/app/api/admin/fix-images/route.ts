@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 // Grocery-related Unsplash images (free to use)
 const groceryImages: Record<string, string> = {
   // Bread & Bakery

@@ -1,8 +1,13 @@
+// Re-export from comprehensive locale utilities
+export { formatPrice } from '@/lib/currency'
+export { formatUKDate as formatDate, formatUKDateTime as formatDateTime } from '@/lib/locale'
+
 /**
+ * @deprecated Use formatPrice from '@/lib/currency' instead
  * Format pence to GBP currency string
  * @param pence - Amount in pence (e.g., 399 = £3.99)
  */
-export function formatPrice(pence: number): string {
+export function formatPriceLegacy(pence: number): string {
   return new Intl.NumberFormat('en-GB', {
     style: 'currency',
     currency: 'GBP',
@@ -10,9 +15,10 @@ export function formatPrice(pence: number): string {
 }
 
 /**
+ * @deprecated Use formatUKDate from '@/lib/locale' instead
  * Format date to UK format
  */
-export function formatDate(date: Date | string): string {
+export function formatDateLegacy(date: Date | string): string {
   return new Intl.DateTimeFormat('en-GB', {
     day: 'numeric',
     month: 'long',
@@ -21,9 +27,10 @@ export function formatDate(date: Date | string): string {
 }
 
 /**
+ * @deprecated Use formatUKDateTime from '@/lib/locale' instead
  * Format date with time
  */
-export function formatDateTime(date: Date | string): string {
+export function formatDateTimeLegacy(date: Date | string): string {
   return new Intl.DateTimeFormat('en-GB', {
     day: 'numeric',
     month: 'short',

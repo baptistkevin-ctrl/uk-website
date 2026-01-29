@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 // GET all hero slides
 export async function GET() {
   const supabaseAdmin = getSupabaseAdmin()

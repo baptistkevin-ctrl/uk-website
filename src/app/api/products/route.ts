@@ -1,11 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin, requireVendor } from '@/lib/auth/verify'
+import { productCreateSchema, validateData, formatZodErrors, uuidSchema } from '@/lib/validation/schemas'
+import { sanitizeText, sanitizeRichHtml, sanitizeUrl, productAudit } from '@/lib/security'
+
+export const dynamic = 'force-dynamic'
 
 // GET all products
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const category = searchParams.get('category')
   const includeInactive = searchParams.get('includeInactive') === 'true'
+
+  // Validate category UUID if provided
+  if (category) {
+    const categoryValidation = uuidSchema.safeParse(category)
+    if (!categoryValidation.success) {
+      return NextResponse.json({ error: 'Invalid category ID format' }, { status: 400 })
+    }
+  }
 
   const supabaseAdmin = getSupabaseAdmin()
   let query = supabaseAdmin.from('products').select('*, categories(name)')
@@ -27,19 +40,69 @@ export async function GET(request: NextRequest) {
   return NextResponse.json(data)
 }
 
-// POST new product
+// POST new product (requires admin or vendor)
 export async function POST(request: NextRequest) {
+  // Try admin auth first, then vendor
+  let auth = await requireAdmin(request)
+  let isVendor = false
+
+  if (!auth.success) {
+    const vendorAuth = await requireVendor(request)
+    if (!vendorAuth.success) {
+      return NextResponse.json({ error: 'Unauthorized - Admin or vendor access required' }, { status: 403 })
+    }
+    auth = vendorAuth
+    isVendor = true
+  }
+
   const body = await request.json()
+
+  // Validate with Zod schema
+  const validation = validateData(productCreateSchema, body)
+  if (!validation.success) {
+    return NextResponse.json(
+      { error: 'Validation failed', details: formatZodErrors(validation.errors) },
+      { status: 400 }
+    )
+  }
+
+  const validatedData = validation.data
+
+  // Sanitize text fields
+  const sanitizedProduct = {
+    ...validatedData,
+    name: sanitizeText(validatedData.name),
+    description: validatedData.description ? sanitizeRichHtml(validatedData.description) : null,
+    short_description: validatedData.short_description ? sanitizeText(validatedData.short_description) : null,
+    brand: validatedData.brand ? sanitizeText(validatedData.brand) : null,
+    image_url: validatedData.image_url ? sanitizeUrl(validatedData.image_url) : null,
+    images: validatedData.images?.map(url => sanitizeUrl(url)).filter(Boolean) || [],
+    meta_title: validatedData.meta_title ? sanitizeText(validatedData.meta_title) : null,
+    meta_description: validatedData.meta_description ? sanitizeText(validatedData.meta_description) : null,
+    // If vendor, automatically set vendor_id
+    vendor_id: isVendor && 'vendorId' in auth ? auth.vendorId : validatedData.vendor_id
+  }
 
   const supabaseAdmin = getSupabaseAdmin()
   const { data, error } = await supabaseAdmin
     .from('products')
-    .insert([body])
+    .insert([sanitizedProduct])
     .select()
     .single()
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  // Log audit event
+  if (auth.user && auth.profile) {
+    await productAudit.logCreate(
+      request,
+      { id: auth.user.id, email: auth.user.email || '', role: auth.profile.role },
+      data.id,
+      data.name,
+      sanitizedProduct
+    )
   }
 
   return NextResponse.json(data, { status: 201 })

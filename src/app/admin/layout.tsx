@@ -23,6 +23,16 @@ import {
   Users,
   FileText,
   Loader2,
+  MessageCircleQuestion,
+  Gift,
+  BellRing,
+  RotateCcw,
+  History,
+  UserCog,
+  Mail,
+  Upload,
+  Bot,
+  Headphones,
 } from 'lucide-react'
 import { AdminSearch } from '@/components/admin/AdminSearch'
 import { createClient } from '@/lib/supabase/client'
@@ -33,12 +43,23 @@ const sidebarLinks = [
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/categories', label: 'Categories', icon: FolderTree },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+  { href: '/admin/invoices', label: 'Invoices', icon: FileText },
   { href: '/admin/vendors', label: 'Vendors', icon: Store },
   { href: '/admin/vendor-applications', label: 'Applications', icon: FileText },
   { href: '/admin/offers', label: 'Multi-Buy Offers', icon: Tag },
+  { href: '/admin/gift-cards', label: 'Gift Cards', icon: Gift },
+  { href: '/admin/live-support', label: 'Live Support', icon: Headphones },
+  { href: '/admin/chatbot', label: 'Chatbot', icon: Bot },
+  { href: '/admin/questions', label: 'Q&A', icon: MessageCircleQuestion },
+  { href: '/admin/stock-alerts', label: 'Stock Alerts', icon: BellRing },
+  { href: '/admin/abandoned-carts', label: 'Abandoned Carts', icon: RotateCcw },
   { href: '/admin/hero-slides', label: 'Hero Slides', icon: ImageIcon },
   { href: '/admin/delivery', label: 'Delivery', icon: Truck },
   { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+  { href: '/admin/team', label: 'Team', icon: UserCog },
+  { href: '/admin/email-templates', label: 'Email Templates', icon: Mail },
+  { href: '/admin/import-export', label: 'Import/Export', icon: Upload },
+  { href: '/admin/audit-logs', label: 'Activity Logs', icon: History },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -48,44 +69,57 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [checkingAccess, setCheckingAccess] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
 
   useEffect(() => {
     const checkAdminAccess = async () => {
+      // Wait for auth to finish loading
+      if (authLoading) {
+        return
+      }
+
       if (!user) {
-        router.push('/login?redirect=/admin')
+        router.push('/login?redirect=/admin' as any)
         return
       }
 
       try {
         // Check if user is admin
-        const { data: profile } = await supabase
+        const { data: profile, error } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', user.id)
           .single()
 
-        if (profile?.role === 'admin') {
+        if (error) {
+          console.error('Profile fetch error:', error)
+          router.push('/')
+          return
+        }
+
+        // Check for admin or super_admin role
+        if (profile?.role === 'admin' || profile?.role === 'super_admin') {
           setIsAdmin(true)
         } else {
           // Not an admin, redirect to home
+          console.log('User role:', profile?.role, '- not admin')
           router.push('/')
         }
       } catch (error) {
         console.error('Admin check error:', error)
         router.push('/')
       } finally {
-        setLoading(false)
+        setCheckingAccess(false)
       }
     }
 
     checkAdminAccess()
-  }, [user, router, supabase])
+  }, [user, authLoading, router, supabase])
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -93,7 +127,7 @@ export default function AdminLayout({
     router.refresh()
   }
 
-  if (loading) {
+  if (authLoading || checkingAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="text-center">
@@ -155,7 +189,7 @@ export default function AdminLayout({
             return (
               <Link
                 key={link.href}
-                href={link.href}
+                href={link.href as any}
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 group ${
                   active

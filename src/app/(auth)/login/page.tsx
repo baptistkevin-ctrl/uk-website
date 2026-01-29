@@ -63,7 +63,7 @@ function LoginFormContent() {
       // Check user role to determine redirect
       const redirectParam = searchParams.get('redirectTo')
       if (redirectParam) {
-        router.push(redirectParam)
+        router.push(redirectParam as any)
         router.refresh()
         return
       }

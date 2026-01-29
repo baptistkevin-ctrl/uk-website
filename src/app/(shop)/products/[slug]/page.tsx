@@ -15,7 +15,8 @@ import {
   Package,
   AlertTriangle,
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Store
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { formatPrice } from '@/lib/utils/format'
@@ -23,7 +24,16 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { AddToCartButton } from '@/components/products/add-to-cart-button'
+import { StarRatingCompact, ReviewList } from '@/components/reviews'
+import { WishlistButton } from '@/components/wishlist'
+import { VendorBadge } from '@/components/store'
+import { ProductViewTracker } from '@/components/products/product-view-tracker'
+import { ProductGallery } from '@/components/products/product-gallery'
+import { StockAlertButton } from '@/components/products/stock-alert-button'
+import { ProductQA } from '@/components/products/product-qa'
 import type { Metadata } from 'next'
+
+export const dynamic = 'force-dynamic'
 
 interface ProductPageProps {
   params: Promise<{
@@ -57,9 +67,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params
   const supabase = await createClient()
 
+  // Get user auth status
+  const { data: { user } } = await supabase.auth.getUser()
+  const isLoggedIn = !!user
+
+  // Get product with vendor info
   const { data: product, error } = await supabase
     .from('products')
-    .select('*')
+    .select(`
+      *,
+      vendor:vendors(
+        id,
+        business_name,
+        slug,
+        logo_url,
+        is_verified
+      )
+    `)
     .eq('slug', slug)
     .eq('is_active', true)
     .single()
@@ -67,6 +91,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (error || !product) {
     notFound()
   }
+
+  const vendor = product.vendor as {
+    id: string
+    business_name: string
+    slug: string
+    logo_url: string | null
+    is_verified: boolean
+  } | null
 
   const hasDiscount = product.compare_at_price_pence && product.compare_at_price_pence > product.price_pence
   const discountPercentage = hasDiscount
@@ -109,27 +141,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Image */}
+          {/* Product Image Gallery */}
           <div className="space-y-4">
-            <div className="relative aspect-square bg-gradient-to-br from-slate-100 to-slate-50 rounded-3xl overflow-hidden shadow-2xl shadow-slate-200/50">
-              {product.image_url ? (
-                <Image
-                  src={product.image_url}
-                  alt={product.name}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <div className="w-32 h-32 bg-slate-200 rounded-full flex items-center justify-center">
-                    <ShoppingBag className="h-16 w-16 text-slate-400" />
-                  </div>
-                </div>
-              )}
+            <div className="relative">
+              {/* Product Gallery Component */}
+              <ProductGallery
+                images={[
+                  ...(product.image_url ? [product.image_url] : []),
+                  ...(product.images || [])
+                ].filter(Boolean)}
+                productName={product.name}
+                showThumbnails={true}
+                showZoom={true}
+                showLightbox={true}
+              />
 
-              {/* Badges */}
-              <div className="absolute top-6 left-6 flex flex-col gap-2">
+              {/* Badges Overlay */}
+              <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-none">
                 {hasDiscount && (
                   <Badge className="bg-red-500 hover:bg-red-600 text-white shadow-lg text-sm font-bold px-3 py-1">
                     -{discountPercentage}% OFF
@@ -143,9 +171,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 )}
               </div>
 
-              {/* Stock Status */}
+              {/* Stock Status Overlay */}
               {isOutOfStock && (
-                <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center">
+                <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-20 rounded-2xl">
                   <div className="text-center">
                     <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-3">
                       <Package className="h-8 w-8 text-slate-400" />
@@ -157,8 +185,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 </div>
               )}
 
-              {isLowStock && (
-                <div className="absolute bottom-6 left-6 right-6">
+              {isLowStock && !isOutOfStock && (
+                <div className="absolute bottom-4 left-4 right-4 z-10">
                   <div className="bg-amber-100 border border-amber-200 rounded-xl px-4 py-3 flex items-center gap-3 shadow-lg">
                     <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
                     <span className="text-sm font-medium text-amber-800">
@@ -184,15 +212,34 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           {/* Product Details */}
           <div className="lg:py-4">
-            {/* Brand */}
-            {product.brand && (
-              <p className="text-emerald-600 font-medium mb-2">{product.brand}</p>
-            )}
+            {/* Brand & Vendor */}
+            <div className="flex items-center gap-3 mb-2 flex-wrap">
+              {product.brand && (
+                <span className="text-emerald-600 font-medium">{product.brand}</span>
+              )}
+              {vendor && (
+                <>
+                  {product.brand && <span className="text-gray-300">•</span>}
+                  <VendorBadge vendor={vendor} />
+                </>
+              )}
+            </div>
 
             {/* Product Name */}
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4 leading-tight">
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2 leading-tight">
               {product.name}
             </h1>
+
+            {/* Star Rating */}
+            {product.avg_rating > 0 && (
+              <div className="mb-4">
+                <StarRatingCompact
+                  rating={product.avg_rating}
+                  reviewCount={product.review_count}
+                  size="md"
+                />
+              </div>
+            )}
 
             {/* Short Description */}
             {product.short_description && (
@@ -246,9 +293,29 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </CardContent>
             </Card>
 
-            {/* Add to Cart */}
+            {/* Add to Cart & Wishlist */}
             <div className="mb-8">
-              <AddToCartButton product={product} disabled={isOutOfStock} />
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <AddToCartButton product={product} disabled={isOutOfStock} />
+                </div>
+                <WishlistButton
+                  productId={product.id}
+                  isLoggedIn={isLoggedIn}
+                  size="lg"
+                />
+              </div>
+
+              {/* Stock Alert - shown when out of stock */}
+              {isOutOfStock && (
+                <div className="mt-4">
+                  <StockAlertButton
+                    productId={product.id}
+                    productName={product.name}
+                    isLoggedIn={isLoggedIn}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Trust Badges */}
@@ -349,6 +416,26 @@ export default async function ProductPage({ params }: ProductPageProps) {
             )}
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <div className="mt-12">
+          <Separator className="mb-8" />
+          <ReviewList
+            productId={product.id}
+            avgRating={product.avg_rating || 0}
+            reviewCount={product.review_count || 0}
+            isLoggedIn={isLoggedIn}
+          />
+        </div>
+
+        {/* Q&A Section */}
+        <div className="mt-12">
+          <Separator className="mb-8" />
+          <ProductQA productSlug={slug} isLoggedIn={isLoggedIn} />
+        </div>
+
+        {/* Recently Viewed Products + View Tracking */}
+        <ProductViewTracker product={product} />
 
         {/* Back to Products */}
         <div className="mt-12 text-center">

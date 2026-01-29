@@ -1,0 +1,115 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+
+export const dynamic = 'force-dynamic'
+
+// Get all tickets (admin)
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check admin role
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role !== 'admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const status = searchParams.get('status')
+    const priority = searchParams.get('priority')
+    const assigned = searchParams.get('assigned')
+    const search = searchParams.get('search')
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const offset = (page - 1) * limit
+
+    // Build query
+    let query = supabase
+      .from('support_tickets')
+      .select(`
+        *,
+        category:ticket_categories(id, name, slug, icon),
+        user:profiles!support_tickets_user_id_fkey(id, full_name, email, avatar_url),
+        assigned:profiles!support_tickets_assigned_to_fkey(id, full_name, avatar_url),
+        messages:ticket_messages(count)
+      `, { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
+
+    if (status && status !== 'all') {
+      if (status === 'active') {
+        query = query.in('status', ['open', 'in_progress', 'awaiting_customer'])
+      } else {
+        query = query.eq('status', status)
+      }
+    }
+
+    if (priority && priority !== 'all') {
+      query = query.eq('priority', priority)
+    }
+
+    if (assigned === 'unassigned') {
+      query = query.is('assigned_to', null)
+    } else if (assigned === 'me') {
+      query = query.eq('assigned_to', user.id)
+    }
+
+    if (search) {
+      query = query.or(`subject.ilike.%${search}%,ticket_number.ilike.%${search}%`)
+    }
+
+    const { data: tickets, error, count } = await query
+
+    if (error) {
+      console.error('Error fetching tickets:', error)
+      return NextResponse.json({ error: 'Failed to fetch tickets' }, { status: 500 })
+    }
+
+    // Get stats
+    const { data: statsData } = await supabase
+      .from('support_tickets')
+      .select('status, priority')
+
+    const stats = {
+      total: statsData?.length || 0,
+      open: statsData?.filter(t => t.status === 'open').length || 0,
+      in_progress: statsData?.filter(t => t.status === 'in_progress').length || 0,
+      awaiting_customer: statsData?.filter(t => t.status === 'awaiting_customer').length || 0,
+      resolved: statsData?.filter(t => t.status === 'resolved').length || 0,
+      closed: statsData?.filter(t => t.status === 'closed').length || 0,
+      urgent: statsData?.filter(t => t.priority === 'urgent').length || 0,
+      high: statsData?.filter(t => t.priority === 'high').length || 0,
+    }
+
+    // Get agents for assignment dropdown
+    const { data: agents } = await supabase
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .eq('role', 'admin')
+
+    return NextResponse.json({
+      tickets: tickets || [],
+      stats,
+      agents: agents || [],
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        totalPages: Math.ceil((count || 0) / limit)
+      }
+    })
+  } catch (error) {
+    console.error('Admin tickets API error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

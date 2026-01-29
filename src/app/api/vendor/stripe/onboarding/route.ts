@@ -3,6 +3,8 @@ import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 // Create Stripe Connect onboarding link
 export async function POST(request: NextRequest) {
   try {

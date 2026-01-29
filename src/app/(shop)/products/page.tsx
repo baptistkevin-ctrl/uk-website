@@ -18,6 +18,8 @@ import {
   Star
 } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 interface ProductsPageProps {
   searchParams: Promise<{
     search?: string

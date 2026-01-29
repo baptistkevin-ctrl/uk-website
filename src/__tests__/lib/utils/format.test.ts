@@ -33,18 +33,20 @@ describe('Format Utilities', () => {
   })
 
   describe('formatDate', () => {
-    it('formats Date objects to UK format', () => {
+    it('formats Date objects to UK short format', () => {
       const date = new Date('2024-03-15')
-      expect(formatDate(date)).toBe('15 March 2024')
+      // Default format is short: DD/MM/YYYY
+      expect(formatDate(date)).toMatch(/\d{2}\/\d{2}\/2024/)
     })
 
     it('formats date strings to UK format', () => {
-      expect(formatDate('2024-12-25')).toBe('25 December 2024')
-      expect(formatDate('2024-01-01')).toBe('1 January 2024')
+      // Default short format returns DD/MM/YYYY
+      expect(formatDate('2024-12-25')).toMatch(/25\/12\/2024/)
+      expect(formatDate('2024-01-01')).toMatch(/01\/01\/2024/)
     })
 
     it('handles ISO date strings', () => {
-      expect(formatDate('2024-06-15T10:30:00Z')).toMatch(/15 June 2024/)
+      expect(formatDate('2024-06-15T10:30:00Z')).toMatch(/\d{2}\/06\/2024/)
     })
   })
 
@@ -52,13 +54,14 @@ describe('Format Utilities', () => {
     it('formats Date objects with time', () => {
       const date = new Date('2024-03-15T14:30:00')
       const result = formatDateTime(date)
-      expect(result).toMatch(/15 Mar 2024/)
+      // Short format with time: DD/MM/YYYY, HH:MM
+      expect(result).toMatch(/\d{2}\/\d{2}\/2024/)
       expect(result).toMatch(/\d{2}:\d{2}/)
     })
 
     it('formats ISO date strings with time', () => {
       const result = formatDateTime('2024-06-20T09:15:00')
-      expect(result).toMatch(/20 Jun 2024/)
+      expect(result).toMatch(/\d{2}\/06\/2024/)
     })
   })
 

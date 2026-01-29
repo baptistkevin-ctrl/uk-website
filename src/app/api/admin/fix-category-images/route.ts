@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 
+export const dynamic = 'force-dynamic'
+
 // Category image mapping with high-quality Unsplash images
 const categoryImages: Record<string, string> = {
   // Main categories
