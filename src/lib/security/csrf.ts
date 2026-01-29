@@ -191,6 +191,7 @@ export const csrfExemptRoutes = [
   '/api/cron/', // Cron jobs
   '/api/admin/seed-products', // Database seeding
   '/api/admin/seed-categories', // Database seeding
+  '/api/admin/fix-products', // Product category fix
   '/api/setup/', // Setup endpoints
 ]
 
