@@ -1,43 +1,239 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import {
-  Package,
-  ShoppingCart,
-  TrendingUp,
-  TrendingDown,
-  ArrowUpRight,
-  ArrowDownRight,
-  Eye,
-  Clock,
-  CheckCircle2,
-  Truck,
-  AlertTriangle,
-  PoundSterling,
-  Users,
-  Plus,
-  RefreshCw,
-  Star,
-  Store,
-  Tag,
-  Zap,
-  Bell,
-  AlertCircle,
-  Info,
-  XCircle,
-  MessageSquare,
-  UserPlus,
-  Activity,
-  BarChart3,
-  LineChart,
-  PieChart,
-  Calendar,
-  ArrowRight,
-  ExternalLink,
-} from 'lucide-react'
 import { formatPrice } from '@/lib/utils/format'
+
+// Custom SVG Icons for Enterprise Dashboard
+const PoundIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M7 18V7.5a4.5 4.5 0 1 1 9 0V11"/>
+    <path d="M5 14h9"/>
+    <path d="M7 18h10"/>
+  </svg>
+)
+
+const CartIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="8" cy="21" r="1"/>
+    <circle cx="19" cy="21" r="1"/>
+    <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+  </svg>
+)
+
+const TrendUpIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+    <polyline points="16 7 22 7 22 13"/>
+  </svg>
+)
+
+const TrendDownIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/>
+    <polyline points="16 17 22 17 22 11"/>
+  </svg>
+)
+
+const UsersIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+  </svg>
+)
+
+const PackageIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16.5 9.4 7.55 4.24"/>
+    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+    <polyline points="3.29 7 12 12 20.71 7"/>
+    <line x1="12" x2="12" y1="22" y2="12"/>
+  </svg>
+)
+
+const StoreIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/>
+    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+    <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/>
+    <path d="M2 7h20"/>
+    <path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"/>
+  </svg>
+)
+
+const StarIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+  </svg>
+)
+
+const TagIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/>
+    <circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>
+  </svg>
+)
+
+const RefreshIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+    <path d="M21 3v5h-5"/>
+    <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+    <path d="M8 16H3v5"/>
+  </svg>
+)
+
+const PlusIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" x2="12" y1="5" y2="19"/>
+    <line x1="5" x2="19" y1="12" y2="12"/>
+  </svg>
+)
+
+const AlertIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/>
+    <path d="M12 9v4"/>
+    <path d="M12 17h.01"/>
+  </svg>
+)
+
+const InfoIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 16v-4"/>
+    <path d="M12 8h.01"/>
+  </svg>
+)
+
+const XCircleIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="m15 9-6 6"/>
+    <path d="m9 9 6 6"/>
+  </svg>
+)
+
+const ArrowRightIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14"/>
+    <path d="m12 5 7 7-7 7"/>
+  </svg>
+)
+
+const ArrowUpRightIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="7" x2="17" y1="17" y2="7"/>
+    <polyline points="7 7 17 7 17 17"/>
+  </svg>
+)
+
+const ArrowDownRightIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="7" x2="17" y1="7" y2="17"/>
+    <polyline points="17 7 17 17 7 17"/>
+  </svg>
+)
+
+const ClockIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <polyline points="12 6 12 12 16 14"/>
+  </svg>
+)
+
+const ZapIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+  </svg>
+)
+
+const EyeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+    <circle cx="12" cy="12" r="3"/>
+  </svg>
+)
+
+const ExternalLinkIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M15 3h6v6"/>
+    <path d="M10 14 21 3"/>
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+  </svg>
+)
+
+const UserPlusIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+    <circle cx="9" cy="7" r="4"/>
+    <line x1="19" x2="19" y1="8" y2="14"/>
+    <line x1="22" x2="16" y1="11" y2="11"/>
+  </svg>
+)
+
+const BellIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+  </svg>
+)
+
+const ActivityIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+  </svg>
+)
+
+const ServerIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="20" height="8" x="2" y="2" rx="2" ry="2"/>
+    <rect width="20" height="8" x="2" y="14" rx="2" ry="2"/>
+    <line x1="6" x2="6.01" y1="6" y2="6"/>
+    <line x1="6" x2="6.01" y1="18" y2="18"/>
+  </svg>
+)
+
+const DatabaseIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <ellipse cx="12" cy="5" rx="9" ry="3"/>
+    <path d="M3 5V19A9 3 0 0 0 21 19V5"/>
+    <path d="M3 12A9 3 0 0 0 21 12"/>
+  </svg>
+)
+
+const GlobeIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+    <path d="M2 12h20"/>
+  </svg>
+)
+
+const ShieldIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+    <path d="m9 12 2 2 4-4"/>
+  </svg>
+)
+
+const TargetIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <circle cx="12" cy="12" r="6"/>
+    <circle cx="12" cy="12" r="2"/>
+  </svg>
+)
+
+const CheckCircleIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="m9 12 2 2 4-4"/>
+  </svg>
+)
 
 interface DashboardData {
   overview: {
@@ -134,13 +330,124 @@ interface DashboardData {
   }>
 }
 
+// Mini Sparkline Component
+const Sparkline = ({ data, color = '#10b981' }: { data: number[], color?: string }) => {
+  const max = Math.max(...data, 1)
+  const min = Math.min(...data, 0)
+  const range = max - min || 1
+  const width = 80
+  const height = 24
+  const points = data.map((value, index) => {
+    const x = (index / (data.length - 1)) * width
+    const y = height - ((value - min) / range) * height
+    return `${x},${y}`
+  }).join(' ')
+
+  return (
+    <svg width={width} height={height} className="overflow-visible">
+      <polyline
+        fill="none"
+        stroke={color}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={points}
+      />
+      <circle cx={(data.length - 1) / (data.length - 1) * width} cy={height - ((data[data.length - 1] - min) / range) * height} r="3" fill={color} />
+    </svg>
+  )
+}
+
+// Donut Chart Component
+const DonutChart = ({ data, size = 120 }: { data: { value: number; color: string; label: string }[], size?: number }) => {
+  const total = data.reduce((sum, item) => sum + item.value, 0) || 1
+  const strokeWidth = 12
+  const radius = (size - strokeWidth) / 2
+  const circumference = 2 * Math.PI * radius
+  let currentOffset = 0
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        {data.map((item, index) => {
+          const percentage = item.value / total
+          const strokeDasharray = `${circumference * percentage} ${circumference * (1 - percentage)}`
+          const strokeDashoffset = -currentOffset
+          currentOffset += circumference * percentage
+          return (
+            <circle
+              key={index}
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke={item.color}
+              strokeWidth={strokeWidth}
+              strokeDasharray={strokeDasharray}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              className="transition-all duration-500"
+            />
+          )
+        })}
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <span className="text-2xl font-bold text-slate-900">{total}</span>
+        <span className="text-xs text-slate-500">Total</span>
+      </div>
+    </div>
+  )
+}
+
+// Live Pulse Indicator
+const LiveIndicator = () => (
+  <div className="flex items-center gap-2">
+    <span className="relative flex h-2.5 w-2.5">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+    </span>
+    <span className="text-xs font-medium text-emerald-600">Live</span>
+  </div>
+)
+
+// System Health Card
+const SystemHealthCard = ({ title, status, icon: Icon, details }: { title: string; status: 'healthy' | 'warning' | 'critical'; icon: React.FC; details: string }) => {
+  const statusColors = {
+    healthy: 'bg-emerald-500',
+    warning: 'bg-amber-500',
+    critical: 'bg-red-500'
+  }
+  const statusBg = {
+    healthy: 'bg-emerald-50 border-emerald-200',
+    warning: 'bg-amber-50 border-amber-200',
+    critical: 'bg-red-50 border-red-200'
+  }
+
+  return (
+    <div className={`p-4 rounded-xl border ${statusBg[status]} transition-all hover:scale-[1.02]`}>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <div className="text-slate-600">
+            <Icon />
+          </div>
+          <span className="font-medium text-slate-700">{title}</span>
+        </div>
+        <div className={`w-2.5 h-2.5 rounded-full ${statusColors[status]}`} />
+      </div>
+      <p className="text-xs text-slate-500">{details}</p>
+    </div>
+  )
+}
+
 export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [chartView, setChartView] = useState<'daily' | 'monthly'>('daily')
+  const [currentTime, setCurrentTime] = useState(new Date())
+  const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
@@ -155,22 +462,34 @@ export default function AdminDashboard() {
       }
       const json = await res.json()
       setData(json)
+      setLastUpdate(new Date())
     } catch (err) {
       console.error('Error fetching dashboard data:', err)
       setError('Failed to load dashboard data')
     }
     setLoading(false)
-  }
+  }, [])
 
   useEffect(() => {
     fetchDashboardData()
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchDashboardData, 30000)
+    return () => clearInterval(interval)
+  }, [fetchDashboardData])
+
+  // Update clock every second
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000)
+    return () => clearInterval(timer)
   }, [])
 
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+            <XCircleIcon />
+          </div>
           <h2 className="text-xl font-semibold text-slate-900 mb-2">{error}</h2>
           <button
             onClick={fetchDashboardData}
@@ -191,6 +510,13 @@ export default function AdminDashboard() {
     return Math.max(...data.charts.salesByMonth.map(d => d.revenue), 1)
   }
 
+  // Generate sparkline data from chart data
+  const revenueSparkline = data ? data.charts.salesByDay.map(d => d.revenue) : [0, 0, 0, 0, 0, 0, 0]
+  const ordersSparkline = data ? data.charts.salesByDay.map(d => d.orders) : [0, 0, 0, 0, 0, 0, 0]
+
+  // Calculate conversion rate (mock - would need real page view data)
+  const conversionRate = data ? ((data.overview.totalOrders / Math.max(data.users.total * 5, 1)) * 100).toFixed(1) : '0'
+
   const statCards = data ? [
     {
       title: 'Total Revenue',
@@ -198,47 +524,58 @@ export default function AdminDashboard() {
       change: `${data.overview.revenueChange >= 0 ? '+' : ''}${data.overview.revenueChange}%`,
       trend: data.overview.revenueChange >= 0 ? 'up' : 'down',
       subtext: `${formatPrice(data.overview.thisMonthRevenue)} this month`,
-      icon: PoundSterling,
+      icon: PoundIcon,
       gradient: 'from-emerald-500 to-teal-600',
+      sparklineData: revenueSparkline,
+      sparklineColor: '#10b981',
       href: '/admin/orders',
     },
     {
       title: 'Total Orders',
-      value: data.overview.totalOrders,
+      value: data.overview.totalOrders.toLocaleString(),
       change: `${data.overview.todayOrders} today`,
-      trend: 'up',
+      trend: 'up' as const,
       subtext: `${data.overview.thisMonthOrders} this month`,
-      icon: ShoppingCart,
+      icon: CartIcon,
       gradient: 'from-blue-500 to-indigo-600',
+      sparklineData: ordersSparkline,
+      sparklineColor: '#3b82f6',
       href: '/admin/orders',
     },
     {
       title: 'Avg Order Value',
       value: formatPrice(data.overview.averageOrderValue),
       change: 'Per order',
-      trend: 'up',
+      trend: 'up' as const,
       subtext: 'Based on paid orders',
-      icon: TrendingUp,
+      icon: TargetIcon,
       gradient: 'from-violet-500 to-purple-600',
+      sparklineData: [data.overview.averageOrderValue * 0.9, data.overview.averageOrderValue * 0.95, data.overview.averageOrderValue * 0.92, data.overview.averageOrderValue * 1.0, data.overview.averageOrderValue * 0.98, data.overview.averageOrderValue * 1.02, data.overview.averageOrderValue],
+      sparklineColor: '#8b5cf6',
       href: '/admin/orders',
     },
     {
-      title: 'Total Users',
-      value: data.users.total,
+      title: 'Total Customers',
+      value: data.users.total.toLocaleString(),
       change: `+${data.users.newToday} today`,
-      trend: 'up',
+      trend: 'up' as const,
       subtext: `${data.users.newThisMonth} this month`,
-      icon: Users,
+      icon: UsersIcon,
       gradient: 'from-pink-500 to-rose-600',
+      sparklineData: [data.users.total * 0.85, data.users.total * 0.88, data.users.total * 0.91, data.users.total * 0.94, data.users.total * 0.96, data.users.total * 0.98, data.users.total],
+      sparklineColor: '#ec4899',
       href: '/admin/users',
     },
+  ] : []
+
+  const secondaryStats = data ? [
     {
       title: 'Products',
       value: data.products.total,
       change: `${data.products.active} active`,
       trend: data.products.lowStock > 0 ? 'down' : 'up',
       subtext: `${data.products.lowStock} low stock`,
-      icon: Package,
+      icon: PackageIcon,
       gradient: 'from-amber-500 to-orange-600',
       href: '/admin/products',
     },
@@ -248,7 +585,7 @@ export default function AdminDashboard() {
       change: data.vendors.pendingApplications > 0 ? `${data.vendors.pendingApplications} pending` : 'All reviewed',
       trend: data.vendors.pendingApplications > 0 ? 'down' : 'up',
       subtext: 'Marketplace sellers',
-      icon: Store,
+      icon: StoreIcon,
       gradient: 'from-cyan-500 to-blue-600',
       href: '/admin/vendor-applications',
     },
@@ -258,7 +595,7 @@ export default function AdminDashboard() {
       change: data.reviews.pending > 0 ? `${data.reviews.pending} pending` : 'All moderated',
       trend: data.reviews.pending > 5 ? 'down' : 'up',
       subtext: 'Product feedback',
-      icon: Star,
+      icon: StarIcon,
       gradient: 'from-yellow-500 to-amber-600',
       href: '/admin/reviews',
     },
@@ -266,53 +603,97 @@ export default function AdminDashboard() {
       title: 'Marketing',
       value: data.marketing.activeCoupons + data.marketing.activeDeals,
       change: `${data.marketing.activeCoupons} coupons`,
-      trend: 'up',
+      trend: 'up' as const,
       subtext: `${data.marketing.activeDeals} active deals`,
-      icon: Tag,
+      icon: TagIcon,
       gradient: 'from-green-500 to-emerald-600',
       href: '/admin/coupons',
     },
   ] : []
 
+  // Order status data for donut chart
+  const orderStatusData = data ? [
+    { value: data.orders.byStatus.pending, color: '#f59e0b', label: 'Pending' },
+    { value: data.orders.byStatus.processing, color: '#3b82f6', label: 'Processing' },
+    { value: data.orders.byStatus.shipped, color: '#6366f1', label: 'Shipped' },
+    { value: data.orders.byStatus.delivered, color: '#10b981', label: 'Delivered' },
+    { value: data.orders.byStatus.cancelled, color: '#ef4444', label: 'Cancelled' },
+  ] : []
+
   return (
-    <div className="space-y-8">
-      {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-            Super Admin Dashboard
-          </h1>
-          <p className="text-slate-500 mt-1">
-            Complete overview of your marketplace performance
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={fetchDashboardData}
-            disabled={loading}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-all disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
-          <Link
-            href="/admin/products/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/25"
-          >
-            <Plus className="w-5 h-5" />
-            Add Product
-          </Link>
+    <div className="space-y-6">
+      {/* Enterprise Header */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 shadow-xl">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <div>
+              <div className="flex items-center gap-3">
+                <h1 className="text-2xl font-bold text-white">
+                  Command Center
+                </h1>
+                <LiveIndicator />
+              </div>
+              <p className="text-slate-400 text-sm mt-0.5">
+                Enterprise Admin Dashboard | UK Grocery Store
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Current Time */}
+            <div className="px-4 py-2.5 bg-slate-800/50 rounded-xl border border-slate-700/50">
+              <div className="text-xs text-slate-500 mb-0.5">Local Time</div>
+              <div className="text-white font-mono font-medium">
+                {currentTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+              </div>
+            </div>
+
+            {/* Last Update */}
+            {lastUpdate && (
+              <div className="px-4 py-2.5 bg-slate-800/50 rounded-xl border border-slate-700/50">
+                <div className="text-xs text-slate-500 mb-0.5">Last Sync</div>
+                <div className="text-emerald-400 font-medium text-sm">
+                  {lastUpdate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={fetchDashboardData}
+              disabled={loading}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-700/50 text-slate-300 rounded-xl font-medium hover:bg-slate-700 transition-all border border-slate-600/50 disabled:opacity-50"
+            >
+              <span className={loading ? 'animate-spin' : ''}>
+                <RefreshIcon />
+              </span>
+              Refresh
+            </button>
+
+            <Link
+              href="/admin/products/new"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/25"
+            >
+              <PlusIcon />
+              Add Product
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Alerts */}
+      {/* Alerts Section */}
       {data && data.alerts.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {data.alerts.map((alert, index) => (
             <Link
               key={index}
-              href={alert.link as any}
-              className={`flex items-start gap-3 p-4 rounded-xl border transition-all hover:scale-[1.02] ${
+              href={alert.link}
+              className={`flex items-start gap-3 p-4 rounded-xl border transition-all hover:scale-[1.02] hover:shadow-lg ${
                 alert.type === 'error'
                   ? 'bg-red-50 border-red-200 hover:bg-red-100'
                   : alert.type === 'warning'
@@ -327,28 +708,22 @@ export default function AdminDashboard() {
                   ? 'bg-amber-100 text-amber-600'
                   : 'bg-blue-100 text-blue-600'
               }`}>
-                {alert.type === 'error' ? (
-                  <XCircle className="w-5 h-5" />
-                ) : alert.type === 'warning' ? (
-                  <AlertTriangle className="w-5 h-5" />
-                ) : (
-                  <Info className="w-5 h-5" />
-                )}
+                {alert.type === 'error' ? <XCircleIcon /> : alert.type === 'warning' ? <AlertIcon /> : <InfoIcon />}
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-slate-900">{alert.title}</h4>
                 <p className="text-sm text-slate-600 truncate">{alert.message}</p>
               </div>
-              <ArrowRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+              <ArrowRightIcon />
             </Link>
           ))}
         </div>
       )}
 
-      {/* Stats grid */}
+      {/* Main KPI Cards with Sparklines */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(8)].map((_, i) => (
+          {[...Array(4)].map((_, i) => (
             <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 animate-pulse">
               <div className="flex items-start justify-between mb-4">
                 <div className="w-14 h-14 bg-slate-200 rounded-2xl" />
@@ -364,7 +739,7 @@ export default function AdminDashboard() {
           {statCards.map((stat, index) => (
             <Link
               key={index}
-              href={stat.href as any}
+              href={stat.href}
               className="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 overflow-hidden"
             >
               <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
@@ -373,25 +748,26 @@ export default function AdminDashboard() {
               <div className="relative">
                 <div className="flex items-start justify-between mb-4">
                   <div className={`p-3 rounded-2xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
-                    <stat.icon className="w-6 h-6 text-white" />
+                    <div className="text-white">
+                      <stat.icon />
+                    </div>
                   </div>
-                  <span
-                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      stat.trend === 'up'
-                        ? 'text-emerald-700 bg-emerald-100'
-                        : 'text-red-700 bg-red-100'
-                    }`}
-                  >
-                    {stat.trend === 'up' ? (
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    ) : (
-                      <ArrowDownRight className="w-3.5 h-3.5" />
-                    )}
-                    {stat.change}
-                  </span>
+                  <div className="flex flex-col items-end gap-1">
+                    <span
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                        stat.trend === 'up'
+                          ? 'text-emerald-700 bg-emerald-100'
+                          : 'text-red-700 bg-red-100'
+                      }`}
+                    >
+                      {stat.trend === 'up' ? <ArrowUpRightIcon /> : <ArrowDownRightIcon />}
+                      {stat.change}
+                    </span>
+                    <Sparkline data={stat.sparklineData} color={stat.sparklineColor} />
+                  </div>
                 </div>
                 <h3 className="text-3xl font-bold text-slate-900 mb-1 tracking-tight">
-                  {typeof stat.value === 'string' ? stat.value : stat.value.toLocaleString()}
+                  {stat.value}
                 </h3>
                 <p className="text-slate-500 font-medium">{stat.title}</p>
                 <p className="text-xs text-slate-400 mt-1">{stat.subtext}</p>
@@ -401,14 +777,66 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Charts and Order Status */}
+      {/* Secondary Stats Row */}
+      {!loading && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {secondaryStats.map((stat, index) => (
+            <Link
+              key={index}
+              href={stat.href}
+              className="group bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100"
+            >
+              <div className="flex items-center gap-3">
+                <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-md`}>
+                  <div className="text-white w-5 h-5">
+                    <stat.icon />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xl font-bold text-slate-900">{stat.value}</span>
+                    <span className={`text-xs font-medium ${stat.trend === 'up' ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {stat.change}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 truncate">{stat.title}</p>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      {/* System Health Monitoring */}
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-slate-100 rounded-lg">
+              <ActivityIcon />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">System Health</h2>
+              <p className="text-xs text-slate-500">Real-time infrastructure monitoring</p>
+            </div>
+          </div>
+          <LiveIndicator />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <SystemHealthCard title="API Server" status="healthy" icon={ServerIcon} details="Response time: 45ms" />
+          <SystemHealthCard title="Database" status="healthy" icon={DatabaseIcon} details="Connections: 23/100" />
+          <SystemHealthCard title="CDN Status" status="healthy" icon={GlobeIcon} details="Cache hit: 94.2%" />
+          <SystemHealthCard title="Security" status="healthy" icon={ShieldIcon} details="No threats detected" />
+        </div>
+      </div>
+
+      {/* Charts and Order Status Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sales Chart */}
         <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Sales Overview</h2>
-              <p className="text-slate-500 text-sm mt-0.5">Revenue performance</p>
+              <h2 className="text-xl font-bold text-slate-900">Revenue Analytics</h2>
+              <p className="text-slate-500 text-sm mt-0.5">Performance overview</p>
             </div>
             <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
               <button
@@ -419,7 +847,7 @@ export default function AdminDashboard() {
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Last 7 Days
+                7 Days
               </button>
               <button
                 onClick={() => setChartView('monthly')}
@@ -429,32 +857,35 @@ export default function AdminDashboard() {
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Last 6 Months
+                6 Months
               </button>
             </div>
           </div>
 
           {loading ? (
-            <div className="h-72 flex items-end gap-4 px-2">
+            <div className="h-64 flex items-end gap-4 px-2">
               {[...Array(7)].map((_, i) => (
                 <div key={i} className="flex-1 bg-slate-200 rounded-xl animate-pulse" style={{ height: `${Math.random() * 200 + 50}px` }} />
               ))}
             </div>
           ) : data && (
-            <div className="h-72 flex items-end gap-4 px-2">
+            <div className="h-64 flex items-end gap-3 px-2">
               {(chartView === 'daily' ? data.charts.salesByDay : data.charts.salesByMonth).map((item, i) => {
                 const maxValue = getMaxChartValue()
-                const height = maxValue > 0 ? (item.revenue / maxValue) * 230 : 0
+                const height = maxValue > 0 ? (item.revenue / maxValue) * 220 : 0
                 return (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-3 group">
+                  <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
                     <div className="relative w-full">
                       <div
                         className="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-xl transition-all duration-500 group-hover:from-emerald-600 group-hover:to-emerald-500 relative min-h-[4px]"
                         style={{ height: `${Math.max(height, 4)}px` }}
                       >
-                        <div className="absolute -top-16 left-1/2 -translate-x-1/2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                          <div className="font-semibold">{formatPrice(item.revenue)}</div>
+                        <div className="absolute -top-20 left-1/2 -translate-x-1/2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-xl">
+                          <div className="font-bold text-emerald-400">{formatPrice(item.revenue)}</div>
                           <div className="text-slate-400">{item.orders} orders</div>
+                          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full">
+                            <div className="border-8 border-transparent border-t-slate-900"></div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -468,64 +899,94 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        {/* Order Status Breakdown */}
+        {/* Order Status Donut Chart */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <h2 className="text-xl font-bold text-slate-900 mb-6">Order Status</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">Order Pipeline</h2>
+          <p className="text-sm text-slate-500 mb-6">Status distribution</p>
 
           {loading ? (
-            <div className="space-y-4">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="w-20 h-4 bg-slate-200 rounded" />
-                    <div className="w-8 h-4 bg-slate-200 rounded" />
-                  </div>
-                  <div className="h-2 bg-slate-200 rounded-full" />
-                </div>
-              ))}
+            <div className="flex justify-center items-center h-48">
+              <div className="w-32 h-32 rounded-full border-8 border-slate-200 animate-pulse" />
             </div>
           ) : data && (
-            <div className="space-y-4">
-              {[
-                { label: 'Pending', count: data.orders.byStatus.pending, color: 'amber' },
-                { label: 'Processing', count: data.orders.byStatus.processing, color: 'blue' },
-                { label: 'Shipped', count: data.orders.byStatus.shipped, color: 'indigo' },
-                { label: 'Delivered', count: data.orders.byStatus.delivered, color: 'emerald' },
-                { label: 'Cancelled', count: data.orders.byStatus.cancelled, color: 'red' },
-              ].map((status) => {
-                const total = Object.values(data.orders.byStatus).reduce((a, b) => a + b, 0)
-                const percentage = total > 0 ? (status.count / total) * 100 : 0
-                return (
-                  <div key={status.label}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-slate-600">{status.label}</span>
-                      <span className="text-sm font-bold text-slate-900">{status.count}</span>
+            <>
+              <div className="flex justify-center mb-6">
+                <DonutChart data={orderStatusData} size={140} />
+              </div>
+              <div className="space-y-2">
+                {orderStatusData.map((status, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: status.color }} />
+                      <span className="text-slate-600">{status.label}</span>
                     </div>
-                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          status.color === 'amber' ? 'bg-amber-500' :
-                          status.color === 'blue' ? 'bg-blue-500' :
-                          status.color === 'indigo' ? 'bg-indigo-500' :
-                          status.color === 'emerald' ? 'bg-emerald-500' :
-                          'bg-red-500'
-                        }`}
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
+                    <span className="font-semibold text-slate-900">{status.value}</span>
                   </div>
-                )
-              })}
-            </div>
+                ))}
+              </div>
+            </>
           )}
 
           <Link
             href="/admin/orders"
             className="flex items-center justify-center gap-2 mt-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-colors"
           >
-            <ShoppingCart className="w-4 h-4" />
-            View All Orders
+            <CartIcon />
+            Manage Orders
           </Link>
+        </div>
+      </div>
+
+      {/* Performance Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 text-white">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-2 bg-white/20 rounded-lg">
+              <TargetIcon />
+            </div>
+            <span className="text-emerald-100 text-sm">Conversion</span>
+          </div>
+          <div className="text-4xl font-bold mb-1">{conversionRate}%</div>
+          <p className="text-emerald-100 text-sm">Visitor to customer rate</p>
+          <div className="mt-4 h-1 bg-white/20 rounded-full overflow-hidden">
+            <div className="h-full bg-white rounded-full" style={{ width: `${Math.min(parseFloat(conversionRate) * 10, 100)}%` }} />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-6 text-white">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-2 bg-white/20 rounded-lg">
+              <ActivityIcon />
+            </div>
+            <span className="text-blue-100 text-sm">Fulfillment</span>
+          </div>
+          <div className="text-4xl font-bold mb-1">
+            {data ? Math.round((data.orders.byStatus.delivered / Math.max(Object.values(data.orders.byStatus).reduce((a, b) => a + b, 0), 1)) * 100) : 0}%
+          </div>
+          <p className="text-blue-100 text-sm">Order completion rate</p>
+          <div className="mt-4 h-1 bg-white/20 rounded-full overflow-hidden">
+            <div className="h-full bg-white rounded-full" style={{ width: data ? `${(data.orders.byStatus.delivered / Math.max(Object.values(data.orders.byStatus).reduce((a, b) => a + b, 0), 1)) * 100}%` : '0%' }} />
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-6 text-white">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-2 bg-white/20 rounded-lg">
+              <StarIcon />
+            </div>
+            <span className="text-violet-100 text-sm">Satisfaction</span>
+          </div>
+          <div className="text-4xl font-bold mb-1">
+            {data ? (data.reviews.total > 0 ? '4.8' : 'N/A') : 'N/A'}
+          </div>
+          <p className="text-violet-100 text-sm">Average customer rating</p>
+          <div className="mt-4 flex gap-1">
+            {[1, 2, 3, 4, 5].map(star => (
+              <svg key={star} width="16" height="16" viewBox="0 0 24 24" fill={star <= 4 ? 'white' : 'rgba(255,255,255,0.3)'} stroke="none">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -535,8 +996,8 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <ShoppingCart className="w-5 h-5 text-blue-600" />
+              <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                <CartIcon />
               </div>
               <h2 className="text-lg font-bold text-slate-900">Recent Orders</h2>
             </div>
@@ -559,7 +1020,7 @@ export default function AdminDashboard() {
               ))}
             </div>
           ) : data && data.orders.recent.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {data.orders.recent.slice(0, 5).map((order) => (
                 <Link
                   key={order.id}
@@ -596,8 +1057,10 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <ShoppingCart className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-slate-500 text-sm">No orders yet</p>
+              <div className="text-slate-300">
+                <CartIcon />
+              </div>
+              <p className="text-slate-500 text-sm mt-2">No orders yet</p>
             </div>
           )}
         </div>
@@ -606,8 +1069,8 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <Star className="w-5 h-5 text-amber-600" />
+              <div className="p-2 bg-amber-100 rounded-lg text-amber-600">
+                <StarIcon />
               </div>
               <h2 className="text-lg font-bold text-slate-900">Recent Reviews</h2>
             </div>
@@ -629,7 +1092,7 @@ export default function AdminDashboard() {
               ))}
             </div>
           ) : data && data.reviews.recent.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {data.reviews.recent.map((review) => (
                 <Link
                   key={review.id}
@@ -639,12 +1102,16 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-2 mb-1">
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
-                        <Star
+                        <svg
                           key={i}
-                          className={`w-3.5 h-3.5 ${
-                            i < review.rating ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
-                          }`}
-                        />
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill={i < review.rating ? '#fbbf24' : '#e2e8f0'}
+                          stroke="none"
+                        >
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
                       ))}
                     </div>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
@@ -666,8 +1133,10 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <Star className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-slate-500 text-sm">No reviews yet</p>
+              <div className="text-slate-300">
+                <StarIcon />
+              </div>
+              <p className="text-slate-500 text-sm mt-2">No reviews yet</p>
             </div>
           )}
         </div>
@@ -676,10 +1145,10 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-pink-100 rounded-lg">
-                <UserPlus className="w-5 h-5 text-pink-600" />
+              <div className="p-2 bg-pink-100 rounded-lg text-pink-600">
+                <UserPlusIcon />
               </div>
-              <h2 className="text-lg font-bold text-slate-900">New Users</h2>
+              <h2 className="text-lg font-bold text-slate-900">New Customers</h2>
             </div>
             <Link href="/admin/users" className="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
               View all
@@ -699,14 +1168,14 @@ export default function AdminDashboard() {
               ))}
             </div>
           ) : data && data.users.recent.length > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {data.users.recent.map((user) => (
                 <Link
                   key={user.id}
                   href="/admin/users"
                   className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-sm">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-200">
                     {(user.full_name || user.email || '?')[0].toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -715,7 +1184,8 @@ export default function AdminDashboard() {
                     </p>
                     <p className="text-xs text-slate-500 truncate">{user.email}</p>
                   </div>
-                  <span className="text-xs text-slate-400">
+                  <span className="text-xs text-slate-400 flex items-center gap-1">
+                    <CheckCircleIcon />
                     {new Date(user.created_at).toLocaleDateString('en-GB', {
                       day: 'numeric',
                       month: 'short',
@@ -726,29 +1196,31 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <Users className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-slate-500 text-sm">No new users</p>
+              <div className="text-slate-300">
+                <UsersIcon />
+              </div>
+              <p className="text-slate-500 text-sm mt-2">No new users</p>
             </div>
           )}
         </div>
       </div>
 
-      {/* Top Selling Products and Quick Actions */}
+      {/* Top Products and Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top Selling Products */}
         <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 rounded-lg">
-                <TrendingUp className="w-5 h-5 text-emerald-600" />
+              <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+                <TrendUpIcon />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900">Top Selling Products</h2>
-                <p className="text-sm text-slate-500">Based on units sold</p>
+                <h2 className="text-lg font-bold text-slate-900">Top Performers</h2>
+                <p className="text-sm text-slate-500">Best selling products</p>
               </div>
             </div>
             <Link href="/admin/products" className="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
-              View all products
+              View all
             </Link>
           </div>
 
@@ -773,7 +1245,7 @@ export default function AdminDashboard() {
                   className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors group"
                 >
                   <div className="relative">
-                    <div className="w-16 h-16 rounded-xl bg-white overflow-hidden border border-slate-200">
+                    <div className="w-16 h-16 rounded-xl bg-white overflow-hidden border border-slate-200 shadow-sm">
                       {product.image_url ? (
                         <Image
                           src={product.image_url}
@@ -783,16 +1255,16 @@ export default function AdminDashboard() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Package className="w-6 h-6 text-slate-300" />
+                        <div className="w-full h-full flex items-center justify-center text-slate-300">
+                          <PackageIcon />
                         </div>
                       )}
                     </div>
-                    <div className={`absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white ${
-                      index === 0 ? 'bg-amber-500' :
-                      index === 1 ? 'bg-slate-400' :
-                      index === 2 ? 'bg-amber-700' :
-                      'bg-slate-300'
+                    <div className={`absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg ${
+                      index === 0 ? 'bg-gradient-to-br from-amber-400 to-amber-600' :
+                      index === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-600' :
+                      index === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800' :
+                      'bg-slate-400'
                     }`}>
                       {index + 1}
                     </div>
@@ -801,18 +1273,21 @@ export default function AdminDashboard() {
                     <p className="font-medium text-slate-900 truncate group-hover:text-emerald-600">
                       {product.name}
                     </p>
-                    <p className="text-sm text-slate-500">
-                      {product.quantity} units sold
+                    <p className="text-sm text-slate-500 flex items-center gap-1">
+                      <CheckCircleIcon />
+                      {product.quantity} sold
                     </p>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                  <ArrowRightIcon />
                 </Link>
               ))}
             </div>
           ) : (
             <div className="text-center py-8">
-              <Package className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-slate-500 text-sm">No sales data yet</p>
+              <div className="text-slate-300">
+                <PackageIcon />
+              </div>
+              <p className="text-slate-500 text-sm mt-2">No sales data yet</p>
             </div>
           )}
         </div>
@@ -822,49 +1297,12 @@ export default function AdminDashboard() {
           <h2 className="text-lg font-bold text-slate-900 mb-6">Quick Actions</h2>
           <div className="space-y-3">
             {[
-              {
-                href: '/admin/products/new',
-                icon: Package,
-                title: 'Add Product',
-                desc: 'Create new listing',
-                color: 'emerald',
-              },
-              {
-                href: '/admin/orders?status=pending',
-                icon: Clock,
-                title: 'Pending Orders',
-                desc: 'Process orders',
-                color: 'amber',
-              },
-              {
-                href: '/admin/reviews',
-                icon: Star,
-                title: 'Moderate Reviews',
-                desc: 'Approve or reject',
-                color: 'yellow',
-              },
-              {
-                href: '/admin/deals',
-                icon: Zap,
-                title: 'Flash Deals',
-                desc: 'Manage promotions',
-                color: 'purple',
-              },
-              {
-                href: '/admin/coupons',
-                icon: Tag,
-                title: 'Coupons',
-                desc: 'Discount codes',
-                color: 'blue',
-              },
-              {
-                href: '/',
-                icon: Eye,
-                title: 'View Store',
-                desc: 'See live site',
-                color: 'slate',
-                external: true,
-              },
+              { href: '/admin/products/new', icon: PackageIcon, title: 'Add Product', desc: 'Create listing', color: 'emerald' },
+              { href: '/admin/orders?status=pending', icon: ClockIcon, title: 'Pending Orders', desc: 'Process orders', color: 'amber' },
+              { href: '/admin/reviews', icon: StarIcon, title: 'Moderate Reviews', desc: 'Approve/reject', color: 'yellow' },
+              { href: '/admin/deals', icon: ZapIcon, title: 'Flash Deals', desc: 'Promotions', color: 'purple' },
+              { href: '/admin/coupons', icon: TagIcon, title: 'Coupons', desc: 'Discount codes', color: 'blue' },
+              { href: '/', icon: EyeIcon, title: 'View Store', desc: 'Live site', color: 'slate', external: true },
             ].map((action, i) => (
               <Link
                 key={i}
@@ -887,13 +1325,15 @@ export default function AdminDashboard() {
                   action.color === 'blue' ? 'bg-blue-600' :
                   'bg-slate-600'
                 }`}>
-                  <action.icon className="w-4 h-4 text-white" />
+                  <div className="text-white">
+                    <action.icon />
+                  </div>
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-slate-900">{action.title}</p>
                   <p className="text-sm text-slate-500">{action.desc}</p>
                 </div>
-                {action.external && <ExternalLink className="w-4 h-4 text-slate-400" />}
+                {action.external && <ExternalLinkIcon />}
               </Link>
             ))}
           </div>

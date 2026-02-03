@@ -33,6 +33,7 @@ import {
   Upload,
   Bot,
   Headphones,
+  Shield,
 } from 'lucide-react'
 import { AdminSearch } from '@/components/admin/AdminSearch'
 import { createClient } from '@/lib/supabase/client'
@@ -71,6 +72,7 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [checkingAccess, setCheckingAccess] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [userRole, setUserRole] = useState<'admin' | 'super_admin' | null>(null)
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -84,7 +86,7 @@ export default function AdminLayout({
       }
 
       if (!user) {
-        router.push('/login?redirect=/admin' as any)
+        router.push('/login?redirect=/admin')
         return
       }
 
@@ -105,6 +107,7 @@ export default function AdminLayout({
         // Check for admin or super_admin role
         if (profile?.role === 'admin' || profile?.role === 'super_admin') {
           setIsAdmin(true)
+          setUserRole(profile.role as 'admin' | 'super_admin')
         } else {
           // Not an admin, redirect to home
           console.log('User role:', profile?.role, '- not admin')
@@ -189,7 +192,7 @@ export default function AdminLayout({
             return (
               <Link
                 key={link.href}
-                href={link.href as any}
+                href={link.href}
                 onClick={() => setSidebarOpen(false)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 group ${
                   active
@@ -205,10 +208,41 @@ export default function AdminLayout({
           })}
         </nav>
 
+        {/* Support Portal Links */}
+        <div className="absolute bottom-32 left-0 right-0 p-4 border-t border-slate-700/50 space-y-1">
+          <Link
+            href="/admin/support"
+            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
+              pathname === '/admin/support'
+                ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30'
+                : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+            }`}
+          >
+            <Headphones className={`w-5 h-5 ${pathname === '/admin/support' ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'}`} />
+            <span>Admin Support</span>
+            {pathname === '/admin/support' && <ChevronRight className="w-4 h-4 ml-auto" />}
+          </Link>
+          {userRole === 'super_admin' && (
+            <Link
+              href="/admin/super-admin-support"
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
+                pathname === '/admin/super-admin-support'
+                  ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+              }`}
+            >
+              <Shield className={`w-5 h-5 ${pathname === '/admin/super-admin-support' ? 'text-white' : 'text-amber-400 group-hover:text-amber-300'}`} />
+              <span>Super Admin Portal</span>
+              {pathname === '/admin/super-admin-support' && <ChevronRight className="w-4 h-4 ml-auto" />}
+            </Link>
+          )}
+        </div>
+
         {/* Bottom section */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700/50">
           <Link
             href="/"
+            target="_blank"
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-700/50 hover:text-white transition-all duration-200 group"
           >
             <Store className="w-5 h-5 text-slate-400 group-hover:text-emerald-400" />
@@ -252,12 +286,24 @@ export default function AdminLayout({
 
               {/* Profile */}
               <button className="flex items-center gap-3 p-2 pr-4 rounded-xl hover:bg-slate-100 transition-colors">
-                <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                  userRole === 'super_admin'
+                    ? 'bg-gradient-to-br from-purple-400 to-indigo-600'
+                    : 'bg-gradient-to-br from-emerald-400 to-emerald-600'
+                }`}>
+                  {userRole === 'super_admin' ? (
+                    <Shield className="w-5 h-5 text-white" />
+                  ) : (
+                    <User className="w-5 h-5 text-white" />
+                  )}
                 </div>
                 <div className="hidden md:block text-left">
-                  <p className="text-sm font-semibold text-slate-900">Admin</p>
-                  <p className="text-xs text-slate-500">Super Admin</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {userRole === 'super_admin' ? 'Super Admin' : 'Admin'}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {userRole === 'super_admin' ? 'Full Access' : 'Standard Access'}
+                  </p>
                 </div>
               </button>
             </div>

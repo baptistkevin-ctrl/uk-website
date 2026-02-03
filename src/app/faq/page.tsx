@@ -95,7 +95,7 @@ export default function FAQPage() {
               Can't find what you're looking for? Our customer support team is here to help.
             </p>
             <a
-              href="mailto:support@freshgroceries.co.uk"
+              href="mailto:support@megamartuk.co.uk"
               className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
             >
               Contact Support

@@ -43,7 +43,7 @@ export default function CartPage() {
             <Button
               size="lg"
               asChild
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25"
+              className="bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 shadow-lg shadow-green-400/25"
             >
               <Link href="/products">
                 Start Shopping
@@ -61,7 +61,7 @@ export default function CartPage() {
       <div className="container mx-auto px-4 py-8">
         <Link
           href="/products"
-          className="inline-flex items-center text-sm text-gray-500 hover:text-emerald-600 mb-6 transition-colors"
+          className="inline-flex items-center text-sm text-gray-500 hover:text-green-500 mb-6 transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Continue Shopping
@@ -84,22 +84,22 @@ export default function CartPage() {
 
         {/* Free Delivery Progress */}
         {amountUntilFreeDelivery > 0 && (
-          <Card className="mb-8 border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50">
+          <Card className="mb-8 border-green-200 bg-gradient-to-r from-green-50 to-teal-50">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
-                  <Truck className="h-5 w-5 text-emerald-600" />
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                  <Truck className="h-5 w-5 text-green-500" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-emerald-900">
+                  <p className="font-medium text-green-900">
                     Add {formatPrice(amountUntilFreeDelivery)} more for FREE delivery!
                   </p>
-                  <p className="text-sm text-emerald-700">Free delivery on orders over £50</p>
+                  <p className="text-sm text-green-600">Free delivery on orders over £50</p>
                 </div>
               </div>
-              <div className="h-2 bg-emerald-100 rounded-full overflow-hidden">
+              <div className="h-2 bg-green-100 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-green-300 to-green-500 rounded-full transition-all duration-500"
                   style={{ width: `${freeDeliveryProgress}%` }}
                 />
               </div>
@@ -108,17 +108,17 @@ export default function CartPage() {
         )}
 
         {amountUntilFreeDelivery <= 0 && (
-          <Card className="mb-8 border-emerald-200 bg-emerald-50">
+          <Card className="mb-8 border-green-200 bg-green-50">
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shrink-0">
                   <Truck className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <p className="font-semibold text-emerald-900">
+                  <p className="font-semibold text-green-900">
                     You&apos;ve unlocked FREE delivery!
                   </p>
-                  <p className="text-sm text-emerald-700">
+                  <p className="text-sm text-green-600">
                     Your order qualifies for free delivery
                   </p>
                 </div>
@@ -159,7 +159,7 @@ export default function CartPage() {
                         <div className="flex-1 min-w-0">
                           <Link
                             href={`/products/${item.product.slug}`}
-                            className="font-semibold text-gray-900 hover:text-emerald-600 transition-colors line-clamp-2"
+                            className="font-semibold text-gray-900 hover:text-green-500 transition-colors line-clamp-2"
                           >
                             {item.product.name}
                           </Link>
@@ -218,7 +218,7 @@ export default function CartPage() {
             <Card className="sticky top-24 shadow-lg">
               <CardHeader className="bg-slate-50 rounded-t-xl">
                 <CardTitle className="flex items-center gap-2">
-                  <Tag className="h-5 w-5 text-emerald-600" />
+                  <Tag className="h-5 w-5 text-green-500" />
                   Order Summary
                 </CardTitle>
               </CardHeader>
@@ -231,7 +231,7 @@ export default function CartPage() {
                   <span>Delivery</span>
                   <span>
                     {deliveryFee === 0 ? (
-                      <span className="text-emerald-600 font-semibold">FREE</span>
+                      <span className="text-green-500 font-semibold">FREE</span>
                     ) : (
                       formatPrice(deliveryFee)
                     )}
@@ -242,11 +242,11 @@ export default function CartPage() {
 
                 <div className="flex justify-between text-xl font-bold">
                   <span>Total</span>
-                  <span className="text-emerald-600">{formatPrice(total)}</span>
+                  <span className="text-green-500">{formatPrice(total)}</span>
                 </div>
 
                 <Button
-                  className="w-full h-12 text-base bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25"
+                  className="w-full h-12 text-base bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 shadow-lg shadow-green-400/25"
                   size="lg"
                   asChild
                 >
@@ -264,15 +264,15 @@ export default function CartPage() {
                 <div className="pt-4 space-y-3">
                   <Separator />
                   <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <Shield className="h-4 w-4 text-emerald-600" />
+                    <Shield className="h-4 w-4 text-green-500" />
                     <span>Secure checkout</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <Truck className="h-4 w-4 text-emerald-600" />
+                    <Truck className="h-4 w-4 text-green-500" />
                     <span>Same-day delivery available</span>
                   </div>
                   <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <Clock className="h-4 w-4 text-emerald-600" />
+                    <Clock className="h-4 w-4 text-green-500" />
                     <span>Fresh products guaranteed</span>
                   </div>
                 </div>

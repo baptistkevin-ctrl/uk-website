@@ -237,11 +237,11 @@ export default function SellPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Sell on Fresh Groceries
+              Sell on MegaMart UK
             </h1>
             <p className="text-xl text-emerald-100 mb-8">
               Join thousands of sellers reaching millions of customers.
-              Start selling today with our easy-to-use platform.
+              Start selling today with our easy-to-use marketplace.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button

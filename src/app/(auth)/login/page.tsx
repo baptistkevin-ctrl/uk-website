@@ -63,7 +63,7 @@ function LoginFormContent() {
       // Check user role to determine redirect
       const redirectParam = searchParams.get('redirectTo')
       if (redirectParam) {
-        router.push(redirectParam as any)
+        router.push(redirectParam)
         router.refresh()
         return
       }
@@ -97,10 +97,10 @@ function LoginFormContent() {
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/25 group-hover:shadow-emerald-500/40 transition-shadow">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-400/25 group-hover:shadow-green-400/40 transition-shadow">
                 <ShoppingBag className="h-6 w-6 text-white" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-gradient-to-r from-green-500 to-teal-600 bg-clip-text text-transparent">
                 Fresh Groceries
               </span>
             </Link>
@@ -137,7 +137,7 @@ function LoginFormContent() {
                       id="email"
                       type="email"
                       placeholder="you@example.com"
-                      className="pl-10 h-12 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
+                      className="pl-10 h-12 border-slate-200 focus:border-green-400 focus:ring-green-400"
                       {...register('email')}
                     />
                   </div>
@@ -153,7 +153,7 @@ function LoginFormContent() {
                     </Label>
                     <Link
                       href="/forgot-password"
-                      className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                      className="text-sm text-green-500 hover:text-green-600 font-medium"
                     >
                       Forgot password?
                     </Link>
@@ -166,7 +166,7 @@ function LoginFormContent() {
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
-                      className="pl-10 pr-10 h-12 border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
+                      className="pl-10 pr-10 h-12 border-slate-200 focus:border-green-400 focus:ring-green-400"
                       {...register('password')}
                     />
                     <button
@@ -184,7 +184,7 @@ function LoginFormContent() {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25"
+                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 shadow-lg shadow-green-400/25"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -205,7 +205,7 @@ function LoginFormContent() {
                 <span className="text-gray-500">Don&apos;t have an account? </span>
                 <Link
                   href="/register"
-                  className="text-emerald-600 hover:text-emerald-700 font-semibold transition-colors"
+                  className="text-green-500 hover:text-green-600 font-semibold transition-colors"
                 >
                   Create one
                 </Link>
@@ -216,7 +216,7 @@ function LoginFormContent() {
           {/* Guest checkout link */}
           <p className="text-center text-sm text-gray-500 mt-6">
             Or continue as a{' '}
-            <Link href="/products" className="text-emerald-600 hover:text-emerald-700 font-medium">
+            <Link href="/products" className="text-green-500 hover:text-green-600 font-medium">
               guest
             </Link>
           </p>
@@ -224,7 +224,7 @@ function LoginFormContent() {
       </div>
 
       {/* Right Side - Benefits */}
-      <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 relative overflow-hidden">
+      <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-green-500 via-green-600 to-teal-800 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -243,7 +243,7 @@ function LoginFormContent() {
             <h2 className="text-3xl font-bold text-white mb-4">
               Member Benefits
             </h2>
-            <p className="text-emerald-100 text-lg mb-8">
+            <p className="text-green-100 text-lg mb-8">
               Sign in to unlock exclusive features and enjoy a seamless shopping experience.
             </p>
 
@@ -258,7 +258,7 @@ function LoginFormContent() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-white mb-1">{benefit.title}</h3>
-                    <p className="text-sm text-emerald-100">{benefit.description}</p>
+                    <p className="text-sm text-green-100">{benefit.description}</p>
                   </div>
                 </div>
               ))}
@@ -275,7 +275,7 @@ export default function LoginPage() {
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin mx-auto text-emerald-600 mb-4" />
+          <Loader2 className="h-10 w-10 animate-spin mx-auto text-green-500 mb-4" />
           <p className="text-gray-500">Loading...</p>
         </div>
       </div>

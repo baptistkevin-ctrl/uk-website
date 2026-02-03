@@ -57,10 +57,10 @@ const contactMethods = [
   {
     icon: Mail,
     title: 'Email Support',
-    description: 'support@freshgroceries.co.uk',
+    description: 'support@megamartuk.co.uk',
     availability: 'Response within 24 hours',
     action: 'Send Email',
-    href: 'mailto:support@freshgroceries.co.uk'
+    href: 'mailto:support@megamartuk.co.uk'
   },
   {
     icon: Phone,

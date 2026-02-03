@@ -94,19 +94,13 @@ const securityHeaders = [
       "upgrade-insecure-requests"
     ].join('; ')
   },
-  // Cross-Origin policies for enhanced isolation
+  // Cross-Origin policies - configured for external image loading
   {
     key: 'Cross-Origin-Opener-Policy',
-    value: 'same-origin'
+    value: 'same-origin-allow-popups'
   },
-  {
-    key: 'Cross-Origin-Resource-Policy',
-    value: 'same-origin'
-  },
-  {
-    key: 'Cross-Origin-Embedder-Policy',
-    value: 'require-corp'
-  },
+  // Note: Cross-Origin-Resource-Policy and Cross-Origin-Embedder-Policy
+  // are not set to allow loading external images from CDNs like Unsplash
   // Prevent Adobe Flash/PDF cross-domain policies
   {
     key: 'X-Permitted-Cross-Domain-Policies',

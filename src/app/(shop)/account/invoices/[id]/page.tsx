@@ -24,7 +24,7 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) {
-    redirect(`/login?redirect=/account/invoices/${id}` as any)
+    redirect('/login?redirect=/account/invoices/' + id)
   }
 
   const { data: invoice, error } = await supabase

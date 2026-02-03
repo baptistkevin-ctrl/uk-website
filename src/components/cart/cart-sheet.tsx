@@ -33,7 +33,7 @@ export function CartSheet() {
       <SheetContent className="flex flex-col w-full sm:max-w-lg p-0">
         <SheetHeader className="p-6 pb-4 border-b bg-slate-50">
           <SheetTitle className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center">
               <ShoppingBag className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -55,7 +55,7 @@ export function CartSheet() {
             <Button
               onClick={closeCart}
               asChild
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-green-500 hover:bg-green-600"
             >
               <Link href="/products">
                 Browse Products
@@ -67,16 +67,16 @@ export function CartSheet() {
           <>
             {/* Free delivery progress */}
             {amountUntilFreeDelivery > 0 && (
-              <div className="px-6 py-3 bg-emerald-50 border-b border-emerald-100">
+              <div className="px-6 py-3 bg-green-50 border-b border-green-100">
                 <div className="flex items-center gap-2 mb-2">
-                  <Truck className="h-4 w-4 text-emerald-600" />
-                  <p className="text-sm font-medium text-emerald-900">
+                  <Truck className="h-4 w-4 text-green-500" />
+                  <p className="text-sm font-medium text-green-900">
                     Add {formatPrice(amountUntilFreeDelivery)} more for FREE delivery!
                   </p>
                 </div>
-                <div className="h-1.5 bg-emerald-200 rounded-full overflow-hidden">
+                <div className="h-1.5 bg-green-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                    className="h-full bg-green-400 rounded-full transition-all duration-300"
                     style={{ width: `${freeDeliveryProgress}%` }}
                   />
                 </div>
@@ -84,11 +84,11 @@ export function CartSheet() {
             )}
 
             {amountUntilFreeDelivery <= 0 && (
-              <div className="px-6 py-3 bg-emerald-100 border-b border-emerald-200 flex items-center gap-2">
-                <div className="w-6 h-6 bg-emerald-600 rounded-full flex items-center justify-center">
+              <div className="px-6 py-3 bg-green-100 border-b border-green-200 flex items-center gap-2">
+                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                   <Truck className="h-3 w-3 text-white" />
                 </div>
-                <p className="text-sm font-semibold text-emerald-900">
+                <p className="text-sm font-semibold text-green-900">
                   FREE delivery unlocked!
                 </p>
               </div>
@@ -171,7 +171,7 @@ export function CartSheet() {
                             <p className="text-sm font-bold text-orange-600">
                               {formatPrice(item.discountedPrice)}
                             </p>
-                            <p className="text-[10px] text-emerald-600 font-medium">
+                            <p className="text-[10px] text-green-500 font-medium">
                               Save {formatPrice(item.savings)}
                             </p>
                           </>
@@ -190,7 +190,7 @@ export function CartSheet() {
             <div className="border-t p-6 space-y-4 bg-slate-50">
               {/* Savings Banner */}
               {hasOffersApplied && totalSavings > 0 && (
-                <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl p-3 flex items-center gap-3 text-white shadow-lg shadow-emerald-500/25">
+                <div className="bg-gradient-to-r from-green-400 to-green-500 rounded-xl p-3 flex items-center gap-3 text-white shadow-lg shadow-green-400/25">
                   <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                     <Sparkles className="h-5 w-5" />
                   </div>
@@ -213,7 +213,7 @@ export function CartSheet() {
                   <span>{formatPrice(subtotal)}</span>
                 </div>
                 {hasOffersApplied && (
-                  <div className="flex justify-between text-sm text-emerald-600 font-medium">
+                  <div className="flex justify-between text-sm text-green-500 font-medium">
                     <span>Offer savings</span>
                     <span>-{formatPrice(totalSavings)}</span>
                   </div>
@@ -222,7 +222,7 @@ export function CartSheet() {
                   <span>Delivery</span>
                   <span>
                     {deliveryFee === 0 ? (
-                      <span className="text-emerald-600 font-medium">FREE</span>
+                      <span className="text-green-500 font-medium">FREE</span>
                     ) : (
                       formatPrice(deliveryFee)
                     )}
@@ -232,11 +232,11 @@ export function CartSheet() {
               <Separator />
               <div className="flex justify-between text-lg font-bold">
                 <span>Total</span>
-                <span className="text-emerald-600">{formatPrice(subtotal + deliveryFee)}</span>
+                <span className="text-green-500">{formatPrice(subtotal + deliveryFee)}</span>
               </div>
               <div className="space-y-2">
                 <Button
-                  className="w-full h-11 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25"
+                  className="w-full h-11 bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 shadow-lg shadow-green-400/25"
                   size="lg"
                   asChild
                   onClick={closeCart}

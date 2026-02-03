@@ -20,7 +20,7 @@ export default function TermsPage() {
             <section className="mb-8">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">1. Introduction</h2>
               <p className="text-gray-600 mb-4">
-                Welcome to Fresh Groceries. These terms and conditions govern your use of our website and services. By accessing or using our platform, you agree to be bound by these terms.
+                Welcome to MegaMart UK. These terms and conditions govern your use of our website and services. By accessing or using our platform, you agree to be bound by these terms.
               </p>
             </section>
 
@@ -69,7 +69,7 @@ export default function TermsPage() {
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">8. Contact Us</h2>
               <p className="text-gray-600">
-                If you have any questions about these terms, please contact us at support@freshgroceries.co.uk
+                If you have any questions about these terms, please contact us at support@megamartuk.co.uk
               </p>
             </section>
           </div>

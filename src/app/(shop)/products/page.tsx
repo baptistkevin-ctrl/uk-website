@@ -111,7 +111,7 @@ async function ProductGrid({ searchParams }: { searchParams: Awaited<ProductsPag
             : 'Try adjusting your filters to see more products.'
           }
         </p>
-        <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+        <Button asChild className="bg-green-500 hover:bg-green-600">
           <Link href="/products">
             <X className="mr-2 h-4 w-4" />
             Clear All Filters
@@ -187,13 +187,13 @@ function ActiveFilters({ searchParams }: { searchParams: Awaited<ProductsPagePro
     <div className="flex flex-wrap items-center gap-2 mb-6">
       <span className="text-sm text-gray-500">Active filters:</span>
       {searchParams.search && (
-        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200">
+        <Badge variant="secondary" className="bg-green-100 text-green-600 hover:bg-emerald-200">
           <Search className="h-3 w-3 mr-1" />
           &ldquo;{searchParams.search}&rdquo;
         </Badge>
       )}
       {activeFilters.map((filter) => (
-        <Badge key={filter.key} variant="secondary" className="bg-emerald-100 text-emerald-700">
+        <Badge key={filter.key} variant="secondary" className="bg-green-100 text-green-600">
           {filter.icon}
           <span className="ml-1">{filter.label}</span>
         </Badge>
@@ -214,7 +214,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 overflow-hidden">
+      <div className="relative bg-gradient-to-br from-green-500 via-green-600 to-teal-800 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,_white_1px,_transparent_1px)] bg-[size:20px_20px]" />
 
@@ -241,7 +241,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 : <>Explore Our <span className="text-emerald-200">Fresh Products</span></>
               }
             </h1>
-            <p className="text-lg text-emerald-100 max-w-2xl">
+            <p className="text-lg text-green-100 max-w-2xl">
               Discover thousands of quality products, from fresh produce to pantry essentials.
               All delivered fresh to your doorstep.
             </p>

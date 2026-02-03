@@ -10,6 +10,15 @@ export { useWishlist } from './use-wishlist'
 // Analytics
 export { useTrackView } from './use-track-view'
 
+// Recently Viewed
+export {
+  useRecentlyViewed,
+  useTrackProductView,
+  type RecentlyViewedProduct,
+  type UseRecentlyViewedOptions,
+  type UseRecentlyViewedReturn,
+} from './use-recently-viewed'
+
 // Data Fetching
 export {
   useQuery,

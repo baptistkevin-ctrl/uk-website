@@ -229,7 +229,7 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-8">
         <Link
           href="/cart"
-          className="inline-flex items-center text-sm text-gray-500 hover:text-emerald-600 mb-6 transition-colors"
+          className="inline-flex items-center text-sm text-gray-500 hover:text-green-500 mb-6 transition-colors"
         >
           <ArrowLeft className="h-4 w-4 mr-1" />
           Back to cart
@@ -241,7 +241,7 @@ export default function CheckoutPage() {
         {/* Guest Checkout Banner - Show only for non-logged in users */}
         {!user && !authLoading && showGuestBenefits && (
           <div className="mb-8 relative">
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg">
+            <div className="bg-gradient-to-r from-green-400 to-teal-600 rounded-2xl p-6 text-white shadow-lg">
               <button
                 onClick={() => setShowGuestBenefits(false)}
                 className="absolute top-4 right-4 text-white/70 hover:text-white"
@@ -260,14 +260,14 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link
-                    href={'/login?redirect=/checkout' as any}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-emerald-600 rounded-xl font-semibold hover:bg-emerald-50 transition-colors"
+                    href={`/auth/login?redirect=/checkout`}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-green-500 rounded-xl font-semibold hover:bg-green-50 transition-colors"
                   >
                     <LogIn className="h-4 w-4" />
                     Sign In
                   </Link>
                   <Link
-                    href={'/register?redirect=/checkout' as any}
+                    href={`/auth/register?redirect=/checkout`}
                     className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/20 text-white rounded-xl font-semibold hover:bg-white/30 transition-colors"
                   >
                     Create Account
@@ -313,15 +313,15 @@ export default function CheckoutPage() {
         {/* Logged in user banner */}
         {user && !authLoading && (
           <div className="mb-8">
-            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-4">
-              <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center shrink-0">
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-4">
+              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shrink-0">
                 <Check className="h-5 w-5 text-white" />
               </div>
               <div className="flex-1">
-                <p className="font-semibold text-emerald-900">
+                <p className="font-semibold text-green-900">
                   Welcome back, {user.user_metadata?.full_name || user.email?.split('@')[0]}!
                 </p>
-                <p className="text-sm text-emerald-700">
+                <p className="text-sm text-green-600">
                   You&apos;re signed in. Your order will be saved to your account.
                 </p>
               </div>
@@ -343,8 +343,8 @@ export default function CheckoutPage() {
               <Card className="shadow-sm border-slate-200">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-2 text-lg">
-                    <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                      <User className="h-4 w-4 text-emerald-600" />
+                    <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                      <User className="h-4 w-4 text-green-500" />
                     </div>
                     Contact Information
                   </CardTitle>
@@ -495,7 +495,7 @@ export default function CheckoutPage() {
                     <Button
                       type="button"
                       onClick={handlePostcodeConfirm}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700"
+                      className="w-full bg-green-500 hover:bg-green-600"
                     >
                       Check Delivery Slots for {watchedPostcode.toUpperCase()}
                     </Button>
@@ -546,7 +546,7 @@ export default function CheckoutPage() {
 
               {/* Security Badge */}
               <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl">
-                <Shield className="h-5 w-5 text-emerald-600" />
+                <Shield className="h-5 w-5 text-green-500" />
                 <p className="text-sm text-gray-600">
                   Your payment information is encrypted and secure. We never store your card
                   details.
@@ -559,14 +559,14 @@ export default function CheckoutPage() {
               <Card className="sticky top-24 shadow-lg border-slate-200">
                 <CardHeader className="bg-slate-50 rounded-t-xl">
                   <CardTitle className="flex items-center gap-2">
-                    <ShoppingBag className="h-5 w-5 text-emerald-600" />
+                    <ShoppingBag className="h-5 w-5 text-green-500" />
                     Order Summary
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 pt-6">
                   {/* Savings Banner */}
                   {hasOffersApplied && totalSavings > 0 && (
-                    <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl p-3 flex items-center gap-3 text-white">
+                    <div className="bg-gradient-to-r from-green-400 to-green-500 rounded-xl p-3 flex items-center gap-3 text-white">
                       <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
                         <Sparkles className="h-4 w-4" />
                       </div>
@@ -647,7 +647,7 @@ export default function CheckoutPage() {
                       <span>{formatPrice(subtotal)}</span>
                     </div>
                     {hasOffersApplied && totalSavings > 0 && (
-                      <div className="flex justify-between text-sm text-emerald-600 font-medium">
+                      <div className="flex justify-between text-sm text-green-500 font-medium">
                         <span>Offer savings</span>
                         <span>-{formatPrice(totalSavings)}</span>
                       </div>
@@ -658,7 +658,7 @@ export default function CheckoutPage() {
                         <span>Delivery</span>
                         <span>
                           {deliveryFee === 0 ? (
-                            <span className="text-emerald-600 font-medium">Free</span>
+                            <span className="text-green-500 font-medium">Free</span>
                           ) : (
                             formatPrice(deliveryFee)
                           )}
@@ -688,12 +688,12 @@ export default function CheckoutPage() {
 
                       {/* Free delivery progress */}
                       {deliveryFee > 0 && deliveryZone?.free_delivery_threshold_pence && subtotal < deliveryZone.free_delivery_threshold_pence && (
-                        <p className="text-xs text-gray-500 bg-emerald-50 p-2 rounded-lg">
+                        <p className="text-xs text-gray-500 bg-green-50 p-2 rounded-lg">
                           Add {formatPrice(deliveryZone.free_delivery_threshold_pence - subtotal)} more for free delivery!
                         </p>
                       )}
                       {!deliveryZone && deliveryFee > 0 && subtotal < 5000 && (
-                        <p className="text-xs text-gray-500 bg-emerald-50 p-2 rounded-lg">
+                        <p className="text-xs text-gray-500 bg-green-50 p-2 rounded-lg">
                           Add {formatPrice(5000 - subtotal)} more for free delivery!
                         </p>
                       )}
@@ -704,12 +704,12 @@ export default function CheckoutPage() {
 
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span className="text-emerald-600">{formatPrice(total)}</span>
+                    <span className="text-green-500">{formatPrice(total)}</span>
                   </div>
 
                   <Button
                     type="submit"
-                    className="w-full h-12 text-base bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-500/25"
+                    className="w-full h-12 text-base bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 shadow-lg shadow-green-400/25"
                     size="lg"
                     disabled={isProcessing}
                   >

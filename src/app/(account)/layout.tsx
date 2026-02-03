@@ -6,10 +6,10 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 
 const accountLinks = [
-  { href: '/account' as const, label: 'Overview', icon: User },
-  { href: '/account/orders' as const, label: 'Orders', icon: Package },
-  { href: '/account/addresses' as const, label: 'Addresses', icon: MapPin },
-  { href: '/account/settings' as const, label: 'Settings', icon: Settings },
+  { href: '/account', label: 'Overview', icon: User },
+  { href: '/account/orders', label: 'Orders', icon: Package },
+  { href: '/account/addresses', label: 'Addresses', icon: MapPin },
+  { href: '/account/settings', label: 'Settings', icon: Settings },
 ]
 
 export default async function AccountLayout({

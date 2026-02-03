@@ -155,7 +155,7 @@ function SearchPageContent() {
   }
 
   const clearAllFilters = () => {
-    router.push(`/search${query ? `?q=${query}` : ''}` as any)
+    router.push(`/search${query ? `?q=${query}` : ''}`)
   }
 
   const activeFiltersCount = [category, minPrice, maxPrice, inStock, onSale, organic, vegan, vegetarian, glutenFree]

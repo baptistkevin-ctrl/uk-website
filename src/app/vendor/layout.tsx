@@ -14,7 +14,8 @@ import {
   X,
   Store,
   LogOut,
-  ChevronDown
+  HelpCircle,
+  ExternalLink
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
@@ -145,14 +146,33 @@ export default function VendorLayout({
             })}
           </nav>
 
+          {/* Support Portal Link */}
+          <div className="p-4 border-t">
+            <Link
+              href="/vendor/support"
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                pathname === '/vendor/support'
+                  ? 'bg-emerald-50 text-emerald-700 font-medium'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <HelpCircle className="h-5 w-5" />
+              Support Portal
+            </Link>
+          </div>
+
           {/* Footer */}
           <div className="p-4 border-t space-y-2">
             <Link
               href="/"
-              className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors"
+              target="_blank"
+              className="flex items-center justify-between px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors"
             >
-              <Store className="h-5 w-5" />
-              View Store
+              <span className="flex items-center gap-3">
+                <Store className="h-5 w-5" />
+                View Store
+              </span>
+              <ExternalLink className="h-4 w-4" />
             </Link>
             <button
               onClick={() => signOut()}

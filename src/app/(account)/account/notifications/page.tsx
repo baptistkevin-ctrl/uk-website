@@ -404,7 +404,7 @@ export default function NotificationsPage() {
                           <div className="flex items-center gap-2">
                             {notification.action_url && (
                               <Link
-                                href={notification.action_url as any}
+                                href={notification.action_url}
                                 className="text-sm text-green-600 hover:text-green-700"
                               >
                                 View

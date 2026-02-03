@@ -110,7 +110,7 @@ export default function ReturnsPage() {
                 Need help with a return or refund? Our customer service team is here to assist.
               </p>
               <div className="space-y-2 text-gray-600">
-                <p><strong>Email:</strong> support@freshgroceries.co.uk</p>
+                <p><strong>Email:</strong> support@megamartuk.co.uk</p>
                 <p><strong>Response time:</strong> Within 24 hours</p>
               </div>
             </section>

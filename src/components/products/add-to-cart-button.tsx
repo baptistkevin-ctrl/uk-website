@@ -87,8 +87,8 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
         disabled={disabled || isAdding}
         className={`flex-1 h-14 text-base font-semibold rounded-xl shadow-lg transition-all duration-300 ${
           justAdded
-            ? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/25'
-            : 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-emerald-500/25'
+            ? 'bg-green-400 hover:bg-green-500 shadow-green-400/25'
+            : 'bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 shadow-green-400/25'
         }`}
       >
         {isAdding ? (

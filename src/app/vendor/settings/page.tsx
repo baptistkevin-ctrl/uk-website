@@ -13,7 +13,11 @@ import {
   Building2,
   CreditCard,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Link as LinkIcon,
+  Facebook,
+  Instagram,
+  Twitter
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,6 +38,10 @@ interface VendorSettings {
   banner_url: string | null
   company_number: string | null
   vat_number: string | null
+  website_url: string | null
+  facebook_url: string | null
+  instagram_url: string | null
+  twitter_url: string | null
   stripe_onboarding_complete: boolean
   commission_rate: number
 }
@@ -84,6 +92,10 @@ export default function VendorSettingsPage() {
           postcode: settings.postcode,
           company_number: settings.company_number,
           vat_number: settings.vat_number,
+          website_url: settings.website_url,
+          facebook_url: settings.facebook_url,
+          instagram_url: settings.instagram_url,
+          twitter_url: settings.twitter_url,
         })
       })
 
@@ -221,6 +233,75 @@ export default function VendorSettingsPage() {
                 onChange={(e) => updateField('phone', e.target.value)}
                 className="mt-1"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Online Presence */}
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-indigo-100 rounded-lg">
+              <Globe className="h-5 w-5 text-indigo-600" />
+            </div>
+            <h2 className="font-semibold text-gray-900">Online Presence</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <Label htmlFor="website_url">Website URL</Label>
+              <div className="mt-1 relative">
+                <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="website_url"
+                  type="url"
+                  value={settings.website_url || ''}
+                  onChange={(e) => updateField('website_url', e.target.value)}
+                  className="pl-10"
+                  placeholder="https://www.yourstore.com"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="facebook_url">Facebook</Label>
+              <div className="mt-1 relative">
+                <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="facebook_url"
+                  type="url"
+                  value={settings.facebook_url || ''}
+                  onChange={(e) => updateField('facebook_url', e.target.value)}
+                  className="pl-10"
+                  placeholder="https://facebook.com/yourpage"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="instagram_url">Instagram</Label>
+              <div className="mt-1 relative">
+                <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="instagram_url"
+                  type="url"
+                  value={settings.instagram_url || ''}
+                  onChange={(e) => updateField('instagram_url', e.target.value)}
+                  className="pl-10"
+                  placeholder="https://instagram.com/yourhandle"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="twitter_url">Twitter / X</Label>
+              <div className="mt-1 relative">
+                <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  id="twitter_url"
+                  type="url"
+                  value={settings.twitter_url || ''}
+                  onChange={(e) => updateField('twitter_url', e.target.value)}
+                  className="pl-10"
+                  placeholder="https://twitter.com/yourhandle"
+                />
+              </div>
             </div>
           </div>
         </div>

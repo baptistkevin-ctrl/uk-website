@@ -68,7 +68,7 @@ export default function CookiesPage() {
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Contact Us</h2>
               <p className="text-gray-600">
-                If you have questions about our use of cookies, please contact us at privacy@freshgroceries.co.uk
+                If you have questions about our use of cookies, please contact us at privacy@megamartuk.co.uk
               </p>
             </section>
           </div>

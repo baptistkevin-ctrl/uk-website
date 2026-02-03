@@ -1,6 +1,6 @@
 /**
- * FreshMart UK - Service Worker
- * Production-ready PWA service worker for grocery e-commerce
+ * MegaMart UK - Service Worker
+ * Production-ready PWA service worker for marketplace e-commerce
  *
  * Features:
  * - Cache-first for static assets
@@ -11,18 +11,17 @@
  */
 
 const CACHE_VERSION = 'v1.0.0';
-const STATIC_CACHE = `freshmart-static-${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `freshmart-dynamic-${CACHE_VERSION}`;
-const IMAGE_CACHE = `freshmart-images-${CACHE_VERSION}`;
-const API_CACHE = `freshmart-api-${CACHE_VERSION}`;
+const STATIC_CACHE = `megamart-static-${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `megamart-dynamic-${CACHE_VERSION}`;
+const IMAGE_CACHE = `megamart-images-${CACHE_VERSION}`;
+const API_CACHE = `megamart-api-${CACHE_VERSION}`;
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
   '/',
   '/offline',
   '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
+  '/icons/icon.svg',
 ];
 
 // API endpoints that should use network-first strategy
@@ -77,7 +76,7 @@ self.addEventListener('activate', (event) => {
         return Promise.all(
           cacheNames
             .filter((cacheName) => {
-              return cacheName.startsWith('freshmart-') &&
+              return cacheName.startsWith('megamart-') &&
                      cacheName !== STATIC_CACHE &&
                      cacheName !== DYNAMIC_CACHE &&
                      cacheName !== IMAGE_CACHE &&
@@ -352,11 +351,11 @@ self.addEventListener('push', (event) => {
   console.log('[ServiceWorker] Push received');
 
   let data = {
-    title: 'FreshMart UK',
-    body: 'Check out our latest deals!',
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/badge-72x72.png',
-    tag: 'freshmart-notification',
+    title: 'MegaMart UK',
+    body: 'Discover amazing deals across our marketplace!',
+    icon: '/icons/icon.svg',
+    badge: '/icons/icon.svg',
+    tag: 'megamart-notification',
     data: { url: '/' }
   };
 
@@ -376,8 +375,8 @@ self.addEventListener('push', (event) => {
     data: data.data,
     vibrate: [100, 50, 100],
     actions: [
-      { action: 'view', title: 'View', icon: '/icons/action-view.png' },
-      { action: 'dismiss', title: 'Dismiss', icon: '/icons/action-dismiss.png' }
+      { action: 'view', title: 'View' },
+      { action: 'dismiss', title: 'Dismiss' }
     ],
     requireInteraction: false,
     renotify: true
@@ -435,7 +434,7 @@ self.addEventListener('message', (event) => {
       caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter(name => name.startsWith('freshmart-'))
+            .filter(name => name.startsWith('megamart-'))
             .map(name => caches.delete(name))
         );
       }).then(() => {
@@ -461,7 +460,7 @@ async function getCacheStatus() {
   const status = {};
 
   for (const cacheName of cacheNames) {
-    if (cacheName.startsWith('freshmart-')) {
+    if (cacheName.startsWith('megamart-')) {
       const cache = await caches.open(cacheName);
       const keys = await cache.keys();
       status[cacheName] = keys.length;
@@ -480,7 +479,7 @@ async function getCacheStatus() {
  */
 function getFromIndexedDB(storeName) {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('freshmart-offline', 1);
+    const request = indexedDB.open('megamart-offline', 1);
 
     request.onerror = () => reject(request.error);
 
@@ -512,7 +511,7 @@ function getFromIndexedDB(storeName) {
 
 function clearFromIndexedDB(storeName) {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('freshmart-offline', 1);
+    const request = indexedDB.open('megamart-offline', 1);
 
     request.onerror = () => reject(request.error);
 

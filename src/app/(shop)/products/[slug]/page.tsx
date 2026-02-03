@@ -123,13 +123,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <nav className="mb-8">
           <ol className="flex items-center gap-2 text-sm">
             <li>
-              <Link href="/" className="text-gray-500 hover:text-emerald-600 transition-colors">
+              <Link href="/" className="text-gray-500 hover:text-green-500 transition-colors">
                 Home
               </Link>
             </li>
             <ChevronRight className="h-4 w-4 text-gray-300" />
             <li>
-              <Link href="/products" className="text-gray-500 hover:text-emerald-600 transition-colors">
+              <Link href="/products" className="text-gray-500 hover:text-green-500 transition-colors">
                 Products
               </Link>
             </li>
@@ -201,7 +201,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {dietaryInfo.length > 0 && (
               <div className="lg:hidden flex flex-wrap gap-2">
                 {dietaryInfo.map(({ key, label, icon: Icon }) => (
-                  <Badge key={key} variant="outline" className="bg-white border-emerald-200 text-emerald-700 px-3 py-1.5">
+                  <Badge key={key} variant="outline" className="bg-white border-green-200 text-green-600 px-3 py-1.5">
                     <Icon className="h-4 w-4 mr-1.5" />
                     {label}
                   </Badge>
@@ -215,7 +215,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Brand & Vendor */}
             <div className="flex items-center gap-3 mb-2 flex-wrap">
               {product.brand && (
-                <span className="text-emerald-600 font-medium">{product.brand}</span>
+                <span className="text-green-500 font-medium">{product.brand}</span>
               )}
               {vendor && (
                 <>
@@ -264,7 +264,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       )}
                     </div>
                     {hasDiscount && (
-                      <p className="text-emerald-600 font-semibold mt-1">
+                      <p className="text-green-500 font-semibold mt-1">
                         You save {formatPrice(savingsAmount)}
                       </p>
                     )}
@@ -281,7 +281,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       {dietaryInfo.map(({ key, label, icon: Icon }) => (
                         <div
                           key={key}
-                          className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full text-sm font-medium"
+                          className="flex items-center gap-1.5 bg-green-50 text-green-600 px-3 py-1.5 rounded-full text-sm font-medium"
                         >
                           <Icon className="h-4 w-4" />
                           {label}
@@ -321,22 +321,22 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Trust Badges */}
             <div className="grid grid-cols-3 gap-4 mb-8">
               <div className="text-center p-4 bg-slate-50 rounded-xl">
-                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Truck className="h-5 w-5 text-emerald-600" />
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Truck className="h-5 w-5 text-green-500" />
                 </div>
                 <p className="text-xs font-medium text-gray-700">Free Delivery</p>
                 <p className="text-xs text-gray-500">Over £50</p>
               </div>
               <div className="text-center p-4 bg-slate-50 rounded-xl">
-                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Shield className="h-5 w-5 text-emerald-600" />
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Shield className="h-5 w-5 text-green-500" />
                 </div>
                 <p className="text-xs font-medium text-gray-700">Quality</p>
                 <p className="text-xs text-gray-500">Guaranteed</p>
               </div>
               <div className="text-center p-4 bg-slate-50 rounded-xl">
-                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Clock className="h-5 w-5 text-emerald-600" />
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Clock className="h-5 w-5 text-green-500" />
                 </div>
                 <p className="text-xs font-medium text-gray-700">Same Day</p>
                 <p className="text-xs text-gray-500">Delivery</p>
@@ -349,8 +349,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {product.description && (
               <div className="mb-8">
                 <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <Package className="h-4 w-4 text-emerald-600" />
+                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Package className="h-4 w-4 text-green-500" />
                   </div>
                   Product Description
                 </h2>
@@ -366,8 +366,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {dietaryInfo.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
-                    <Check className="h-4 w-4 text-emerald-600" />
+                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Check className="h-4 w-4 text-green-500" />
                   </div>
                   Dietary Information
                 </h2>
@@ -375,14 +375,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   {dietaryInfo.map(({ key, label, icon: Icon }) => (
                     <div
                       key={key}
-                      className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100"
+                      className="flex items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-100"
                     >
-                      <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center">
+                      <div className="w-10 h-10 bg-green-400 rounded-lg flex items-center justify-center">
                         <Icon className="h-5 w-5 text-white" />
                       </div>
                       <div>
-                        <p className="font-medium text-emerald-900">{label}</p>
-                        <p className="text-xs text-emerald-600">Certified</p>
+                        <p className="font-medium text-green-900">{label}</p>
+                        <p className="text-xs text-green-500">Certified</p>
                       </div>
                     </div>
                   ))}
@@ -441,7 +441,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="mt-12 text-center">
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-green-500 hover:text-green-600 font-medium transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to All Products

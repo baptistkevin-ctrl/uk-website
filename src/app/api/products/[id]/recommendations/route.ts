@@ -1,0 +1,319 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
+
+export const dynamic = 'force-dynamic'
+
+interface RecommendationParams {
+  params: Promise<{ id: string }>
+}
+
+// Product type for recommendations
+interface RecommendedProduct {
+  id: string
+  name: string
+  slug: string
+  price_pence: number
+  compare_at_price_pence: number | null
+  image_url: string | null
+  short_description: string | null
+  unit: string | null
+  unit_value: number | null
+  is_organic: boolean
+  is_vegan: boolean
+  is_vegetarian: boolean
+  is_gluten_free: boolean
+  is_featured: boolean
+  has_offer: boolean
+  offer_badge: string | null
+  avg_rating: number | null
+  review_count: number | null
+  stock_quantity: number | null
+  track_inventory: boolean
+  allow_backorder: boolean
+  low_stock_threshold: number | null
+  brand: string | null
+  vendor: {
+    id: string
+    business_name: string
+    slug: string
+    is_verified: boolean
+  } | null
+}
+
+// GET product recommendations
+export async function GET(
+  request: NextRequest,
+  { params }: RecommendationParams
+) {
+  const { id } = await params
+  const { searchParams } = new URL(request.url)
+
+  const type = searchParams.get('type') || 'all' // 'similar' | 'frequent' | 'youMightLike' | 'all'
+  const limit = Math.min(parseInt(searchParams.get('limit') || '8'), 20)
+
+  const supabaseAdmin = getSupabaseAdmin()
+
+  try {
+    // First, get the current product to know its category
+    const { data: currentProduct, error: productError } = await supabaseAdmin
+      .from('products')
+      .select('id, name, category_id, price_pence, brand, is_organic, is_vegan, is_vegetarian, is_gluten_free')
+      .eq('id', id)
+      .single()
+
+    if (productError || !currentProduct) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 })
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const recommendations: {
+      similar: any[]
+      frequentlyBoughtTogether: any[]
+      youMightLike: any[]
+    } = {
+      similar: [],
+      frequentlyBoughtTogether: [],
+      youMightLike: []
+    }
+
+    // Get similar products (same category, similar attributes)
+    if (type === 'similar' || type === 'all') {
+      const { data: similarProducts } = await supabaseAdmin
+        .from('products')
+        .select(`
+          id,
+          name,
+          slug,
+          price_pence,
+          compare_at_price_pence,
+          image_url,
+          short_description,
+          unit,
+          unit_value,
+          is_organic,
+          is_vegan,
+          is_vegetarian,
+          is_gluten_free,
+          is_featured,
+          has_offer,
+          offer_badge,
+          avg_rating,
+          review_count,
+          stock_quantity,
+          track_inventory,
+          allow_backorder,
+          low_stock_threshold,
+          brand,
+          vendor:vendors(
+            id,
+            business_name,
+            slug,
+            is_verified
+          )
+        `)
+        .eq('category_id', currentProduct.category_id)
+        .eq('is_active', true)
+        .neq('id', id)
+        .order('avg_rating', { ascending: false, nullsFirst: false })
+        .limit(limit)
+
+      recommendations.similar = similarProducts || []
+    }
+
+    // Get frequently bought together (products from same category with similar price range)
+    // In a real app, this would be based on order history analysis
+    if (type === 'frequent' || type === 'all') {
+      const priceRange = {
+        min: Math.floor(currentProduct.price_pence * 0.5),
+        max: Math.ceil(currentProduct.price_pence * 2)
+      }
+
+      const { data: frequentProducts } = await supabaseAdmin
+        .from('products')
+        .select(`
+          id,
+          name,
+          slug,
+          price_pence,
+          compare_at_price_pence,
+          image_url,
+          short_description,
+          unit,
+          unit_value,
+          is_organic,
+          is_vegan,
+          is_vegetarian,
+          is_gluten_free,
+          is_featured,
+          has_offer,
+          offer_badge,
+          avg_rating,
+          review_count,
+          stock_quantity,
+          track_inventory,
+          allow_backorder,
+          low_stock_threshold,
+          brand,
+          vendor:vendors(
+            id,
+            business_name,
+            slug,
+            is_verified
+          )
+        `)
+        .eq('is_active', true)
+        .neq('id', id)
+        .gte('price_pence', priceRange.min)
+        .lte('price_pence', priceRange.max)
+        .order('created_at', { ascending: false })
+        .limit(limit * 2)
+
+      // Shuffle and pick random products to simulate "frequently bought together"
+      const shuffled = (frequentProducts || []).sort(() => Math.random() - 0.5)
+      recommendations.frequentlyBoughtTogether = shuffled.slice(0, Math.min(limit, 4))
+    }
+
+    // Get "you might also like" - products with matching dietary preferences
+    // or from the same brand, but different category
+    if (type === 'youMightLike' || type === 'all') {
+      // Build filter based on product attributes
+      let query = supabaseAdmin
+        .from('products')
+        .select(`
+          id,
+          name,
+          slug,
+          price_pence,
+          compare_at_price_pence,
+          image_url,
+          short_description,
+          unit,
+          unit_value,
+          is_organic,
+          is_vegan,
+          is_vegetarian,
+          is_gluten_free,
+          is_featured,
+          has_offer,
+          offer_badge,
+          avg_rating,
+          review_count,
+          stock_quantity,
+          track_inventory,
+          allow_backorder,
+          low_stock_threshold,
+          brand,
+          vendor:vendors(
+            id,
+            business_name,
+            slug,
+            is_verified
+          )
+        `)
+        .eq('is_active', true)
+        .neq('id', id)
+        .neq('category_id', currentProduct.category_id) // Different category
+
+      // Match dietary preferences
+      if (currentProduct.is_organic) {
+        query = query.eq('is_organic', true)
+      }
+      if (currentProduct.is_vegan) {
+        query = query.eq('is_vegan', true)
+      }
+      if (currentProduct.is_vegetarian) {
+        query = query.eq('is_vegetarian', true)
+      }
+      if (currentProduct.is_gluten_free) {
+        query = query.eq('is_gluten_free', true)
+      }
+
+      const { data: youMightLikeProducts } = await query
+        .order('is_featured', { ascending: false })
+        .order('avg_rating', { ascending: false, nullsFirst: false })
+        .limit(limit)
+
+      // If not enough products with matching dietary preferences, get popular products
+      if (!youMightLikeProducts || youMightLikeProducts.length < limit) {
+        const existingIds = (youMightLikeProducts || []).map(p => p.id)
+        existingIds.push(id)
+
+        const { data: popularProducts } = await supabaseAdmin
+          .from('products')
+          .select(`
+            id,
+            name,
+            slug,
+            price_pence,
+            compare_at_price_pence,
+            image_url,
+            short_description,
+            unit,
+            unit_value,
+            is_organic,
+            is_vegan,
+            is_vegetarian,
+            is_gluten_free,
+            is_featured,
+            has_offer,
+            offer_badge,
+            avg_rating,
+            review_count,
+            stock_quantity,
+            track_inventory,
+            allow_backorder,
+            low_stock_threshold,
+            brand,
+            vendor:vendors(
+              id,
+              business_name,
+              slug,
+              is_verified
+            )
+          `)
+          .eq('is_active', true)
+          .not('id', 'in', `(${existingIds.join(',')})`)
+          .neq('category_id', currentProduct.category_id)
+          .order('is_featured', { ascending: false })
+          .order('avg_rating', { ascending: false, nullsFirst: false })
+          .limit(limit - (youMightLikeProducts?.length || 0))
+
+        recommendations.youMightLike = [
+          ...(youMightLikeProducts || []),
+          ...(popularProducts || [])
+        ]
+      } else {
+        recommendations.youMightLike = youMightLikeProducts
+      }
+    }
+
+    // Return based on type
+    if (type === 'similar') {
+      return NextResponse.json({ products: recommendations.similar })
+    }
+    if (type === 'frequent') {
+      return NextResponse.json({ products: recommendations.frequentlyBoughtTogether })
+    }
+    if (type === 'youMightLike') {
+      return NextResponse.json({ products: recommendations.youMightLike })
+    }
+
+    // Return all recommendations
+    return NextResponse.json({
+      similar: recommendations.similar,
+      frequentlyBoughtTogether: recommendations.frequentlyBoughtTogether,
+      youMightLike: recommendations.youMightLike,
+      currentProduct: {
+        id: currentProduct.id,
+        name: currentProduct.name,
+        category_id: currentProduct.category_id
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching recommendations:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch recommendations' },
+      { status: 500 }
+    )
+  }
+}

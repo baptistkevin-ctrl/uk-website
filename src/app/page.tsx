@@ -37,9 +37,9 @@ const features = [
     icon: Shield,
     title: 'Quality Guaranteed',
     description: 'Not happy? Get a full refund. No questions asked.',
-    color: 'from-emerald-500 to-teal-500',
-    bgColor: 'bg-emerald-50',
-    iconColor: 'text-emerald-500',
+    color: 'from-green-400 to-teal-500',
+    bgColor: 'bg-green-50',
+    iconColor: 'text-green-400',
   },
   {
     icon: Clock,
@@ -61,7 +61,7 @@ const features = [
 
 // Default gradient colors for categories without images
 const categoryColors = [
-  'from-green-400 to-emerald-500',
+  'from-green-400 to-green-400',
   'from-blue-400 to-cyan-500',
   'from-red-400 to-rose-500',
   'from-amber-400 to-orange-500',
@@ -110,14 +110,6 @@ export default async function HomePage() {
     .order('display_order', { ascending: true })
     .limit(6)
 
-  // Fetch featured products
-  const { data: featuredProducts } = await supabase
-    .from('products')
-    .select('*')
-    .eq('is_active', true)
-    .eq('is_featured', true)
-    .limit(8)
-
   // Fetch active flash deals
   const { data: flashDeals } = await supabase
     .from('flash_deals')
@@ -141,70 +133,24 @@ export default async function HomePage() {
     .order('ends_at', { ascending: true })
     .limit(4)
 
+  // Fetch ALL products for Amazon/AliExpress style display - NO LIMIT
+  const { data: allProducts } = await supabase
+    .from('products')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <Header />
       <main className="flex-1">
-        {/* Hero Slider */}
-        {heroSlidesEnabled && heroSlides && heroSlides.length > 0 ? (
-          <HeroSlider slides={heroSlides} />
-        ) : (
-          /* Default Hero Section when no slides */
-          <section className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800">
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-40 -right-40 w-80 h-80 bg-emerald-500/30 rounded-full blur-3xl animate-pulse" />
-              <div className="absolute top-60 -left-40 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl animate-pulse delay-700" />
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
-            </div>
-
-            <div className="container mx-auto px-4 py-20 lg:py-32 relative">
-              <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
-                  <Sparkles className="h-4 w-4 text-yellow-400" />
-                  <span className="text-sm font-medium text-white">Free delivery on orders over £50</span>
-                </div>
-
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                  Fresh Groceries
-                  <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-300">
-                    Delivered Fast
-                  </span>
-                </h1>
-
-                <p className="text-lg lg:text-xl text-emerald-100 mb-8 max-w-xl">
-                  Shop thousands of quality products from the comfort of your home.
-                  Same-day delivery across the UK, fresh to your door.
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Button
-                    size="lg"
-                    className="h-14 px-8 bg-white text-emerald-700 hover:bg-emerald-50 shadow-xl shadow-black/20 text-base font-semibold"
-                    asChild
-                  >
-                    <Link href="/products">
-                      Start Shopping
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Link>
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="h-14 px-8 border-2 border-white/30 text-white hover:bg-white/10 backdrop-blur-sm text-base font-semibold"
-                    asChild
-                  >
-                    <Link href="/categories">Explore Categories</Link>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
+        {/* Hero Section - Zilly Style */}
+        <HeroSlider slides={heroSlides || []} />
 
         {/* Stats Section */}
-        <section className="py-8 -mt-1 bg-white relative z-10">
+        <section className="py-4 bg-white relative z-10">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {stats.map((stat, i) => (
                 <div key={i} className="text-center">
                   <div className="flex items-center justify-center gap-2">
@@ -223,13 +169,13 @@ export default async function HomePage() {
         </section>
 
         {/* Features */}
-        <section className="py-16 lg:py-20 bg-gradient-to-b from-white to-slate-50">
+        <section className="py-8 lg:py-10 bg-gradient-to-b from-white to-slate-50">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
                 Why Choose FreshMart?
               </h2>
-              <p className="text-gray-500 max-w-2xl mx-auto">
+              <p className="text-gray-500 max-w-2xl mx-auto text-sm">
                 We&apos;re committed to delivering the freshest groceries with unmatched
                 convenience and service.
               </p>
@@ -262,18 +208,18 @@ export default async function HomePage() {
         </section>
 
         {/* Categories */}
-        <section className="py-16 lg:py-20 bg-slate-50">
+        <section className="py-8 lg:py-10 bg-slate-50">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+                <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
                   Shop by Category
                 </h2>
                 <p className="text-gray-500">Find exactly what you&apos;re looking for</p>
               </div>
               <Link
                 href="/categories"
-                className="hidden sm:flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-semibold group"
+                className="hidden sm:flex items-center gap-2 text-green-500 hover:text-green-600 font-semibold group"
               >
                 View All
                 <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
@@ -328,7 +274,7 @@ export default async function HomePage() {
             <div className="mt-6 text-center sm:hidden">
               <Link
                 href="/categories"
-                className="inline-flex items-center gap-2 text-emerald-600 font-semibold"
+                className="inline-flex items-center gap-2 text-green-500 font-semibold"
               >
                 View All Categories
                 <ChevronRight className="h-5 w-5" />
@@ -339,17 +285,17 @@ export default async function HomePage() {
 
         {/* Flash Deals Section */}
         {flashDeals && flashDeals.length > 0 && (
-          <section className="py-16 lg:py-20 bg-gradient-to-r from-orange-50 via-red-50 to-pink-50">
+          <section className="py-8 lg:py-10 bg-gradient-to-r from-orange-50 via-red-50 to-pink-50">
             <div className="container mx-auto px-4">
-              <div className="flex items-center justify-between mb-10">
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-1">
                     <div className="flex items-center gap-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                       <Flame className="h-3 w-3" />
                       HOT DEALS
                     </div>
                   </div>
-                  <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
+                  <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
                     Flash Deals
                   </h2>
                   <p className="text-gray-500 mt-1">Limited time offers - grab them before they're gone!</p>
@@ -382,93 +328,70 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Featured Products */}
-        <section className="py-16 lg:py-20 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-10">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="h-5 w-5 text-amber-500" />
-                  <span className="text-sm font-semibold text-amber-600 uppercase tracking-wide">
-                    Hand-picked for you
-                  </span>
+        {/* All Products Section - Full Length AliExpress Style */}
+        {allProducts && allProducts.length > 0 && (
+          <section className="py-8 lg:py-10 bg-slate-50">
+            <div className="container mx-auto px-4">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-1 bg-gradient-to-r from-green-500 to-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                      <Sparkles className="h-3 w-3" />
+                      ALL PRODUCTS
+                    </div>
+                    <span className="text-sm text-gray-500">{allProducts.length} items</span>
+                  </div>
+                  <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                    Explore All Products
+                  </h2>
+                  <p className="text-gray-500 mt-1">Quality groceries from all our vendors</p>
                 </div>
-                <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
-                  Featured Products
-                </h2>
               </div>
-              <Link
-                href="/products"
-                className="hidden sm:flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-semibold group"
-              >
-                View All
-                <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </div>
 
-            {featuredProducts && featuredProducts.length > 0 ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-                {featuredProducts.map((product) => (
+              {/* Full Width Product Grid - AliExpress Style */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4">
+                {allProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-16 bg-slate-50 rounded-2xl">
-                <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Sparkles className="h-10 w-10 text-slate-300" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  No featured products yet
-                </h3>
-                <p className="text-gray-500 mb-6">
-                  Check back soon for our hand-picked selections!
-                </p>
-                <Button asChild>
-                  <Link href="/products">Browse All Products</Link>
-                </Button>
-              </div>
-            )}
 
-            <div className="mt-8 text-center sm:hidden">
-              <Link
-                href="/products"
-                className="inline-flex items-center gap-2 text-emerald-600 font-semibold"
-              >
-                View All Products
-                <ChevronRight className="h-5 w-5" />
-              </Link>
+              {/* Load More / View All Button */}
+              <div className="mt-12 text-center">
+                <Link
+                  href="/products"
+                  className="inline-flex items-center gap-2 bg-white border-2 border-green-500 text-green-600 hover:bg-green-500 hover:text-white font-semibold px-10 py-4 rounded-full transition-all shadow-sm hover:shadow-md"
+                >
+                  View More Products
+                  <ArrowRight className="h-5 w-5" />
+                </Link>
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* CTA Section */}
-        <section className="py-20 lg:py-24 relative overflow-hidden">
+        <section className="py-8 lg:py-10 relative overflow-hidden">
           {/* Background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-700" />
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
-
-          {/* Decorative circles */}
-          <div className="absolute top-10 left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-          <div className="absolute bottom-10 right-10 w-60 h-60 bg-teal-500/20 rounded-full blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-teal-600" />
 
           <div className="container mx-auto px-4 text-center relative">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-4">
               <Zap className="h-4 w-4 text-yellow-400" />
               <span className="text-sm font-medium text-white">Limited Time Offer</span>
             </div>
 
-            <h2 className="text-3xl lg:text-5xl font-bold text-white mb-4">
+            <h2 className="text-2xl lg:text-4xl font-bold text-white mb-3">
               Free Delivery on Your First Order
             </h2>
-            <p className="text-emerald-100 text-lg max-w-2xl mx-auto mb-8">
+            <p className="text-green-100 text-base max-w-2xl mx-auto mb-6">
               Join thousands of happy customers who save time and money by shopping with
               FreshMart. Quality groceries, delivered fresh to your doorstep.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button
                 size="lg"
-                className="h-14 px-8 bg-white text-emerald-700 hover:bg-emerald-50 shadow-xl text-base font-semibold"
+                className="h-12 px-6 bg-white text-green-600 hover:bg-green-50 shadow-lg text-base font-semibold"
                 asChild
               >
                 <Link href="/products">
@@ -478,8 +401,7 @@ export default async function HomePage() {
               </Button>
               <Button
                 size="lg"
-                variant="outline"
-                className="h-14 px-8 border-2 border-white/30 text-white hover:bg-white/10 text-base font-semibold"
+                className="h-12 px-6 bg-white/20 text-white border-2 border-white hover:bg-white hover:text-green-600 text-base font-semibold"
                 asChild
               >
                 <Link href="/register">Create Account</Link>
@@ -487,7 +409,7 @@ export default async function HomePage() {
             </div>
 
             {/* Trust badges */}
-            <div className="mt-12 flex flex-wrap justify-center gap-8">
+            <div className="mt-8 flex flex-wrap justify-center gap-6">
               <div className="flex items-center gap-2 text-white/80">
                 <Shield className="h-5 w-5" />
                 <span className="text-sm">Secure Checkout</span>

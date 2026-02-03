@@ -72,7 +72,7 @@ export default function PrivacyPage() {
             <section>
               <h2 className="text-xl font-semibold text-gray-900 mb-4">7. Contact Us</h2>
               <p className="text-gray-600">
-                For any privacy-related questions or to exercise your rights, contact us at privacy@freshgroceries.co.uk
+                For any privacy-related questions or to exercise your rights, contact us at privacy@megamartuk.co.uk
               </p>
             </section>
           </div>

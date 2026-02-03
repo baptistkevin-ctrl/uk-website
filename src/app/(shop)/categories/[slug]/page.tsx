@@ -103,7 +103,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 overflow-hidden">
+      <div className="relative bg-gradient-to-br from-green-500 via-green-600 to-teal-800 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,_white_1px,_transparent_1px)] bg-[size:20px_20px]" />
 
@@ -116,13 +116,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <nav className="mb-6">
             <ol className="flex items-center gap-2 text-sm">
               <li>
-                <Link href="/" className="text-emerald-200 hover:text-white transition-colors">
+                <Link href="/" className="text-green-200 hover:text-white transition-colors">
                   Home
                 </Link>
               </li>
               <ChevronRight className="h-4 w-4 text-emerald-300" />
               <li>
-                <Link href="/categories" className="text-emerald-200 hover:text-white transition-colors">
+                <Link href="/categories" className="text-green-200 hover:text-white transition-colors">
                   Categories
                 </Link>
               </li>
@@ -132,7 +132,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   <li>
                     <Link
                       href={`/categories/${parentCategory.slug}`}
-                      className="text-emerald-200 hover:text-white transition-colors"
+                      className="text-green-200 hover:text-white transition-colors"
                     >
                       {parentCategory.name}
                     </Link>
@@ -159,7 +159,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               {category.name}
             </h1>
             {category.description && (
-              <p className="text-lg text-emerald-100 max-w-2xl">
+              <p className="text-lg text-green-100 max-w-2xl">
                 {category.description}
               </p>
             )}
@@ -172,7 +172,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         {subcategories && subcategories.length > 0 && (
           <div className="mb-10">
             <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Filter className="h-5 w-5 text-emerald-600" />
+              <Filter className="h-5 w-5 text-green-500" />
               Subcategories
             </h2>
             <div className="flex flex-wrap gap-3">
@@ -182,10 +182,10 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   href={`/categories/${sub.slug}`}
                   className="group"
                 >
-                  <div className="px-5 py-3 bg-white border-2 border-slate-100 hover:border-emerald-200 rounded-xl text-sm font-medium text-gray-700 hover:text-emerald-700 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md">
-                    <ShoppingBasket className="h-4 w-4 text-gray-400 group-hover:text-emerald-500" />
+                  <div className="px-5 py-3 bg-white border-2 border-slate-100 hover:border-green-200 rounded-xl text-sm font-medium text-gray-700 hover:text-green-600 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md">
+                    <ShoppingBasket className="h-4 w-4 text-gray-400 group-hover:text-green-400" />
                     {sub.name}
-                    <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-transform" />
+                    <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-green-400 group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </Link>
               ))}
@@ -218,7 +218,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             <p className="text-gray-500 mb-6 max-w-sm mx-auto">
               We&apos;re still stocking up this category. Check back soon or browse our other products.
             </p>
-            <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+            <Button asChild className="bg-green-500 hover:bg-green-600">
               <Link href="/products">
                 Browse All Products
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -231,7 +231,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/categories"
-            className="inline-flex items-center gap-2 text-gray-500 hover:text-emerald-600 font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-gray-500 hover:text-green-500 font-medium transition-colors"
           >
             <Grid3X3 className="h-4 w-4" />
             View All Categories
@@ -239,7 +239,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           <span className="hidden sm:inline text-gray-300">|</span>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-green-500 hover:text-green-600 font-medium transition-colors"
           >
             Browse All Products
             <ArrowRight className="h-4 w-4" />

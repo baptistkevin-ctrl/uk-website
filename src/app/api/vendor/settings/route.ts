@@ -41,6 +41,10 @@ export async function PUT(request: NextRequest) {
         postcode: body.postcode,
         company_number: body.company_number,
         vat_number: body.vat_number,
+        website_url: body.website_url,
+        facebook_url: body.facebook_url,
+        instagram_url: body.instagram_url,
+        twitter_url: body.twitter_url,
         updated_at: new Date().toISOString()
       })
       .eq('id', vendor.id)
