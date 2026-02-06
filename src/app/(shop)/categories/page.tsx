@@ -1,22 +1,12 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   ArrowRight,
   Grid3X3,
   Sparkles,
-  ShoppingBasket,
-  Apple,
-  Beef,
-  Milk,
-  Croissant,
-  Cookie,
-  Coffee,
-  Wine,
-  Snowflake,
-  Package
 } from 'lucide-react'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/badge'
-import { Card } from '@/components/ui/card'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,46 +15,65 @@ export const metadata = {
   description: 'Browse our product categories',
 }
 
-// Category icon mapping
-const categoryIcons: Record<string, React.ReactNode> = {
-  'fruits': <Apple className="h-8 w-8" />,
-  'vegetables': <ShoppingBasket className="h-8 w-8" />,
-  'meat': <Beef className="h-8 w-8" />,
-  'dairy': <Milk className="h-8 w-8" />,
-  'bakery': <Croissant className="h-8 w-8" />,
-  'snacks': <Cookie className="h-8 w-8" />,
-  'beverages': <Coffee className="h-8 w-8" />,
-  'alcohol': <Wine className="h-8 w-8" />,
-  'frozen': <Snowflake className="h-8 w-8" />,
-  'default': <Package className="h-8 w-8" />,
+// Professional stock images for categories (Unsplash)
+const categoryImages: Record<string, string> = {
+  'fruits': 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600&h=400&fit=crop&q=80',
+  'fresh-fruits': 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600&h=400&fit=crop&q=80',
+  'vegetables': 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&h=400&fit=crop&q=80',
+  'fresh-vegetables': 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&h=400&fit=crop&q=80',
+  'fruits-vegetables': 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=600&h=400&fit=crop&q=80',
+  'meat': 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=600&h=400&fit=crop&q=80',
+  'meat-poultry': 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=600&h=400&fit=crop&q=80',
+  'poultry': 'https://images.unsplash.com/photo-1604503468506-a8da13d82571?w=600&h=400&fit=crop&q=80',
+  'chicken': 'https://images.unsplash.com/photo-1604503468506-a8da13d82571?w=600&h=400&fit=crop&q=80',
+  'dairy': 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=600&h=400&fit=crop&q=80',
+  'dairy-eggs': 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=600&h=400&fit=crop&q=80',
+  'bakery': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&h=400&fit=crop&q=80',
+  'bread': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&h=400&fit=crop&q=80',
+  'snacks': 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=600&h=400&fit=crop&q=80',
+  'snacks-sweets': 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=600&h=400&fit=crop&q=80',
+  'beverages': 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&h=400&fit=crop&q=80',
+  'drinks': 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&h=400&fit=crop&q=80',
+  'alcohol': 'https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?w=600&h=400&fit=crop&q=80',
+  'wine': 'https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?w=600&h=400&fit=crop&q=80',
+  'beer': 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=600&h=400&fit=crop&q=80',
+  'frozen': 'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=600&h=400&fit=crop&q=80',
+  'frozen-foods': 'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=600&h=400&fit=crop&q=80',
+  'seafood': 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=600&h=400&fit=crop&q=80',
+  'fish': 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=600&h=400&fit=crop&q=80',
+  'fish-seafood': 'https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=600&h=400&fit=crop&q=80',
+  'pantry': 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=600&h=400&fit=crop&q=80',
+  'household': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=600&h=400&fit=crop&q=80',
+  'cleaning': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=600&h=400&fit=crop&q=80',
+  'health-beauty': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=400&fit=crop&q=80',
+  'beauty': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&h=400&fit=crop&q=80',
+  'baby': 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&h=400&fit=crop&q=80',
+  'baby-products': 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=600&h=400&fit=crop&q=80',
+  'organic': 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&h=400&fit=crop&q=80',
+  'pets': 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=600&h=400&fit=crop&q=80',
+  'pet-food': 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=600&h=400&fit=crop&q=80',
+  'desserts': 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&h=400&fit=crop&q=80',
+  'cakes': 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&h=400&fit=crop&q=80',
+  'coffee': 'https://images.unsplash.com/photo-1447933601403-56dc2df6e3f5?w=600&h=400&fit=crop&q=80',
+  'tea': 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&h=400&fit=crop&q=80',
 }
 
-// Gradient colors for categories
-const categoryColors = [
-  { bg: 'from-emerald-500 to-teal-600', light: 'bg-emerald-50 border-emerald-100', text: 'text-emerald-600' },
-  { bg: 'from-blue-500 to-cyan-600', light: 'bg-blue-50 border-blue-100', text: 'text-blue-600' },
-  { bg: 'from-purple-500 to-violet-600', light: 'bg-purple-50 border-purple-100', text: 'text-purple-600' },
-  { bg: 'from-orange-500 to-amber-600', light: 'bg-orange-50 border-orange-100', text: 'text-orange-600' },
-  { bg: 'from-pink-500 to-rose-600', light: 'bg-pink-50 border-pink-100', text: 'text-pink-600' },
-  { bg: 'from-indigo-500 to-blue-600', light: 'bg-indigo-50 border-indigo-100', text: 'text-indigo-600' },
-  { bg: 'from-red-500 to-rose-600', light: 'bg-red-50 border-red-100', text: 'text-red-600' },
-  { bg: 'from-teal-500 to-cyan-600', light: 'bg-teal-50 border-teal-100', text: 'text-teal-600' },
-]
+const defaultCategoryImage = 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&h=400&fit=crop&q=80'
 
-function getCategoryIcon(slug: string) {
+function getCategoryImage(slug: string, dbImage?: string | null): string {
+  if (dbImage) return dbImage
   const lowerSlug = slug.toLowerCase()
-  for (const key of Object.keys(categoryIcons)) {
+  for (const key of Object.keys(categoryImages)) {
     if (lowerSlug.includes(key)) {
-      return categoryIcons[key]
+      return categoryImages[key]
     }
   }
-  return categoryIcons['default']
+  return defaultCategoryImage
 }
 
 export default async function CategoriesPage() {
   const supabase = getSupabaseAdmin()
 
-  // Fetch top-level categories
   const { data: categories } = await supabase
     .from('categories')
     .select('*')
@@ -76,10 +85,7 @@ export default async function CategoriesPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 overflow-hidden">
-        {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,_white_1px,_transparent_1px)] bg-[size:20px_20px]" />
-
-        {/* Floating Elements */}
         <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl" />
         <div className="absolute bottom-10 right-10 w-32 h-32 bg-teal-400/20 rounded-full blur-2xl" />
 
@@ -109,10 +115,9 @@ export default async function CategoriesPage() {
       {/* Categories Grid */}
       <div className="container mx-auto px-4 py-12">
         {categories && categories.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {categories.map((category, index) => {
-              const colorScheme = categoryColors[index % categoryColors.length]
-              const icon = getCategoryIcon(category.slug)
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+            {categories.map((category) => {
+              const imageUrl = getCategoryImage(category.slug, category.image_url)
 
               return (
                 <Link
@@ -120,35 +125,34 @@ export default async function CategoriesPage() {
                   href={`/categories/${category.slug}`}
                   className="group block"
                 >
-                  <Card className="overflow-hidden border-slate-100 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 h-full">
-                    {/* Gradient Top Bar */}
-                    <div className={`h-2 bg-gradient-to-r ${colorScheme.bg}`} />
+                  <div className="relative rounded-2xl overflow-hidden aspect-[4/3] shadow-sm hover:shadow-xl transition-all duration-300">
+                    {/* Real Photo Background */}
+                    <Image
+                      src={imageUrl}
+                      alt={category.name}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    />
+                    {/* Dark gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/5 group-hover:from-black/70 transition-colors duration-300" />
 
-                    <div className="p-6">
-                      {/* Icon */}
-                      <div className={`w-16 h-16 ${colorScheme.light} border rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                        <div className={colorScheme.text}>
-                          {icon}
-                        </div>
-                      </div>
-
-                      {/* Content */}
-                      <h2 className="text-xl font-bold text-gray-900 group-hover:text-emerald-600 transition-colors mb-2">
+                    {/* Content */}
+                    <div className="absolute inset-0 flex flex-col justify-end p-4 lg:p-5">
+                      <h2 className="text-white font-bold text-lg lg:text-xl mb-1 drop-shadow-sm">
                         {category.name}
                       </h2>
                       {category.description && (
-                        <p className="text-gray-500 text-sm line-clamp-2 mb-4">
+                        <p className="text-white/70 text-xs lg:text-sm line-clamp-1 mb-2">
                           {category.description}
                         </p>
                       )}
-
-                      {/* Arrow */}
-                      <div className="flex items-center text-emerald-600 font-medium text-sm group-hover:text-emerald-700">
+                      <div className="flex items-center text-emerald-300 font-medium text-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
                         <span>Browse Products</span>
-                        <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform" />
+                        <ArrowRight className="h-4 w-4 ml-1" />
                       </div>
                     </div>
-                  </Card>
+                  </div>
                 </Link>
               )
             })}
