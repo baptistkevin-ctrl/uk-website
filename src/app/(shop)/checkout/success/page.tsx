@@ -27,14 +27,18 @@ import { useAuth } from '@/hooks/use-auth'
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams()
   const orderNumber = searchParams.get('order')
-  const { clearCart } = useCart()
+  const { items, clearCart } = useCart()
   const { user } = useAuth()
   const [copied, setCopied] = useState(false)
+  const sessionId = searchParams.get('session_id')
 
-  // Clear cart on successful checkout
+  // Clear cart on successful checkout, but only if there are items and a valid session_id
+  // This prevents clearing the cart when revisiting from browser history
   useEffect(() => {
-    clearCart()
-  }, [clearCart])
+    if (items.length > 0 && sessionId) {
+      clearCart()
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const copyOrderNumber = () => {
     if (orderNumber) {

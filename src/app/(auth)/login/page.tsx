@@ -63,8 +63,7 @@ function LoginFormContent() {
       // Check user role to determine redirect
       const redirectParam = searchParams.get('redirectTo')
       if (redirectParam) {
-        router.push(redirectParam)
-        router.refresh()
+        window.location.href = redirectParam
         return
       }
 
@@ -72,17 +71,16 @@ function LoginFormContent() {
       const res = await fetch('/api/user/profile')
       if (res.ok) {
         const profile = await res.json()
-        if (profile.role === 'admin') {
-          router.push('/admin')
+        if (profile.role === 'admin' || profile.role === 'super_admin') {
+          window.location.href = '/admin'
         } else if (profile.is_vendor || profile.role === 'vendor') {
-          router.push('/vendor/dashboard')
+          window.location.href = '/vendor/dashboard'
         } else {
-          router.push('/')
+          window.location.href = '/'
         }
       } else {
-        router.push('/')
+        window.location.href = '/'
       }
-      router.refresh()
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to sign in'
       setError(errorMessage)

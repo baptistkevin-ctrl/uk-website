@@ -11,8 +11,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { code, subtotal_pence } = body
 
-    if (!code) {
+    if (!code || typeof code !== 'string') {
       return NextResponse.json({ error: 'Coupon code is required' }, { status: 400 })
+    }
+
+    // Validate coupon code format: alphanumeric, hyphens, underscores only, max 50 chars
+    if (code.length > 50 || !/^[A-Za-z0-9_-]+$/.test(code)) {
+      return NextResponse.json({ error: 'Invalid coupon code format' }, { status: 400 })
+    }
+
+    // Validate subtotal_pence if provided
+    if (subtotal_pence !== undefined && subtotal_pence !== null) {
+      if (typeof subtotal_pence !== 'number' || !Number.isFinite(subtotal_pence) || subtotal_pence < 0) {
+        return NextResponse.json({ error: 'Invalid subtotal amount' }, { status: 400 })
+      }
     }
 
     // Call the validate_coupon function

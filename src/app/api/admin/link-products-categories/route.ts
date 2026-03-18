@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
@@ -266,6 +267,9 @@ const productCategoryMapping: Record<string, string[]> = {
 }
 
 export async function POST() {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
@@ -356,6 +360,9 @@ export async function POST() {
 
 // GET - Preview product-category mappings
 export async function GET() {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   const { data: products } = await supabaseAdmin

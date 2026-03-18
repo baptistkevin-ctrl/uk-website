@@ -51,12 +51,54 @@ export async function createCheckoutSession({
       data: { user },
     } = await supabase.auth.getUser()
 
-    // Fetch product details with vendor info
+    // Validate delivery fee
+    if (typeof deliveryFee !== 'number' || deliveryFee < 0) {
+      return { error: 'Invalid delivery fee' }
+    }
+    if (deliveryFee > 5000) {
+      return { error: 'Delivery fee exceeds maximum allowed' }
+    }
+
+    // Validate items array
+    if (!items || items.length === 0) {
+      return { error: 'No items in cart' }
+    }
+
+    // Fetch product details with vendor info, price, and stock
     const productIds = items.map(item => item.productId)
     const { data: products } = await supabaseAdmin
       .from('products')
-      .select('id, vendor_id')
+      .select('id, vendor_id, price_pence, stock_quantity, is_active, name')
       .in('id', productIds)
+
+    // Build product lookup map for validation
+    const productMap = new Map<string, NonNullable<typeof products>[number]>()
+    products?.forEach(p => productMap.set(p.id, p))
+
+    // Validate each item against database
+    for (const item of items) {
+      const dbProduct = productMap.get(item.productId)
+
+      if (!dbProduct) {
+        return { error: `Product not found: ${item.productId}` }
+      }
+
+      if (!dbProduct.is_active) {
+        return { error: `Product is no longer available: ${dbProduct.name}` }
+      }
+
+      if (item.price !== dbProduct.price_pence) {
+        return { error: `Price has changed for ${dbProduct.name}. Please refresh your cart.` }
+      }
+
+      if (item.quantity < 1) {
+        return { error: `Invalid quantity for ${dbProduct.name}` }
+      }
+
+      if (dbProduct.stock_quantity !== null && dbProduct.stock_quantity < item.quantity) {
+        return { error: `Insufficient stock for ${dbProduct.name}. Only ${dbProduct.stock_quantity} available.` }
+      }
+    }
 
     // Create a map of product to vendor
     const productVendorMap = new Map<string, string | null>()
@@ -85,8 +127,11 @@ export async function createCheckoutSession({
       })
     }
 
-    // Calculate totals and vendor breakdowns
-    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    // Calculate totals using DB prices (never trust client prices)
+    const subtotal = enrichedItems.reduce((sum, item) => {
+      const dbProduct = productMap.get(item.productId)!
+      return sum + dbProduct.price_pence * item.quantity
+    }, 0)
     const total = subtotal + deliveryFee
 
     // Calculate vendor amounts for metadata
@@ -109,18 +154,21 @@ export async function createCheckoutSession({
     // Create order number
     const orderNumber = generateOrderNumber()
 
-    // Create line items for Stripe
-    const lineItems = items.map((item) => ({
-      price_data: {
-        currency: 'gbp',
-        product_data: {
-          name: item.name,
-          images: item.image ? [item.image] : [],
+    // Create line items for Stripe using DB-verified prices
+    const lineItems = items.map((item) => {
+      const dbProduct = productMap.get(item.productId)!
+      return {
+        price_data: {
+          currency: 'gbp',
+          product_data: {
+            name: dbProduct.name,
+            images: item.image ? [item.image] : [],
+          },
+          unit_amount: dbProduct.price_pence,
         },
-        unit_amount: item.price, // Already in pence
-      },
-      quantity: item.quantity,
-    }))
+        quantity: item.quantity,
+      }
+    })
 
     // Add delivery fee as a line item if applicable
     if (deliveryFee > 0) {

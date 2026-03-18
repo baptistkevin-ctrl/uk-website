@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
@@ -120,6 +121,9 @@ const categoryImages: Record<string, string> = {
 }
 
 export async function POST() {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   try {
     const supabase = getSupabaseAdmin()
 

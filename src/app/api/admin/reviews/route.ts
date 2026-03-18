@@ -40,7 +40,7 @@ async function isAdmin() {
     .eq('id', user.id)
     .single()
 
-  return profile?.role === 'admin'
+  return profile?.role === 'admin' || profile?.role === 'super_admin'
 }
 
 // GET - Get reviews for moderation

@@ -40,7 +40,7 @@ export async function GET(
       .eq('id', user.id)
       .single()
 
-    const isAdmin = profile?.role === 'admin'
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin'
 
     if (ticket.user_id !== user.id && !isAdmin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
@@ -129,7 +129,7 @@ export async function POST(
       .eq('id', user.id)
       .single()
 
-    const isAdmin = profile?.role === 'admin'
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin'
     const isOwner = ticket.user_id === user.id
 
     if (!isOwner && !isAdmin) {
@@ -199,7 +199,7 @@ export async function PUT(
       .eq('id', user.id)
       .single()
 
-    const isAdmin = profile?.role === 'admin'
+    const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin'
     const isOwner = ticket.user_id === user.id
 
     // Build update object

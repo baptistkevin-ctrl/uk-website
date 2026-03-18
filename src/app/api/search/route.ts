@@ -12,9 +12,11 @@ function getSupabaseAdmin() {
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
-  const query = searchParams.get('q') || ''
-  const page = parseInt(searchParams.get('page') || '1')
-  const limit = parseInt(searchParams.get('limit') || '20')
+  const rawQuery = searchParams.get('q') || ''
+  // Cap query length to prevent abuse
+  const query = rawQuery.slice(0, 200)
+  const page = Math.min(Math.max(parseInt(searchParams.get('page') || '1') || 1, 1), 100)
+  const limit = Math.min(Math.max(parseInt(searchParams.get('limit') || '20') || 20, 1), 50)
   const sortBy = searchParams.get('sort') || 'relevance'
   const category = searchParams.get('category')
   const minPrice = searchParams.get('minPrice')
@@ -28,7 +30,8 @@ export async function GET(request: NextRequest) {
   const brand = searchParams.get('brand')
   const vendor = searchParams.get('vendor')
 
-  const offset = (page - 1) * limit
+  // Cap offset to prevent Supabase range errors on very high page numbers
+  const offset = Math.min((page - 1) * limit, 5000)
   const supabase = getSupabaseAdmin()
 
   try {
@@ -65,7 +68,11 @@ export async function GET(request: NextRequest) {
 
     // Text search - search in name and description
     if (query) {
-      dbQuery = dbQuery.or(`name.ilike.%${query}%,short_description.ilike.%${query}%,brand.ilike.%${query}%`)
+      // Sanitize query: escape LIKE wildcards, then strip PostgREST operators and injection chars
+      const sanitizedQuery = query
+        .replace(/[%_\\]/g, '\\$&')
+        .replace(/[.,()<>'";\[\]{}|]/g, '')
+      dbQuery = dbQuery.or(`name.ilike.%${sanitizedQuery}%,short_description.ilike.%${sanitizedQuery}%,brand.ilike.%${sanitizedQuery}%`)
     }
 
     // Category filter
@@ -155,8 +162,16 @@ export async function GET(request: NextRequest) {
     const { data: products, error, count } = await dbQuery.range(offset, offset + limit - 1)
 
     if (error) {
-      console.error('Search error:', error)
-      return NextResponse.json({ error: 'Search failed' }, { status: 500 })
+      console.error('Search error:', JSON.stringify(error))
+      // Supabase returns error when range exceeds total rows - return empty results gracefully
+      return NextResponse.json({
+        products: [],
+        total: 0,
+        page,
+        totalPages: 0,
+        facets: { categories: [], brands: [], priceRange: { min: 0, max: 0 } },
+        query: query.replace(/[<>"'&]/g, ''),
+      })
     }
 
     // Get facets (categories, brands, price range)
@@ -183,6 +198,9 @@ export async function GET(request: NextRequest) {
       .eq('is_active', true)
       .order('display_order')
 
+    // Sanitize query for response to prevent reflected XSS
+    const safeQuery = query.replace(/[<>"'&]/g, '')
+
     return NextResponse.json({
       products,
       total: count || 0,
@@ -193,7 +211,7 @@ export async function GET(request: NextRequest) {
         brands,
         priceRange,
       },
-      query,
+      query: safeQuery,
     })
   } catch (error) {
     console.error('Search error:', error)

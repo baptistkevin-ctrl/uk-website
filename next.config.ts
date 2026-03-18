@@ -20,11 +20,11 @@ const securityHeaders = [
     value: 'on'
   },
   // HTTP Strict Transport Security (HSTS) - 2 years, preload ready
-  // Forces HTTPS connections for enhanced security
-  {
+  // Only in production — sending this on localhost forces HTTPS and breaks dev
+  ...(process.env.NODE_ENV === 'production' ? [{
     key: 'Strict-Transport-Security',
     value: 'max-age=63072000; includeSubDomains; preload'
-  },
+  }] : []),
   // Prevent clickjacking attacks
   {
     key: 'X-Frame-Options',
@@ -78,7 +78,7 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://maps.googleapis.com",
+      "script-src 'self' 'unsafe-inline' https://js.stripe.com https://maps.googleapis.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: https: blob:",
       "font-src 'self' data: https://fonts.gstatic.com",
@@ -183,10 +183,9 @@ const nextConfig: NextConfig = {
   images: {
     // Remote image patterns - allow specific trusted domains
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '*.stripe.com' },
     ],
     // Image formats - prioritize modern formats for better compression
     formats: ['image/avif', 'image/webp'],
@@ -252,7 +251,10 @@ const nextConfig: NextConfig = {
     // Server Actions configuration
     serverActions: {
       bodySizeLimit: '2mb',
-      allowedOrigins: ['localhost:3000'],
+      allowedOrigins: [
+        'localhost:3000',
+        process.env.NEXT_PUBLIC_APP_URL,
+      ].filter((origin): origin is string => Boolean(origin)),
     },
     // Typed routes disabled - codebase uses many dynamic routes
     typedRoutes: false,

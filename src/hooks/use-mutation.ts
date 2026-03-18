@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { apiClient, type ApiError, type ApiResponse, type RequestConfig } from '@/lib/api-client'
 import { queryCache } from './use-query'
 
@@ -269,7 +269,7 @@ export function useMutation<TData, TVariables = void, TContext = unknown>(
   )
 
   // Cleanup
-  useCallback(() => {
+  useEffect(() => {
     isMountedRef.current = true
     return () => {
       isMountedRef.current = false
@@ -435,6 +435,14 @@ export function useCustomMutation<TData, TVariables = void, TContext = unknown>(
     },
     [executeMutation]
   )
+
+  // Cleanup
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   return {
     data: state.data,

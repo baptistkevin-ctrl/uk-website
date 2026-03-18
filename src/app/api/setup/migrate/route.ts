@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import crypto from 'crypto'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 minutes
@@ -779,11 +780,30 @@ const migrations = [
  * SECURITY: This endpoint should only be accessible during setup
  */
 export async function POST(request: NextRequest) {
+  // Block in production - migrations should only run during development/setup
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json(
+      { error: 'Migration endpoint is disabled in production' },
+      { status: 403 }
+    )
+  }
+
   const authHeader = request.headers.get('authorization')
   const setupSecret = process.env.CRON_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY
 
-  // Verify authorization
-  if (!setupSecret || authHeader !== `Bearer ${setupSecret}`) {
+  // Verify authorization with timing-safe comparison
+  if (!setupSecret || !authHeader) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const expected = `Bearer ${setupSecret}`
+  try {
+    const isValid = authHeader.length === expected.length &&
+      crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expected))
+    if (!isValid) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+  } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

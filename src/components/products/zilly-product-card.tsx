@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Heart, ShoppingBag } from 'lucide-react'
+import { Heart, Eye, EyeOff, ShoppingBag } from 'lucide-react'
 import { useCart } from '@/hooks/use-cart'
 import { formatPrice } from '@/lib/utils/format'
 import { useWishlistStore } from '@/hooks/use-wishlist'
+import { useWatchlistStore } from '@/hooks/use-watchlist'
 import { useState } from 'react'
 
 interface Product {
@@ -32,7 +33,9 @@ interface ZillyProductCardProps {
 export function ZillyProductCard({ product, categoryName }: ZillyProductCardProps) {
   const { addItem, openCart } = useCart()
   const { productIds, addToWishlist, removeFromWishlist } = useWishlistStore()
+  const { items: watchlistItems, toggleWatchlist } = useWatchlistStore()
   const isInWishlist = productIds.has(product.id)
+  const isInWatchlist = watchlistItems.has(product.id)
   const [isAdding, setIsAdding] = useState(false)
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -56,6 +59,12 @@ export function ZillyProductCard({ product, categoryName }: ZillyProductCardProp
     }
   }
 
+  const handleWatchlistToggle = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleWatchlist(product.id)
+  }
+
   const hasDiscount = product.compare_at_price_pence && product.compare_at_price_pence > product.price_pence
   const discountPercentage = hasDiscount
     ? Math.round((1 - product.price_pence / product.compare_at_price_pence!) * 100)
@@ -67,21 +76,39 @@ export function ZillyProductCard({ product, categoryName }: ZillyProductCardProp
   return (
     <div className="group bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-lg hover:border-gray-200 transition-all duration-300">
       <Link href={`/products/${product.slug}`} className="block">
-        {/* Top Section - Category & Wishlist */}
+        {/* Top Section - Category & Actions */}
         <div className="flex items-center justify-between px-3 pt-3">
           <span className="text-[10px] text-gray-500 uppercase tracking-wide">
             {displayCategory}
           </span>
-          <button
-            onClick={handleWishlistToggle}
-            className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-              isInWishlist
-                ? 'text-red-500 bg-red-50'
-                : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
-            }`}
-          >
-            <Heart className={`h-4 w-4 ${isInWishlist ? 'fill-current' : ''}`} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleWatchlistToggle}
+              className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                isInWatchlist
+                  ? 'text-blue-500 bg-blue-50'
+                  : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
+              }`}
+              title={isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
+            >
+              {isInWatchlist ? (
+                <EyeOff className="h-4 w-4 fill-current" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+            <button
+              onClick={handleWishlistToggle}
+              className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                isInWishlist
+                  ? 'text-red-500 bg-red-50'
+                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+              }`}
+              title={isInWishlist ? 'Remove from liked' : 'Like this product'}
+            >
+              <Heart className={`h-4 w-4 ${isInWishlist ? 'fill-current' : ''}`} />
+            </button>
+          </div>
         </div>
 
         {/* Image Section */}

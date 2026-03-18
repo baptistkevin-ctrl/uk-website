@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
 // GET all delivery slots
 export async function GET(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const { searchParams } = new URL(request.url)
   const startDate = searchParams.get('startDate')
   const endDate = searchParams.get('endDate')
@@ -36,6 +40,9 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new delivery slot
 export async function POST(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
@@ -81,14 +88,23 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update delivery slot
 export async function PUT(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
     const body = await request.json()
-    const { id, ...updates } = body
+    const { id } = body
 
     if (!id) {
       return NextResponse.json({ error: 'Slot ID is required' }, { status: 400 })
+    }
+
+    const allowedFields = ['date', 'start_time', 'end_time', 'max_orders', 'delivery_fee_pence', 'is_available']
+    const updates: Record<string, unknown> = {}
+    for (const field of allowedFields) {
+      if (field in body) updates[field] = body[field]
     }
 
     const { data, error } = await supabaseAdmin
@@ -110,6 +126,9 @@ export async function PUT(request: NextRequest) {
 
 // DELETE - Delete delivery slot
 export async function DELETE(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')

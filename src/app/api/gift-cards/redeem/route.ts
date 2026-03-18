@@ -14,6 +14,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Gift card code is required' }, { status: 400 })
     }
 
+    if (!amount_pence || typeof amount_pence !== 'number' || amount_pence <= 0) {
+      return NextResponse.json({ error: 'Amount must be a positive number' }, { status: 400 })
+    }
+
     const normalizedCode = code.toUpperCase().replace(/[^A-Z0-9]/g, '')
 
     // Get gift card
@@ -44,8 +48,10 @@ export async function POST(request: NextRequest) {
     const redeemAmount = Math.min(amount_pence, giftCard.current_balance_pence)
     const newBalance = giftCard.current_balance_pence - redeemAmount
 
-    // Update gift card balance
-    const { error: updateError } = await supabase
+    // Atomic update with balance check to prevent double-spend race condition.
+    // The .gte('current_balance_pence', redeemAmount) filter ensures the update
+    // only succeeds if the balance hasn't been reduced by a concurrent request.
+    const { data: updatedRows, error: updateError } = await supabase
       .from('gift_cards')
       .update({
         current_balance_pence: newBalance,
@@ -53,10 +59,16 @@ export async function POST(request: NextRequest) {
         updated_at: new Date().toISOString()
       })
       .eq('id', giftCard.id)
+      .gte('current_balance_pence', redeemAmount)
+      .select()
 
     if (updateError) {
       console.error('Error updating gift card:', updateError)
       return NextResponse.json({ error: 'Failed to redeem gift card' }, { status: 500 })
+    }
+
+    if (!updatedRows || updatedRows.length === 0) {
+      return NextResponse.json({ error: 'Insufficient gift card balance. Please try again.' }, { status: 409 })
     }
 
     // Record transaction

@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
 // GET all multi-buy offers
 export async function GET(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
   const activeOnly = searchParams.get('active') === 'true'
@@ -36,6 +40,9 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new offer
 export async function POST(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
@@ -92,14 +99,23 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update offer
 export async function PUT(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
     const body = await request.json()
-    const { id, ...updates } = body
+    const { id } = body
 
     if (!id) {
       return NextResponse.json({ error: 'Offer ID is required' }, { status: 400 })
+    }
+
+    const allowedFields = ['product_id', 'category_id', 'quantity', 'offer_price_pence', 'is_active', 'start_date', 'end_date', 'badge_text']
+    const updates: Record<string, unknown> = {}
+    for (const field of allowedFields) {
+      if (field in body) updates[field] = body[field]
     }
 
     // Get old offer to check if product changed
@@ -130,7 +146,7 @@ export async function PUT(request: NextRequest) {
     }
 
     if (updates.product_id && updates.is_active !== false) {
-      const badgeText = updates.badge_text || `${updates.quantity} for £${(updates.offer_price_pence / 100).toFixed(2)}`
+      const badgeText = updates.badge_text || `${updates.quantity} for £${(Number(updates.offer_price_pence) / 100).toFixed(2)}`
       await supabaseAdmin
         .from('products')
         .update({ has_offer: true, offer_badge: badgeText })
@@ -150,6 +166,9 @@ export async function PUT(request: NextRequest) {
 
 // DELETE - Delete offer
 export async function DELETE(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')

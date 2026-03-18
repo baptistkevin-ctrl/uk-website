@@ -72,10 +72,57 @@ async function createOrder(session: Stripe.Checkout.Session) {
     return
   }
 
+  // Idempotency check: skip if order already exists for this checkout session
+  const { data: existingOrder } = await supabaseAdmin
+    .from('orders')
+    .select('id')
+    .eq('stripe_checkout_session_id', session.id)
+    .maybeSingle()
+
+  if (existingOrder) {
+    console.log(`Order already exists for session ${session.id}, skipping duplicate`)
+    return
+  }
+
+  // Validate required metadata fields
+  if (!metadata.orderNumber || !metadata.subtotal || !metadata.total) {
+    console.error('Missing required metadata fields in session:', session.id)
+    return
+  }
+
   try {
-    // Parse items and vendor breakdown from metadata
-    const items = JSON.parse(metadata.items || '[]')
-    const vendorBreakdown = JSON.parse(metadata.vendorBreakdown || '{}')
+    // Safe JSON parsing with validation
+    let items: Array<{ productId: string; name: string; price: number; quantity: number; image?: string; vendorId?: string }>
+    let vendorBreakdown: Record<string, { amount: number; commission: number; net: number }>
+
+    try {
+      items = JSON.parse(metadata.items || '[]')
+    } catch {
+      console.error('Failed to parse items metadata for session:', session.id)
+      return
+    }
+
+    try {
+      vendorBreakdown = JSON.parse(metadata.vendorBreakdown || '{}')
+    } catch {
+      console.error('Failed to parse vendorBreakdown metadata for session:', session.id)
+      vendorBreakdown = {}
+    }
+
+    if (!Array.isArray(items) || items.length === 0) {
+      console.error('No valid items in order metadata for session:', session.id)
+      return
+    }
+
+    // Validate parsed numeric fields
+    const subtotalParsed = parseInt(metadata.subtotal)
+    const deliveryFeeParsed = parseInt(metadata.deliveryFee || '0')
+    const totalParsed = parseInt(metadata.total)
+
+    if (isNaN(subtotalParsed) || isNaN(deliveryFeeParsed) || isNaN(totalParsed)) {
+      console.error('Invalid numeric metadata in session:', session.id)
+      return
+    }
 
     // Create order
     const { data: order, error: orderError } = await supabaseAdmin
@@ -92,9 +139,9 @@ async function createOrder(session: Stripe.Checkout.Session) {
         delivery_county: metadata.deliveryCounty || null,
         delivery_postcode: metadata.deliveryPostcode,
         delivery_instructions: metadata.deliveryInstructions || null,
-        subtotal_pence: parseInt(metadata.subtotal),
-        delivery_fee_pence: parseInt(metadata.deliveryFee),
-        total_pence: parseInt(metadata.total),
+        subtotal_pence: subtotalParsed,
+        delivery_fee_pence: deliveryFeeParsed,
+        total_pence: totalParsed,
         stripe_checkout_session_id: session.id,
         stripe_payment_intent_id: session.payment_intent as string,
         payment_status: 'paid',

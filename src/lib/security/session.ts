@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { getClientIP as getClientIPFromModule } from './ip'
 
 // Session configuration
 const SESSION_TIMEOUT_MINUTES = 30
@@ -190,22 +191,15 @@ export async function validateSession(
     return { valid: true }
   } catch (error) {
     console.error('Session validation error:', error)
-    return { valid: true } // Don't block on validation errors
+    return { valid: false, reason: 'Session validation failed due to internal error' }
   }
 }
 
 /**
- * Get client IP address from request
+ * Get client IP address from request (delegates to centralized IP module)
  */
 export function getClientIp(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for')
-  const realIp = request.headers.get('x-real-ip')
-
-  if (forwarded) {
-    return forwarded.split(',')[0].trim()
-  }
-
-  return realIp || '127.0.0.1'
+  return getClientIPFromModule(request)
 }
 
 /**

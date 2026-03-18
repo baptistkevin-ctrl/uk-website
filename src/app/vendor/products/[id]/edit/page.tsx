@@ -14,7 +14,8 @@ import {
   DollarSign,
   Tag,
   Info,
-  Trash2
+  Trash2,
+  Upload
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -192,10 +193,34 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
     setFormData(prev => ({ ...prev, [field]: value }))
   }
 
-  const addImageUrl = () => {
-    const url = prompt('Enter image URL:')
-    if (url) {
-      setImages(prev => [...prev, url])
+  const [uploading, setUploading] = useState(false)
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const formDataUpload = new FormData()
+      formDataUpload.append('file', file)
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataUpload,
+      })
+
+      if (res.ok) {
+        const { url } = await res.json()
+        setImages(prev => [...prev, url])
+      } else {
+        const data = await res.json()
+        alert(data.error || 'Failed to upload image')
+      }
+    } catch {
+      alert('Failed to upload image')
+    } finally {
+      setUploading(false)
+      e.target.value = ''
     }
   }
 
@@ -323,14 +348,23 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
                     )}
                   </div>
                 ))}
-                <button
-                  type="button"
-                  onClick={addImageUrl}
-                  className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
+                <label
+                  className={`aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-emerald-500 hover:bg-emerald-50 transition-colors cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
                 >
-                  <Plus className="h-6 w-6 text-gray-400" />
-                  <span className="text-sm text-gray-500">Add Image</span>
-                </button>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    disabled={uploading}
+                  />
+                  {uploading ? (
+                    <Loader2 className="h-6 w-6 text-emerald-500 animate-spin" />
+                  ) : (
+                    <Upload className="h-6 w-6 text-gray-400" />
+                  )}
+                  <span className="text-sm text-gray-500">{uploading ? 'Uploading...' : 'Upload Image'}</span>
+                </label>
               </div>
             </div>
 

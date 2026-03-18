@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import crypto from 'crypto'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({ success: true, updated: true })
     } else {
-      // Create new abandoned cart
+      // Create new abandoned cart with cryptographic recovery token
       const { error } = await supabase
         .from('abandoned_carts')
         .insert({
@@ -60,7 +61,8 @@ export async function POST(request: NextRequest) {
           guest_email: guest_email || null,
           cart_items,
           cart_total_pence,
-          recovery_status: 'abandoned'
+          recovery_status: 'abandoned',
+          recovery_token: crypto.randomBytes(32).toString('hex'),
         })
 
       if (error) {
@@ -84,6 +86,10 @@ export async function PUT(request: NextRequest) {
     const { session_id, order_id } = body
 
     const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user && !session_id) {
+      return NextResponse.json({ error: 'Authentication or session ID required' }, { status: 400 })
+    }
 
     let query = supabase
       .from('abandoned_carts')
@@ -119,10 +125,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Recovery token required' }, { status: 400 })
     }
 
+    // Validate token format (must be 64-char hex string)
+    if (!/^[a-f0-9]{64}$/.test(recoveryToken)) {
+      return NextResponse.json({ error: 'Invalid recovery token' }, { status: 400 })
+    }
+
     const { data: cart, error } = await supabase
       .from('abandoned_carts')
       .select('*')
-      .eq('id', recoveryToken)
+      .eq('recovery_token', recoveryToken)
       .eq('recovery_status', 'abandoned')
       .single()
 

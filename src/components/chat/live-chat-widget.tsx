@@ -535,18 +535,18 @@ export function LiveChatWidget() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 hover:scale-105 transition-all flex items-center justify-center z-50"
+        className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 w-12 h-12 lg:w-14 lg:h-14 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 hover:scale-105 transition-all flex items-center justify-center z-40"
         aria-label="Open chat"
       >
-        <MessageCircle className="h-6 w-6" />
+        <MessageCircle className="h-5 w-5 lg:h-6 lg:w-6" />
       </button>
     )
   }
 
   return (
     <div
-      className={`fixed bottom-6 right-6 w-96 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col ${
-        isMinimized ? 'h-14' : 'h-[550px]'
+      className={`fixed bottom-16 lg:bottom-6 right-2 lg:right-6 w-[calc(100vw-16px)] sm:w-96 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col ${
+        isMinimized ? 'h-14' : 'h-[calc(100vh-5rem)] lg:h-[550px]'
       } transition-all duration-200`}
     >
       {/* Header */}

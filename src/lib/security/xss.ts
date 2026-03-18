@@ -64,7 +64,7 @@ const sanitizeConfigs = {
       'td': ['width', 'height', 'align', 'valign'],
       'th': ['width', 'height', 'align', 'valign']
     },
-    allowedSchemes: ['http', 'https', 'mailto', 'data'],
+    allowedSchemes: ['http', 'https', 'mailto'],
     disallowedTagsMode: 'discard' as const
   }
 }
@@ -135,8 +135,8 @@ export function sanitizeUrl(url: string | null | undefined): string {
   }
 
   // Allow only http, https, mailto, tel
-  const allowedProtocols = ['http://', 'https://', 'mailto:', 'tel:', '/']
-  const hasAllowedProtocol = allowedProtocols.some(p => trimmed.startsWith(p))
+  const allowedProtocols = ['http://', 'https://', 'mailto:', 'tel:']
+  const hasAllowedProtocol = allowedProtocols.some(p => trimmed.startsWith(p)) || (trimmed.startsWith('/') && !trimmed.startsWith('//'))
 
   if (!hasAllowedProtocol && trimmed.includes(':')) {
     return ''

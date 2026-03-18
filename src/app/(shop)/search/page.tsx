@@ -23,6 +23,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { formatPrice } from '@/lib/utils/format'
 import { AddToCartButton } from '@/components/products/add-to-cart-button'
 import { WishlistButton } from '@/components/wishlist'
+import { useAuth } from '@/hooks/use-auth'
 
 interface Product {
   id: string
@@ -75,6 +76,7 @@ interface SearchResult {
 function SearchPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { user } = useAuth()
 
   const [results, setResults] = useState<SearchResult | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -507,7 +509,7 @@ function SearchPageContent() {
                           <div className="flex-1">
                             <AddToCartButton product={product} size="sm" />
                           </div>
-                          <WishlistButton productId={product.id} isLoggedIn={true} />
+                          <WishlistButton productId={product.id} isLoggedIn={!!user} />
                         </div>
                       </div>
                     </Card>

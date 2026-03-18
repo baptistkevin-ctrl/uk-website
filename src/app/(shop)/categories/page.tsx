@@ -82,7 +82,7 @@ export default async function CategoriesPage() {
     .order('display_order')
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50/60 via-amber-50/30 to-orange-50/50">
       {/* Hero Section */}
       <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 overflow-hidden">
         <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,_white_1px,_transparent_1px)] bg-[size:20px_20px]" />

@@ -36,10 +36,11 @@ export default function SecurityPage() {
 
   const validatePassword = (pass: string) => {
     const requirements = [
-      { test: pass.length >= 8, message: 'At least 8 characters' },
+      { test: pass.length >= 10, message: 'At least 10 characters' },
       { test: /[A-Z]/.test(pass), message: 'One uppercase letter' },
       { test: /[a-z]/.test(pass), message: 'One lowercase letter' },
       { test: /[0-9]/.test(pass), message: 'One number' },
+      { test: /[^A-Za-z0-9]/.test(pass), message: 'One special character' },
     ]
     return requirements
   }

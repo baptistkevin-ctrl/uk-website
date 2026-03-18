@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 })
     }
 
-    // Build query
+    // Build query - try vendor_orders table first, fall back to order_items
     let query = supabaseAdmin
       .from('vendor_orders')
       .select(`
@@ -40,8 +40,7 @@ export async function GET(request: NextRequest) {
           order_number,
           created_at,
           status,
-          delivery_address,
-          user:user_id(email, full_name)
+          delivery_address
         )
       `)
       .eq('vendor_id', vendor.id)
@@ -66,6 +65,15 @@ export async function GET(request: NextRequest) {
 
     if (ordersError) {
       console.error('Orders fetch error:', ordersError)
+      // Table may not exist yet - return empty
+      if (ordersError.code === '42P01' || ordersError.message?.includes('relation') || ordersError.message?.includes('does not exist')) {
+        return NextResponse.json({
+          orders: [],
+          total: 0,
+          page: parseInt(page),
+          perPage: 20
+        })
+      }
       return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
     }
 
@@ -96,7 +104,7 @@ export async function GET(request: NextRequest) {
       total_amount: vo.total_amount,
       vendor_amount: vo.vendor_amount,
       commission_amount: vo.commission_amount,
-      customer_name: vo.order?.user?.full_name || vo.order?.user?.email || 'Unknown',
+      customer_name: 'Customer',
       delivery_address: vo.order?.delivery_address,
       items: orderItems.filter(item => item.order_id === vo.order_id)
     })) || []

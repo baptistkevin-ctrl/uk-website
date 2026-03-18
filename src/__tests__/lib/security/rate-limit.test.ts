@@ -294,7 +294,7 @@ describe('Rate Limiting', () => {
       const config = { limit: 100, windowMs: 60000, prefix: 'ip-test3' }
       const result = checkRateLimit(request, config)
 
-      expect(result.identifier).toBe('unknown')
+      expect(result.identifier).toBe('0.0.0.0')
     })
   })
 })

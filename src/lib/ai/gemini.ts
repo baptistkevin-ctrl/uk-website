@@ -115,12 +115,13 @@ async function buildProductContext(query: string): Promise<string> {
   try {
     const supabase = await createClient()
     const queryLower = query.toLowerCase()
+    const sanitizedQuery = queryLower.replace(/[%_.*,()]/g, '')
 
     // Search products that match the query
     const { data: products } = await supabase
       .from('products')
       .select('id, name, description, price, category, stock_quantity')
-      .or(`name.ilike.%${queryLower}%,description.ilike.%${queryLower}%,category.ilike.%${queryLower}%`)
+      .or(`name.ilike.%${sanitizedQuery}%,description.ilike.%${sanitizedQuery}%,category.ilike.%${sanitizedQuery}%`)
       .limit(10)
 
     if (!products || products.length === 0) return ''

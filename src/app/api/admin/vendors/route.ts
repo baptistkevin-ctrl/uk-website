@@ -43,10 +43,16 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { id, ...updates } = body
+    const { id } = body
 
     if (!id) {
       return NextResponse.json({ error: 'Vendor ID is required' }, { status: 400 })
+    }
+
+    const allowedFields = ['business_name', 'description', 'status', 'commission_rate', 'phone', 'email', 'logo_url']
+    const updates: Record<string, unknown> = {}
+    for (const field of allowedFields) {
+      if (field in body) updates[field] = body[field]
     }
 
     // Get current vendor for audit logging

@@ -141,20 +141,20 @@ export default async function HomePage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-orange-50/50 via-white to-orange-50/30">
       <Header />
       <main className="flex-1">
         {/* Hero Section - Zilly Style */}
         <HeroSlider slides={heroSlides || []} />
 
-        {/* Stats Section */}
-        <section className="py-4 bg-white relative z-10">
+        {/* Stats Section - desktop only */}
+        <section className="hidden lg:block py-4 bg-gradient-to-r from-orange-50/60 via-amber-50/40 to-orange-50/60 relative z-10">
           <div className="container mx-auto px-4">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-4 gap-4">
               {stats.map((stat, i) => (
                 <div key={i} className="text-center">
                   <div className="flex items-center justify-center gap-2">
-                    <span className="text-3xl lg:text-4xl font-bold text-gray-900">
+                    <span className="text-4xl font-bold text-gray-900">
                       {stat.value}
                     </span>
                     {stat.icon && (
@@ -168,8 +168,8 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Features */}
-        <section className="py-8 lg:py-10 bg-gradient-to-b from-white to-slate-50">
+        {/* Features - desktop only */}
+        <section className="hidden lg:block py-10 bg-gradient-to-b from-orange-50/40 to-amber-50/50">
           <div className="container mx-auto px-4">
             <div className="text-center mb-6">
               <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
@@ -208,25 +208,62 @@ export default async function HomePage() {
         </section>
 
         {/* Categories */}
-        <section className="py-8 lg:py-10 bg-slate-50">
+        <section className="py-4 lg:py-10 bg-gradient-to-br from-amber-50/60 via-orange-50/40 to-yellow-50/50">
           <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-3 lg:mb-6">
               <div>
-                <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-1">
+                <h2 className="text-lg lg:text-3xl font-bold text-gray-900 mb-0.5 lg:mb-1">
                   Shop by Category
                 </h2>
-                <p className="text-gray-500">Find exactly what you&apos;re looking for</p>
+                <p className="text-gray-500 text-xs lg:text-base">Find exactly what you&apos;re looking for</p>
               </div>
               <Link
                 href="/categories"
-                className="hidden sm:flex items-center gap-2 text-green-500 hover:text-green-600 font-semibold group"
+                className="flex items-center gap-1 text-green-500 hover:text-green-600 font-semibold text-xs lg:text-base group"
               >
                 View All
-                <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="h-4 w-4 lg:h-5 lg:w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {/* Mobile: Horizontal scroll circular icons (AliExpress style) */}
+            <div className="lg:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
+              <div className="flex gap-4 pb-2">
+                {dbCategories && dbCategories.length > 0 ? (
+                  dbCategories.map((category, index) => (
+                    <Link
+                      key={category.slug}
+                      href={`/categories/${category.slug}`}
+                      className="flex flex-col items-center gap-1.5 shrink-0 w-16"
+                    >
+                      <div className={`w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br ${categoryColors[index % categoryColors.length]} flex items-center justify-center shadow-sm`}>
+                        {category.image_url ? (
+                          <Image
+                            src={category.image_url}
+                            alt={category.name}
+                            width={56}
+                            height={56}
+                            className="object-cover w-full h-full rounded-full"
+                          />
+                        ) : (
+                          <span className="text-white text-xl font-bold">
+                            {category.name?.charAt(0)}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-[11px] text-gray-700 text-center leading-tight line-clamp-2 font-medium">
+                        {category.name}
+                      </span>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-gray-500 text-sm">No categories available.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Desktop: Original grid layout */}
+            <div className="hidden lg:grid grid-cols-6 gap-4">
               {dbCategories && dbCategories.length > 0 ? (
                 dbCategories.map((category, index) => (
                   <Link
@@ -253,7 +290,7 @@ export default async function HomePage() {
                       </>
                     )}
                     <div className="relative h-full flex flex-col items-end justify-end p-4 text-white">
-                      <h3 className="font-semibold text-center text-sm lg:text-base w-full">
+                      <h3 className="font-semibold text-center text-base w-full">
                         {category.name}
                       </h3>
                       {category.description && (
@@ -270,59 +307,51 @@ export default async function HomePage() {
                 </div>
               )}
             </div>
-
-            <div className="mt-6 text-center sm:hidden">
-              <Link
-                href="/categories"
-                className="inline-flex items-center gap-2 text-green-500 font-semibold"
-              >
-                View All Categories
-                <ChevronRight className="h-5 w-5" />
-              </Link>
-            </div>
           </div>
         </section>
 
         {/* Flash Deals Section */}
         {flashDeals && flashDeals.length > 0 && (
-          <section className="py-8 lg:py-10 bg-gradient-to-r from-orange-50 via-red-50 to-pink-50">
+          <section className="py-4 lg:py-10 bg-gradient-to-r from-orange-50 via-red-50 to-pink-50">
             <div className="container mx-auto px-4">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-3 lg:mb-6">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="flex items-center gap-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                    <div className="flex items-center gap-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold px-2 lg:px-3 py-1 rounded-full">
                       <Flame className="h-3 w-3" />
                       HOT DEALS
                     </div>
                   </div>
-                  <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                  <h2 className="text-lg lg:text-3xl font-bold text-gray-900">
                     Flash Deals
                   </h2>
-                  <p className="text-gray-500 mt-1">Limited time offers - grab them before they're gone!</p>
+                  <p className="text-gray-500 text-xs lg:text-base mt-0.5 lg:mt-1">Limited time offers!</p>
                 </div>
                 <Link
                   href="/deals"
-                  className="hidden sm:flex items-center gap-2 text-orange-600 hover:text-orange-700 font-semibold group"
+                  className="flex items-center gap-1 text-orange-600 hover:text-orange-700 font-semibold text-xs lg:text-base group"
                 >
-                  View All Deals
-                  <ChevronRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  View All
+                  <ChevronRight className="h-4 w-4 lg:h-5 lg:w-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Mobile: Horizontal scroll deals */}
+              <div className="lg:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
+                <div className="flex gap-3 pb-2">
+                  {flashDeals.map((deal) => (
+                    <div key={deal.id} className="shrink-0 w-[260px]">
+                      <DealCard deal={deal} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Desktop: Grid layout */}
+              <div className="hidden lg:grid grid-cols-4 gap-6">
                 {flashDeals.map((deal) => (
                   <DealCard key={deal.id} deal={deal} />
                 ))}
-              </div>
-
-              <div className="mt-8 text-center sm:hidden">
-                <Link
-                  href="/deals"
-                  className="inline-flex items-center gap-2 text-orange-600 font-semibold"
-                >
-                  View All Deals
-                  <ChevronRight className="h-5 w-5" />
-                </Link>
               </div>
             </div>
           </section>
@@ -330,39 +359,39 @@ export default async function HomePage() {
 
         {/* All Products Section - Full Length AliExpress Style */}
         {allProducts && allProducts.length > 0 && (
-          <section className="py-8 lg:py-10 bg-slate-50">
+          <section className="py-4 lg:py-10 bg-gradient-to-b from-orange-50/30 via-amber-50/40 to-orange-50/50">
             <div className="container mx-auto px-4">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-3 lg:mb-6">
                 <div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="flex items-center gap-1 bg-gradient-to-r from-green-500 to-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="flex items-center gap-2 lg:gap-3 mb-1 lg:mb-2">
+                    <div className="flex items-center gap-1 bg-gradient-to-r from-green-500 to-teal-500 text-white text-[10px] lg:text-xs font-bold px-2 lg:px-3 py-1 rounded-full">
                       <Sparkles className="h-3 w-3" />
                       ALL PRODUCTS
                     </div>
-                    <span className="text-sm text-gray-500">{allProducts.length} items</span>
+                    <span className="text-xs lg:text-sm text-gray-500">{allProducts.length} items</span>
                   </div>
-                  <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">
+                  <h2 className="text-lg lg:text-3xl font-bold text-gray-900">
                     Explore All Products
                   </h2>
-                  <p className="text-gray-500 mt-1">Quality groceries from all our vendors</p>
+                  <p className="hidden lg:block text-gray-500 mt-1">Quality groceries from all our vendors</p>
                 </div>
               </div>
 
               {/* Full Width Product Grid - AliExpress Style */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 lg:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 lg:gap-4">
                 {allProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
 
               {/* Load More / View All Button */}
-              <div className="mt-12 text-center">
+              <div className="mt-6 lg:mt-12 text-center">
                 <Link
                   href="/products"
-                  className="inline-flex items-center gap-2 bg-white border-2 border-green-500 text-green-600 hover:bg-green-500 hover:text-white font-semibold px-10 py-4 rounded-full transition-all shadow-sm hover:shadow-md"
+                  className="inline-flex items-center gap-2 bg-white border-2 border-green-500 text-green-600 hover:bg-green-500 hover:text-white font-semibold px-6 lg:px-10 py-3 lg:py-4 rounded-full transition-all shadow-sm hover:shadow-md text-sm lg:text-base"
                 >
                   View More Products
-                  <ArrowRight className="h-5 w-5" />
+                  <ArrowRight className="h-4 w-4 lg:h-5 lg:w-5" />
                 </Link>
               </div>
             </div>
@@ -370,7 +399,7 @@ export default async function HomePage() {
         )}
 
         {/* CTA Section */}
-        <section className="py-8 lg:py-10 relative overflow-hidden">
+        <section className="py-6 lg:py-10 relative overflow-hidden">
           {/* Background */}
           <div className="absolute inset-0 bg-gradient-to-r from-green-500 to-teal-600" />
 

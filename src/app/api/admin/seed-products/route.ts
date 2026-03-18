@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
@@ -128,6 +129,9 @@ const allProducts = [
 
 // POST - Add products by batch number
 export async function POST(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   const { searchParams } = new URL(request.url)
@@ -182,6 +186,9 @@ export async function POST(request: NextRequest) {
 
 // GET - Get batch info
 export async function GET() {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   return NextResponse.json({
     message: 'Seed Products API',
     batches: [

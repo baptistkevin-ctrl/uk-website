@@ -36,7 +36,6 @@ export async function GET(request: NextRequest) {
         created_at,
         referee:referee_id (
           full_name,
-          email,
           avatar_url
         )
       `)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import {
   MessageCircleQuestion,
@@ -57,11 +57,7 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
   const [hasMore, setHasMore] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
 
-  useEffect(() => {
-    fetchQuestions()
-  }, [productSlug, page])
-
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     try {
       const res = await fetch(`/api/products/${productSlug}/questions?page=${page}&limit=5`)
       if (res.ok) {
@@ -78,7 +74,11 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [productSlug, page])
+
+  useEffect(() => {
+    fetchQuestions()
+  }, [fetchQuestions])
 
   const submitQuestion = async () => {
     if (!newQuestion.trim()) return

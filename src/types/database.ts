@@ -15,7 +15,7 @@ export interface Database {
           email: string
           full_name: string | null
           phone: string | null
-          role: 'customer' | 'admin'
+          role: 'customer' | 'admin' | 'super_admin' | 'vendor'
           created_at: string
           updated_at: string
         }

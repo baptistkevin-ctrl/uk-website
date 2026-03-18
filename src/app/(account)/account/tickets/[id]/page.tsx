@@ -314,7 +314,7 @@ export default function TicketDetailPage() {
                     <span className="text-sm font-medium text-gray-900">
                       {msg.sender?.full_name || (isCustomer ? 'You' : 'Support Agent')}
                     </span>
-                    {!isCustomer && msg.sender?.role === 'admin' && (
+                    {!isCustomer && (msg.sender?.role === 'admin' || msg.sender?.role === 'super_admin') && (
                       <span className="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-xs rounded">
                         Support
                       </span>

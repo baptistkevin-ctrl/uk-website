@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    if (profile?.role !== 'admin') {
+    if (!['admin', 'super_admin'].includes(profile?.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    if (profile?.role !== 'admin') {
+    if (!['admin', 'super_admin'].includes(profile?.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

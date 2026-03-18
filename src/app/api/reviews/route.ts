@@ -72,8 +72,7 @@ export async function GET(request: NextRequest) {
     .select(`
       *,
       profiles:user_id (
-        full_name,
-        email
+        full_name
       )
     `, { count: 'exact' })
     .eq('product_id', productId)

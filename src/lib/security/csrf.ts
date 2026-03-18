@@ -37,7 +37,7 @@ export async function getOrCreateCsrfToken(): Promise<string> {
  */
 export function setCsrfTokenCookie(response: NextResponse, token: string): NextResponse {
   response.cookies.set(CSRF_TOKEN_NAME, token, {
-    httpOnly: false, // Must be readable by JavaScript
+    httpOnly: false, // Must be readable by client JS for double-submit cookie pattern
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/',
@@ -108,16 +108,25 @@ export async function validateCsrfToken(request: NextRequest): Promise<{
  * Timing-safe string comparison
  */
 function timingSafeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) {
-    return false
+  try {
+    const crypto = require('crypto')
+    const bufA = Buffer.from(a, 'utf8')
+    const bufB = Buffer.from(b, 'utf8')
+    if (bufA.length !== bufB.length) {
+      // Compare against itself to avoid timing leak on length difference
+      crypto.timingSafeEqual(bufA, bufA)
+      return false
+    }
+    return crypto.timingSafeEqual(bufA, bufB)
+  } catch {
+    // Fallback: constant-time comparison
+    if (a.length !== b.length) return false
+    let result = 0
+    for (let i = 0; i < a.length; i++) {
+      result |= a.charCodeAt(i) ^ b.charCodeAt(i)
+    }
+    return result === 0
   }
-
-  let result = 0
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i)
-  }
-
-  return result === 0
 }
 
 /**
@@ -186,13 +195,17 @@ export function getCsrfTokenFromCookies(): string | null {
  * Routes that should skip CSRF validation
  */
 export const csrfExemptRoutes = [
+  '/api/auth/', // Auth routes (login/register/reset) - authenticated via credentials
   '/api/webhooks/stripe', // Stripe webhooks use signature verification
   '/api/webhooks/supabase', // Supabase webhooks
   '/api/cron/', // Cron jobs
   '/api/admin/seed-products', // Database seeding
   '/api/admin/seed-categories', // Database seeding
+  '/api/admin/seed-accounts', // Account seeding
   '/api/admin/fix-products', // Product category fix
   '/api/setup/', // Setup endpoints
+  '/api/chat', // Chat uses session-based auth
+  '/api/chat/', // Chat message endpoints
 ]
 
 /**

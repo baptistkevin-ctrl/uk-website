@@ -355,24 +355,28 @@ describe('Validation Schemas', () => {
   describe('User Schemas', () => {
     describe('passwordSchema', () => {
       it('accepts valid passwords', () => {
-        expect(passwordSchema.safeParse('SecurePass1').success).toBe(true)
-        expect(passwordSchema.safeParse('MyP@ssw0rd').success).toBe(true)
+        expect(passwordSchema.safeParse('SecurePass1!').success).toBe(true)
+        expect(passwordSchema.safeParse('MyP@ssw0rd!x').success).toBe(true)
       })
 
-      it('requires minimum 8 characters', () => {
-        expect(passwordSchema.safeParse('Short1').success).toBe(false)
+      it('requires minimum 10 characters', () => {
+        expect(passwordSchema.safeParse('Short1!a').success).toBe(false)
       })
 
       it('requires uppercase letter', () => {
-        expect(passwordSchema.safeParse('lowercase1').success).toBe(false)
+        expect(passwordSchema.safeParse('lowercase1!xx').success).toBe(false)
       })
 
       it('requires lowercase letter', () => {
-        expect(passwordSchema.safeParse('UPPERCASE1').success).toBe(false)
+        expect(passwordSchema.safeParse('UPPERCASE1!XX').success).toBe(false)
       })
 
       it('requires a number', () => {
-        expect(passwordSchema.safeParse('NoNumberHere').success).toBe(false)
+        expect(passwordSchema.safeParse('NoNumberHere!').success).toBe(false)
+      })
+
+      it('requires a special character', () => {
+        expect(passwordSchema.safeParse('SecurePass12').success).toBe(false)
       })
     })
 
@@ -380,7 +384,7 @@ describe('Validation Schemas', () => {
       it('accepts valid auth credentials', () => {
         const result = authSchema.safeParse({
           email: 'test@example.com',
-          password: 'SecurePass1',
+          password: 'SecurePass1!',
         })
         expect(result.success).toBe(true)
       })
@@ -390,7 +394,7 @@ describe('Validation Schemas', () => {
       it('requires full_name in addition to auth fields', () => {
         const result = signUpSchema.safeParse({
           email: 'test@example.com',
-          password: 'SecurePass1',
+          password: 'SecurePass1!',
           full_name: 'John Doe',
         })
         expect(result.success).toBe(true)
@@ -399,7 +403,7 @@ describe('Validation Schemas', () => {
       it('rejects short names', () => {
         const result = signUpSchema.safeParse({
           email: 'test@example.com',
-          password: 'SecurePass1',
+          password: 'SecurePass1!',
           full_name: 'J',
         })
         expect(result.success).toBe(false)

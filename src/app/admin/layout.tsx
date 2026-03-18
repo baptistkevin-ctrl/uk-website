@@ -36,7 +36,6 @@ import {
   Shield,
 } from 'lucide-react'
 import { AdminSearch } from '@/components/admin/AdminSearch'
-import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/use-auth'
 
 const sidebarLinks = [
@@ -75,7 +74,6 @@ export default function AdminLayout({
   const [userRole, setUserRole] = useState<'admin' | 'super_admin' | null>(null)
   const pathname = usePathname()
   const router = useRouter()
-  const supabase = createClient()
   const { user, loading: authLoading } = useAuth()
 
   useEffect(() => {
@@ -91,18 +89,15 @@ export default function AdminLayout({
       }
 
       try {
-        // Check if user is admin
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single()
-
-        if (error) {
-          console.error('Profile fetch error:', error)
+        // Fetch profile via server API to bypass RLS
+        const res = await fetch('/api/user/profile')
+        if (!res.ok) {
+          console.error('Profile fetch error:', res.status)
           router.push('/')
           return
         }
+
+        const profile = await res.json()
 
         // Check for admin or super_admin role
         if (profile?.role === 'admin' || profile?.role === 'super_admin') {
@@ -122,9 +117,10 @@ export default function AdminLayout({
     }
 
     checkAdminAccess()
-  }, [user, authLoading, router, supabase])
+  }, [user, authLoading, router])
 
   const handleLogout = async () => {
+    const supabase = (await import('@/lib/supabase/client')).createClient()
     await supabase.auth.signOut()
     router.push('/login')
     router.refresh()
@@ -162,12 +158,12 @@ export default function AdminLayout({
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-72 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-72 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 transform transition-transform duration-300 ease-in-out lg:translate-x-0 flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-700/50">
+        <div className="flex items-center justify-between p-6 border-b border-slate-700/50 shrink-0">
           <Link href="/admin" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
               <Store className="w-6 h-6 text-white" />
@@ -185,8 +181,8 @@ export default function AdminLayout({
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="p-4 space-y-1">
+        {/* Navigation - scrollable area */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
           {sidebarLinks.map((link) => {
             const active = isActive(link.href)
             return (
@@ -194,63 +190,65 @@ export default function AdminLayout({
                 key={link.href}
                 href={link.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 group ${
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
                   active
                     ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30'
                     : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
                 }`}
               >
-                <link.icon className={`w-5 h-5 ${active ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'}`} />
+                <link.icon className={`w-5 h-5 shrink-0 ${active ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'}`} />
                 <span>{link.label}</span>
-                {active && <ChevronRight className="w-4 h-4 ml-auto" />}
+                {active && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
               </Link>
             )
           })}
-        </nav>
 
-        {/* Support Portal Links */}
-        <div className="absolute bottom-32 left-0 right-0 p-4 border-t border-slate-700/50 space-y-1">
-          <Link
-            href="/admin/support"
-            className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
-              pathname === '/admin/support'
-                ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30'
-                : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
-            }`}
-          >
-            <Headphones className={`w-5 h-5 ${pathname === '/admin/support' ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'}`} />
-            <span>Admin Support</span>
-            {pathname === '/admin/support' && <ChevronRight className="w-4 h-4 ml-auto" />}
-          </Link>
-          {userRole === 'super_admin' && (
+          {/* Support Portal Links */}
+          <div className="pt-2 mt-2 border-t border-slate-700/50 space-y-1">
             <Link
-              href="/admin/super-admin-support"
+              href="/admin/support"
+              onClick={() => setSidebarOpen(false)}
               className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
-                pathname === '/admin/super-admin-support'
-                  ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                pathname === '/admin/support'
+                  ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30'
                   : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
               }`}
             >
-              <Shield className={`w-5 h-5 ${pathname === '/admin/super-admin-support' ? 'text-white' : 'text-amber-400 group-hover:text-amber-300'}`} />
-              <span>Super Admin Portal</span>
-              {pathname === '/admin/super-admin-support' && <ChevronRight className="w-4 h-4 ml-auto" />}
+              <Headphones className={`w-5 h-5 shrink-0 ${pathname === '/admin/support' ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'}`} />
+              <span>Admin Support</span>
+              {pathname === '/admin/support' && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
             </Link>
-          )}
-        </div>
+            {userRole === 'super_admin' && (
+              <Link
+                href="/admin/super-admin-support"
+                onClick={() => setSidebarOpen(false)}
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
+                  pathname === '/admin/super-admin-support'
+                    ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                    : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                }`}
+              >
+                <Shield className={`w-5 h-5 shrink-0 ${pathname === '/admin/super-admin-support' ? 'text-white' : 'text-amber-400 group-hover:text-amber-300'}`} />
+                <span>Super Admin Portal</span>
+                {pathname === '/admin/super-admin-support' && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
+              </Link>
+            )}
+          </div>
+        </nav>
 
-        {/* Bottom section */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700/50">
+        {/* Bottom section - fixed at bottom */}
+        <div className="shrink-0 p-4 border-t border-slate-700/50">
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-700/50 hover:text-white transition-all duration-200 group"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/50 hover:text-white transition-all duration-200 group"
           >
             <Store className="w-5 h-5 text-slate-400 group-hover:text-emerald-400" />
             <span>View Store</span>
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200 group mt-1"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200 group mt-1"
           >
             <LogOut className="w-5 h-5 text-slate-400 group-hover:text-red-400" />
             <span>Logout</span>

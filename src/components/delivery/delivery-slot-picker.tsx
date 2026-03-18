@@ -103,7 +103,7 @@ export function DeliverySlotPicker({
     }
 
     fetchSlots()
-  }, [postcode])
+  }, [postcode, selectedDate])
 
   // Generate session ID for reservations
   const getSessionId = () => {

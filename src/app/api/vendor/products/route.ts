@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     // Build query
     let query = supabaseAdmin
       .from('products')
-      .select('*, category:category_id(name)')
+      .select('*, categories(name)')
       .eq('vendor_id', vendor.id)
       .order('created_at', { ascending: false })
 
@@ -137,8 +137,8 @@ export async function POST(request: NextRequest) {
         name,
         slug,
         description,
-        price: price_pence,
-        compare_at_price: compare_at_price_pence || null,
+        price_pence,
+        compare_at_price_pence: compare_at_price_pence || null,
         category_id: category_id || null,
         stock_quantity: stock_quantity || 0,
         low_stock_threshold: low_stock_threshold || 10,
@@ -210,12 +210,15 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
-    // Convert prices to pence if provided
-    if (updates.price) {
-      updates.price = Math.round(updates.price * 100)
+    // Price fields should already be in pence from the client
+    // Rename to match database column names if client sends different keys
+    if (updates.price !== undefined) {
+      updates.price_pence = updates.price
+      delete updates.price
     }
-    if (updates.sale_price) {
-      updates.sale_price = Math.round(updates.sale_price * 100)
+    if (updates.compare_at_price !== undefined) {
+      updates.compare_at_price_pence = updates.compare_at_price
+      delete updates.compare_at_price
     }
 
     // Update product

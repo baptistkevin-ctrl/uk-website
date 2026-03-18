@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id)
         .single()
 
-      if (profile?.role === 'admin' || profile?.role === 'vendor') {
+      if (profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'vendor') {
         senderType = 'agent'
         senderName = profile.full_name || 'Support Agent'
       } else {

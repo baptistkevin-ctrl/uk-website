@@ -30,9 +30,9 @@ export async function POST(request: NextRequest) {
 
     // Check if already has Stripe account
     if (vendor.stripe_account_id) {
+      console.log('Vendor already has Stripe account:', vendor.stripe_account_id)
       return NextResponse.json({
-        error: 'Stripe account already exists',
-        accountId: vendor.stripe_account_id
+        error: 'Stripe account already exists'
       }, { status: 400 })
     }
 
@@ -56,14 +56,40 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Save Stripe account ID to vendor
-    await supabaseAdmin
+    // Save Stripe account ID to vendor using conditional update to prevent race conditions.
+    // Only update if stripe_account_id is still null (no concurrent request beat us).
+    const { data: updatedVendor, error: updateError } = await supabaseAdmin
       .from('vendors')
       .update({
         stripe_account_id: account.id,
         updated_at: new Date().toISOString()
       })
       .eq('id', vendor.id)
+      .is('stripe_account_id', null)
+      .select('stripe_account_id')
+      .single()
+
+    if (updateError || !updatedVendor) {
+      // Another concurrent request already set a Stripe account for this vendor.
+      // Clean up the orphaned Stripe account we just created.
+      try {
+        await getStripe().accounts.del(account.id)
+      } catch (cleanupError) {
+        console.error('Failed to clean up orphaned Stripe account:', account.id, cleanupError)
+      }
+
+      // Re-fetch vendor to return the existing account ID
+      const { data: existingVendor } = await supabaseAdmin
+        .from('vendors')
+        .select('stripe_account_id')
+        .eq('id', vendor.id)
+        .single()
+
+      return NextResponse.json({
+        error: 'Stripe account already exists',
+        accountId: existingVendor?.stripe_account_id
+      }, { status: 409 })
+    }
 
     return NextResponse.json({
       success: true,
@@ -127,7 +153,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       hasAccount: true,
-      accountId: vendor.stripe_account_id,
       chargesEnabled,
       payoutsEnabled,
       detailsSubmitted,

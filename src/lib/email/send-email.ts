@@ -1,6 +1,9 @@
 // Email sending utility for UK Grocery Store
-// This module provides a simple interface for sending emails
-// Can be easily swapped to use different email providers (Resend, SendGrid, etc.)
+// Uses Resend as the email provider
+
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 interface EmailOptions {
   to: string | string[]
@@ -17,7 +20,7 @@ interface EmailResult {
 }
 
 // Default sender configuration
-const DEFAULT_FROM = 'UK Grocery Store <noreply@ukgrocerystore.com>'
+const DEFAULT_FROM = 'UK Grocery Store <onboarding@resend.dev>'
 const DEFAULT_REPLY_TO = 'support@ukgrocerystore.com'
 
 /**
@@ -46,83 +49,20 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   }
 
   try {
-    // ============================================
-    // RESEND PROVIDER (Recommended)
-    // Uncomment to use Resend (https://resend.com)
-    // npm install resend
-    // ============================================
-    /*
-    const { Resend } = require('resend')
-    const resend = new Resend(process.env.RESEND_API_KEY)
-
     const { data, error } = await resend.emails.send({
       from,
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
-      reply_to: replyTo,
+      replyTo,
     })
 
     if (error) {
+      console.error('Resend error:', error.message)
       return { success: false, error: error.message }
     }
 
     return { success: true, messageId: data?.id }
-    */
-
-    // ============================================
-    // SENDGRID PROVIDER
-    // Uncomment to use SendGrid (https://sendgrid.com)
-    // npm install @sendgrid/mail
-    // ============================================
-    /*
-    const sgMail = require('@sendgrid/mail')
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY)
-
-    const msg = {
-      to: Array.isArray(to) ? to : [to],
-      from,
-      subject,
-      html,
-      replyTo,
-    }
-
-    const result = await sgMail.send(msg)
-    return { success: true, messageId: result[0]?.headers['x-message-id'] }
-    */
-
-    // ============================================
-    // NODEMAILER PROVIDER (SMTP)
-    // Uncomment to use Nodemailer with SMTP
-    // npm install nodemailer
-    // ============================================
-    /*
-    const nodemailer = require('nodemailer')
-
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    })
-
-    const info = await transporter.sendMail({
-      from,
-      to: Array.isArray(to) ? to.join(', ') : to,
-      subject,
-      html,
-      replyTo,
-    })
-
-    return { success: true, messageId: info.messageId }
-    */
-
-    // Default: Return success for now (emails not actually sent)
-    console.warn('Email provider not configured. Email not sent.')
-    return { success: true, messageId: `mock-${Date.now()}` }
   } catch (error) {
     console.error('Failed to send email:', error)
     return {
@@ -290,7 +230,7 @@ export async function sendBackInStockEmail(
   productSlug: string,
   price: number
 ): Promise<EmailResult> {
-  const productUrl = `https://ukgrocerystore.com/products/${productSlug}`
+  const productUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://ukgrocerystore.com'}/products/${productSlug}`
   return sendEmail({
     to: email,
     subject: `Good news! ${productName} is back in stock`,

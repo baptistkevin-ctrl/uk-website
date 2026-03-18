@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
@@ -120,6 +121,9 @@ function findImageForProduct(productName: string): string {
 
 // POST - Update all products with placeholder images
 export async function POST() {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
@@ -176,6 +180,9 @@ export async function POST() {
 
 // GET - Preview what would be updated
 export async function GET() {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {

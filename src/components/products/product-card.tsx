@@ -7,9 +7,11 @@ import { Card } from '@/components/ui/card'
 import { useCart } from '@/hooks/use-cart'
 import { formatPrice } from '@/lib/utils/format'
 import { WishlistButton } from '@/components/wishlist'
+import { WatchlistButton } from '@/components/watchlist'
+import { useQuickViewStore } from '@/stores/quick-view-store'
 import { useState } from 'react'
 
-// Custom SVG Icons for professional look
+// Custom SVG Icons
 const StarIcon = ({ filled = false, half = false }: { filled?: boolean; half?: boolean }) => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     {half ? (
@@ -28,30 +30,6 @@ const StarIcon = ({ filled = false, half = false }: { filled?: boolean; half?: b
   </svg>
 )
 
-const FireIcon = () => (
-  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 23C16.1421 23 19.5 19.6421 19.5 15.5C19.5 14.1183 19.1461 12.7849 18.4853 11.55C17.8245 10.3151 16.8835 9.21765 15.728 8.33L15.5 8.15V11.5C15.5 12.0523 15.0523 12.5 14.5 12.5C13.9477 12.5 13.5 12.0523 13.5 11.5V5C13.5 4.44772 13.0523 4 12.5 4H12C11.4477 4 11 4.44772 11 5V7C11 7.55228 10.5523 8 10 8C9.44772 8 9 7.55228 9 7V3C9 2.44772 8.55228 2 8 2C4.68629 2 2 6.02944 2 10.5C2 17.4036 6.59644 23 12 23Z"/>
-  </svg>
-)
-
-const TruckIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" xmlns="http://www.w3.org/2000/svg">
-    <path d="M1 3H16V16H1V3Z"/><path d="M16 8H20L23 11V16H16V8Z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
-  </svg>
-)
-
-const CheckIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" xmlns="http://www.w3.org/2000/svg">
-    <polyline points="20 6 9 17 4 12"/>
-  </svg>
-)
-
-const PlusIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" xmlns="http://www.w3.org/2000/svg">
-    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-  </svg>
-)
-
 const ShoppingBagIcon = () => (
   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" xmlns="http://www.w3.org/2000/svg">
     <path d="M6 2L3 6V20C3 20.5304 3.21071 21.0391 3.58579 21.4142C3.96086 21.7893 4.46957 22 5 22H19C19.5304 22 20.0391 21.7893 20.4142 21.4142C20.7893 21.0391 21 20.5304 21 20V6L18 2H6Z"/>
@@ -59,15 +37,15 @@ const ShoppingBagIcon = () => (
   </svg>
 )
 
-const VerifiedIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="#22C55E" xmlns="http://www.w3.org/2000/svg">
-    <path d="M9 12L11 14L15 10M12 3L13.9101 4.87147L16.5 4.20577L17.2184 6.78155L19.7942 7.5L19.1285 10.0899L21 12L19.1285 13.9101L19.7942 16.5L17.2184 17.2184L16.5 19.7942L13.9101 19.1285L12 21L10.0899 19.1285L7.5 19.7942L6.78155 17.2184L4.20577 16.5L4.87147 13.9101L3 12L4.87147 10.0899L4.20577 7.5L6.78155 6.78155L7.5 4.20577L10.0899 4.87147L12 3Z" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-)
-
 const LeafIcon = () => (
   <svg width="10" height="10" viewBox="0 0 24 24" fill="#22C55E" xmlns="http://www.w3.org/2000/svg">
     <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.7C7.14 19.87 7.64 20 8 20C19 20 22 3 22 3C21 5 14 5.25 9 6.25C4 7.25 2 11.5 2 13.5C2 15.5 3.75 17.25 3.75 17.25C7 8 17 8 17 8Z"/>
+  </svg>
+)
+
+const TruckIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" xmlns="http://www.w3.org/2000/svg">
+    <path d="M1 3H16V16H1V3Z"/><path d="M16 8H20L23 11V16H16V8Z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
   </svg>
 )
 
@@ -111,13 +89,6 @@ interface ProductCardProps {
   variant?: 'default' | 'horizontal'
 }
 
-// Format sold count like AliExpress
-function formatSoldCount(count: number): string {
-  if (count >= 10000) return `${Math.floor(count / 1000)}k+`
-  if (count >= 1000) return `${(count / 1000).toFixed(1)}k`
-  return `${count}+`
-}
-
 // Generate pseudo-random data based on product id
 function generateFromId(productId: string, max: number, min: number = 0): number {
   let hash = 0
@@ -130,26 +101,36 @@ function generateFromId(productId: string, max: number, min: number = 0): number
 }
 
 export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
-  const { addItem } = useCart()
+  const { addItem, items, updateQuantity, removeItem } = useCart()
+  const { openQuickView } = useQuickViewStore()
   const [isAdding, setIsAdding] = useState(false)
-  const [justAdded, setJustAdded] = useState(false)
-  const [showToast, setShowToast] = useState(false)
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  // Find if product is already in cart and its quantity
+  const cartItem = items.find(item => item.product.id === product.id)
+  const quantityInCart = cartItem?.quantity || 0
+
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setIsAdding(true)
     addItem(product)
-    setTimeout(() => {
-      setIsAdding(false)
-      setJustAdded(true)
-      setShowToast(true)
-      setTimeout(() => {
-        setJustAdded(false)
-        setShowToast(false)
-      }, 2000)
-    }, 300)
-    // Don't open cart - just show confirmation toast
+    setTimeout(() => setIsAdding(false), 300)
+  }
+
+  const handleIncrement = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    addItem(product)
+  }
+
+  const handleDecrement = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (quantityInCart <= 1) {
+      removeItem(product.id)
+    } else {
+      updateQuantity(product.id, quantityInCart - 1)
+    }
   }
 
   const hasDiscount = product.compare_at_price_pence && product.compare_at_price_pence > product.price_pence
@@ -159,13 +140,7 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
 
   const isOutOfStock = product.track_inventory && product.stock_quantity === 0 && !product.allow_backorder
 
-  // Generate realistic data
-  const soldCount = product.sold_count ?? generateFromId(product.id, 8000, 20)
   const rating = product.avg_rating ?? (3.8 + (generateFromId(product.id, 12) / 10))
-  const reviewCount = product.review_count ?? generateFromId(product.id, Math.floor(soldCount * 0.3), 5)
-  const isHot = soldCount > 1000
-  const isBestSeller = soldCount > 3000
-  const hasChoice = generateFromId(product.id + 'choice', 100) > 60
   const hasFreeShipping = product.price_pence >= 1500
 
   // Render stars
@@ -188,16 +163,16 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
 
   return (
     <Card className="group relative overflow-hidden border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200 bg-white rounded-lg">
-      {/* Added to Basket Toast */}
-      {showToast && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-black/80 text-white px-4 py-2 rounded-lg flex items-center gap-2 animate-in fade-in zoom-in duration-200">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          <span className="text-sm font-medium">Added to basket</span>
-        </div>
-      )}
-      <Link href={`/products/${product.slug}`} className="block">
+      <Link
+        href={`/products/${product.slug}`}
+        className="block"
+        onClick={(e) => {
+          // Allow Ctrl+click / Cmd+click / middle-click to open in new tab
+          if (e.metaKey || e.ctrlKey || e.button === 1) return
+          e.preventDefault()
+          openQuickView(product)
+        }}
+      >
         {/* Image Container */}
         <div className="relative aspect-square bg-gray-50 overflow-hidden">
           {product.image_url ? (
@@ -217,23 +192,13 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
           {/* Top Left Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
             {hasDiscount && (
-              <span className="bg-[#F85606] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
+              <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
                 -{discountPercentage}%
               </span>
             )}
-            {isBestSeller && (
-              <span className="bg-[#FFE4E1] text-[#F85606] text-[9px] font-semibold px-1.5 py-0.5 rounded-sm flex items-center gap-0.5">
-                <FireIcon /> Best Seller
-              </span>
-            )}
-            {isHot && !isBestSeller && (
-              <span className="bg-gradient-to-r from-orange-500 to-red-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-sm flex items-center gap-0.5">
-                <FireIcon /> Hot
-              </span>
-            )}
-            {hasChoice && !isBestSeller && !isHot && (
-              <span className="bg-[#1A1A1A] text-white text-[9px] font-medium px-1.5 py-0.5 rounded-sm">
-                Choice
+            {product.has_offer && product.offer_badge && (
+              <span className="bg-orange-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-sm">
+                {product.offer_badge}
               </span>
             )}
           </div>
@@ -258,44 +223,17 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
             </div>
           )}
 
-          {/* Wishlist Button */}
-          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* Wishlist & Watchlist Buttons */}
+          <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
             <WishlistButton productId={product.id} isLoggedIn={isLoggedIn} size="sm" />
+            <WatchlistButton productId={product.id} size="sm" />
           </div>
-
-          {/* Quick Add Button */}
-          {!isOutOfStock && (
-            <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
-              <Button
-                size="icon"
-                className={`h-8 w-8 rounded-full shadow-md transition-all ${
-                  justAdded ? 'bg-green-500' : 'bg-[#F85606] hover:bg-[#E04D00]'
-                }`}
-                onClick={handleAddToCart}
-                disabled={isAdding}
-              >
-                {justAdded ? <CheckIcon /> : <PlusIcon />}
-              </Button>
-            </div>
-          )}
         </div>
 
         {/* Content */}
-        <div className="p-2.5">
-          {/* Price Row */}
-          <div className="flex items-baseline gap-1.5 mb-1">
-            <span className="text-[#F85606] text-lg font-bold">
-              {formatPrice(product.price_pence)}
-            </span>
-            {hasDiscount && (
-              <span className="text-gray-400 text-xs line-through">
-                {formatPrice(product.compare_at_price_pence!)}
-              </span>
-            )}
-          </div>
-
+        <div className="p-2 lg:p-2.5">
           {/* Product Name */}
-          <h3 className="text-gray-800 text-[13px] font-normal leading-tight line-clamp-2 mb-1.5 min-h-[32px] group-hover:text-[#F85606] transition-colors">
+          <h3 className="text-gray-800 text-xs lg:text-[13px] font-normal leading-tight line-clamp-2 mb-1 lg:mb-1.5 min-h-[28px] lg:min-h-[32px] group-hover:text-green-600 transition-colors">
             {product.name}
           </h3>
 
@@ -304,31 +242,71 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
             <div className="flex items-center gap-[1px]">
               {renderStars()}
             </div>
-            <span className="text-[11px] text-gray-600 font-medium">{rating.toFixed(1)}</span>
-            <span className="text-[11px] text-gray-400">| {formatSoldCount(soldCount)} sold</span>
+            <span className="text-[11px] text-gray-500">{rating.toFixed(1)}</span>
           </div>
 
-          {/* Shipping & Vendor Info */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {hasFreeShipping && (
+          {/* Price + Add to Cart Row */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-green-600 text-lg font-bold">
+                {formatPrice(product.price_pence)}
+              </span>
+              {hasDiscount && (
+                <span className="text-gray-400 text-[11px] line-through">
+                  {formatPrice(product.compare_at_price_pence!)}
+                </span>
+              )}
+            </div>
+
+            {/* Add to Cart / Quantity Controls - Always Visible */}
+            {!isOutOfStock && (
+              <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                {quantityInCart > 0 ? (
+                  // Quantity controls when item is in cart
+                  <div className="flex items-center gap-0 border border-green-500 rounded-full overflow-hidden">
+                    <button
+                      onClick={handleDecrement}
+                      className="w-7 h-7 flex items-center justify-center text-green-600 hover:bg-green-50 transition-colors"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </button>
+                    <span className="w-7 h-7 flex items-center justify-center text-sm font-bold text-green-600 bg-green-50">
+                      {quantityInCart}
+                    </span>
+                    <button
+                      onClick={handleIncrement}
+                      className="w-7 h-7 flex items-center justify-center text-green-600 hover:bg-green-50 transition-colors"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  // Add button when not in cart
+                  <Button
+                    size="icon"
+                    className="h-8 w-8 rounded-full bg-green-500 hover:bg-green-600 shadow-sm transition-all"
+                    onClick={handleAddToCart}
+                    disabled={isAdding}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Shipping info */}
+          {hasFreeShipping && (
+            <div className="mt-1.5">
               <span className="inline-flex items-center gap-0.5 text-[10px] text-green-600 font-medium">
                 <TruckIcon />
-                Free shipping
-              </span>
-            )}
-            {product.vendor?.is_verified && (
-              <span className="inline-flex items-center gap-0.5 text-[10px] text-gray-500">
-                <VerifiedIcon />
-                Verified
-              </span>
-            )}
-          </div>
-
-          {/* Extra Info for higher priced items */}
-          {product.price_pence >= 3000 && (
-            <div className="mt-1.5 pt-1.5 border-t border-gray-100">
-              <span className="text-[10px] text-gray-500">
-                {reviewCount} reviews
+                Free delivery
               </span>
             </div>
           )}

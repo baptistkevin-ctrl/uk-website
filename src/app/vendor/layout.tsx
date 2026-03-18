@@ -36,7 +36,7 @@ export default function VendorLayout({
 }) {
   const router = useRouter()
   const pathname = usePathname()
-  const { user, signOut } = useAuth()
+  const { user, signOut, loading: authLoading } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [vendorData, setVendorData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -45,6 +45,11 @@ export default function VendorLayout({
     // Skip auth check for vendor login page
     if (pathname === '/vendor/login') {
       setLoading(false)
+      return
+    }
+
+    // Wait for auth to finish loading
+    if (authLoading) {
       return
     }
 
@@ -74,7 +79,7 @@ export default function VendorLayout({
     }
 
     checkVendorAccess()
-  }, [user, router, pathname])
+  }, [user, authLoading, router, pathname])
 
   if (loading) {
     return (

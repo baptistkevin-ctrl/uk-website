@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getClientIP } from './ip'
 
 interface RateLimitRecord {
   count: number
@@ -92,21 +93,10 @@ export const rateLimitConfigs = {
 }
 
 /**
- * Get client identifier from request (IP address)
+ * Get client identifier from request (delegates to centralized IP module)
  */
 function getClientIdentifier(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for')
-  const realIp = request.headers.get('x-real-ip')
-
-  if (forwarded) {
-    return forwarded.split(',')[0].trim()
-  }
-
-  if (realIp) {
-    return realIp
-  }
-
-  return 'unknown'
+  return getClientIP(request)
 }
 
 /**

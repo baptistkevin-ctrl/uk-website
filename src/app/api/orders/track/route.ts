@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { checkRateLimit, rateLimitConfigs } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,6 +13,19 @@ function getSupabaseAdmin() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limit: 5 attempts per minute per IP
+    const rateLimit = checkRateLimit(request, {
+      limit: 5,
+      windowMs: 60 * 1000,
+      prefix: 'order-track',
+    })
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: 'Too many tracking requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const { orderNumber, email } = await request.json()
 
     if (!orderNumber || !email) {
@@ -19,6 +33,16 @@ export async function POST(request: NextRequest) {
         { error: 'Order number and email are required' },
         { status: 400 }
       )
+    }
+
+    // Validate order number format
+    if (typeof orderNumber !== 'string' || orderNumber.length > 30 || !/^ORD-[A-Z0-9-]+$/i.test(orderNumber)) {
+      return NextResponse.json({ error: 'Invalid order number format' }, { status: 400 })
+    }
+
+    // Validate email format
+    if (typeof email !== 'string' || email.length > 255 || !email.includes('@')) {
+      return NextResponse.json({ error: 'Invalid email format' }, { status: 400 })
     }
 
     const supabaseAdmin = getSupabaseAdmin()
@@ -64,7 +88,27 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(order)
+    // Redact sensitive address and financial details from tracking response
+    const safeOrder = {
+      id: order.id,
+      order_number: order.order_number,
+      status: order.status,
+      payment_status: order.payment_status,
+      delivery_city: order.delivery_city,
+      delivery_postcode: order.delivery_postcode,
+      created_at: order.created_at,
+      confirmed_at: order.confirmed_at,
+      shipped_at: order.shipped_at,
+      delivered_at: order.delivered_at,
+      order_items: order.order_items?.map((item: { id: string; product_name: string; product_image_url: string; quantity: number }) => ({
+        id: item.id,
+        product_name: item.product_name,
+        product_image_url: item.product_image_url,
+        quantity: item.quantity,
+      })),
+    }
+
+    return NextResponse.json(safeOrder)
   } catch (error) {
     console.error('Order tracking error:', error)
     return NextResponse.json(

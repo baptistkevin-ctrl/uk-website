@@ -1,5 +1,8 @@
 // Security utilities barrel export
 
+// IP resolution
+export { getClientIP } from './ip'
+
 // Rate limiting
 export {
   checkRateLimit,
@@ -94,7 +97,7 @@ export {
   checkHoneypot,
   threatCheck,
   analyzeUserAgent,
-  HONEYPOT_FIELDS
+  getHoneypotFields
 } from './threat-detection'
 
 // Request validation

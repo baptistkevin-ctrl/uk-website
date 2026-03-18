@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ProductCard } from '@/components/products/product-card'
-import { StoreBanner } from '@/components/store'
+import { StoreBanner, SortSelect } from '@/components/store'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Package, ArrowUpDown } from 'lucide-react'
 
@@ -193,21 +193,10 @@ export default async function StorePage({ params, searchParams }: StorePageProps
           {/* Sort */}
           <div className="flex items-center gap-2">
             <ArrowUpDown className="h-4 w-4 text-gray-500" />
-            <select
-              defaultValue={search.sort || 'newest'}
-              className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
-              onChange={(e) => {
-                const url = new URL(window.location.href)
-                url.searchParams.set('sort', e.target.value)
-                window.location.href = url.toString()
-              }}
-            >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <SortSelect
+              options={sortOptions}
+              currentSort={search.sort || 'newest'}
+            />
           </div>
         </div>
 

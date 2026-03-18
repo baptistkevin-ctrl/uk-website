@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { ReviewCard } from './ReviewCard'
 import { ReviewSummary } from './ReviewSummary'
 import { ReviewForm } from './ReviewForm'
@@ -49,7 +49,7 @@ export function ReviewList({
   const [showForm, setShowForm] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  const fetchReviews = async (pageNum: number, sort: string) => {
+  const fetchReviews = useCallback(async (pageNum: number, sort: string) => {
     setIsLoading(true)
     try {
       const res = await fetch(
@@ -69,11 +69,11 @@ export function ReviewList({
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [productId])
 
   useEffect(() => {
     fetchReviews(1, sortBy)
-  }, [productId, sortBy])
+  }, [fetchReviews, sortBy])
 
   const handleLoadMore = () => {
     if (page < totalPages) {

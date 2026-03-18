@@ -248,7 +248,15 @@ export function checkRequestRate(ip: string): { allowed: boolean; requestsInWind
 /**
  * Honeypot field names - if these are filled, it's a bot
  */
-export const HONEYPOT_FIELDS = ['website_url', 'fax_number', 'company_website', 'secondary_email']
+// Private - not exported directly to prevent attackers from reading field names in client bundle
+const HONEYPOT_FIELDS = ['website_url', 'fax_number', 'company_website', 'secondary_email']
+
+/**
+ * Get honeypot field names for form rendering
+ */
+export function getHoneypotFields(): string[] {
+  return [...HONEYPOT_FIELDS]
+}
 
 /**
  * Check if honeypot fields are filled (indicates bot)

@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
 // GET all applications
 export async function GET(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
   const status = searchParams.get('status')
@@ -30,6 +34,9 @@ export async function GET(request: NextRequest) {
 
 // UPDATE application (approve/reject)
 export async function PUT(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
   const supabase = await createClient()
   const { data: { user: adminUser } } = await supabase.auth.getUser()

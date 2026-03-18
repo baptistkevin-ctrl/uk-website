@@ -2,15 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import {
-  TrendingUp,
-  TrendingDown,
   ShoppingCart,
   Package,
   DollarSign,
-  Users,
   Loader2,
   BarChart3,
-  Calendar,
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react'
@@ -26,6 +22,7 @@ interface AnalyticsData {
   topProducts: {
     id: string
     name: string
+    image_url: string | null
     sold: number
     revenue: number
   }[]
@@ -34,6 +31,14 @@ interface AnalyticsData {
     amount: number
     orders: number
   }[]
+}
+
+function getDaysForPeriod(period: string): number {
+  switch (period) {
+    case '30days': return 30
+    case '90days': return 90
+    default: return 7
+  }
 }
 
 export default function VendorAnalyticsPage() {
@@ -48,33 +53,67 @@ export default function VendorAnalyticsPage() {
   const fetchAnalytics = async () => {
     try {
       setLoading(true)
+      const days = getDaysForPeriod(period)
+
       // Fetch stats
       const statsRes = await fetch('/api/vendor/stats')
       const stats = await statsRes.json()
 
-      // Fetch orders for analytics
-      const ordersRes = await fetch('/api/vendor/orders?limit=100')
+      // Fetch enough orders for the selected period
+      const ordersRes = await fetch(`/api/vendor/orders?limit=500`)
       const ordersData = await ordersRes.json()
-      const orders = ordersData.orders || []
+      const allOrders = ordersData.orders || []
 
-      // Calculate analytics
-      const totalRevenue = orders.reduce((sum: number, o: any) => sum + (o.vendor_amount || 0), 0)
-      const totalOrders = orders.length
+      // Build date range for selected period
+      const now = new Date()
+      const periodStart = new Date()
+      periodStart.setDate(now.getDate() - days)
+      periodStart.setHours(0, 0, 0, 0)
+
+      // Previous period for comparison
+      const prevPeriodStart = new Date()
+      prevPeriodStart.setDate(periodStart.getDate() - days)
+      prevPeriodStart.setHours(0, 0, 0, 0)
+
+      // Split orders into current and previous periods
+      const currentOrders = allOrders.filter((o: any) => {
+        const d = new Date(o.created_at)
+        return d >= periodStart && d <= now
+      })
+      const previousOrders = allOrders.filter((o: any) => {
+        const d = new Date(o.created_at)
+        return d >= prevPeriodStart && d < periodStart
+      })
+
+      // Current period stats
+      const totalRevenue = currentOrders.reduce((sum: number, o: any) => sum + (o.vendor_amount || 0), 0)
+      const totalOrders = currentOrders.length
       const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0
+
+      // Previous period stats for % change
+      const prevRevenue = previousOrders.reduce((sum: number, o: any) => sum + (o.vendor_amount || 0), 0)
+      const prevOrders = previousOrders.length
+
+      const revenueChange = prevRevenue > 0
+        ? Math.round(((totalRevenue - prevRevenue) / prevRevenue) * 1000) / 10
+        : totalRevenue > 0 ? 100 : 0
+      const ordersChange = prevOrders > 0
+        ? Math.round(((totalOrders - prevOrders) / prevOrders) * 1000) / 10
+        : totalOrders > 0 ? 100 : 0
 
       // Group orders by date for chart
       const salesByDate: Record<string, { amount: number; orders: number }> = {}
-      const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const dateLabels = Array.from({ length: days }, (_, i) => {
         const date = new Date()
         date.setDate(date.getDate() - i)
         return date.toISOString().split('T')[0]
       }).reverse()
 
-      last7Days.forEach(date => {
+      dateLabels.forEach(date => {
         salesByDate[date] = { amount: 0, orders: 0 }
       })
 
-      orders.forEach((order: any) => {
+      currentOrders.forEach((order: any) => {
         const date = order.created_at?.split('T')[0]
         if (salesByDate[date]) {
           salesByDate[date].amount += order.vendor_amount || 0
@@ -82,21 +121,38 @@ export default function VendorAnalyticsPage() {
         }
       })
 
-      const recentSales = Object.entries(salesByDate).map(([date, data]) => ({
+      const recentSales = Object.entries(salesByDate).map(([date, d]) => ({
         date,
-        ...data
+        ...d
       }))
 
-      // Get top products (mock for now - would need product sales data)
-      const topProducts = stats.topProducts || []
+      // Build top products from order items
+      const productSales: Record<string, { id: string; name: string; image_url: string | null; sold: number; revenue: number }> = {}
+      currentOrders.forEach((order: any) => {
+        (order.items || []).forEach((item: any) => {
+          const pid = item.product_id || item.product?.id
+          const pname = item.product?.name || item.product_name || 'Unknown'
+          const pimg = item.product?.image_url || null
+          if (!pid) return
+          if (!productSales[pid]) {
+            productSales[pid] = { id: pid, name: pname, image_url: pimg, sold: 0, revenue: 0 }
+          }
+          productSales[pid].sold += item.quantity || 1
+          productSales[pid].revenue += item.total || item.price * (item.quantity || 1) || 0
+        })
+      })
+
+      const topProducts = Object.values(productSales)
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 5)
 
       setData({
         totalRevenue,
         totalOrders,
         totalProducts: stats.totalProducts || 0,
         averageOrderValue,
-        revenueChange: 12.5, // Mock data
-        ordersChange: 8.3,   // Mock data
+        revenueChange,
+        ordersChange,
         topProducts,
         recentSales
       })
@@ -116,6 +172,11 @@ export default function VendorAnalyticsPage() {
   }
 
   const maxSale = Math.max(...(data?.recentSales.map(s => s.amount) || [1]))
+  const maxOrders = Math.max(...(data?.recentSales.map(s => s.orders) || [1]))
+  const days = getDaysForPeriod(period)
+
+  // For 30/90 day charts, show fewer labels
+  const labelInterval = days <= 7 ? 1 : days <= 30 ? 5 : 10
 
   return (
     <div className="p-6 lg:p-8">
@@ -204,19 +265,29 @@ export default function VendorAnalyticsPage() {
         {/* Revenue Chart */}
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h2 className="font-semibold text-gray-900 mb-6">Revenue Overview</h2>
-          <div className="h-64 flex items-end gap-2">
+          <div className="h-64 flex items-end gap-[2px]">
             {data?.recentSales.map((sale, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-2">
+              <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-10">
+                  {formatPrice(sale.amount)}
+                </div>
                 <div
-                  className="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t-lg transition-all hover:from-emerald-600 hover:to-emerald-500"
+                  className="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-t transition-all hover:from-emerald-600 hover:to-emerald-500"
                   style={{
-                    height: `${(sale.amount / maxSale) * 200}px`,
-                    minHeight: sale.amount > 0 ? '20px' : '4px'
+                    height: `${maxSale > 0 ? (sale.amount / maxSale) * 200 : 0}px`,
+                    minHeight: sale.amount > 0 ? '4px' : '2px'
                   }}
                 />
-                <span className="text-xs text-gray-500">
-                  {new Date(sale.date).toLocaleDateString('en-GB', { weekday: 'short' })}
-                </span>
+                {(i % labelInterval === 0 || i === (data?.recentSales.length || 0) - 1) ? (
+                  <span className="text-[10px] text-gray-500 truncate max-w-full">
+                    {days <= 7
+                      ? new Date(sale.date).toLocaleDateString('en-GB', { weekday: 'short' })
+                      : new Date(sale.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                    }
+                  </span>
+                ) : (
+                  <span className="text-[10px]">&nbsp;</span>
+                )}
               </div>
             ))}
           </div>
@@ -225,19 +296,29 @@ export default function VendorAnalyticsPage() {
         {/* Orders Chart */}
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h2 className="font-semibold text-gray-900 mb-6">Orders Overview</h2>
-          <div className="h-64 flex items-end gap-2">
+          <div className="h-64 flex items-end gap-[2px]">
             {data?.recentSales.map((sale, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-2">
+              <div key={i} className="flex-1 flex flex-col items-center gap-1 group relative">
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none z-10">
+                  {sale.orders} order{sale.orders !== 1 ? 's' : ''}
+                </div>
                 <div
-                  className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t-lg transition-all hover:from-blue-600 hover:to-blue-500"
+                  className="w-full bg-gradient-to-t from-blue-500 to-blue-400 rounded-t transition-all hover:from-blue-600 hover:to-blue-500"
                   style={{
-                    height: `${(sale.orders / Math.max(...(data?.recentSales.map(s => s.orders) || [1]))) * 200}px`,
-                    minHeight: sale.orders > 0 ? '20px' : '4px'
+                    height: `${maxOrders > 0 ? (sale.orders / maxOrders) * 200 : 0}px`,
+                    minHeight: sale.orders > 0 ? '4px' : '2px'
                   }}
                 />
-                <span className="text-xs text-gray-500">
-                  {new Date(sale.date).toLocaleDateString('en-GB', { weekday: 'short' })}
-                </span>
+                {(i % labelInterval === 0 || i === (data?.recentSales.length || 0) - 1) ? (
+                  <span className="text-[10px] text-gray-500 truncate max-w-full">
+                    {days <= 7
+                      ? new Date(sale.date).toLocaleDateString('en-GB', { weekday: 'short' })
+                      : new Date(sale.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+                    }
+                  </span>
+                ) : (
+                  <span className="text-[10px]">&nbsp;</span>
+                )}
               </div>
             ))}
           </div>
@@ -257,6 +338,13 @@ export default function VendorAnalyticsPage() {
                   <span className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
                     {i + 1}
                   </span>
+                  {product.image_url ? (
+                    <img src={product.image_url} alt="" className="w-10 h-10 rounded-lg object-cover" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
+                      <Package className="h-5 w-5 text-gray-400" />
+                    </div>
+                  )}
                   <div>
                     <p className="font-medium text-gray-900">{product.name}</p>
                     <p className="text-sm text-gray-500">{product.sold} sold</p>

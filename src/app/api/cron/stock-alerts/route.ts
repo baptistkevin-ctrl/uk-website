@@ -8,14 +8,14 @@ import {
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60 // Allow up to 60 seconds for processing
 
-// Verify cron secret to prevent unauthorized access
+// Verify cron secret — always required, even in development
 function verifyCronSecret(request: NextRequest): boolean {
   const authHeader = request.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
   if (!cronSecret) {
-    // In development, allow without secret
-    return process.env.NODE_ENV === 'development'
+    console.error('CRON_SECRET is not set. Cron routes are disabled.')
+    return false
   }
 
   return authHeader === `Bearer ${cronSecret}`

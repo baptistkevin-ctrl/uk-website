@@ -83,6 +83,18 @@ export default function SettingsPage() {
     setPasswordSuccess(false)
 
     try {
+      // Verify current password first
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: user!.email!,
+        password: data.currentPassword,
+      })
+
+      if (verifyError) {
+        setPasswordError('Current password is incorrect')
+        return
+      }
+
+      // Then update to new password
       const { error } = await supabase.auth.updateUser({
         password: data.newPassword,
       })

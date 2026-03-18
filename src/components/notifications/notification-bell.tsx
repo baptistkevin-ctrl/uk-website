@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Bell,
@@ -93,7 +93,7 @@ export function NotificationBell() {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   // Fetch notifications
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch('/api/notifications?limit=10')
       if (res.ok) {
@@ -106,7 +106,7 @@ export function NotificationBell() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchNotifications()
@@ -114,7 +114,7 @@ export function NotificationBell() {
     // Poll for new notifications every 30 seconds
     const interval = setInterval(fetchNotifications, 30000)
     return () => clearInterval(interval)
-  }, [])
+  }, [fetchNotifications])
 
   // Close dropdown when clicking outside
   useEffect(() => {

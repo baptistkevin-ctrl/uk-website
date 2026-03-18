@@ -76,6 +76,19 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  // Rate limiting for general API endpoints (search, products, etc.)
+  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth') && !pathname.startsWith('/api/admin') && !pathname.startsWith('/api/upload')) {
+    const rateLimitResult = checkRateLimit(request, rateLimitConfigs.api)
+    if (!rateLimitResult.allowed) {
+      logRateLimitViolation(request, pathname, rateLimitResult.identifier)
+      const response = NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+      return addRateLimitHeaders(response, rateLimitResult)
+    }
+  }
+
   // CSRF protection for API POST/PUT/DELETE requests
   if (pathname.startsWith('/api/') && !isCsrfExempt(pathname)) {
     const method = request.method
@@ -120,7 +133,7 @@ export async function updateSession(request: NextRequest) {
 
   // Protected routes
   const protectedPaths = ['/account', '/checkout']
-  const adminPaths = ['/admin']
+  const adminPaths = ['/admin', '/api/admin']
   const authPaths = ['/login', '/register']
 
   // Redirect unauthenticated users from protected routes
@@ -131,8 +144,15 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Redirect unauthenticated users from admin routes
-  if (!user && adminPaths.some((p) => pathname.startsWith(p))) {
+  // Routes that handle their own auth (CRON_SECRET, etc.)
+  const selfAuthRoutes = ['/api/admin/seed-accounts', '/api/admin/seed-products', '/api/admin/seed-categories', '/api/admin/fix-products']
+  const isSelfAuth = selfAuthRoutes.some(r => pathname.startsWith(r))
+
+  // Block unauthenticated users from admin routes (except self-auth routes)
+  if (!user && !isSelfAuth && adminPaths.some((p) => pathname.startsWith(p))) {
+    if (pathname.startsWith('/api/')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.searchParams.set('redirectTo', pathname)
@@ -147,7 +167,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Check admin access using service role to bypass RLS
-  if (user && adminPaths.some((p) => pathname.startsWith(p))) {
+  if (user && !isSelfAuth && adminPaths.some((p) => pathname.startsWith(p))) {
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -160,16 +180,20 @@ export async function updateSession(request: NextRequest) {
       .single()
 
     if (!['admin', 'super_admin'].includes(profile?.role || '')) {
+      if (pathname.startsWith('/api/')) {
+        return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 })
+      }
       const url = request.nextUrl.clone()
       url.pathname = '/'
       return NextResponse.redirect(url)
     }
   }
 
-  // Set CSRF token cookie if not present
+  // Set CSRF token cookie if not present, and expose via response header
   if (!request.cookies.get('csrf_token')) {
     const csrfToken = await generateCsrfToken()
     supabaseResponse = setCsrfTokenCookie(supabaseResponse, csrfToken)
+    supabaseResponse.headers.set('x-csrf-token', csrfToken)
   }
 
   return supabaseResponse

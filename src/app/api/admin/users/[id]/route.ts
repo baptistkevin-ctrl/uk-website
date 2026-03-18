@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { userAudit } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,7 +24,7 @@ export async function GET(
       .eq('id', user.id)
       .single()
 
-    if (profile?.role !== 'admin') {
+    if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -101,7 +102,7 @@ export async function PUT(
       .eq('id', user.id)
       .single()
 
-    if (profile?.role !== 'admin') {
+    if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -109,7 +110,7 @@ export async function PUT(
     const { role, is_banned, full_name, phone } = body
 
     // Prevent admin from modifying themselves to non-admin
-    if (id === user.id && role !== 'admin') {
+    if (id === user.id && role !== 'admin' && role !== 'super_admin') {
       return NextResponse.json({ error: 'Cannot remove your own admin role' }, { status: 400 })
     }
 
@@ -119,8 +120,15 @@ export async function PUT(
 
     if (role !== undefined) {
       // Validate role
-      if (!['customer', 'vendor', 'admin'].includes(role)) {
+      if (!['customer', 'vendor', 'admin', 'super_admin'].includes(role)) {
         return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
+      }
+      // Only super_admin can assign super_admin role
+      if (role === 'super_admin' && profile?.role !== 'super_admin') {
+        return NextResponse.json(
+          { error: 'Only super admins can assign the super_admin role' },
+          { status: 403 }
+        )
       }
       updateData.role = role
     }
@@ -145,6 +153,22 @@ export async function PUT(
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Audit log for role changes and bans
+    if (role !== undefined || is_banned !== undefined) {
+      try {
+        await userAudit.logUpdate(
+          request,
+          { id: user.id, email: user.email || '', role: profile?.role || 'admin' },
+          id,
+          `user:${id}`,
+          { role: body.role, is_banned: body.is_banned },
+          updateData
+        )
+      } catch (auditError) {
+        console.error('Audit logging failed:', auditError)
+      }
     }
 
     return NextResponse.json(updatedUser)
@@ -174,7 +198,7 @@ export async function DELETE(
       .eq('id', user.id)
       .single()
 
-    if (profile?.role !== 'admin') {
+    if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 

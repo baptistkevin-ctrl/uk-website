@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ChevronRight } from 'lucide-react'
@@ -63,11 +63,24 @@ export function HeroSlider({ slides }: HeroSliderProps) {
     }
   }, [activeSlides.length])
 
+  const resumeTimerRef = useRef<NodeJS.Timeout | null>(null)
+
   const goToSlide = (index: number) => {
     setCurrentSlide(index)
     setIsAutoPlaying(false)
-    setTimeout(() => setIsAutoPlaying(true), 10000)
+    if (resumeTimerRef.current) {
+      clearTimeout(resumeTimerRef.current)
+    }
+    resumeTimerRef.current = setTimeout(() => setIsAutoPlaying(true), 10000)
   }
+
+  useEffect(() => {
+    return () => {
+      if (resumeTimerRef.current) {
+        clearTimeout(resumeTimerRef.current)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (!isAutoPlaying || activeSlides.length <= 1) return
@@ -82,11 +95,11 @@ export function HeroSlider({ slides }: HeroSliderProps) {
   const slide = activeSlides[currentSlide]
 
   return (
-    <section className="py-6 bg-white">
+    <section className="py-2 lg:py-6 bg-white">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Main Hero Banner - Left Side */}
-          <div className="lg:col-span-2 relative rounded-2xl overflow-hidden h-[400px] lg:h-[480px]">
+          <div className="lg:col-span-2 relative rounded-xl lg:rounded-2xl overflow-hidden h-[180px] sm:h-[280px] lg:h-[480px]">
             {activeSlides.map((s, index) => (
               <div
                 key={s.id}
@@ -105,22 +118,18 @@ export function HeroSlider({ slides }: HeroSliderProps) {
                 <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
                 {/* Content Overlay */}
                 <div className="absolute inset-0 flex items-center">
-                  <div className="p-8 lg:p-12 max-w-md">
-                    <span className="inline-block bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full mb-4 shadow-lg">
-                      100% Farm Fresh Food
-                    </span>
-                    <h1 className="text-3xl lg:text-5xl font-bold text-white mb-2 leading-tight drop-shadow-lg">
-                      Fresh Organic
+                  <div className="p-4 sm:p-8 lg:p-12 max-w-md">
+                    <h1 className="text-lg sm:text-3xl lg:text-5xl font-bold text-white mb-1 sm:mb-2 leading-tight drop-shadow-lg">
+                      {s.title}
                     </h1>
-                    <p className="text-yellow-400 text-xl lg:text-2xl font-semibold mb-4 drop-shadow-md">
-                      Food For All
-                    </p>
-                    <p className="text-4xl lg:text-5xl font-bold text-white mb-6 drop-shadow-lg">
-                      £59.00
-                    </p>
+                    {s.subtitle && (
+                      <p className="text-yellow-400 text-sm sm:text-xl lg:text-2xl font-semibold mb-2 sm:mb-4 drop-shadow-md">
+                        {s.subtitle}
+                      </p>
+                    )}
                     {s.button_text && s.button_link && (
                       <Button
-                        className="bg-green-500 hover:bg-green-600 text-white rounded-full px-8 h-12 text-base font-semibold shadow-lg"
+                        className="bg-green-500 hover:bg-green-600 text-white rounded-full px-4 sm:px-8 h-8 sm:h-12 text-xs sm:text-base font-semibold shadow-lg"
                         asChild
                       >
                         <Link href={s.button_link}>
@@ -204,23 +213,23 @@ export function HeroSlider({ slides }: HeroSliderProps) {
 // Default hero when no slides are configured
 function ZillyDefaultHero() {
   return (
-    <section className="py-6 bg-white">
+    <section className="py-2 lg:py-6 bg-white">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Main Hero Banner */}
-          <div className="lg:col-span-2 relative rounded-2xl overflow-hidden h-[400px] lg:h-[480px] bg-gradient-to-r from-green-600 to-teal-500">
+          <div className="lg:col-span-2 relative rounded-xl lg:rounded-2xl overflow-hidden h-[180px] sm:h-[280px] lg:h-[480px] bg-gradient-to-r from-green-600 to-teal-500">
             <div className="absolute inset-0 flex items-center">
-              <div className="p-8 lg:p-12 max-w-md">
-                <span className="inline-block bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full mb-4 shadow-lg">
+              <div className="p-4 sm:p-8 lg:p-12 max-w-md">
+                <span className="inline-block bg-red-500 text-white text-[10px] sm:text-xs font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full mb-2 sm:mb-4 shadow-lg">
                   100% Farm Fresh Food
                 </span>
-                <h1 className="text-3xl lg:text-5xl font-bold text-white mb-2 leading-tight drop-shadow-lg">
+                <h1 className="text-lg sm:text-3xl lg:text-5xl font-bold text-white mb-1 sm:mb-2 leading-tight drop-shadow-lg">
                   Fresh Organic
                 </h1>
-                <p className="text-yellow-400 text-xl lg:text-2xl font-semibold mb-4 drop-shadow-md">
+                <p className="text-yellow-400 text-sm sm:text-xl lg:text-2xl font-semibold mb-2 sm:mb-4 drop-shadow-md">
                   Food For All
                 </p>
-                <p className="text-4xl lg:text-5xl font-bold text-white mb-6 drop-shadow-lg">
+                <p className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-3 sm:mb-6 drop-shadow-lg">
                   £59.00
                 </p>
                 <Button

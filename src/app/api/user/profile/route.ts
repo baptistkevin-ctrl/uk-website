@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,8 +12,9 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Get user profile
-    const { data: profile, error } = await supabase
+    // Use admin client to bypass RLS and reliably fetch profile
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile, error } = await supabaseAdmin
       .from('profiles')
       .select('*')
       .eq('id', user.id)

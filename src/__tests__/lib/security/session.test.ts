@@ -177,10 +177,10 @@ describe('Session Security', () => {
         },
       } as any
 
-      expect(getClientIp(request)).toBe('127.0.0.1')
+      expect(getClientIp(request)).toBe('0.0.0.0')
     })
 
-    it('prefers x-forwarded-for over x-real-ip', () => {
+    it('prefers x-real-ip over x-forwarded-for', () => {
       const request = {
         headers: {
           get: (name: string) => {
@@ -191,7 +191,7 @@ describe('Session Security', () => {
         },
       } as any
 
-      expect(getClientIp(request)).toBe('10.0.0.1')
+      expect(getClientIp(request)).toBe('10.0.0.2')
     })
   })
 
