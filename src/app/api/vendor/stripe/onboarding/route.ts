@@ -74,10 +74,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       url: accountLink.url
     })
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Stripe onboarding error:', error)
+    const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json({
-      error: 'Failed to create onboarding link'
+      error: 'Failed to create onboarding link',
+      details: message,
     }, { status: 500 })
   }
 }
