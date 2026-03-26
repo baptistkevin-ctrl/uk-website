@@ -91,7 +91,7 @@ function VendorOnboardingContent() {
       if (data.url) {
         window.location.href = data.url
       } else {
-        alert(data.error || 'Failed to start onboarding')
+        alert(data.details || data.error || 'Failed to start onboarding')
       }
     } catch (error) {
       alert('Failed to connect to Stripe')
