@@ -206,6 +206,8 @@ export const csrfExemptRoutes = [
   '/api/setup/', // Setup endpoints
   '/api/chat', // Chat uses session-based auth
   '/api/chat/', // Chat message endpoints
+  '/api/vendor/stripe/', // Stripe Connect endpoints use Stripe auth
+  '/api/vendor/register', // Vendor registration
 ]
 
 /**
