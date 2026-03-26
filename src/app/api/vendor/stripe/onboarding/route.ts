@@ -51,7 +51,28 @@ export async function POST(request: NextRequest) {
 
     let stripeAccountId = vendor.stripe_account_id
 
-    // Step 5: Create account if doesn't exist
+    // Step 5: Validate existing account or create new one
+    if (stripeAccountId) {
+      step = 'validate_account'
+      try {
+        await stripe.accounts.retrieve(stripeAccountId)
+      } catch {
+        // Account doesn't exist on this Stripe key - clear it and create fresh
+        stripeAccountId = null
+        await supabaseAdmin
+          .from('vendors')
+          .update({
+            stripe_account_id: null,
+            stripe_onboarding_complete: false,
+            stripe_charges_enabled: false,
+            stripe_payouts_enabled: false,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', vendor.id)
+      }
+    }
+
+    // Step 6: Create account if doesn't exist
     if (!stripeAccountId) {
       step = 'create_account'
       const account = await stripe.accounts.create({
@@ -86,7 +107,7 @@ export async function POST(request: NextRequest) {
         .eq('id', vendor.id)
     }
 
-    // Step 6: Create onboarding link
+    // Step 7: Create onboarding link
     step = 'create_link'
     const accountLink = await stripe.accountLinks.create({
       account: stripeAccountId,
