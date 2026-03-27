@@ -73,7 +73,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
   if (productIds.length > 0) {
     const { data } = await supabase
       .from('products')
-      .select('*')
+      .select('*, vendor:vendors(id, business_name, slug, is_verified)')
       .in('id', productIds)
       .eq('is_active', true)
       .order('name')

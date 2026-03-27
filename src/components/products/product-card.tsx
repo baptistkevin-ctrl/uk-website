@@ -237,6 +237,20 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
             {product.name}
           </h3>
 
+          {/* Vendor Name */}
+          {product.vendor && (
+            <div className="flex items-center gap-1 mb-1">
+              <span className="text-[10px] lg:text-[11px] text-blue-600 font-medium truncate">
+                {product.vendor.business_name}
+              </span>
+              {product.vendor.is_verified && (
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="#2563EB" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#2563EB" strokeWidth="2" fill="none"/>
+                </svg>
+              )}
+            </div>
+          )}
+
           {/* Rating Row */}
           <div className="flex items-center gap-1 mb-1.5">
             <div className="flex items-center gap-[1px]">

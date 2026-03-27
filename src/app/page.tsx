@@ -136,7 +136,7 @@ export default async function HomePage() {
   // Fetch ALL products for Amazon/AliExpress style display - NO LIMIT
   const { data: allProducts } = await supabase
     .from('products')
-    .select('*')
+    .select('*, vendor:vendors(id, business_name, slug, is_verified)')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
 

@@ -43,7 +43,7 @@ async function ProductGrid({ searchParams }: { searchParams: Awaited<ProductsPag
 
   let query = supabase
     .from('products')
-    .select('*')
+    .select('*, vendor:vendors(id, business_name, slug, is_verified)')
     .eq('is_active', true)
 
   // Search filter
