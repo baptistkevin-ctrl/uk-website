@@ -313,11 +313,13 @@ export default function VendorDashboard() {
                     <p className="font-medium text-gray-900">{formatPrice(order.total_amount)}</p>
                     <span className={`text-xs px-2 py-0.5 rounded-full ${
                       order.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' :
+                      order.status === 'transferred' ? 'bg-emerald-100 text-emerald-700' :
                       order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                      order.status === 'pending_payout' ? 'bg-orange-100 text-orange-700' :
                       order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
                       'bg-blue-100 text-blue-700'
                     }`}>
-                      {order.status}
+                      {order.status === 'transferred' ? 'Paid' : order.status === 'pending_payout' ? 'Pending Payout' : order.status}
                     </span>
                   </div>
                 </div>

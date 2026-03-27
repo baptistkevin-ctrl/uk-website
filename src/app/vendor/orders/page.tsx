@@ -121,21 +121,28 @@ export default function VendorOrdersPage() {
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
       pending: 'bg-yellow-100 text-yellow-700',
+      pending_payout: 'bg-orange-100 text-orange-700',
+      transferred: 'bg-emerald-100 text-emerald-700',
       confirmed: 'bg-blue-100 text-blue-700',
       processing: 'bg-purple-100 text-purple-700',
       shipped: 'bg-indigo-100 text-indigo-700',
       delivered: 'bg-emerald-100 text-emerald-700',
       cancelled: 'bg-red-100 text-red-700',
     }
+    const labels: Record<string, string> = {
+      pending_payout: 'Pending Payout',
+      transferred: 'Paid',
+    }
     return (
       <span className={`px-2 py-1 text-xs rounded-full font-medium ${styles[status] || 'bg-gray-100 text-gray-700'}`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {labels[status] || status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     )
   }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
+      case 'transferred': return <CheckCircle className="h-5 w-5 text-emerald-500" />
       case 'delivered': return <CheckCircle className="h-5 w-5 text-emerald-500" />
       case 'shipped': return <Truck className="h-5 w-5 text-indigo-500" />
       case 'cancelled': return <XCircle className="h-5 w-5 text-red-500" />
@@ -204,6 +211,8 @@ export default function VendorOrdersPage() {
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
+              <option value="transferred">Paid</option>
+              <option value="pending_payout">Pending Payout</option>
               <option value="confirmed">Confirmed</option>
               <option value="processing">Processing</option>
               <option value="shipped">Shipped</option>

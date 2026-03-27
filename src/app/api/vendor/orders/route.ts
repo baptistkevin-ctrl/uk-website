@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 })
     }
 
-    // Build query - try vendor_orders table first, fall back to order_items
+    // Build query - get vendor orders with parent order details
     let query = supabaseAdmin
       .from('vendor_orders')
       .select(`
@@ -40,7 +40,15 @@ export async function GET(request: NextRequest) {
           order_number,
           created_at,
           status,
-          delivery_address
+          customer_name,
+          customer_email,
+          customer_phone,
+          delivery_address_line_1,
+          delivery_address_line_2,
+          delivery_city,
+          delivery_county,
+          delivery_postcode,
+          delivery_instructions
         )
       `)
       .eq('vendor_id', vendor.id)
@@ -94,18 +102,32 @@ export async function GET(request: NextRequest) {
       orderItems = items || []
     }
 
-    // Combine data
+    // Combine data - include both flat and nested fields for compatibility
     const orders = vendorOrders?.map(vo => ({
       id: vo.id,
       order_id: vo.order_id,
       order_number: vo.order?.order_number,
-      created_at: vo.order?.created_at,
+      created_at: vo.order?.created_at || vo.created_at,
       status: vo.status,
       total_amount: vo.total_amount,
       vendor_amount: vo.vendor_amount,
       commission_amount: vo.commission_amount,
-      customer_name: 'Customer',
-      delivery_address: vo.order?.delivery_address,
+      stripe_transfer_id: vo.stripe_transfer_id,
+      // Flat fields for dashboard compatibility
+      customer_name: vo.order?.customer_name || 'Customer',
+      // Nested order object for orders page detail view
+      order: {
+        customer_name: vo.order?.customer_name || 'Customer',
+        customer_email: vo.order?.customer_email || '',
+        customer_phone: vo.order?.customer_phone || '',
+        delivery_address: [
+          vo.order?.delivery_address_line_1,
+          vo.order?.delivery_address_line_2,
+        ].filter(Boolean).join(', '),
+        delivery_city: vo.order?.delivery_city || '',
+        delivery_postcode: vo.order?.delivery_postcode || '',
+        status: vo.order?.status || '',
+      },
       items: orderItems.filter(item => item.order_id === vo.order_id)
     })) || []
 
