@@ -169,19 +169,25 @@ async function createOrder(session: Stripe.Checkout.Session) {
     }
 
     // Create order
+    // userId can be empty string from metadata - treat as null for FK constraint
+    const userId = metadata.userId && metadata.userId.length > 0 ? metadata.userId : null
+    const customerEmail = session.customer_details?.email || metadata.customerEmail || ''
+
+    console.log(`Creating order ${metadata.orderNumber}: userId=${userId}, email=${customerEmail}, total=${totalParsed}`)
+
     const { data: order, error: orderError } = await supabaseAdmin
       .from('orders')
       .insert({
         order_number: metadata.orderNumber,
-        user_id: metadata.userId || null,
-        customer_email: session.customer_details?.email || session.customer_email || '',
-        customer_name: metadata.customerName,
-        customer_phone: metadata.customerPhone,
-        delivery_address_line_1: metadata.deliveryAddressLine1,
+        user_id: userId,
+        customer_email: customerEmail,
+        customer_name: metadata.customerName || 'Customer',
+        customer_phone: metadata.customerPhone || '',
+        delivery_address_line_1: metadata.deliveryAddressLine1 || '',
         delivery_address_line_2: metadata.deliveryAddressLine2 || null,
-        delivery_city: metadata.deliveryCity,
+        delivery_city: metadata.deliveryCity || '',
         delivery_county: metadata.deliveryCounty || null,
-        delivery_postcode: metadata.deliveryPostcode,
+        delivery_postcode: metadata.deliveryPostcode || '',
         delivery_instructions: metadata.deliveryInstructions || null,
         subtotal_pence: subtotalParsed,
         delivery_fee_pence: deliveryFeeParsed,
@@ -197,7 +203,7 @@ async function createOrder(session: Stripe.Checkout.Session) {
       .single()
 
     if (orderError) {
-      console.error('Error creating order:', orderError)
+      console.error('Error creating order:', orderError.message, orderError.details, orderError.hint, orderError.code)
       return
     }
 
