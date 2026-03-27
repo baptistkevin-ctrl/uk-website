@@ -144,8 +144,9 @@ export async function GET(request: NextRequest) {
 
     const ordersByStatus = {
       pending: orders.filter(o => o.status === 'pending').length,
+      confirmed: orders.filter(o => o.status === 'confirmed').length,
       processing: orders.filter(o => o.status === 'processing').length,
-      shipped: orders.filter(o => o.status === 'shipped').length,
+      shipped: orders.filter(o => o.status === 'out_for_delivery' || o.status === 'ready_for_delivery').length,
       delivered: orders.filter(o => o.status === 'delivered').length,
       cancelled: orders.filter(o => o.status === 'cancelled').length,
     }

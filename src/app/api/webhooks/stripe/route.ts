@@ -34,36 +34,44 @@ export async function POST(request: Request) {
   }
 
   // Handle the event
-  switch (event.type) {
-    case 'checkout.session.completed': {
-      const session = event.data.object as Stripe.Checkout.Session
+  try {
+    switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session
+        console.log(`[WEBHOOK] checkout.session.completed: ${session.id}, payment_status=${session.payment_status}`)
 
-      if (session.payment_status === 'paid') {
-        await createOrder(session)
+        if (session.payment_status === 'paid') {
+          await createOrder(session)
+        }
+        break
       }
-      break
-    }
 
-    case 'checkout.session.async_payment_succeeded': {
-      const session = event.data.object as Stripe.Checkout.Session
-      await createOrder(session)
-      break
-    }
+      case 'checkout.session.async_payment_succeeded': {
+        const session = event.data.object as Stripe.Checkout.Session
+        console.log(`[WEBHOOK] async_payment_succeeded: ${session.id}`)
+        await createOrder(session)
+        break
+      }
 
-    case 'checkout.session.async_payment_failed': {
-      const session = event.data.object as Stripe.Checkout.Session
-      console.error('Payment failed for session:', session.id)
-      break
-    }
+      case 'checkout.session.async_payment_failed': {
+        const session = event.data.object as Stripe.Checkout.Session
+        console.error('Payment failed for session:', session.id)
+        break
+      }
 
-    case 'account.updated': {
-      const account = event.data.object as Stripe.Account
-      await updateVendorStripeStatus(account)
-      break
-    }
+      case 'account.updated': {
+        const account = event.data.object as Stripe.Account
+        await updateVendorStripeStatus(account)
+        break
+      }
 
-    default:
-      console.log(`Unhandled event type: ${event.type}`)
+      default:
+        console.log(`Unhandled event type: ${event.type}`)
+    }
+  } catch (error) {
+    console.error(`[WEBHOOK] CRITICAL ERROR processing ${event.type}:`, error)
+    // Return 500 so Stripe retries the webhook
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }
 
   return NextResponse.json({ received: true })
@@ -108,12 +116,13 @@ async function updateVendorStripeStatus(account: Stripe.Account) {
 }
 
 async function createOrder(session: Stripe.Checkout.Session) {
+  console.log(`[createOrder] START for session ${session.id}`)
   const metadata = session.metadata
   const supabaseAdmin = getSupabaseAdmin()
 
   if (!metadata) {
-    console.error('No metadata in session')
-    return
+    console.error('[createOrder] No metadata in session')
+    throw new Error('No metadata in session')
   }
 
   // Idempotency check: skip if order already exists for this checkout session
@@ -124,124 +133,131 @@ async function createOrder(session: Stripe.Checkout.Session) {
     .maybeSingle()
 
   if (existingOrder) {
-    console.log(`Order already exists for session ${session.id}, skipping duplicate`)
-    return
+    console.log(`[createOrder] Order already exists for session ${session.id}, skipping duplicate`)
+    return // This is OK - not an error, just a duplicate
   }
 
   // Validate required metadata fields
   if (!metadata.orderNumber || !metadata.subtotal || !metadata.total) {
-    console.error('Missing required metadata fields in session:', session.id)
-    return
+    console.error('[createOrder] Missing required metadata fields:', JSON.stringify({ orderNumber: metadata.orderNumber, subtotal: metadata.subtotal, total: metadata.total }))
+    throw new Error(`Missing required metadata fields in session: ${session.id}`)
+  }
+
+  // Safe JSON parsing with validation
+  let items: Array<{ productId: string; name: string; price: number; quantity: number; image?: string; vendorId?: string }>
+  let vendorBreakdown: Record<string, { amount: number; commission: number; net: number }>
+
+  try {
+    items = JSON.parse(metadata.items || '[]')
+  } catch {
+    console.error('[createOrder] Failed to parse items metadata')
+    throw new Error(`Failed to parse items metadata for session: ${session.id}`)
   }
 
   try {
-    // Safe JSON parsing with validation
-    let items: Array<{ productId: string; name: string; price: number; quantity: number; image?: string; vendorId?: string }>
-    let vendorBreakdown: Record<string, { amount: number; commission: number; net: number }>
+    vendorBreakdown = JSON.parse(metadata.vendorBreakdown || '{}')
+  } catch {
+    console.error('[createOrder] Failed to parse vendorBreakdown metadata, using empty')
+    vendorBreakdown = {}
+  }
 
+  if (!Array.isArray(items) || items.length === 0) {
+    console.error('[createOrder] No valid items in order metadata')
+    throw new Error(`No valid items in order metadata for session: ${session.id}`)
+  }
+
+  // Validate parsed numeric fields
+  const subtotalParsed = parseInt(metadata.subtotal)
+  const deliveryFeeParsed = parseInt(metadata.deliveryFee || '0')
+  const totalParsed = parseInt(metadata.total)
+
+  if (isNaN(subtotalParsed) || isNaN(deliveryFeeParsed) || isNaN(totalParsed)) {
+    console.error('[createOrder] Invalid numeric metadata')
+    throw new Error(`Invalid numeric metadata in session: ${session.id}`)
+  }
+
+  // Create order
+  // userId can be empty string from metadata - treat as null for FK constraint
+  const userId = metadata.userId && metadata.userId.length > 0 ? metadata.userId : null
+  const customerEmail = session.customer_details?.email || metadata.customerEmail || ''
+
+  console.log(`[createOrder] Creating order ${metadata.orderNumber}: userId=${userId}, email=${customerEmail}, total=${totalParsed}`)
+
+  const { data: order, error: orderError } = await supabaseAdmin
+    .from('orders')
+    .insert({
+      order_number: metadata.orderNumber,
+      user_id: userId,
+      customer_email: customerEmail,
+      customer_name: metadata.customerName || 'Customer',
+      customer_phone: metadata.customerPhone || '',
+      delivery_address_line_1: metadata.deliveryAddressLine1 || '',
+      delivery_address_line_2: metadata.deliveryAddressLine2 || null,
+      delivery_city: metadata.deliveryCity || '',
+      delivery_county: metadata.deliveryCounty || null,
+      delivery_postcode: metadata.deliveryPostcode || '',
+      delivery_instructions: metadata.deliveryInstructions || null,
+      subtotal_pence: subtotalParsed,
+      delivery_fee_pence: deliveryFeeParsed,
+      total_pence: totalParsed,
+      stripe_checkout_session_id: session.id,
+      stripe_payment_intent_id: session.payment_intent as string,
+      payment_status: 'paid',
+      status: 'confirmed',
+      paid_at: new Date().toISOString(),
+      confirmed_at: new Date().toISOString(),
+    })
+    .select()
+    .single()
+
+  if (orderError) {
+    console.error('[createOrder] Error creating order:', orderError.message, orderError.details, orderError.hint, orderError.code)
+    throw new Error(`Failed to create order: ${orderError.message}`)
+  }
+
+  console.log(`[createOrder] Order created: ${order.order_number} (${order.id})`)
+
+  // Create order items with vendor info
+  const orderItems = items.map((item: { productId: string; name: string; price: number; quantity: number; image?: string; vendorId?: string }) => ({
+    order_id: order.id,
+    product_id: item.productId,
+    product_name: item.name,
+    product_image_url: item.image || null,
+    quantity: item.quantity,
+    unit_price_pence: item.price,
+    total_price_pence: item.price * item.quantity,
+    vendor_id: item.vendorId || null,
+  }))
+
+  const { error: itemsError } = await supabaseAdmin
+    .from('order_items')
+    .insert(orderItems)
+
+  if (itemsError) {
+    console.error('[createOrder] Error creating order items:', itemsError)
+  }
+
+  // Update product stock (non-critical, don't throw)
+  for (const item of items) {
     try {
-      items = JSON.parse(metadata.items || '[]')
-    } catch {
-      console.error('Failed to parse items metadata for session:', session.id)
-      return
-    }
-
-    try {
-      vendorBreakdown = JSON.parse(metadata.vendorBreakdown || '{}')
-    } catch {
-      console.error('Failed to parse vendorBreakdown metadata for session:', session.id)
-      vendorBreakdown = {}
-    }
-
-    if (!Array.isArray(items) || items.length === 0) {
-      console.error('No valid items in order metadata for session:', session.id)
-      return
-    }
-
-    // Validate parsed numeric fields
-    const subtotalParsed = parseInt(metadata.subtotal)
-    const deliveryFeeParsed = parseInt(metadata.deliveryFee || '0')
-    const totalParsed = parseInt(metadata.total)
-
-    if (isNaN(subtotalParsed) || isNaN(deliveryFeeParsed) || isNaN(totalParsed)) {
-      console.error('Invalid numeric metadata in session:', session.id)
-      return
-    }
-
-    // Create order
-    // userId can be empty string from metadata - treat as null for FK constraint
-    const userId = metadata.userId && metadata.userId.length > 0 ? metadata.userId : null
-    const customerEmail = session.customer_details?.email || metadata.customerEmail || ''
-
-    console.log(`Creating order ${metadata.orderNumber}: userId=${userId}, email=${customerEmail}, total=${totalParsed}`)
-
-    const { data: order, error: orderError } = await supabaseAdmin
-      .from('orders')
-      .insert({
-        order_number: metadata.orderNumber,
-        user_id: userId,
-        customer_email: customerEmail,
-        customer_name: metadata.customerName || 'Customer',
-        customer_phone: metadata.customerPhone || '',
-        delivery_address_line_1: metadata.deliveryAddressLine1 || '',
-        delivery_address_line_2: metadata.deliveryAddressLine2 || null,
-        delivery_city: metadata.deliveryCity || '',
-        delivery_county: metadata.deliveryCounty || null,
-        delivery_postcode: metadata.deliveryPostcode || '',
-        delivery_instructions: metadata.deliveryInstructions || null,
-        subtotal_pence: subtotalParsed,
-        delivery_fee_pence: deliveryFeeParsed,
-        total_pence: totalParsed,
-        stripe_checkout_session_id: session.id,
-        stripe_payment_intent_id: session.payment_intent as string,
-        payment_status: 'paid',
-        status: 'confirmed',
-        paid_at: new Date().toISOString(),
-        confirmed_at: new Date().toISOString(),
-      })
-      .select()
-      .single()
-
-    if (orderError) {
-      console.error('Error creating order:', orderError.message, orderError.details, orderError.hint, orderError.code)
-      return
-    }
-
-    // Create order items with vendor info
-    const orderItems = items.map((item: { productId: string; name: string; price: number; quantity: number; image?: string; vendorId?: string }) => ({
-      order_id: order.id,
-      product_id: item.productId,
-      product_name: item.name,
-      product_image_url: item.image || null,
-      quantity: item.quantity,
-      unit_price_pence: item.price,
-      total_price_pence: item.price * item.quantity,
-      vendor_id: item.vendorId || null,
-    }))
-
-    const { error: itemsError } = await supabaseAdmin
-      .from('order_items')
-      .insert(orderItems)
-
-    if (itemsError) {
-      console.error('Error creating order items:', itemsError)
-    }
-
-    // Update product stock
-    for (const item of items) {
       await supabaseAdmin.rpc('decrement_stock', {
         product_id: item.productId,
         quantity: item.quantity,
       })
+    } catch (stockError) {
+      console.error('[createOrder] Error decrementing stock:', stockError)
     }
-
-    // Process vendor orders and transfers
-    await processVendorPayments(order.id, vendorBreakdown, session.payment_intent as string, items, supabaseAdmin)
-
-    console.log('Order created successfully:', order.order_number)
-  } catch (error) {
-    console.error('Error processing webhook:', error)
   }
+
+  // Process vendor orders and transfers (non-critical for order creation, don't throw)
+  try {
+    await processVendorPayments(order.id, vendorBreakdown, session.payment_intent as string, items, supabaseAdmin)
+  } catch (vendorError) {
+    console.error('[createOrder] Error processing vendor payments:', vendorError)
+    // Don't throw - order was created successfully, vendor payments can be retried
+  }
+
+  console.log(`[createOrder] SUCCESS: ${order.order_number}`)
 }
 
 async function processVendorPayments(

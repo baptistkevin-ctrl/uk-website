@@ -248,6 +248,7 @@ interface DashboardData {
   orders: {
     byStatus: {
       pending: number
+      confirmed: number
       processing: number
       shipped: number
       delivered: number
@@ -614,6 +615,7 @@ export default function AdminDashboard() {
   // Order status data for donut chart
   const orderStatusData = data ? [
     { value: data.orders.byStatus.pending, color: '#f59e0b', label: 'Pending' },
+    { value: data.orders.byStatus.confirmed, color: '#8b5cf6', label: 'Confirmed' },
     { value: data.orders.byStatus.processing, color: '#3b82f6', label: 'Processing' },
     { value: data.orders.byStatus.shipped, color: '#6366f1', label: 'Shipped' },
     { value: data.orders.byStatus.delivered, color: '#10b981', label: 'Delivered' },
@@ -1029,7 +1031,8 @@ export default function AdminDashboard() {
                 >
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${
                     order.status === 'delivered' ? 'bg-emerald-500' :
-                    order.status === 'shipped' ? 'bg-blue-500' :
+                    order.status === 'confirmed' ? 'bg-purple-500' :
+                    order.status === 'shipped' || order.status === 'out_for_delivery' ? 'bg-blue-500' :
                     order.status === 'processing' ? 'bg-amber-500' :
                     order.status === 'cancelled' ? 'bg-red-500' :
                     'bg-slate-500'
