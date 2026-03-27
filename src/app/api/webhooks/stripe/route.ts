@@ -230,7 +230,7 @@ async function createOrder(session: Stripe.Checkout.Session) {
     }
 
     // Process vendor orders and transfers
-    await processVendorPayments(order.id, vendorBreakdown, session.payment_intent as string, supabaseAdmin)
+    await processVendorPayments(order.id, vendorBreakdown, session.payment_intent as string, items, supabaseAdmin)
 
     console.log('Order created successfully:', order.order_number)
   } catch (error) {
@@ -242,10 +242,42 @@ async function processVendorPayments(
   orderId: string,
   vendorBreakdown: Record<string, { amount: number; commission: number; net: number }>,
   paymentIntentId: string,
+  orderItems: Array<{ productId: string; vendorId?: string; price: number; quantity: number }>,
   supabaseAdmin: ReturnType<typeof getSupabaseAdmin>
 ) {
-  // Get vendor Stripe account IDs
-  const vendorIds = Object.keys(vendorBreakdown).filter(id => id !== 'platform')
+  // Build vendor breakdown from order items if metadata was truncated/empty
+  let effectiveBreakdown = vendorBreakdown
+  const vendorIdsFromBreakdown = Object.keys(effectiveBreakdown).filter(id => id !== 'platform')
+
+  if (vendorIdsFromBreakdown.length === 0 && orderItems.length > 0) {
+    // Rebuild breakdown from order items
+    console.log('Rebuilding vendor breakdown from order items')
+    const itemsByVendor: Record<string, number> = {}
+    for (const item of orderItems) {
+      if (item.vendorId) {
+        itemsByVendor[item.vendorId] = (itemsByVendor[item.vendorId] || 0) + (item.price * item.quantity)
+      }
+    }
+
+    // Fetch commission rates
+    const vIds = Object.keys(itemsByVendor)
+    if (vIds.length > 0) {
+      const { data: vendors } = await supabaseAdmin
+        .from('vendors')
+        .select('id, commission_rate')
+        .in('id', vIds)
+
+      effectiveBreakdown = {}
+      for (const vid of vIds) {
+        const amount = itemsByVendor[vid]
+        const rate = vendors?.find(v => v.id === vid)?.commission_rate || 12.5
+        const commission = Math.round(amount * (rate / 100))
+        effectiveBreakdown[vid] = { amount, commission, net: amount - commission }
+      }
+    }
+  }
+
+  const vendorIds = Object.keys(effectiveBreakdown).filter(id => id !== 'platform')
 
   if (vendorIds.length === 0) {
     console.log('No vendor items in this order')
@@ -263,9 +295,28 @@ async function processVendorPayments(
     return
   }
 
+  // Get the charge ID from the payment intent (Stripe transfers need charge ID, not PI ID)
+  let chargeId: string | null = null
+  if (paymentIntentId) {
+    try {
+      const paymentIntent = await getStripe().paymentIntents.retrieve(paymentIntentId, {
+        expand: ['latest_charge'],
+      })
+      const latestCharge = paymentIntent.latest_charge
+      if (typeof latestCharge === 'string') {
+        chargeId = latestCharge
+      } else if (latestCharge && typeof latestCharge === 'object' && 'id' in latestCharge) {
+        chargeId = latestCharge.id
+      }
+      console.log(`Resolved charge ID: ${chargeId} from payment intent: ${paymentIntentId}`)
+    } catch (piError) {
+      console.error('Error retrieving payment intent for charge ID:', piError)
+    }
+  }
+
   // Create vendor orders and initiate transfers
   for (const vendor of vendors) {
-    const breakdown = vendorBreakdown[vendor.id]
+    const breakdown = effectiveBreakdown[vendor.id]
     if (!breakdown) continue
 
     // Create vendor order record
@@ -290,18 +341,25 @@ async function processVendorPayments(
     // If vendor has a Stripe Connect account, initiate transfer
     if (vendor.stripe_account_id && breakdown.net > 0) {
       try {
-        const transfer = await getStripe().transfers.create({
+        // Build transfer params - use charge ID if available, otherwise skip source_transaction
+        const transferParams: Stripe.TransferCreateParams = {
           amount: breakdown.net,
           currency: 'gbp',
           destination: vendor.stripe_account_id,
           transfer_group: orderId,
-          source_transaction: paymentIntentId,
           metadata: {
             order_id: orderId,
             vendor_id: vendor.id,
             vendor_order_id: vendorOrder.id,
           },
-        })
+        }
+
+        // source_transaction requires a charge ID (ch_), not payment intent (pi_)
+        if (chargeId) {
+          transferParams.source_transaction = chargeId
+        }
+
+        const transfer = await getStripe().transfers.create(transferParams)
 
         // Update vendor order with transfer info
         await supabaseAdmin
@@ -312,7 +370,7 @@ async function processVendorPayments(
           })
           .eq('id', vendorOrder.id)
 
-        console.log(`Transfer ${transfer.id} created for vendor ${vendor.id}`)
+        console.log(`Transfer ${transfer.id} created for vendor ${vendor.id}: ${breakdown.net} pence (${breakdown.amount} total - ${breakdown.commission} commission)`)
       } catch (transferError) {
         console.error(`Error creating transfer for vendor ${vendor.id}:`, transferError)
 
