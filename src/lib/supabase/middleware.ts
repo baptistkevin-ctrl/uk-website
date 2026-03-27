@@ -24,8 +24,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.next({ request })
   }
 
-  // Threat detection for API routes
-  if (pathname.startsWith('/api/')) {
+  // Threat detection for API routes (skip webhooks - they use their own signature verification)
+  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/webhooks/')) {
     // Validate request size
     const sizeCheck = validateContentLength(request)
     if (!sizeCheck.valid && sizeCheck.error) {
@@ -90,7 +90,8 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Rate limiting for general API endpoints (search, products, etc.)
-  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth') && !pathname.startsWith('/api/admin') && !pathname.startsWith('/api/upload')) {
+  // Skip webhooks - they use their own signature verification and can burst
+  if (pathname.startsWith('/api/') && !pathname.startsWith('/api/auth') && !pathname.startsWith('/api/admin') && !pathname.startsWith('/api/upload') && !pathname.startsWith('/api/webhooks/')) {
     const rateLimitResult = checkRateLimit(request, rateLimitConfigs.api)
     if (!rateLimitResult.allowed) {
       logRateLimitViolation(request, pathname, rateLimitResult.identifier)
