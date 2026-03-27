@@ -97,7 +97,6 @@ export async function POST(request: NextRequest) {
       stock_quantity,
       low_stock_threshold,
       unit,
-      weight,
       image_url,
       images,
       sku,
@@ -129,7 +128,7 @@ export async function POST(request: NextRequest) {
       counter++
     }
 
-    // Create product
+    // Create product (category_id is NOT a column in products - it's in product_categories)
     const { data: product, error: productError } = await supabaseAdmin
       .from('products')
       .insert({
@@ -139,11 +138,9 @@ export async function POST(request: NextRequest) {
         description,
         price_pence,
         compare_at_price_pence: compare_at_price_pence || null,
-        category_id: category_id || null,
         stock_quantity: stock_quantity || 0,
         low_stock_threshold: low_stock_threshold || 10,
         unit: unit || 'each',
-        weight: weight || null,
         image_url,
         images: images || [],
         sku: sku || null,
@@ -159,7 +156,17 @@ export async function POST(request: NextRequest) {
 
     if (productError) {
       console.error('Product creation error:', productError)
-      return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to create product', details: productError.message }, { status: 500 })
+    }
+
+    // Link product to category if provided
+    if (category_id && product) {
+      await supabaseAdmin
+        .from('product_categories')
+        .insert({
+          product_id: product.id,
+          category_id: category_id,
+        })
     }
 
     return NextResponse.json({ product }, { status: 201 })

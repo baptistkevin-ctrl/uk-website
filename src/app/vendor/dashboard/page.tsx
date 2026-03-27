@@ -248,7 +248,7 @@ export default function VendorDashboard() {
           </div>
           <p className="text-2xl font-bold text-gray-900">{formatPrice(stats?.pendingPayout || 0)}</p>
           <p className="text-sm text-gray-600">Pending Payout</p>
-          <p className="text-xs text-gray-500 mt-1">After {vendor?.commission_rate || 15}% commission</p>
+          <p className="text-xs text-gray-500 mt-1">After {vendor?.commission_rate || 12.5}% commission</p>
         </div>
       </div>
 

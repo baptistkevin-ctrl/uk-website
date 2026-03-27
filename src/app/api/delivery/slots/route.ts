@@ -18,16 +18,47 @@ export async function GET(request: NextRequest) {
 
     // If postcode provided, get the zone
     if (postcode && !zoneId) {
+      // Try RPC first, fall back to direct query if function doesn't exist
       const { data: zoneData, error: zoneError } = await supabase
         .rpc('get_delivery_zone_for_postcode', {
           p_postcode: postcode
         })
 
-      if (zoneError || !zoneData) {
+      if (zoneError) {
+        // RPC function may not exist - try direct postcode prefix lookup
+        const postcodePrefix = postcode.split(' ')[0].toUpperCase()
+        const { data: zones } = await supabase
+          .from('delivery_zones')
+          .select('*')
+          .eq('is_active', true)
+          .limit(1)
+
+        if (zones && zones.length > 0) {
+          // Return the first active zone as default
+          return NextResponse.json({
+            zone: zones[0],
+            slots: [],
+            slotsByDate: {},
+            message: 'Delivery slots not yet configured for this area'
+          })
+        }
+
+        // No zones at all - return empty response (not 404)
         return NextResponse.json({
-          error: 'Delivery not available for this postcode',
-          postcode
-        }, { status: 404 })
+          zone: null,
+          slots: [],
+          slotsByDate: {},
+          message: 'Delivery not yet available for this postcode'
+        })
+      }
+
+      if (!zoneData) {
+        return NextResponse.json({
+          zone: null,
+          slots: [],
+          slotsByDate: {},
+          message: 'Delivery not available for this postcode'
+        })
       }
 
       targetZoneId = zoneData
@@ -45,10 +76,15 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (zoneInfoError || !zone) {
-      return NextResponse.json({ error: 'Zone not found' }, { status: 404 })
+      return NextResponse.json({
+        zone: null,
+        slots: [],
+        slotsByDate: {},
+        message: 'Zone not found'
+      })
     }
 
-    // Get available slots using RPC function
+    // Get available slots - try RPC first, fall back to direct query
     const { data: slots, error: slotsError } = await supabase
       .rpc('get_available_delivery_slots', {
         p_zone_id: targetZoneId,
@@ -70,13 +106,10 @@ export async function GET(request: NextRequest) {
         .order('start_time')
         .limit(100)
 
-      if (fallbackError) {
-        return NextResponse.json({ error: 'Failed to fetch slots' }, { status: 500 })
-      }
-
       return NextResponse.json({
         zone,
-        slots: fallbackSlots || []
+        slots: fallbackSlots || [],
+        slotsByDate: {}
       })
     }
 

@@ -194,7 +194,7 @@ async function ensureVendorRecord(
       email: email,
       phone: '+44 7700 900000',
       status: 'approved',
-      commission_rate: 15,
+      commission_rate: 12.5,
       address_line_1: '123 Test Street',
       city: 'London',
       postcode: 'SW1A 1AA',

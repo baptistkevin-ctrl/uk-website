@@ -63,9 +63,22 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Rate limiting for sensitive endpoints
-  if (pathname.startsWith('/api/admin') || pathname.startsWith('/api/upload')) {
+  // Rate limiting for upload endpoints (strict)
+  if (pathname.startsWith('/api/upload')) {
     const rateLimitResult = checkRateLimit(request, rateLimitConfigs.sensitive)
+    if (!rateLimitResult.allowed) {
+      logRateLimitViolation(request, pathname, rateLimitResult.identifier)
+      const response = NextResponse.json(
+        { error: 'Rate limit exceeded. Please slow down.' },
+        { status: 429 }
+      )
+      return addRateLimitHeaders(response, rateLimitResult)
+    }
+  }
+
+  // Rate limiting for admin endpoints (use general API limits, not sensitive)
+  if (pathname.startsWith('/api/admin')) {
+    const rateLimitResult = checkRateLimit(request, rateLimitConfigs.api)
     if (!rateLimitResult.allowed) {
       logRateLimitViolation(request, pathname, rateLimitResult.identifier)
       const response = NextResponse.json(

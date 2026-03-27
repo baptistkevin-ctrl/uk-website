@@ -78,19 +78,18 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://js.stripe.com https://maps.googleapis.com",
+      "script-src 'self' 'unsafe-inline' https://js.stripe.com https://connect-js.stripe.com https://maps.googleapis.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: https: blob:",
       "font-src 'self' data: https://fonts.gstatic.com",
-      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://maps.googleapis.com",
-      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+      "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.stripe.com https://maps.googleapis.com",
+      "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://connect-js.stripe.com https://connect.stripe.com https://*.stripe.com",
       "worker-src 'self' blob:",
       "child-src 'self' blob:",
       "object-src 'none'",
       "base-uri 'self'",
-      "form-action 'self'",
+      "form-action 'self' https://*.stripe.com",
       "frame-ancestors 'none'",
-      "block-all-mixed-content",
       "upgrade-insecure-requests"
     ].join('; ')
   },
@@ -253,7 +252,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: '2mb',
       allowedOrigins: [
         'localhost:3000',
-        process.env.NEXT_PUBLIC_APP_URL,
+        process.env.NEXT_PUBLIC_APP_URL?.replace(/^https?:\/\//, ''),
       ].filter((origin): origin is string => Boolean(origin)),
     },
     // Typed routes disabled - codebase uses many dynamic routes

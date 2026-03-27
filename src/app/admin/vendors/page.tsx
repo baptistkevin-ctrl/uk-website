@@ -52,9 +52,15 @@ export default function AdminVendorsPage() {
     try {
       const res = await fetch(`/api/admin/vendors?status=${statusFilter}`)
       const data = await res.json()
+      if (!res.ok || !Array.isArray(data)) {
+        console.error('Fetch vendors error:', data?.error || 'Invalid response')
+        setVendors([])
+        return
+      }
       setVendors(data)
     } catch (error) {
       console.error('Fetch vendors error:', error)
+      setVendors([])
     } finally {
       setLoading(false)
     }

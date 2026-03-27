@@ -269,7 +269,7 @@ export default function VendorPayoutsPage() {
               <span className="font-bold">2</span>
             </div>
             <h3 className="font-medium mb-1">Commission Deducted</h3>
-            <p className="text-sm text-emerald-100">Platform commission ({vendor?.commission_rate || 15}%) is deducted from each sale.</p>
+            <p className="text-sm text-emerald-100">Platform commission ({vendor?.commission_rate || 12.5}%) is deducted from each sale.</p>
           </div>
           <div className="bg-white/10 rounded-lg p-4">
             <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center mb-3">

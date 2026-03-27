@@ -56,11 +56,55 @@ export async function POST(request: Request) {
       break
     }
 
+    case 'account.updated': {
+      const account = event.data.object as Stripe.Account
+      await updateVendorStripeStatus(account)
+      break
+    }
+
     default:
       console.log(`Unhandled event type: ${event.type}`)
   }
 
   return NextResponse.json({ received: true })
+}
+
+async function updateVendorStripeStatus(account: Stripe.Account) {
+  const supabaseAdmin = getSupabaseAdmin()
+
+  try {
+    // Find vendor by stripe_account_id
+    const { data: vendor, error } = await supabaseAdmin
+      .from('vendors')
+      .select('id')
+      .eq('stripe_account_id', account.id)
+      .single()
+
+    if (error || !vendor) {
+      console.log(`No vendor found for Stripe account ${account.id}`)
+      return
+    }
+
+    // Update vendor with latest Stripe status
+    const { error: updateError } = await supabaseAdmin
+      .from('vendors')
+      .update({
+        stripe_charges_enabled: account.charges_enabled,
+        stripe_payouts_enabled: account.payouts_enabled,
+        stripe_onboarding_complete: account.details_submitted && account.charges_enabled,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', vendor.id)
+
+    if (updateError) {
+      console.error('Error updating vendor Stripe status:', updateError)
+      return
+    }
+
+    console.log(`Updated Stripe status for vendor ${vendor.id}: charges=${account.charges_enabled}, payouts=${account.payouts_enabled}, onboarding=${account.details_submitted && account.charges_enabled}`)
+  } catch (error) {
+    console.error('Error in updateVendorStripeStatus:', error)
+  }
 }
 
 async function createOrder(session: Stripe.Checkout.Session) {

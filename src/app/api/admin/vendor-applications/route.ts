@@ -100,7 +100,7 @@ export async function PUT(request: NextRequest) {
           email: application.user?.email || '',
           phone: application.phone,
           status: 'approved',
-          commission_rate: 15.00
+          commission_rate: 12.50
         })
         .select()
         .single()

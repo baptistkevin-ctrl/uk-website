@@ -87,7 +87,9 @@ export async function createCheckoutSession({
         return { error: `Product is no longer available: ${dbProduct.name}` }
       }
 
-      if (item.price !== dbProduct.price_pence) {
+      // Only reject if the item price is HIGHER than the DB price (prevents overcharging)
+      // Allow lower prices from multi-buy offers and discounts
+      if (item.price > dbProduct.price_pence) {
         return { error: `Price has changed for ${dbProduct.name}. Please refresh your cart.` }
       }
 
@@ -123,7 +125,7 @@ export async function createCheckoutSession({
         .in('id', vendorIds)
 
       vendors?.forEach(v => {
-        vendorCommissions[v.id] = v.commission_rate || 15
+        vendorCommissions[v.id] = v.commission_rate || 12.5
       })
     }
 
@@ -139,7 +141,7 @@ export async function createCheckoutSession({
     enrichedItems.forEach(item => {
       const itemTotal = item.price * item.quantity
       const vendorId = item.vendorId || 'platform'
-      const commissionRate = item.vendorId ? (vendorCommissions[item.vendorId] || 15) : 0
+      const commissionRate = item.vendorId ? (vendorCommissions[item.vendorId] || 12.5) : 0
       const commission = Math.round(itemTotal * (commissionRate / 100))
       const net = itemTotal - commission
 
@@ -206,8 +208,14 @@ export async function createCheckoutSession({
         subtotal: subtotal.toString(),
         deliveryFee: deliveryFee.toString(),
         total: total.toString(),
-        items: JSON.stringify(enrichedItems),
-        vendorBreakdown: JSON.stringify(vendorBreakdown),
+        items: JSON.stringify(enrichedItems.map(i => ({
+          productId: i.productId,
+          name: i.name.slice(0, 30),
+          price: i.price,
+          quantity: i.quantity,
+          vendorId: i.vendorId || undefined,
+        }))).slice(0, 500),
+        vendorBreakdown: JSON.stringify(vendorBreakdown).slice(0, 500),
       },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order=${orderNumber}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout`,

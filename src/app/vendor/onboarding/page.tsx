@@ -66,13 +66,17 @@ function VendorOnboardingContent() {
   const refreshStripeStatus = async () => {
     setRefreshing(true)
     try {
-      // Call the connect API to refresh status from Stripe
-      const res = await fetch('/api/vendor/stripe/connect', {
-        method: 'POST'
-      })
+      // Call the connect API GET endpoint to check status from Stripe
+      const res = await fetch('/api/vendor/stripe/connect')
       const data = await res.json()
-      if (data.vendor) {
-        setVendor(data.vendor)
+      if (data.onboardingComplete !== undefined) {
+        // Update vendor state with latest Stripe status
+        setVendor((prev: any) => prev ? {
+          ...prev,
+          stripe_onboarding_complete: data.onboardingComplete,
+          stripe_charges_enabled: data.chargesEnabled,
+          stripe_payouts_enabled: data.payoutsEnabled,
+        } : prev)
       }
     } catch (error) {
       console.error('Refresh error:', error)
