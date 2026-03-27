@@ -5,6 +5,38 @@ import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { generateOrderNumber } from '@/lib/utils/format'
 
+// Stripe metadata values have a 500-char limit. This function safely truncates
+// JSON by removing array items from the end rather than slicing mid-string.
+function safeJsonMetadata(data: unknown): string {
+  const json = JSON.stringify(data)
+  if (json.length <= 500) return json
+
+  // If it's an array, remove items from the end until it fits
+  if (Array.isArray(data)) {
+    const arr = [...data]
+    while (arr.length > 0) {
+      arr.pop()
+      const trimmed = JSON.stringify(arr)
+      if (trimmed.length <= 500) return trimmed
+    }
+    return '[]'
+  }
+
+  // For objects, remove keys from the end until it fits
+  if (typeof data === 'object' && data !== null) {
+    const keys = Object.keys(data as Record<string, unknown>)
+    const obj = { ...(data as Record<string, unknown>) }
+    while (keys.length > 0) {
+      delete obj[keys.pop()!]
+      const trimmed = JSON.stringify(obj)
+      if (trimmed.length <= 500) return trimmed
+    }
+    return '{}'
+  }
+
+  return json.slice(0, 500)
+}
+
 interface CheckoutItem {
   productId: string
   name: string
@@ -208,14 +240,14 @@ export async function createCheckoutSession({
         subtotal: subtotal.toString(),
         deliveryFee: deliveryFee.toString(),
         total: total.toString(),
-        items: JSON.stringify(enrichedItems.map(i => ({
+        items: safeJsonMetadata(enrichedItems.map(i => ({
           productId: i.productId,
-          name: i.name.slice(0, 30),
+          name: i.name.slice(0, 20),
           price: i.price,
           quantity: i.quantity,
           vendorId: i.vendorId || undefined,
-        }))).slice(0, 500),
-        vendorBreakdown: JSON.stringify(vendorBreakdown).slice(0, 500),
+        }))),
+        vendorBreakdown: safeJsonMetadata(vendorBreakdown),
       },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}&order=${orderNumber}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout`,

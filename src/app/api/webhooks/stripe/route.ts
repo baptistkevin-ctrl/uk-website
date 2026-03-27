@@ -240,10 +240,20 @@ async function createOrder(session: Stripe.Checkout.Session) {
   // Update product stock (non-critical, don't throw)
   for (const item of items) {
     try {
-      await supabaseAdmin.rpc('decrement_stock', {
-        product_id: item.productId,
-        quantity: item.quantity,
-      })
+      // Fetch current stock then decrement (RPC function doesn't exist, use direct update)
+      const { data: product } = await supabaseAdmin
+        .from('products')
+        .select('stock_quantity')
+        .eq('id', item.productId)
+        .single()
+
+      if (product && product.stock_quantity !== null) {
+        const newStock = Math.max(product.stock_quantity - item.quantity, 0)
+        await supabaseAdmin
+          .from('products')
+          .update({ stock_quantity: newStock })
+          .eq('id', item.productId)
+      }
     } catch (stockError) {
       console.error('[createOrder] Error decrementing stock:', stockError)
     }
