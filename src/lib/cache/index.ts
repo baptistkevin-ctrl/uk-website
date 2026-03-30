@@ -1,7 +1,8 @@
 /**
- * Enterprise caching layer - Redis-ready with in-memory fallback
+ * Enterprise caching layer - Vercel KV (Redis) with in-memory fallback
  *
- * Uses in-memory Map by default. Drop in Redis by setting REDIS_URL env var.
+ * Uses Vercel KV when KV_REST_API_URL is set (auto-injected by Vercel KV).
+ * Falls back to in-memory Map otherwise.
  * All public functions work identically regardless of backend.
  */
 
@@ -115,6 +116,99 @@ class MemoryCacheBackend implements CacheBackend {
 }
 
 // ---------------------------------------------------------------------------
+// Vercel KV backend (Redis - shared across all serverless instances)
+// ---------------------------------------------------------------------------
+
+class VercelKVCacheBackend implements CacheBackend {
+  private kv: typeof import('@vercel/kv').kv | null = null
+  private _hits = 0
+  private _misses = 0
+  private PREFIX = 'cache:'
+  private TAG_PREFIX = 'tag:'
+
+  private async getKV() {
+    if (!this.kv) {
+      const { kv } = await import('@vercel/kv')
+      this.kv = kv
+    }
+    return this.kv
+  }
+
+  async get<T>(key: string): Promise<T | null> {
+    try {
+      const redis = await this.getKV()
+      const value = await redis.get<T>(this.PREFIX + key)
+      if (value === null || value === undefined) {
+        this._misses++
+        return null
+      }
+      this._hits++
+      return value
+    } catch (e) {
+      console.error('[cache:kv] get error:', e)
+      this._misses++
+      return null
+    }
+  }
+
+  async set<T>(key: string, value: T, ttlMs: number, tags: string[] = []) {
+    try {
+      const redis = await this.getKV()
+      const ttlSeconds = Math.max(1, Math.ceil(ttlMs / 1000))
+      await redis.set(this.PREFIX + key, value, { ex: ttlSeconds })
+
+      // Track tags for invalidation
+      for (const tag of tags) {
+        await redis.sadd(this.TAG_PREFIX + tag, key)
+        await redis.expire(this.TAG_PREFIX + tag, ttlSeconds + 60)
+      }
+    } catch (e) {
+      console.error('[cache:kv] set error:', e)
+    }
+  }
+
+  async del(key: string) {
+    try {
+      const redis = await this.getKV()
+      await redis.del(this.PREFIX + key)
+    } catch (e) {
+      console.error('[cache:kv] del error:', e)
+    }
+  }
+
+  async invalidateByTag(tag: string) {
+    try {
+      const redis = await this.getKV()
+      const keys = await redis.smembers(this.TAG_PREFIX + tag)
+      if (keys && keys.length > 0) {
+        const prefixedKeys = keys.map(k => this.PREFIX + k)
+        await redis.del(...prefixedKeys)
+      }
+      await redis.del(this.TAG_PREFIX + tag)
+    } catch (e) {
+      console.error('[cache:kv] invalidateByTag error:', e)
+    }
+  }
+
+  async flush() {
+    // Note: Only flushes tracked keys, not entire Redis
+    this._hits = 0
+    this._misses = 0
+    console.log('[cache:kv] flush requested - use Vercel dashboard to clear KV store')
+  }
+
+  async stats() {
+    try {
+      const redis = await this.getKV()
+      const info = await redis.dbsize()
+      return { hits: this._hits, misses: this._misses, keys: info || 0 }
+    } catch {
+      return { hits: this._hits, misses: this._misses, keys: 0 }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Singleton cache instance
 // ---------------------------------------------------------------------------
 
@@ -122,8 +216,12 @@ let backend: CacheBackend | null = null
 
 function getBackend(): CacheBackend {
   if (!backend) {
-    // Future: if (process.env.REDIS_URL) backend = new RedisCacheBackend(process.env.REDIS_URL)
-    backend = new MemoryCacheBackend()
+    if (process.env.KV_REST_API_URL) {
+      backend = new VercelKVCacheBackend()
+      console.log('[cache] Using Vercel KV (Redis)')
+    } else {
+      backend = new MemoryCacheBackend()
+    }
   }
   return backend
 }
