@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, Package, MapPin, CreditCard, Truck } from 'lucide-react'
+import { ArrowLeft, Package, MapPin, CreditCard, Truck, RotateCcw } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -281,12 +281,20 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             </CardContent>
           </Card>
 
-          {/* Need Help */}
+          {/* Return / Help */}
           <Card>
-            <CardContent className="p-6 text-center">
-              <p className="text-gray-600 mb-4">Need help with this order?</p>
-              <Button variant="outline" className="w-full">
-                Contact Support
+            <CardContent className="p-6 text-center space-y-3">
+              {order.status === 'delivered' && (
+                <Button asChild className="w-full">
+                  <Link href={`/account/returns/new?order=${order.id}`}>
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Request Return
+                  </Link>
+                </Button>
+              )}
+              <p className="text-gray-600 text-sm">Need help with this order?</p>
+              <Button variant="outline" className="w-full" asChild>
+                <Link href="/account/tickets">Contact Support</Link>
               </Button>
             </CardContent>
           </Card>

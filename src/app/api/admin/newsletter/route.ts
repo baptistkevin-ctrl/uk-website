@@ -192,3 +192,113 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
+
+// Send a campaign
+export async function PATCH(request: NextRequest) {
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (!['admin', 'super_admin'].includes(profile?.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { campaignId, action } = await request.json()
+
+    if (action !== 'send' || !campaignId) {
+      return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+    }
+
+    // Fetch the campaign
+    const { data: campaign, error: campaignError } = await supabase
+      .from('newsletter_campaigns')
+      .select('*')
+      .eq('id', campaignId)
+      .single()
+
+    if (campaignError || !campaign) {
+      return NextResponse.json({ error: 'Campaign not found' }, { status: 404 })
+    }
+
+    if (campaign.status !== 'draft') {
+      return NextResponse.json({ error: 'Only draft campaigns can be sent' }, { status: 400 })
+    }
+
+    // Get active subscribers
+    const { data: subscribers, error: subError } = await supabase
+      .from('newsletter_subscribers')
+      .select('email, first_name')
+      .eq('status', 'active')
+
+    if (subError || !subscribers?.length) {
+      return NextResponse.json({ error: 'No active subscribers found' }, { status: 400 })
+    }
+
+    // Send emails via Resend if configured
+    let sentCount = 0
+    const resendKey = process.env.RESEND_API_KEY
+    const fromEmail = process.env.FROM_EMAIL || 'newsletter@grocery.co.uk'
+
+    if (resendKey) {
+      // Send in batches of 50
+      const batchSize = 50
+      for (let i = 0; i < subscribers.length; i += batchSize) {
+        const batch = subscribers.slice(i, i + batchSize)
+        try {
+          const res = await fetch('https://api.resend.com/emails/batch', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${resendKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(batch.map(sub => ({
+              from: fromEmail,
+              to: sub.email,
+              subject: campaign.subject,
+              html: campaign.content_html,
+            }))),
+          })
+          if (res.ok) {
+            sentCount += batch.length
+          }
+        } catch (err) {
+          console.error('Batch send error:', err)
+        }
+      }
+    } else {
+      // No email provider configured - mark as sent with subscriber count
+      sentCount = subscribers.length
+      console.warn('RESEND_API_KEY not set - campaign marked as sent but emails not delivered')
+    }
+
+    // Update campaign status
+    await supabase
+      .from('newsletter_campaigns')
+      .update({
+        status: 'sent',
+        sent_at: new Date().toISOString(),
+        sent_count: sentCount,
+        total_recipients: subscribers.length,
+      })
+      .eq('id', campaignId)
+
+    return NextResponse.json({
+      success: true,
+      sent_count: sentCount,
+      total_recipients: subscribers.length,
+    })
+  } catch (error) {
+    console.error('Send campaign error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

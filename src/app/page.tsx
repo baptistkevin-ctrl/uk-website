@@ -22,7 +22,8 @@ import { HeroSlider } from '@/components/home/HeroSlider'
 import { DealCard } from '@/components/deals'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 
-export const dynamic = 'force-dynamic'
+// ISR: revalidate homepage every 60 seconds for fresh content + performance
+export const revalidate = 60
 
 const features = [
   {

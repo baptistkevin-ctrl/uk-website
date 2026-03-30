@@ -8,7 +8,8 @@ import {
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { Badge } from '@/components/ui/badge'
 
-export const dynamic = 'force-dynamic'
+// ISR: revalidate categories every 5 minutes (rarely changes)
+export const revalidate = 300
 
 export const metadata = {
   title: 'Categories | Fresh Groceries',

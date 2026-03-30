@@ -15,7 +15,8 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import type { Metadata } from 'next'
 
-export const dynamic = 'force-dynamic'
+// ISR: revalidate category product pages every 2 minutes
+export const revalidate = 120
 
 interface CategoryPageProps {
   params: Promise<{

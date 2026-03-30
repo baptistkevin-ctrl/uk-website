@@ -50,3 +50,11 @@ pentest.mjs
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# load testing results
+k6/results.json
+
+# playwright
+/playwright-report/
+/test-results/
+scripts/

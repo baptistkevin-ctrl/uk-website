@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx vercel env ls)",
+      "Bash(npx vercel env pull:*)",
+      "Bash(npx vercel env rm:*)",
+      "Bash(printf:*)",
+      "Bash(npx vercel env add:*)",
+      "Bash(npx vercel --prod)",
+      "Bash(del \"C:\\\\Users\\\\MSI\\\\Desktop\\\\Top Priorty\\\\Uk E-COMMERCE GROCERIS STORE\\\\uk-grocery-store\\\\.env.vercel-check\")",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix deployment: CSP, checkout, webhooks, vendor APIs, 12.5% commission\n\n- Fix CSP to allow Stripe Connect JS \\(connect-js.stripe.com\\)\n- Fix Server Actions allowedOrigins \\(strip https:// prefix\\)\n- Fix checkout price validation to allow discounted items\n- Truncate Stripe metadata to stay under 500 char limit\n- Add account.updated webhook handler for vendor Stripe status sync\n- Fix vendor product creation \\(remove non-existent columns\\)\n- Add vendor routes to CSRF exempt list\n- Fix delivery slots API fallback when RPC functions missing\n- Fix admin vendors page crash on error response\n- Fix rate limiting: use API limits for admin routes\n- Fix vendor onboarding status refresh \\(GET instead of POST\\)\n- Update platform commission rate from 15% to 12.5%\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(npx vercel --prod --yes)",
+      "Bash(findstr:*)",
+      "Bash(find:*)",
+      "Bash(git commit:*)",
+      "Bash(npx vercel logs:*)",
+      "Bash(curl:*)",
+      "Bash(stripe version:*)",
+      "Bash(npx stripe:*)",
+      "Bash(node:*)",
+      "Bash(npx vercel:*)",
+      "Bash(npx supabase:*)",
+      "Bash(where npx:*)",
+      "Bash(npx next build)",
+      "Bash(grep -i \"CREATE INDEX\\\\|CREATE.*INDEX\\\\|CLUSTER\" supabase/migrations/*.sql)",
+      "Bash(grep -i \"CREATE INDEX\\\\|CREATE.*INDEX\" supabase/migrations/*.sql)",
+      "Bash(grep -i \"redis\\\\|bullmq\\\\|queue\\\\|cache\" src/lib/**/*.ts)",
+      "Bash(wc -l src/**/*.ts src/**/*.tsx)"
+    ]
+  }
+}

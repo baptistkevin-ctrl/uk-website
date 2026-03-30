@@ -3,12 +3,26 @@ import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@supabase/supabase-js'
+import { captureError } from '@/lib/error-tracking'
 
 function getSupabaseAdmin() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
+}
+
+// Track processed events to prevent duplicate processing within same instance
+const processedEvents = new Set<string>()
+const MAX_PROCESSED_EVENTS = 10_000
+
+function markEventProcessed(eventId: string) {
+  processedEvents.add(eventId)
+  // Prevent unbounded growth
+  if (processedEvents.size > MAX_PROCESSED_EVENTS) {
+    const first = processedEvents.values().next().value
+    if (first) processedEvents.delete(first)
+  }
 }
 
 export async function POST(request: Request) {
@@ -20,6 +34,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No signature' }, { status: 400 })
   }
 
+  if (!process.env.STRIPE_WEBHOOK_SECRET) {
+    captureError('STRIPE_WEBHOOK_SECRET not configured', { context: 'webhook:stripe', level: 'fatal' })
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 })
+  }
+
   let event: Stripe.Event
 
   try {
@@ -29,8 +48,17 @@ export async function POST(request: Request) {
       process.env.STRIPE_WEBHOOK_SECRET!
     )
   } catch (err) {
-    console.error('Webhook signature verification failed:', err)
+    captureError(err instanceof Error ? err : new Error(String(err)), {
+      context: 'webhook:stripe:signature',
+      level: 'warning',
+    })
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
+  }
+
+  // In-memory idempotency: skip if already processed in this instance
+  if (processedEvents.has(event.id)) {
+    console.log(`[WEBHOOK] Skipping already-processed event: ${event.id}`)
+    return NextResponse.json({ received: true, duplicate: true })
   }
 
   // Handle the event
@@ -41,7 +69,7 @@ export async function POST(request: Request) {
         console.log(`[WEBHOOK] checkout.session.completed: ${session.id}, payment_status=${session.payment_status}`)
 
         if (session.payment_status === 'paid') {
-          await createOrder(session)
+          await createOrder(session, event.id)
         }
         break
       }
@@ -49,13 +77,17 @@ export async function POST(request: Request) {
       case 'checkout.session.async_payment_succeeded': {
         const session = event.data.object as Stripe.Checkout.Session
         console.log(`[WEBHOOK] async_payment_succeeded: ${session.id}`)
-        await createOrder(session)
+        await createOrder(session, event.id)
         break
       }
 
       case 'checkout.session.async_payment_failed': {
         const session = event.data.object as Stripe.Checkout.Session
-        console.error('Payment failed for session:', session.id)
+        captureError(`Payment failed for session: ${session.id}`, {
+          context: 'webhook:stripe:payment_failed',
+          level: 'warning',
+          extra: { sessionId: session.id, customerEmail: session.customer_details?.email },
+        })
         break
       }
 
@@ -68,8 +100,14 @@ export async function POST(request: Request) {
       default:
         console.log(`Unhandled event type: ${event.type}`)
     }
+
+    markEventProcessed(event.id)
   } catch (error) {
-    console.error(`[WEBHOOK] CRITICAL ERROR processing ${event.type}:`, error)
+    captureError(error instanceof Error ? error : new Error(String(error)), {
+      context: 'webhook:stripe:processing',
+      level: 'fatal',
+      extra: { eventType: event.type, eventId: event.id },
+    })
     // Return 500 so Stripe retries the webhook
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 })
   }
@@ -105,41 +143,45 @@ async function updateVendorStripeStatus(account: Stripe.Account) {
       .eq('id', vendor.id)
 
     if (updateError) {
-      console.error('Error updating vendor Stripe status:', updateError)
+      captureError(new Error(`Failed to update vendor Stripe status: ${updateError.message}`), {
+        context: 'webhook:stripe:vendor_update',
+        extra: { vendorId: vendor.id, accountId: account.id },
+      })
       return
     }
 
-    console.log(`Updated Stripe status for vendor ${vendor.id}: charges=${account.charges_enabled}, payouts=${account.payouts_enabled}, onboarding=${account.details_submitted && account.charges_enabled}`)
+    console.log(`Updated Stripe status for vendor ${vendor.id}: charges=${account.charges_enabled}, payouts=${account.payouts_enabled}`)
   } catch (error) {
-    console.error('Error in updateVendorStripeStatus:', error)
+    captureError(error instanceof Error ? error : new Error(String(error)), {
+      context: 'webhook:stripe:vendor_status',
+      extra: { accountId: account.id },
+    })
   }
 }
 
-async function createOrder(session: Stripe.Checkout.Session) {
-  console.log(`[createOrder] START for session ${session.id}`)
+async function createOrder(session: Stripe.Checkout.Session, eventId: string) {
+  console.log(`[createOrder] START for session ${session.id} (event: ${eventId})`)
   const metadata = session.metadata
   const supabaseAdmin = getSupabaseAdmin()
 
   if (!metadata) {
-    console.error('[createOrder] No metadata in session')
-    throw new Error('No metadata in session')
+    throw new Error(`No metadata in session ${session.id}`)
   }
 
-  // Idempotency check: skip if order already exists for this checkout session
+  // DB-level idempotency: skip if order already exists for this checkout session
   const { data: existingOrder } = await supabaseAdmin
     .from('orders')
-    .select('id')
+    .select('id, order_number')
     .eq('stripe_checkout_session_id', session.id)
     .maybeSingle()
 
   if (existingOrder) {
-    console.log(`[createOrder] Order already exists for session ${session.id}, skipping duplicate`)
-    return // This is OK - not an error, just a duplicate
+    console.log(`[createOrder] Order ${existingOrder.order_number} already exists for session ${session.id}, skipping`)
+    return
   }
 
   // Validate required metadata fields
   if (!metadata.orderNumber || !metadata.subtotal || !metadata.total) {
-    console.error('[createOrder] Missing required metadata fields:', JSON.stringify({ orderNumber: metadata.orderNumber, subtotal: metadata.subtotal, total: metadata.total }))
     throw new Error(`Missing required metadata fields in session: ${session.id}`)
   }
 
@@ -150,19 +192,16 @@ async function createOrder(session: Stripe.Checkout.Session) {
   try {
     items = JSON.parse(metadata.items || '[]')
   } catch {
-    console.error('[createOrder] Failed to parse items metadata')
     throw new Error(`Failed to parse items metadata for session: ${session.id}`)
   }
 
   try {
     vendorBreakdown = JSON.parse(metadata.vendorBreakdown || '{}')
   } catch {
-    console.error('[createOrder] Failed to parse vendorBreakdown metadata, using empty')
     vendorBreakdown = {}
   }
 
   if (!Array.isArray(items) || items.length === 0) {
-    console.error('[createOrder] No valid items in order metadata')
     throw new Error(`No valid items in order metadata for session: ${session.id}`)
   }
 
@@ -172,17 +211,16 @@ async function createOrder(session: Stripe.Checkout.Session) {
   const totalParsed = parseInt(metadata.total)
 
   if (isNaN(subtotalParsed) || isNaN(deliveryFeeParsed) || isNaN(totalParsed)) {
-    console.error('[createOrder] Invalid numeric metadata')
     throw new Error(`Invalid numeric metadata in session: ${session.id}`)
   }
 
-  // Create order
   // userId can be empty string from metadata - treat as null for FK constraint
   const userId = metadata.userId && metadata.userId.length > 0 ? metadata.userId : null
   const customerEmail = session.customer_details?.email || metadata.customerEmail || ''
 
   console.log(`[createOrder] Creating order ${metadata.orderNumber}: userId=${userId}, email=${customerEmail}, total=${totalParsed}`)
 
+  // Create order
   const { data: order, error: orderError } = await supabaseAdmin
     .from('orders')
     .insert({
@@ -211,14 +249,17 @@ async function createOrder(session: Stripe.Checkout.Session) {
     .single()
 
   if (orderError) {
-    console.error('[createOrder] Error creating order:', orderError.message, orderError.details, orderError.hint, orderError.code)
+    captureError(new Error(`Failed to create order: ${orderError.message}`), {
+      context: 'webhook:stripe:create_order',
+      extra: { sessionId: session.id, orderNumber: metadata.orderNumber, code: orderError.code },
+    })
     throw new Error(`Failed to create order: ${orderError.message}`)
   }
 
   console.log(`[createOrder] Order created: ${order.order_number} (${order.id})`)
 
   // Create order items with vendor info
-  const orderItems = items.map((item: { productId: string; name: string; price: number; quantity: number; image?: string; vendorId?: string }) => ({
+  const orderItems = items.map((item) => ({
     order_id: order.id,
     product_id: item.productId,
     product_name: item.name,
@@ -234,13 +275,15 @@ async function createOrder(session: Stripe.Checkout.Session) {
     .insert(orderItems)
 
   if (itemsError) {
-    console.error('[createOrder] Error creating order items:', itemsError)
+    captureError(new Error(`Failed to create order items: ${itemsError.message}`), {
+      context: 'webhook:stripe:order_items',
+      extra: { orderId: order.id },
+    })
   }
 
   // Update product stock (non-critical, don't throw)
   for (const item of items) {
     try {
-      // Fetch current stock then decrement (RPC function doesn't exist, use direct update)
       const { data: product } = await supabaseAdmin
         .from('products')
         .select('stock_quantity')
@@ -255,19 +298,119 @@ async function createOrder(session: Stripe.Checkout.Session) {
           .eq('id', item.productId)
       }
     } catch (stockError) {
-      console.error('[createOrder] Error decrementing stock:', stockError)
+      captureError(stockError instanceof Error ? stockError : new Error(String(stockError)), {
+        context: 'webhook:stripe:stock_update',
+        extra: { productId: item.productId, orderId: order.id },
+      })
     }
   }
 
-  // Process vendor orders and transfers (non-critical for order creation, don't throw)
+  // Process vendor orders and transfers (non-critical for order creation)
   try {
     await processVendorPayments(order.id, vendorBreakdown, session.payment_intent as string, items, supabaseAdmin)
   } catch (vendorError) {
-    console.error('[createOrder] Error processing vendor payments:', vendorError)
-    // Don't throw - order was created successfully, vendor payments can be retried
+    captureError(vendorError instanceof Error ? vendorError : new Error(String(vendorError)), {
+      context: 'webhook:stripe:vendor_payments',
+      extra: { orderId: order.id },
+    })
+  }
+
+  // Award loyalty points (non-critical, logged-in users only)
+  if (userId) {
+    try {
+      const { awardOrderPoints } = await import('@/lib/automation/loyalty-points')
+      // Check if this is the user's first order
+      const { count } = await supabaseAdmin
+        .from('orders')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .neq('id', order.id)
+
+      const isFirstOrder = (count || 0) === 0
+      const result = await awardOrderPoints(userId, order.id, totalParsed, isFirstOrder)
+      if (result.success) {
+        console.log(`[createOrder] Awarded ${result.points_awarded} loyalty points to user ${userId}`)
+      }
+    } catch (loyaltyError) {
+      captureError(loyaltyError instanceof Error ? loyaltyError : new Error(String(loyaltyError)), {
+        context: 'webhook:stripe:loyalty_points',
+        extra: { orderId: order.id, userId },
+      })
+    }
+  }
+
+  // Send order confirmation email (non-critical)
+  try {
+    await sendOrderConfirmationEmail(order, items, customerEmail)
+  } catch (emailError) {
+    captureError(emailError instanceof Error ? emailError : new Error(String(emailError)), {
+      context: 'webhook:stripe:confirmation_email',
+      extra: { orderId: order.id, email: customerEmail },
+    })
   }
 
   console.log(`[createOrder] SUCCESS: ${order.order_number}`)
+}
+
+async function sendOrderConfirmationEmail(
+  order: { id: string; order_number: string; total_pence: number; delivery_address_line_1: string; delivery_postcode: string },
+  items: Array<{ name: string; price: number; quantity: number }>,
+  customerEmail: string
+) {
+  if (!process.env.RESEND_API_KEY || !customerEmail) return
+
+  const { Resend } = await import('resend')
+  const resend = new Resend(process.env.RESEND_API_KEY)
+
+  const itemRows = items
+    .map((item) => `${item.name} x${item.quantity} - £${(item.price * item.quantity / 100).toFixed(2)}`)
+    .join('\n')
+
+  await resend.emails.send({
+    from: 'Fresh Groceries <orders@freshgroceries.co.uk>',
+    to: customerEmail,
+    subject: `Order Confirmed - ${order.order_number}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: linear-gradient(135deg, #22c55e, #14b8a6); padding: 32px; text-align: center; border-radius: 12px 12px 0 0;">
+          <h1 style="color: white; margin: 0; font-size: 24px;">Order Confirmed!</h1>
+        </div>
+        <div style="padding: 32px; background: #ffffff; border: 1px solid #e2e8f0; border-top: none;">
+          <p style="color: #374151; font-size: 16px;">Thank you for your order. We're getting it ready for delivery.</p>
+
+          <div style="background: #f8fafc; border-radius: 8px; padding: 16px; margin: 24px 0;">
+            <p style="margin: 0 0 8px 0; font-weight: bold; color: #1f2937;">Order Number</p>
+            <p style="margin: 0; font-size: 20px; color: #22c55e; font-weight: bold;">${order.order_number}</p>
+          </div>
+
+          <h3 style="color: #1f2937; margin: 24px 0 12px;">Items</h3>
+          <pre style="background: #f8fafc; padding: 16px; border-radius: 8px; font-size: 14px; color: #374151; white-space: pre-wrap;">${itemRows}</pre>
+
+          <div style="border-top: 2px solid #e2e8f0; margin: 24px 0; padding-top: 16px;">
+            <p style="font-size: 18px; font-weight: bold; color: #1f2937; margin: 0;">
+              Total: £${(order.total_pence / 100).toFixed(2)}
+            </p>
+          </div>
+
+          <p style="color: #6b7280; font-size: 14px;">
+            Delivering to: ${order.delivery_address_line_1}, ${order.delivery_postcode}
+          </p>
+
+          <div style="text-align: center; margin-top: 32px;">
+            <a href="${process.env.NEXT_PUBLIC_APP_URL}/track-order"
+               style="display: inline-block; background: #22c55e; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+              Track Your Order
+            </a>
+          </div>
+        </div>
+        <div style="padding: 16px; text-align: center; color: #9ca3af; font-size: 12px;">
+          Fresh Groceries - Quality groceries delivered to your door
+        </div>
+      </div>
+    `,
+  })
+
+  console.log(`[createOrder] Confirmation email sent to ${customerEmail}`)
 }
 
 async function processVendorPayments(
@@ -282,7 +425,6 @@ async function processVendorPayments(
   const vendorIdsFromBreakdown = Object.keys(effectiveBreakdown).filter(id => id !== 'platform')
 
   if (vendorIdsFromBreakdown.length === 0 && orderItems.length > 0) {
-    // Rebuild breakdown from order items
     console.log('Rebuilding vendor breakdown from order items')
     const itemsByVendor: Record<string, number> = {}
     for (const item of orderItems) {
@@ -291,7 +433,6 @@ async function processVendorPayments(
       }
     }
 
-    // Fetch commission rates
     const vIds = Object.keys(itemsByVendor)
     if (vIds.length > 0) {
       const { data: vendors } = await supabaseAdmin
@@ -342,7 +483,10 @@ async function processVendorPayments(
       }
       console.log(`Resolved charge ID: ${chargeId} from payment intent: ${paymentIntentId}`)
     } catch (piError) {
-      console.error('Error retrieving payment intent for charge ID:', piError)
+      captureError(piError instanceof Error ? piError : new Error(String(piError)), {
+        context: 'webhook:stripe:resolve_charge',
+        extra: { paymentIntentId, orderId },
+      })
     }
   }
 
@@ -366,14 +510,16 @@ async function processVendorPayments(
       .single()
 
     if (vendorOrderError) {
-      console.error(`Error creating vendor order for ${vendor.id}:`, vendorOrderError)
+      captureError(new Error(`Failed to create vendor order: ${vendorOrderError.message}`), {
+        context: 'webhook:stripe:vendor_order',
+        extra: { vendorId: vendor.id, orderId },
+      })
       continue
     }
 
     // If vendor has a Stripe Connect account, initiate transfer
     if (vendor.stripe_account_id && breakdown.net > 0) {
       try {
-        // Build transfer params - use charge ID if available, otherwise skip source_transaction
         const transferParams: Stripe.TransferCreateParams = {
           amount: breakdown.net,
           currency: 'gbp',
@@ -386,14 +532,12 @@ async function processVendorPayments(
           },
         }
 
-        // source_transaction requires a charge ID (ch_), not payment intent (pi_)
         if (chargeId) {
           transferParams.source_transaction = chargeId
         }
 
         const transfer = await getStripe().transfers.create(transferParams)
 
-        // Update vendor order with transfer info
         await supabaseAdmin
           .from('vendor_orders')
           .update({
@@ -402,28 +546,25 @@ async function processVendorPayments(
           })
           .eq('id', vendorOrder.id)
 
-        console.log(`Transfer ${transfer.id} created for vendor ${vendor.id}: ${breakdown.net} pence (${breakdown.amount} total - ${breakdown.commission} commission)`)
+        console.log(`Transfer ${transfer.id} created for vendor ${vendor.id}: ${breakdown.net}p`)
       } catch (transferError) {
-        console.error(`Error creating transfer for vendor ${vendor.id}:`, transferError)
+        captureError(transferError instanceof Error ? transferError : new Error(String(transferError)), {
+          context: 'webhook:stripe:transfer',
+          extra: { vendorId: vendor.id, orderId, amount: breakdown.net },
+        })
 
-        // Mark as pending payout (will need manual transfer)
         await supabaseAdmin
           .from('vendor_orders')
-          .update({
-            status: 'pending_payout',
-          })
+          .update({ status: 'pending_payout' })
           .eq('id', vendorOrder.id)
       }
     } else {
-      // Vendor doesn't have Stripe connected yet
       await supabaseAdmin
         .from('vendor_orders')
-        .update({
-          status: 'pending_payout',
-        })
+        .update({ status: 'pending_payout' })
         .eq('id', vendorOrder.id)
 
-      console.log(`Vendor ${vendor.id} doesn't have Stripe connected - marked as pending payout`)
+      console.log(`Vendor ${vendor.id} no Stripe connected - marked as pending payout`)
     }
   }
 }

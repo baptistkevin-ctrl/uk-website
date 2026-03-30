@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { cached, TTL } from '@/lib/cache'
+import { captureError } from '@/lib/error-tracking'
 
 export const dynamic = 'force-dynamic'
 
@@ -174,29 +176,42 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Get facets (categories, brands, price range)
-    const { data: allProducts } = await supabase
-      .from('products')
-      .select('brand, price_pence')
-      .eq('is_active', true)
-      .eq('approval_status', 'approved')
+    // Get facets (cached - these rarely change)
+    const facetData = await cached(
+      'search:facets',
+      async () => {
+        const [productsRes, categoriesRes] = await Promise.all([
+          supabase
+            .from('products')
+            .select('brand, price_pence')
+            .eq('is_active', true)
+            .eq('approval_status', 'approved'),
+          supabase
+            .from('categories')
+            .select('id, name, slug')
+            .eq('is_active', true)
+            .order('display_order'),
+        ])
 
-    // Get unique brands
-    const brands = [...new Set(allProducts?.map(p => p.brand).filter(Boolean))]
+        const allProducts = productsRes.data || []
+        const brands = [...new Set(allProducts.map(p => p.brand).filter(Boolean))]
+        const prices = allProducts.map(p => p.price_pence)
+        const priceRange = {
+          min: prices.length ? Math.min(...prices) : 0,
+          max: prices.length ? Math.max(...prices) : 0,
+        }
 
-    // Get price range
-    const prices = allProducts?.map(p => p.price_pence) || []
-    const priceRange = {
-      min: Math.min(...prices, 0),
-      max: Math.max(...prices, 0),
-    }
+        return {
+          brands,
+          priceRange,
+          categories: categoriesRes.data || [],
+        }
+      },
+      TTL.LONG,
+      ['search:facets', 'products', 'categories']
+    )
 
-    // Get categories with product counts
-    const { data: categories } = await supabase
-      .from('categories')
-      .select('id, name, slug')
-      .eq('is_active', true)
-      .order('display_order')
+    const { brands, priceRange, categories } = facetData
 
     // Sanitize query for response to prevent reflected XSS
     const safeQuery = query.replace(/[<>"'&]/g, '')
@@ -214,7 +229,10 @@ export async function GET(request: NextRequest) {
       query: safeQuery,
     })
   } catch (error) {
-    console.error('Search error:', error)
+    captureError(error instanceof Error ? error : new Error(String(error)), {
+      context: 'api:search',
+      extra: { query: rawQuery?.slice(0, 50) },
+    })
     return NextResponse.json({ error: 'Search failed' }, { status: 500 })
   }
 }

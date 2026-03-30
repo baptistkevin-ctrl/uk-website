@@ -33,7 +33,8 @@ import { StockAlertButton } from '@/components/products/stock-alert-button'
 import { ProductQA } from '@/components/products/product-qa'
 import type { Metadata } from 'next'
 
-export const dynamic = 'force-dynamic'
+// ISR: revalidate product pages every 2 minutes (price/stock can change)
+export const revalidate = 120
 
 interface ProductPageProps {
   params: Promise<{

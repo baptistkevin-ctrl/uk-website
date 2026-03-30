@@ -28,6 +28,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/hooks/use-auth'
+import { SocialLoginButtons } from '@/components/auth/social-login-buttons'
 
 const registerSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -183,6 +184,8 @@ export default function RegisterPage() {
           {/* Form */}
           <Card className="border-slate-200 shadow-xl shadow-slate-200/50">
             <CardContent className="p-6 sm:p-8">
+              <SocialLoginButtons mode="register" />
+
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {error && (
                   <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm flex items-start gap-3">

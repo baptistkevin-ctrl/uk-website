@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { User, Package, MapPin, Settings, LogOut } from 'lucide-react'
+import { User, Package, MapPin, Settings, LogOut, RotateCcw } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
@@ -8,6 +8,7 @@ import { Footer } from '@/components/layout/footer'
 const accountLinks = [
   { href: '/account', label: 'Overview', icon: User },
   { href: '/account/orders', label: 'Orders', icon: Package },
+  { href: '/account/returns', label: 'Returns', icon: RotateCcw },
   { href: '/account/addresses', label: 'Addresses', icon: MapPin },
   { href: '/account/settings', label: 'Settings', icon: Settings },
 ]

@@ -18,7 +18,8 @@ import {
   Star
 } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
+// ISR: revalidate product listing every 60 seconds
+export const revalidate = 60
 
 interface ProductsPageProps {
   searchParams: Promise<{

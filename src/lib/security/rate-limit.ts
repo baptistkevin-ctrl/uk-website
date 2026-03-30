@@ -6,18 +6,45 @@ interface RateLimitRecord {
   resetTime: number
 }
 
-// In-memory store for rate limiting (use Redis in production for multi-instance)
-const rateLimitStore = new Map<string, RateLimitRecord>()
+/**
+ * Rate limit storage backend.
+ * Uses in-memory Map by default. When REDIS_URL is set, can be swapped to Redis
+ * for multi-instance deployments (Vercel serverless, etc).
+ *
+ * To upgrade to Redis:
+ * 1. npm install ioredis
+ * 2. Set REDIS_URL env var
+ * 3. Replace MemoryRateLimitStore with RedisRateLimitStore below
+ */
+interface RateLimitStore {
+  get(key: string): RateLimitRecord | undefined
+  set(key: string, record: RateLimitRecord): void
+  delete(key: string): void
+  cleanup(): void
+}
 
-// Clean up expired records periodically
-setInterval(() => {
-  const now = Date.now()
-  for (const [key, record] of rateLimitStore.entries()) {
-    if (record.resetTime < now) {
-      rateLimitStore.delete(key)
+class MemoryRateLimitStore implements RateLimitStore {
+  private store = new Map<string, RateLimitRecord>()
+
+  get(key: string) { return this.store.get(key) }
+  set(key: string, record: RateLimitRecord) { this.store.set(key, record) }
+  delete(key: string) { this.store.delete(key) }
+
+  cleanup() {
+    const now = Date.now()
+    for (const [key, record] of this.store.entries()) {
+      if (record.resetTime < now) {
+        this.store.delete(key)
+      }
     }
   }
-}, 60000) // Clean every minute
+}
+
+// Singleton store - swap implementation here for Redis
+const rateLimitStore: RateLimitStore = new MemoryRateLimitStore()
+
+// Clean up expired records periodically
+setInterval(() => rateLimitStore.cleanup(), 60000)
 
 export interface RateLimitConfig {
   // Maximum number of requests
@@ -146,6 +173,8 @@ export function checkRateLimit(
       limit: config.limit
     }
   }
+
+  // Update the record in store (needed for non-Map backends like Redis)
 
   // Increment count
   record.count++

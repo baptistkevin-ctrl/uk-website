@@ -3,14 +3,18 @@ import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin, requireVendor } from '@/lib/auth/verify'
 import { productCreateSchema, validateData, formatZodErrors, uuidSchema } from '@/lib/validation/schemas'
 import { sanitizeText, sanitizeRichHtml, sanitizeUrl, productAudit } from '@/lib/security'
+import { cached, TTL, cacheInvalidateTag } from '@/lib/cache'
+import { captureError } from '@/lib/error-tracking'
 
 export const dynamic = 'force-dynamic'
 
-// GET all products
+// GET all products - with server-side caching
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const category = searchParams.get('category')
   const includeInactive = searchParams.get('includeInactive') === 'true'
+  const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 200)
+  const offset = parseInt(searchParams.get('offset') || '0')
 
   // Validate category UUID if provided
   if (category) {
@@ -20,24 +24,48 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const supabaseAdmin = getSupabaseAdmin()
-  let query = supabaseAdmin.from('products').select('*, categories(name)')
+  try {
+    const cacheKey = `api:products:${category || 'all'}:${includeInactive}:${limit}:${offset}`
+    const data = await cached(
+      cacheKey,
+      async () => {
+        const supabaseAdmin = getSupabaseAdmin()
+        let query = supabaseAdmin
+          .from('products')
+          .select('*, categories(name)', { count: 'exact' })
 
-  if (category) {
-    query = query.eq('category_id', category)
+        if (category) {
+          query = query.eq('category_id', category)
+        }
+
+        if (!includeInactive) {
+          query = query.eq('is_active', true)
+        }
+
+        const { data, error, count } = await query
+          .order('created_at', { ascending: false })
+          .range(offset, offset + limit - 1)
+
+        if (error) throw error
+        return { products: data, total: count }
+      },
+      TTL.MEDIUM,
+      ['products', category ? `category:${category}` : 'products:all']
+    )
+
+    return NextResponse.json(data.products, {
+      headers: {
+        'X-Total-Count': String(data.total || 0),
+        'Cache-Control': 'public, s-maxage=120, stale-while-revalidate=300',
+      },
+    })
+  } catch (error) {
+    captureError(error instanceof Error ? error : new Error(String(error)), {
+      context: 'api:products:get',
+      extra: { category, limit, offset },
+    })
+    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
   }
-
-  if (!includeInactive) {
-    query = query.eq('is_active', true)
-  }
-
-  const { data, error } = await query.order('created_at', { ascending: false })
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
-  return NextResponse.json(data)
 }
 
 // POST new product (requires admin or vendor)
@@ -104,6 +132,9 @@ export async function POST(request: NextRequest) {
       sanitizedProduct
     )
   }
+
+  // Invalidate product caches after creation
+  await cacheInvalidateTag('products')
 
   return NextResponse.json(data, { status: 201 })
 }

@@ -5,7 +5,8 @@ import { DealCard, DealBanner } from '@/components/deals'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { Metadata } from 'next'
 
-export const dynamic = 'force-dynamic'
+// ISR: revalidate deals every 30 seconds (time-sensitive content)
+export const revalidate = 30
 
 export const metadata: Metadata = {
   title: 'Flash Deals | Fresh Groceries',

@@ -168,10 +168,11 @@ export async function createCheckoutSession({
     }, 0)
     const total = subtotal + deliveryFee
 
-    // Calculate vendor amounts for metadata
+    // Calculate vendor amounts for metadata (using DB prices, not client prices)
     const vendorBreakdown: Record<string, { amount: number; commission: number; net: number }> = {}
     enrichedItems.forEach(item => {
-      const itemTotal = item.price * item.quantity
+      const dbProduct = productMap.get(item.productId)!
+      const itemTotal = dbProduct.price_pence * item.quantity
       const vendorId = item.vendorId || 'platform'
       const commissionRate = item.vendorId ? (vendorCommissions[item.vendorId] || 12.5) : 0
       const commission = Math.round(itemTotal * (commissionRate / 100))

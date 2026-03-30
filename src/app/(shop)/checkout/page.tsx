@@ -260,14 +260,14 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Link
-                    href={`/auth/login?redirect=/checkout`}
+                    href={`/login?redirectTo=/checkout`}
                     className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-green-500 rounded-xl font-semibold hover:bg-green-50 transition-colors"
                   >
                     <LogIn className="h-4 w-4" />
                     Sign In
                   </Link>
                   <Link
-                    href={`/auth/register?redirect=/checkout`}
+                    href={`/register?redirectTo=/checkout`}
                     className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white/20 text-white rounded-xl font-semibold hover:bg-white/30 transition-colors"
                   >
                     Create Account

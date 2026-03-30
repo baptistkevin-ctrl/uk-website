@@ -6,7 +6,8 @@ import { StoreBanner, SortSelect } from '@/components/store'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Package, ArrowUpDown } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
+// ISR: revalidate store pages every 2 minutes
+export const revalidate = 120
 
 interface StorePageProps {
   params: Promise<{ slug: string }>

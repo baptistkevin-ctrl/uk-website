@@ -224,13 +224,31 @@ export default function AdminVendorsPage() {
                 </td>
                 <td className="px-6 py-4">
                   {editingId === vendor.id ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex gap-1">
+                        {[5, 8, 10, 12.5, 15].map((preset) => (
+                          <button
+                            key={preset}
+                            onClick={() => setEditCommission(preset.toString())}
+                            className={`px-2 py-1 text-xs rounded border transition-colors ${
+                              editCommission === preset.toString()
+                                ? 'bg-emerald-100 border-emerald-400 text-emerald-700'
+                                : 'border-gray-200 hover:border-emerald-300 text-gray-600'
+                            }`}
+                          >
+                            {preset}%
+                          </button>
+                        ))}
+                      </div>
                       <Input
                         type="number"
                         value={editCommission}
                         onChange={(e) => setEditCommission(e.target.value)}
                         className="w-20 h-8 text-sm"
                         placeholder="%"
+                        min="0"
+                        max="100"
+                        step="0.5"
                       />
                       <button
                         onClick={() => updateCommissionRate(vendor.id)}
@@ -248,7 +266,11 @@ export default function AdminVendorsPage() {
                   ) : (
                     <button
                       onClick={() => { setEditingId(vendor.id); setEditCommission(vendor.commission_rate.toString()) }}
-                      className="text-sm text-gray-900 hover:text-emerald-600"
+                      className={`text-sm font-medium px-2 py-1 rounded hover:bg-emerald-50 ${
+                        vendor.commission_rate <= 5 ? 'text-blue-700' :
+                        vendor.commission_rate <= 10 ? 'text-emerald-700' :
+                        'text-gray-900'
+                      }`}
                     >
                       {vendor.commission_rate}%
                     </button>
