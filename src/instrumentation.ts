@@ -49,7 +49,8 @@ export async function register() {
   }
 
   // Enterprise: Register global error handler (Node.js only, not Edge)
-  if (typeof process !== 'undefined' && typeof process.on === 'function' && typeof EdgeRuntime === 'undefined') {
+  // @ts-ignore - EdgeRuntime is a global in Vercel Edge Runtime
+  if (typeof process !== 'undefined' && typeof process.on === 'function' && typeof globalThis.EdgeRuntime === 'undefined') {
     process.on('unhandledRejection', (reason) => {
       console.error('[fatal] Unhandled promise rejection:', reason)
     })
