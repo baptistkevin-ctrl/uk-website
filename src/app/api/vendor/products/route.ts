@@ -156,7 +156,7 @@ export async function POST(request: NextRequest) {
 
     if (productError) {
       console.error('Product creation error:', productError)
-      return NextResponse.json({ error: 'Failed to create product', details: productError.message }, { status: 500 })
+      return NextResponse.json({ error: `Failed to create product: ${productError.message}` }, { status: 500 })
     }
 
     // Link product to category if provided
