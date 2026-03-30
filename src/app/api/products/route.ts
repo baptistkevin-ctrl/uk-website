@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         const supabaseAdmin = getSupabaseAdmin()
         let query = supabaseAdmin
           .from('products')
-          .select('*, categories(name)', { count: 'exact' })
+          .select('*, categories(name), vendors(id, store_name)', { count: 'exact' })
 
         if (category) {
           query = query.eq('category_id', category)

@@ -53,6 +53,8 @@ interface Product {
   is_active: boolean
   is_featured: boolean
   category_id: string | null
+  vendor_id: string | null
+  vendors: { id: string; store_name: string } | null
   unit: string | null
   weight_grams: number | null
 }
@@ -919,6 +921,7 @@ export default function AdminProductsPage() {
                     />
                   </th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Product</th>
+                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Vendor</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">SKU</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Price</th>
                   <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Stock</th>
@@ -964,6 +967,9 @@ export default function AdminProductsPage() {
                           )}
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-sm text-slate-600">{product.vendors?.store_name || <span className="text-slate-400 italic">Platform</span>}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-slate-600 font-mono text-sm">{product.sku || '—'}</span>
