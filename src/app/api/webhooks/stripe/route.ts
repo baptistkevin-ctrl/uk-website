@@ -34,21 +34,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No signature' }, { status: 400 })
   }
 
-  if (!process.env.STRIPE_WEBHOOK_SECRET) {
-    captureError('STRIPE_WEBHOOK_SECRET not configured', { context: 'webhook:stripe', level: 'fatal' })
+  // Two webhook endpoints: one for platform account events, one for connected account events
+  const secrets = [
+    process.env.STRIPE_WEBHOOK_SECRET,
+    process.env.STRIPE_WEBHOOK_SECRET_ACCOUNT,
+  ].filter(Boolean) as string[]
+
+  if (secrets.length === 0) {
+    captureError('No STRIPE_WEBHOOK_SECRET configured', { context: 'webhook:stripe', level: 'fatal' })
     return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 })
   }
 
-  let event: Stripe.Event
+  let event: Stripe.Event | null = null
 
-  try {
-    event = getStripe().webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
-    )
-  } catch (err) {
-    captureError(err instanceof Error ? err : new Error(String(err)), {
+  for (const secret of secrets) {
+    try {
+      event = getStripe().webhooks.constructEvent(body, signature, secret)
+      break
+    } catch {
+      // Try next secret
+    }
+  }
+
+  if (!event) {
+    captureError(new Error('Webhook signature verification failed with all secrets'), {
       context: 'webhook:stripe:signature',
       level: 'warning',
     })
