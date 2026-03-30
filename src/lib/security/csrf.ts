@@ -199,6 +199,7 @@ export const csrfExemptRoutes = [
   '/api/webhooks/stripe', // Stripe webhooks use signature verification
   '/api/webhooks/supabase', // Supabase webhooks
   '/api/cron/', // Cron jobs
+  '/api/admin/replay-order', // Temporary order replay
   '/api/admin/seed-products', // Database seeding
   '/api/admin/seed-categories', // Database seeding
   '/api/admin/seed-accounts', // Account seeding
