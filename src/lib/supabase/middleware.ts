@@ -159,7 +159,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   // Routes that handle their own auth (CRON_SECRET, etc.)
-  const selfAuthRoutes = ['/api/admin/seed-accounts', '/api/admin/seed-products', '/api/admin/seed-categories', '/api/admin/fix-products']
+  const selfAuthRoutes = ['/api/admin/seed-accounts', '/api/admin/seed-products', '/api/admin/seed-categories', '/api/admin/fix-products', '/api/admin/replay-order']
   const isSelfAuth = selfAuthRoutes.some(r => pathname.startsWith(r))
 
   // Block unauthenticated users from admin routes (except self-auth routes)
