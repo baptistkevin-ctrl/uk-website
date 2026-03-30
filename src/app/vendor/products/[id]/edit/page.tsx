@@ -95,12 +95,14 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
       const product = prodData.products?.find((p: Product) => p.id === resolvedParams.id)
 
       if (product) {
+        // Get category from product_categories join
+        const categoryId = product.product_categories?.[0]?.categories?.id || ''
         setFormData({
           name: product.name || '',
           description: product.description || '',
-          price: (product.price / 100).toFixed(2),
-          compare_at_price: product.compare_at_price ? (product.compare_at_price / 100).toFixed(2) : '',
-          category_id: product.category_id || '',
+          price: (product.price_pence / 100).toFixed(2),
+          compare_at_price: product.compare_at_price_pence ? (product.compare_at_price_pence / 100).toFixed(2) : '',
+          category_id: categoryId,
           sku: product.sku || '',
           barcode: product.barcode || '',
           stock_quantity: String(product.stock_quantity || 0),
@@ -134,14 +136,12 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
           id: resolvedParams.id,
           name: formData.name,
           description: formData.description,
-          price: parseFloat(formData.price),
-          compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : null,
-          category_id: formData.category_id || null,
-          sku: formData.sku || null,
-          barcode: formData.barcode || null,
+          price_pence: Math.round(parseFloat(formData.price) * 100),
+          compare_at_price_pence: formData.compare_at_price ? Math.round(parseFloat(formData.compare_at_price) * 100) : null,
+          sku: formData.sku?.trim() || null,
+          barcode: formData.barcode?.trim() || null,
           stock_quantity: parseInt(formData.stock_quantity),
           low_stock_threshold: parseInt(formData.low_stock_threshold),
-          weight: formData.weight ? parseFloat(formData.weight) : null,
           unit: formData.unit,
           image_url: images[0] || null,
           images,
