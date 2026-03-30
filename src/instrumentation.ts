@@ -48,16 +48,14 @@ export async function register() {
     console.warn('[security] Using Stripe test key in production environment')
   }
 
-  // Enterprise: Register global error handler
-  if (typeof process !== 'undefined') {
+  // Enterprise: Register global error handler (Node.js only, not Edge)
+  if (typeof process !== 'undefined' && typeof process.on === 'function' && typeof EdgeRuntime === 'undefined') {
     process.on('unhandledRejection', (reason) => {
       console.error('[fatal] Unhandled promise rejection:', reason)
-      // Future: Sentry.captureException(reason)
     })
 
     process.on('uncaughtException', (error) => {
       console.error('[fatal] Uncaught exception:', error)
-      // Future: Sentry.captureException(error)
     })
   }
 
