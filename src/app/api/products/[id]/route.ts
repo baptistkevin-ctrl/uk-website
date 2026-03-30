@@ -50,7 +50,7 @@ export async function PUT(
   return NextResponse.json(data[0])
 }
 
-// DELETE product
+// DELETE product (soft-delete if referenced by orders, hard-delete otherwise)
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -58,12 +58,29 @@ export async function DELETE(
   const { id } = await params
 
   const supabaseAdmin = getSupabaseAdmin()
+
+  // Try hard delete first
   const { error } = await supabaseAdmin
     .from('products')
     .delete()
     .eq('id', id)
 
   if (error) {
+    // Foreign key violation — product has order_items referencing it
+    // Soft-delete by deactivating instead
+    if (error.code === '23503') {
+      const { error: updateError } = await supabaseAdmin
+        .from('products')
+        .update({ is_active: false })
+        .eq('id', id)
+
+      if (updateError) {
+        return NextResponse.json({ error: updateError.message }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true, softDeleted: true })
+    }
+
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
