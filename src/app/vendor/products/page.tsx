@@ -23,12 +23,12 @@ interface Product {
   id: string
   name: string
   slug: string
-  price: number
-  sale_price: number | null
+  price_pence: number
+  compare_at_price_pence: number | null
   stock_quantity: number
   is_active: boolean
   image_url: string | null
-  category: { name: string } | null
+  product_categories?: Array<{ categories: { id: string; name: string } | null }> | null
   created_at: string
 }
 
@@ -209,23 +209,23 @@ export default function VendorProducts() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
                     <span className="text-sm text-gray-600">
-                      {product.category?.name || 'Uncategorized'}
+                      {product.product_categories?.[0]?.categories?.name || 'Uncategorized'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      {product.sale_price ? (
+                      {product.compare_at_price_pence ? (
                         <>
                           <span className="font-medium text-emerald-600">
-                            {formatPrice(product.sale_price)}
+                            {formatPrice(product.price_pence)}
                           </span>
                           <span className="text-sm text-gray-400 line-through ml-2">
-                            {formatPrice(product.price)}
+                            {formatPrice(product.compare_at_price_pence)}
                           </span>
                         </>
                       ) : (
                         <span className="font-medium text-gray-900">
-                          {formatPrice(product.price)}
+                          {formatPrice(product.price_pence)}
                         </span>
                       )}
                     </div>
@@ -265,7 +265,7 @@ export default function VendorProducts() {
                   <td className="px-6 py-4 whitespace-nowrap text-right">
                     <div className="flex items-center justify-end gap-2">
                       <Link
-                        href={`/vendor/products/${product.id}`}
+                        href={`/vendor/products/${product.id}/edit`}
                         className="p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg"
                       >
                         <Edit className="h-4 w-4" />
