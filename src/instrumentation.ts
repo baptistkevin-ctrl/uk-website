@@ -1,4 +1,12 @@
 export async function register() {
+  // Initialize Sentry for server-side error tracking
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    await import('../sentry.server.config')
+  }
+
+  if (process.env.NEXT_RUNTIME === 'edge') {
+    await import('../sentry.edge.config')
+  }
   const required = [
     'NEXT_PUBLIC_SUPABASE_URL',
     'NEXT_PUBLIC_SUPABASE_ANON_KEY',
