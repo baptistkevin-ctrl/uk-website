@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     // Build query
     let query = supabaseAdmin
       .from('products')
-      .select('*, categories(name)')
+      .select('*, product_categories(categories(id, name))')
       .eq('vendor_id', vendor.id)
       .order('created_at', { ascending: false })
 
@@ -287,6 +287,19 @@ export async function DELETE(request: NextRequest) {
       .eq('vendor_id', vendor.id)
 
     if (deleteError) {
+      // FK constraint — product has order_items, soft-delete instead
+      if (deleteError.code === '23503') {
+        const { error: updateError } = await supabaseAdmin
+          .from('products')
+          .update({ is_active: false })
+          .eq('id', id)
+          .eq('vendor_id', vendor.id)
+
+        if (updateError) {
+          return NextResponse.json({ error: 'Failed to deactivate product' }, { status: 500 })
+        }
+        return NextResponse.json({ success: true, softDeleted: true })
+      }
       return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 })
     }
 
