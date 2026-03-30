@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { invalidateByTag } from '@/lib/cache'
+import { cacheInvalidateTag } from '@/lib/cache'
 
 export const dynamic = 'force-dynamic'
 
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest) {
         })
     }
 
-    await invalidateByTag('products')
+    await cacheInvalidateTag('products')
     return NextResponse.json({ product }, { status: 201 })
   } catch (error) {
     console.error('Create product error:', error)
@@ -245,7 +245,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
     }
 
-    await invalidateByTag('products')
+    await cacheInvalidateTag('products')
     return NextResponse.json({ product })
   } catch (error) {
     console.error('Update product error:', error)
@@ -301,13 +301,13 @@ export async function DELETE(request: NextRequest) {
         if (updateError) {
           return NextResponse.json({ error: 'Failed to deactivate product' }, { status: 500 })
         }
-        await invalidateByTag('products')
+        await cacheInvalidateTag('products')
         return NextResponse.json({ success: true, softDeleted: true })
       }
       return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 })
     }
 
-    await invalidateByTag('products')
+    await cacheInvalidateTag('products')
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Delete product error:', error)
