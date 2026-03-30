@@ -58,3 +58,5 @@ k6/results.json
 /playwright-report/
 /test-results/
 scripts/
+
+.env*.local
