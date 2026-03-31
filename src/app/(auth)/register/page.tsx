@@ -184,8 +184,6 @@ export default function RegisterPage() {
           {/* Form */}
           <Card className="border-slate-200 shadow-xl shadow-slate-200/50">
             <CardContent className="p-6 sm:p-8">
-              <SocialLoginButtons mode="register" />
-
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {error && (
                   <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm flex items-start gap-3">
