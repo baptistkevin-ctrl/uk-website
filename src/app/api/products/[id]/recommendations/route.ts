@@ -286,7 +286,6 @@ export async function GET(
           `)
           .eq('is_active', true)
           .not('id', 'in', `(${existingIds.join(',')})`)
-          .neq('category_id', currentProduct.category_id)
           .order('is_featured', { ascending: false })
           .order('avg_rating', { ascending: false, nullsFirst: false })
           .limit(limit - (youMightLikeProducts?.length || 0))
@@ -319,7 +318,7 @@ export async function GET(
       currentProduct: {
         id: currentProduct.id,
         name: currentProduct.name,
-        category_id: currentProduct.category_id
+        category_ids: categoryIds
       }
     })
   } catch (error) {
