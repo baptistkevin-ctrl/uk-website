@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         const supabaseAdmin = getSupabaseAdmin()
         let query = supabaseAdmin
           .from('products')
-          .select('*, categories(name), vendors(id, store_name)', { count: 'exact' })
+          .select('*, categories(name)', { count: 'exact' })
 
         if (category) {
           query = query.eq('category_id', category)
@@ -47,7 +47,26 @@ export async function GET(request: NextRequest) {
           .range(offset, offset + limit - 1)
 
         if (error) throw error
-        return { products: data, total: count }
+
+        // Enrich with vendor names
+        const vendorIds = [...new Set((data || []).map(p => p.vendor_id).filter(Boolean))]
+        let vendorMap: Record<string, string> = {}
+        if (vendorIds.length > 0) {
+          const { data: vendors } = await supabaseAdmin
+            .from('vendors')
+            .select('id, store_name')
+            .in('id', vendorIds)
+          if (vendors) {
+            vendorMap = Object.fromEntries(vendors.map(v => [v.id, v.store_name]))
+          }
+        }
+
+        const enriched = (data || []).map(p => ({
+          ...p,
+          vendors: p.vendor_id ? { id: p.vendor_id, store_name: vendorMap[p.vendor_id] || null } : null
+        }))
+
+        return { products: enriched, total: count }
       },
       TTL.MEDIUM,
       ['products', category ? `category:${category}` : 'products:all']
@@ -60,11 +79,12 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
+    console.error('Products API error:', error)
     captureError(error instanceof Error ? error : new Error(String(error)), {
       context: 'api:products:get',
       extra: { category, limit, offset },
     })
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch products', details: error instanceof Error ? error.message : String(error) }, { status: 500 })
   }
 }
 
