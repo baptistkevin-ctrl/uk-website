@@ -13,7 +13,7 @@ export async function GET(
   const supabaseAdmin = getSupabaseAdmin()
   const { data, error } = await supabaseAdmin
     .from('products')
-    .select('*, categories(name)')
+    .select('*, product_categories(categories(id, name))')
     .eq('id', id)
     .single()
 

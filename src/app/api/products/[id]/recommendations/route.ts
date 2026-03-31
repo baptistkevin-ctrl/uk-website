@@ -57,13 +57,20 @@ export async function GET(
     // First, get the current product to know its category
     const { data: currentProduct, error: productError } = await supabaseAdmin
       .from('products')
-      .select('id, name, category_id, price_pence, brand, is_organic, is_vegan, is_vegetarian, is_gluten_free')
+      .select('id, name, price_pence, brand, is_organic, is_vegan, is_vegetarian, is_gluten_free')
       .eq('id', id)
       .single()
 
     if (productError || !currentProduct) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
+
+    // Get category IDs via product_categories join table
+    const { data: productCats } = await supabaseAdmin
+      .from('product_categories')
+      .select('category_id')
+      .eq('product_id', id)
+    const categoryIds = (productCats || []).map(pc => pc.category_id)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const recommendations: {
@@ -77,8 +84,16 @@ export async function GET(
     }
 
     // Get similar products (same category, similar attributes)
-    if (type === 'similar' || type === 'all') {
-      const { data: similarProducts } = await supabaseAdmin
+    if ((type === 'similar' || type === 'all') && categoryIds.length > 0) {
+      // Find products in same categories via join table
+      const { data: relatedProductIds } = await supabaseAdmin
+        .from('product_categories')
+        .select('product_id')
+        .in('category_id', categoryIds)
+        .neq('product_id', id)
+      const relatedIds = [...new Set((relatedProductIds || []).map(r => r.product_id))]
+
+      const { data: similarProducts } = relatedIds.length > 0 ? await supabaseAdmin
         .from('products')
         .select(`
           id,
@@ -111,11 +126,10 @@ export async function GET(
             is_verified
           )
         `)
-        .eq('category_id', currentProduct.category_id)
+        .in('id', relatedIds)
         .eq('is_active', true)
-        .neq('id', id)
         .order('avg_rating', { ascending: false, nullsFirst: false })
-        .limit(limit)
+        .limit(limit) : { data: null }
 
       recommendations.similar = similarProducts || []
     }
@@ -212,7 +226,6 @@ export async function GET(
         `)
         .eq('is_active', true)
         .neq('id', id)
-        .neq('category_id', currentProduct.category_id) // Different category
 
       // Match dietary preferences
       if (currentProduct.is_organic) {

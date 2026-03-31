@@ -27,9 +27,9 @@ export async function getCachedProducts(options?: {
       const supabase = getSupabaseAdmin()
       let query = supabase
         .from('products')
-        .select('*, categories(name)', { count: 'exact' })
+        .select('*, product_categories(categories(id, name))', { count: 'exact' })
 
-      if (categoryId) query = query.eq('category_id', categoryId)
+      if (categoryId) query = query.eq('product_categories.category_id', categoryId)
       if (activeOnly) query = query.eq('is_active', true)
 
       const { data, error, count } = await query
@@ -51,7 +51,7 @@ export async function getCachedProductBySlug(slug: string) {
       const supabase = getSupabaseAdmin()
       const { data, error } = await supabase
         .from('products')
-        .select('*, categories(name, slug), vendors(business_name, slug)')
+        .select('*, product_categories(categories(id, name, slug))')
         .eq('slug', slug)
         .single()
 
@@ -70,7 +70,7 @@ export async function getCachedFeaturedProducts(limit: number = 12) {
       const supabase = getSupabaseAdmin()
       const { data, error } = await supabase
         .from('products')
-        .select('*, categories(name)')
+        .select('*, product_categories(categories(id, name))')
         .eq('is_active', true)
         .eq('is_featured', true)
         .order('created_at', { ascending: false })
@@ -91,7 +91,7 @@ export async function getCachedTrendingProducts(limit: number = 12) {
       const supabase = getSupabaseAdmin()
       const { data, error } = await supabase
         .from('products')
-        .select('*, categories(name)')
+        .select('*, product_categories(categories(id, name))')
         .eq('is_active', true)
         .order('view_count', { ascending: false })
         .limit(limit)
