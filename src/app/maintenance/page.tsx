@@ -1,7 +1,26 @@
+'use client'
+
+import { useEffect } from 'react'
 import { ShoppingBag, Wrench } from 'lucide-react'
-import Link from 'next/link'
 
 export default function MaintenancePage() {
+  useEffect(() => {
+    const checkMaintenance = async () => {
+      try {
+        const res = await fetch('/api/categories')
+        if (res.ok) {
+          window.location.href = '/'
+        }
+      } catch {
+        // Still in maintenance
+      }
+    }
+
+    // Check every 10 seconds
+    const interval = setInterval(checkMaintenance, 10000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-teal-50 flex items-center justify-center px-4">
       <div className="text-center max-w-md">
@@ -26,6 +45,11 @@ export default function MaintenancePage() {
             Fresh groceries delivered to your door across the UK.
             We apologize for any inconvenience.
           </p>
+        </div>
+
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+          <p className="text-sm text-gray-500">Checking status automatically...</p>
         </div>
 
         <p className="text-sm text-gray-400">
