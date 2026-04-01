@@ -1,28 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { NextRequest } from 'next/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 import { sanitizeSearchQuery } from '@/lib/security'
+import { apiSuccess, apiCatchAll } from '@/lib/utils/api-error'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'admin:users' })
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check if admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!['admin', 'super_admin'].includes(profile?.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error!
 
     const searchParams = request.nextUrl.searchParams
     const page = parseInt(searchParams.get('page') || '1')
@@ -71,7 +61,8 @@ export async function GET(request: NextRequest) {
     const { data: users, error, count } = await query.range(offset, offset + limit - 1)
 
     if (error) {
-      return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
+      log.error('Failed to fetch users', { error: error.message })
+      return apiCatchAll(error, 'admin:users:list')
     }
 
     // Get order counts for each user
@@ -93,14 +84,15 @@ export async function GET(request: NextRequest) {
       order_count: orderCountMap[u.id] || 0
     }))
 
-    return NextResponse.json({
-      users: usersWithStats,
-      total: count || 0,
+    log.info('Users listed', { page, limit, total: count, adminId: auth.user!.id })
+
+    return apiSuccess(usersWithStats, {
       page,
+      limit,
+      total: count || 0,
       totalPages: Math.ceil((count || 0) / limit),
     })
   } catch (error) {
-    console.error('Error fetching users:', error)
-    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
+    return apiCatchAll(error, 'admin:users:list')
   }
 }

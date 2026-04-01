@@ -8,17 +8,27 @@
  * - Returns Result<T>, never throws
  * - Never touches HTTP (no NextRequest/NextResponse)
  * - Never renders UI
- * - Only talks to repositories (Supabase) and other services
+ * - Only talks to repositories and other services
  */
 
 import { ok, fail } from '@/lib/utils/result'
 import type { Result } from '@/lib/utils/result'
 import { logger } from '@/lib/utils/logger'
+import { sanitizeSearchQuery } from '@/lib/security'
 import { orderStateMachine } from './order-state-machine'
 import type { OrderStatus, OrderEvent } from './order-state-machine'
-import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { orderRepository } from '@/repositories/order.repository'
 
 const log = logger.child({ context: 'orders' })
+
+/** Map of status to the timestamp field that should be set on transition. */
+const STATUS_TIMESTAMP_FIELD: Partial<Record<OrderStatus, string>> = {
+  confirmed: 'confirmed_at',
+  out_for_delivery: 'dispatched_at',
+  shipped: 'shipped_at',
+  delivered: 'delivered_at',
+  cancelled: 'cancelled_at',
+}
 
 // Types
 export interface Order {
@@ -56,126 +66,143 @@ export const orderService = {
    * Get a single order by ID with its items.
    */
   async getById(orderId: string): Promise<Result<OrderWithItems>> {
-    const supabaseAdmin = getSupabaseAdmin()
+    try {
+      const order = await orderRepository.findById(orderId)
+      if (!order) {
+        log.warn('Order not found', { orderId })
+        return fail('Order not found', 'NOT_FOUND')
+      }
 
-    const { data: order, error: orderError } = await supabaseAdmin
-      .from('orders')
-      .select('*')
-      .eq('id', orderId)
-      .single()
-
-    if (orderError || !order) {
-      log.warn('Order not found', { orderId })
-      return fail('Order not found', 'NOT_FOUND')
+      const items = await orderRepository.findItemsByOrderId(orderId)
+      return ok({ ...order, items } as OrderWithItems)
+    } catch (error) {
+      log.error('Failed to fetch order', { orderId, error: (error as Error).message })
+      return fail('Failed to fetch order', 'INTERNAL_ERROR')
     }
-
-    const { data: items, error: itemsError } = await supabaseAdmin
-      .from('order_items')
-      .select('*')
-      .eq('order_id', orderId)
-
-    if (itemsError) {
-      log.error('Failed to fetch order items', { orderId, error: itemsError.message })
-      return fail('Failed to fetch order items', 'INTERNAL_ERROR')
-    }
-
-    return ok({ ...order, items: items || [] } as OrderWithItems)
   },
 
   /**
    * Transition an order to a new status using the state machine.
-   * Returns the updated order.
    */
   async updateStatus(orderId: string, event: OrderEvent): Promise<Result<Order>> {
-    const supabaseAdmin = getSupabaseAdmin()
+    try {
+      const order = await orderRepository.findById(orderId)
+      if (!order) return fail('Order not found', 'NOT_FOUND')
 
-    // Fetch current order
-    const { data: order, error } = await supabaseAdmin
-      .from('orders')
-      .select('id, status, order_number')
-      .eq('id', orderId)
-      .single()
+      // Validate transition via state machine
+      const transition = orderStateMachine.transition(order.status as OrderStatus, event)
+      if (!transition.ok) {
+        log.warn('Invalid order transition', {
+          orderId,
+          currentStatus: order.status,
+          event,
+          error: transition.error,
+        })
+        return transition
+      }
 
-    if (error || !order) {
-      return fail('Order not found', 'NOT_FOUND')
-    }
+      const newStatus = transition.data
 
-    // Validate transition
-    const transition = orderStateMachine.transition(order.status as OrderStatus, event)
-    if (!transition.ok) {
-      log.warn('Invalid order transition', {
+      // Build update payload with status-specific timestamps
+      const updatePayload: Record<string, unknown> = { status: newStatus }
+      const tsField = STATUS_TIMESTAMP_FIELD[newStatus]
+      if (tsField) updatePayload[tsField] = new Date().toISOString()
+
+      const updated = await orderRepository.update(orderId, updatePayload)
+
+      log.info('Order status updated', {
         orderId,
-        currentStatus: order.status,
+        orderNumber: order.order_number,
+        from: order.status,
+        to: newStatus,
         event,
-        error: transition.error,
       })
-      return transition
-    }
 
-    const newStatus = transition.data
-
-    // Build update payload with status-specific timestamps
-    const updatePayload: Record<string, unknown> = {
-      status: newStatus,
-      updated_at: new Date().toISOString(),
-    }
-
-    if (newStatus === 'shipped') updatePayload.shipped_at = new Date().toISOString()
-    if (newStatus === 'delivered') updatePayload.delivered_at = new Date().toISOString()
-    if (newStatus === 'cancelled') updatePayload.cancelled_at = new Date().toISOString()
-
-    const { data: updated, error: updateError } = await supabaseAdmin
-      .from('orders')
-      .update(updatePayload)
-      .eq('id', orderId)
-      .select()
-      .single()
-
-    if (updateError) {
-      log.error('Failed to update order status', { orderId, error: updateError.message })
+      return ok(updated as Order)
+    } catch (error) {
+      log.error('Failed to update order status', { orderId, error: (error as Error).message })
       return fail('Failed to update order', 'INTERNAL_ERROR')
     }
+  },
 
-    log.info('Order status updated', {
-      orderId,
-      orderNumber: order.order_number,
-      from: order.status,
-      to: newStatus,
-      event,
-    })
+  /**
+   * Admin update: update order fields (status via state machine, payment_status, notes).
+   */
+  async adminUpdate(
+    orderId: string,
+    fields: { event?: OrderEvent; payment_status?: string; notes?: string }
+  ): Promise<Result<Order>> {
+    try {
+      const order = await orderRepository.findById(orderId)
+      if (!order) return fail('Order not found', 'NOT_FOUND')
 
-    return ok(updated as Order)
+      const updatePayload: Record<string, unknown> = {}
+
+      // Handle status transition via state machine
+      if (fields.event) {
+        const transition = orderStateMachine.transition(order.status as OrderStatus, fields.event)
+        if (!transition.ok) {
+          log.warn('Invalid order transition', {
+            orderId,
+            currentStatus: order.status,
+            event: fields.event,
+            error: transition.error,
+          })
+          return transition
+        }
+
+        const newStatus = transition.data
+        updatePayload.status = newStatus
+
+        const tsField = STATUS_TIMESTAMP_FIELD[newStatus]
+        if (tsField) updatePayload[tsField] = new Date().toISOString()
+
+        log.info('Order status updated', {
+          orderId,
+          orderNumber: order.order_number,
+          from: order.status,
+          to: newStatus,
+          event: fields.event,
+        })
+      }
+
+      if (fields.payment_status) {
+        updatePayload.payment_status = fields.payment_status
+        if (fields.payment_status === 'paid') {
+          updatePayload.paid_at = new Date().toISOString()
+        }
+      }
+
+      if (fields.notes !== undefined) {
+        updatePayload.notes = fields.notes
+      }
+
+      if (Object.keys(updatePayload).length === 0) {
+        return fail('No valid fields to update', 'BAD_REQUEST')
+      }
+
+      const updated = await orderRepository.update(orderId, updatePayload)
+      return ok(updated as Order)
+    } catch (error) {
+      log.error('Failed to update order', { orderId, error: (error as Error).message })
+      return fail('Failed to update order', 'INTERNAL_ERROR')
+    }
   },
 
   /**
    * Delete an order and its items (admin only).
    */
   async delete(orderId: string): Promise<Result<{ deleted: true }>> {
-    const supabaseAdmin = getSupabaseAdmin()
+    try {
+      await orderRepository.deleteItems(orderId)
+      await orderRepository.deleteOrder(orderId)
 
-    // Delete order items first
-    const { error: itemsError } = await supabaseAdmin
-      .from('order_items')
-      .delete()
-      .eq('order_id', orderId)
-
-    if (itemsError) {
-      log.error('Failed to delete order items', { orderId, error: itemsError.message })
-      return fail('Failed to delete order items', 'INTERNAL_ERROR')
-    }
-
-    const { error: orderError } = await supabaseAdmin
-      .from('orders')
-      .delete()
-      .eq('id', orderId)
-
-    if (orderError) {
-      log.error('Failed to delete order', { orderId, error: orderError.message })
+      log.info('Order deleted', { orderId })
+      return ok({ deleted: true as const })
+    } catch (error) {
+      log.error('Failed to delete order', { orderId, error: (error as Error).message })
       return fail('Failed to delete order', 'INTERNAL_ERROR')
     }
-
-    log.info('Order deleted', { orderId })
-    return ok({ deleted: true as const })
   },
 
   /**
@@ -186,32 +213,30 @@ export const orderService = {
     limit?: number
     status?: string
     userId?: string
+    paymentStatus?: string
+    search?: string
   }): Promise<Result<{ orders: Order[]; total: number }>> {
-    const supabaseAdmin = getSupabaseAdmin()
-    const page = options.page || 1
-    const limit = Math.min(options.limit || 20, 200)
-    const offset = (page - 1) * limit
+    try {
+      const page = options.page || 1
+      const limit = Math.min(options.limit || 20, 200)
 
-    let query = supabaseAdmin
-      .from('orders')
-      .select('*', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1)
+      const sanitizedSearch = options.search
+        ? sanitizeSearchQuery(options.search)
+        : undefined
 
-    if (options.status) {
-      query = query.eq('status', options.status)
-    }
-    if (options.userId) {
-      query = query.eq('user_id', options.userId)
-    }
+      const result = await orderRepository.findMany({
+        page,
+        limit,
+        status: options.status,
+        userId: options.userId,
+        paymentStatus: options.paymentStatus,
+        search: sanitizedSearch || undefined,
+      })
 
-    const { data, error, count } = await query
-
-    if (error) {
-      log.error('Failed to list orders', { error: error.message })
+      return ok({ orders: result.data as Order[], total: result.total })
+    } catch (error) {
+      log.error('Failed to list orders', { error: (error as Error).message })
       return fail('Failed to fetch orders', 'INTERNAL_ERROR')
     }
-
-    return ok({ orders: (data || []) as Order[], total: count || 0 })
   },
 }
