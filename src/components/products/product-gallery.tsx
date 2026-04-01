@@ -118,20 +118,18 @@ export function ProductGallery({
 
   // Share functionality
   const handleShare = async () => {
-    const imageUrl = galleryImages[currentIndex]
-
     if (navigator.share) {
       try {
         await navigator.share({
           title: productName,
           url: window.location.href
         })
-      } catch (error) {
+      } catch {
         // User cancelled or error
       }
     } else {
       // Fallback: copy URL to clipboard
-      navigator.clipboard.writeText(window.location.href)
+      await navigator.clipboard.writeText(window.location.href).catch(() => {})
     }
   }
 
@@ -161,7 +159,7 @@ export function ProductGallery({
         ref={imageContainerRef}
         className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4 group"
         onMouseMove={handleMouseMove}
-        onMouseLeave={() => isZoomed && setIsZoomed(false)}
+        onMouseLeave={() => { if (isZoomed) setIsZoomed(false) }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >

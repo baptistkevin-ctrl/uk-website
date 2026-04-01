@@ -95,7 +95,7 @@ function BrandPageContent({ slug }: { slug: string }) {
       }
       setLoading(false)
     }
-    fetchBrand()
+    void fetchBrand()
   }, [slug, page, sort, router])
 
   const updateParams = (key: string, value: string) => {

@@ -161,9 +161,9 @@ export function NotificationBell() {
     }
   }
 
-  const handleNotificationClick = (notification: Notification) => {
+  const handleNotificationClick = async (notification: Notification) => {
     if (!notification.is_read) {
-      markAsRead(notification.id)
+      await markAsRead(notification.id)
     }
     setIsOpen(false)
   }

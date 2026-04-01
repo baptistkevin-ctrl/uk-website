@@ -65,6 +65,8 @@ export async function GET(request: NextRequest) {
         query = query.order('business_name', { ascending: true })
         break
       case 'popular':
+        query = query.order('review_count', { ascending: false, nullsFirst: false })
+        break
       default:
         query = query.order('review_count', { ascending: false, nullsFirst: false })
     }

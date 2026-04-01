@@ -17,8 +17,10 @@ describe('cn (className utility)', () => {
     })
 
     it('handles boolean values', () => {
-      expect(cn('class1', false && 'class2', 'class3')).toBe('class1 class3')
-      expect(cn('class1', true && 'class2', 'class3')).toBe('class1 class2 class3')
+      const isDisabled = false
+      const isActive = true
+      expect(cn('class1', isDisabled && 'class2', 'class3')).toBe('class1 class3')
+      expect(cn('class1', isActive && 'class2', 'class3')).toBe('class1 class2 class3')
     })
   })
 

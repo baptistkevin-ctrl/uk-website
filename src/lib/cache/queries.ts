@@ -161,8 +161,8 @@ export async function getCachedBrands() {
         .not('brand', 'is', null)
 
       if (error) throw error
-      const unique = [...new Set((data || []).map((p) => p.brand).filter(Boolean))]
-      return unique.sort()
+      const brands = (data || []).map((p) => p.brand as string)
+      return [...new Set(brands)].sort()
     },
     TTL.LONG,
     ['brands', 'products']

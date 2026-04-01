@@ -103,7 +103,8 @@ export function DeliverySlotPicker({
     }
 
     fetchSlots()
-  }, [postcode, selectedDate])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postcode])
 
   // Generate session ID for reservations
   const getSessionId = () => {

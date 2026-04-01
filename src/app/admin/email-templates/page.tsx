@@ -132,11 +132,11 @@ export default function EmailTemplatesPage() {
   }
 
   useEffect(() => {
-    fetchTemplates()
+    void fetchTemplates()
   }, [categoryFilter])
 
   useEffect(() => {
-    const timer = setTimeout(() => fetchTemplates(), 300)
+    const timer = setTimeout(() => void fetchTemplates(), 300)
     return () => clearTimeout(timer)
   }, [search])
 

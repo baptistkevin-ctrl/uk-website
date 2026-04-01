@@ -189,7 +189,7 @@ export default function AdminDeliveryPage() {
         throw new Error(data.error || 'Failed to delete slot')
       }
 
-      fetchSlots()
+      await fetchSlots()
     } catch (error) {
       console.error('Delete error:', error)
       alert(error instanceof Error ? error.message : 'Failed to delete slot')

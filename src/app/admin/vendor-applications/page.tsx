@@ -45,7 +45,7 @@ export default function AdminVendorApplicationsPage() {
   const [processing, setProcessing] = useState(false)
 
   useEffect(() => {
-    fetchApplications()
+    void fetchApplications()
   }, [statusFilter])
 
   const fetchApplications = async () => {

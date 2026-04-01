@@ -186,7 +186,7 @@ export default function AdminCategoriesPage() {
       }
 
       setShowModal(false)
-      fetchCategories()
+      await fetchCategories()
     } catch (error) {
       console.error('Save error:', error)
       alert('Failed to save category')

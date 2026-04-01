@@ -125,7 +125,7 @@ export default function UsersPage() {
   }
 
   useEffect(() => {
-    fetchUsers()
+    void fetchUsers()
   }, [page, roleFilter, statusFilter])
 
   const handleSearch = (e: React.FormEvent) => {
