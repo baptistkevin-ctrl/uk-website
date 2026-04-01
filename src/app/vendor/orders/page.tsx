@@ -9,6 +9,7 @@ import {
   Eye,
   Truck,
   CheckCircle,
+  CheckCircle2,
   Clock,
   XCircle,
   Loader2,
@@ -16,7 +17,10 @@ import {
   ChevronRight,
   Printer,
   Download,
-  FileText
+  FileText,
+  PackageCheck,
+  Cog,
+  ArrowRight
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -253,7 +257,24 @@ export default function VendorOrdersPage() {
                       <div className="mt-1">{getStatusBadge(order.status)}</div>
                     </div>
                   </div>
-                  <div className="mt-3 flex items-center justify-between text-sm text-gray-500">
+                  {/* Mini milestone progress bar */}
+                  {order.status !== 'cancelled' && (
+                    <div className="mt-3 flex items-center gap-1">
+                      {['pending', 'confirmed', 'processing', 'shipped', 'delivered'].map((step, i) => {
+                        const statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered']
+                        const currentIdx = statusOrder.indexOf(order.status)
+                        const stepIdx = statusOrder.indexOf(step)
+                        return (
+                          <div key={step} className="flex items-center flex-1">
+                            <div className={`h-1.5 w-full rounded-full ${
+                              stepIdx <= currentIdx ? 'bg-emerald-500' : 'bg-gray-200'
+                            }`} />
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                  <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
                     <span>{new Date(order.created_at).toLocaleDateString('en-GB', {
                       day: 'numeric',
                       month: 'short',
@@ -352,27 +373,140 @@ export default function VendorOrdersPage() {
                   </div>
                 </div>
 
-                {/* Status Update */}
+                {/* Order Milestone Tracker */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Update Status</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {['confirmed', 'processing', 'shipped', 'delivered'].map((status) => (
-                      <Button
-                        key={status}
-                        variant={selectedOrder.status === status ? 'default' : 'outline'}
-                        size="sm"
-                        disabled={updatingStatus === selectedOrder.id || selectedOrder.status === 'cancelled'}
-                        onClick={() => updateOrderStatus(selectedOrder.id, status)}
-                        className={selectedOrder.status === status ? 'bg-emerald-600' : ''}
-                      >
-                        {updatingStatus === selectedOrder.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          status.charAt(0).toUpperCase() + status.slice(1)
-                        )}
-                      </Button>
-                    ))}
-                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-4">Order Progress</h3>
+                  {selectedOrder.status === 'cancelled' ? (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+                      <XCircle className="h-6 w-6 text-red-500" />
+                      <div>
+                        <p className="font-semibold text-red-700">Order Cancelled</p>
+                        <p className="text-sm text-red-600">This order has been cancelled and cannot be updated.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Milestone Steps */}
+                      {(() => {
+                        const milestones = [
+                          { key: 'pending', label: 'Order Received', icon: Clock, description: 'Customer placed the order' },
+                          { key: 'confirmed', label: 'Confirmed', icon: CheckCircle2, description: 'Vendor confirmed the order' },
+                          { key: 'processing', label: 'Processing', icon: Cog, description: 'Order is being prepared' },
+                          { key: 'shipped', label: 'Shipped', icon: Truck, description: 'Order dispatched for delivery' },
+                          { key: 'delivered', label: 'Delivered', icon: PackageCheck, description: 'Order delivered to customer' },
+                        ]
+                        const statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered']
+                        const currentIndex = statusOrder.indexOf(selectedOrder.status)
+                        const nextStatus = currentIndex < statusOrder.length - 1 ? statusOrder[currentIndex + 1] : null
+
+                        return (
+                          <div className="space-y-0">
+                            {milestones.map((milestone, index) => {
+                              const milestoneIndex = statusOrder.indexOf(milestone.key)
+                              const isCompleted = milestoneIndex <= currentIndex
+                              const isCurrent = milestoneIndex === currentIndex
+                              const isNext = milestoneIndex === currentIndex + 1
+                              const MilestoneIcon = milestone.icon
+
+                              return (
+                                <div key={milestone.key}>
+                                  <div className={`flex items-center gap-4 p-3 rounded-xl transition-all ${
+                                    isCurrent ? 'bg-emerald-50 border border-emerald-200' :
+                                    isNext ? 'bg-blue-50/50 border border-blue-100' :
+                                    ''
+                                  }`}>
+                                    {/* Step indicator */}
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                                      isCompleted ? 'bg-emerald-500 text-white' :
+                                      isNext ? 'bg-blue-100 text-blue-600 border-2 border-blue-300' :
+                                      'bg-gray-100 text-gray-400'
+                                    }`}>
+                                      {isCompleted ? (
+                                        <CheckCircle className="h-5 w-5" />
+                                      ) : (
+                                        <MilestoneIcon className="h-5 w-5" />
+                                      )}
+                                    </div>
+
+                                    {/* Step content */}
+                                    <div className="flex-1">
+                                      <p className={`font-semibold text-sm ${
+                                        isCompleted ? 'text-emerald-700' :
+                                        isNext ? 'text-blue-700' :
+                                        'text-gray-400'
+                                      }`}>
+                                        {milestone.label}
+                                        {isCurrent && (
+                                          <span className="ml-2 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                                            Current
+                                          </span>
+                                        )}
+                                      </p>
+                                      <p className={`text-xs ${
+                                        isCompleted ? 'text-emerald-600' :
+                                        isNext ? 'text-blue-600' :
+                                        'text-gray-400'
+                                      }`}>
+                                        {milestone.description}
+                                      </p>
+                                    </div>
+
+                                    {/* Action button for next step */}
+                                    {isNext && (
+                                      <Button
+                                        size="sm"
+                                        onClick={() => updateOrderStatus(selectedOrder.id, milestone.key)}
+                                        disabled={updatingStatus === selectedOrder.id}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white shrink-0"
+                                      >
+                                        {updatingStatus === selectedOrder.id ? (
+                                          <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                          <>
+                                            Mark as {milestone.label}
+                                            <ArrowRight className="h-4 w-4 ml-1" />
+                                          </>
+                                        )}
+                                      </Button>
+                                    )}
+                                  </div>
+
+                                  {/* Connector line */}
+                                  {index < milestones.length - 1 && (
+                                    <div className="ml-[1.15rem] h-4 flex items-center">
+                                      <div className={`w-0.5 h-full ${
+                                        milestoneIndex < currentIndex ? 'bg-emerald-400' : 'bg-gray-200'
+                                      }`} />
+                                    </div>
+                                  )}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )
+                      })()}
+
+                      {/* Cancel Order Button */}
+                      {selectedOrder.status !== 'delivered' && selectedOrder.status !== 'shipped' && (
+                        <div className="mt-4 pt-4 border-t border-gray-200">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm('Are you sure you want to cancel this order?')) {
+                                updateOrderStatus(selectedOrder.id, 'cancelled')
+                              }
+                            }}
+                            disabled={updatingStatus === selectedOrder.id}
+                            className="text-red-600 border-red-200 hover:bg-red-50"
+                          >
+                            <XCircle className="h-4 w-4 mr-1" />
+                            Cancel Order
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
