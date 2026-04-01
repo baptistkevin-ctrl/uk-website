@@ -21,6 +21,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') || 'all'
 
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+    const limit = Math.min(200, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)))
+    const offset = (page - 1) * limit
+
     // Build query
     let query = supabaseAdmin
       .from('stock_alerts')
@@ -28,14 +32,15 @@ export async function GET(request: NextRequest) {
         *,
         product:products(id, name, slug, image_url, stock_quantity, price_pence),
         user:profiles(id, full_name, email)
-      `)
+      `, { count: 'exact' })
       .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
 
     if (status !== 'all') {
       query = query.eq('status', status)
     }
 
-    const { data: alerts, error } = await query
+    const { data: alerts, error, count } = await query
 
     if (error) {
       console.error('Error fetching stock alerts:', error)
@@ -45,12 +50,19 @@ export async function GET(request: NextRequest) {
     // Get comprehensive stats
     const stats = await getStockAlertStats()
     const allAlerts = alerts || []
+    const total = count ?? 0
 
     return NextResponse.json({
-      alerts: allAlerts,
+      data: allAlerts,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
       stats: {
         ...stats,
-        total_alerts: allAlerts.length,
+        total_alerts: total,
         unique_products: new Set(allAlerts.map(a => a.product_id)).size
       }
     })

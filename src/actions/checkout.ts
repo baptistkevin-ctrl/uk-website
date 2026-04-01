@@ -4,6 +4,7 @@ import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { generateOrderNumber } from '@/lib/utils/format'
+import { DEFAULT_VENDOR_COMMISSION_RATE } from '@/lib/constants'
 
 // Stripe metadata values have a 500-char limit. This function safely truncates
 // JSON by removing array items from the end rather than slicing mid-string.
@@ -157,7 +158,7 @@ export async function createCheckoutSession({
         .in('id', vendorIds)
 
       vendors?.forEach(v => {
-        vendorCommissions[v.id] = v.commission_rate || 12.5
+        vendorCommissions[v.id] = v.commission_rate || DEFAULT_VENDOR_COMMISSION_RATE
       })
     }
 
@@ -174,7 +175,7 @@ export async function createCheckoutSession({
       const dbProduct = productMap.get(item.productId)!
       const itemTotal = dbProduct.price_pence * item.quantity
       const vendorId = item.vendorId || 'platform'
-      const commissionRate = item.vendorId ? (vendorCommissions[item.vendorId] || 12.5) : 0
+      const commissionRate = item.vendorId ? (vendorCommissions[item.vendorId] || DEFAULT_VENDOR_COMMISSION_RATE) : 0
       const commission = Math.round(itemTotal * (commissionRate / 100))
       const net = itemTotal - commission
 

@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
+import { z } from 'zod'
+import { uuidSchema, formatZodErrors } from '@/lib/validation/schemas'
+
+const wishlistToggleSchema = z.object({
+  product_id: uuidSchema,
+  wishlist_id: uuidSchema.optional(),
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -37,11 +44,13 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { product_id, wishlist_id } = body
 
-  if (!product_id) {
-    return NextResponse.json({ error: 'Product ID is required' }, { status: 400 })
+  const parsed = wishlistToggleSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Validation failed', details: formatZodErrors(parsed.error) }, { status: 400 })
   }
+
+  const { product_id, wishlist_id } = parsed.data
 
   const supabaseAdmin = getSupabaseAdmin()
 

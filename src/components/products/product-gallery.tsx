@@ -267,6 +267,8 @@ export function ProductGallery({
                   ? 'border-green-500 ring-2 ring-green-200'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
+              aria-label={`View image ${index + 1}`}
+              aria-current={index === currentIndex ? 'true' : undefined}
             >
               <Image
                 src={image}
@@ -299,6 +301,8 @@ export function ProductGallery({
       {/* Lightbox Modal */}
       {isLightboxOpen && (
         <div
+          role="dialog"
+          aria-label={`${productName} image gallery`}
           className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
           onClick={() => setIsLightboxOpen(false)}
         >
@@ -393,6 +397,8 @@ export function ProductGallery({
                       ? 'border-white opacity-100'
                       : 'border-transparent opacity-50 hover:opacity-75'
                   }`}
+                  aria-label={`View image ${index + 1}`}
+                  aria-current={index === currentIndex ? 'true' : undefined}
                 >
                   <Image
                     src={image}

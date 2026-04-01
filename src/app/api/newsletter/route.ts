@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { z } from 'zod'
+import { emailSchema, formatZodErrors } from '@/lib/validation/schemas'
+
+const newsletterPostSchema = z.object({
+  email: emailSchema,
+  first_name: z.string().max(100).optional(),
+  source: z.string().max(50).optional(),
+  preferences: z.object({
+    promotions: z.boolean().optional(),
+    new_products: z.boolean().optional(),
+    weekly_digest: z.boolean().optional(),
+  }).optional(),
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -7,17 +20,13 @@ export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { email, first_name, source, preferences } = body
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
+    const parsed = newsletterPostSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: 'Validation failed', details: formatZodErrors(parsed.error) }, { status: 400 })
     }
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{1,63}$/
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
-    }
+    const { email, first_name, source, preferences } = parsed.data
 
     const supabase = await createClient()
 

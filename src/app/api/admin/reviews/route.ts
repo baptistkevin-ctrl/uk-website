@@ -1,53 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
-import { createServerClient } from '@supabase/ssr'
+import { requireAdmin } from '@/lib/auth/verify'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-function getSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
-
-async function getSupabaseServer() {
-  const cookieStore = await cookies()
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-}
-
-async function isAdmin() {
-  const supabase = await getSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) return false
-
-  const supabaseAdmin = getSupabaseAdmin()
-  const { data: profile } = await supabaseAdmin
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  return profile?.role === 'admin' || profile?.role === 'super_admin'
-}
-
 // GET - Get reviews for moderation
 export async function GET(request: NextRequest) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const searchParams = request.nextUrl.searchParams
   const status = searchParams.get('status') || 'pending'
@@ -111,12 +71,8 @@ export async function GET(request: NextRequest) {
 
 // PUT - Moderate a review (approve/reject)
 export async function PUT(request: NextRequest) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
-
-  const supabase = await getSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const body = await request.json()
   const { review_id, status, admin_notes } = body
@@ -136,7 +92,7 @@ export async function PUT(request: NextRequest) {
     .update({
       status,
       admin_notes: admin_notes || null,
-      reviewed_by: user?.id,
+      reviewed_by: auth.user!.id,
       reviewed_at: new Date().toISOString(),
     })
     .eq('id', review_id)
@@ -153,9 +109,8 @@ export async function PUT(request: NextRequest) {
 
 // DELETE - Delete a review
 export async function DELETE(request: NextRequest) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const searchParams = request.nextUrl.searchParams
   const reviewId = searchParams.get('id')

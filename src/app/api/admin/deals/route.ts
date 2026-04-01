@@ -1,53 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
-import { createServerClient } from '@supabase/ssr'
+import { requireAdmin } from '@/lib/auth/verify'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-function getSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
-
-async function getSupabaseServer() {
-  const cookieStore = await cookies()
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-}
-
-async function isAdmin() {
-  const supabase = await getSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) return false
-
-  const supabaseAdmin = getSupabaseAdmin()
-  const { data: profile } = await supabaseAdmin
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  return profile?.role === 'admin' || profile?.role === 'super_admin'
-}
-
 // GET - Get all deals (admin view)
 export async function GET(request: NextRequest) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const searchParams = request.nextUrl.searchParams
   const status = searchParams.get('status') || 'all' // all, active, upcoming, expired
@@ -102,9 +62,8 @@ export async function GET(request: NextRequest) {
 
 // POST - Create a new deal
 export async function POST(request: NextRequest) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const body = await request.json()
   const {
@@ -183,9 +142,8 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update a deal
 export async function PUT(request: NextRequest) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const body = await request.json()
   const { id, ...updates } = body
@@ -234,9 +192,8 @@ export async function PUT(request: NextRequest) {
 
 // DELETE - Delete a deal
 export async function DELETE(request: NextRequest) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const searchParams = request.nextUrl.searchParams
   const id = searchParams.get('id')

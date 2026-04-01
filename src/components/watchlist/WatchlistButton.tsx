@@ -78,6 +78,7 @@ export function WatchlistButton({
         className
       )}
       aria-label={isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
+      aria-pressed={isInWatchlist}
       title={isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
     >
       {isLoading ? (

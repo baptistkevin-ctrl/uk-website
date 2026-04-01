@@ -1,32 +1,57 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
+import { checkRateLimit, rateLimitConfigs, addRateLimitHeaders } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
 // GET all categories
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  // Rate limiting — 60 requests per minute per IP
+  const rateLimit = checkRateLimit(request, rateLimitConfigs.categoriesGet)
+  if (!rateLimit.allowed) {
+    const response = NextResponse.json(
+      { error: 'Too many category requests. Please slow down.' },
+      { status: 429 }
+    )
+    return addRateLimitHeaders(response, rateLimit)
+  }
+
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
   const includeInactive = searchParams.get('includeInactive') === 'true'
 
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+  const limit = Math.min(200, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)))
+  const offset = (page - 1) * limit
+
   let query = supabaseAdmin
     .from('categories')
-    .select('*, parent:parent_id(*)')
+    .select('*, parent:parent_id(*)', { count: 'exact' })
     .order('display_order', { ascending: true })
+    .range(offset, offset + limit - 1)
 
   if (!includeInactive) {
     query = query.eq('is_active', true)
   }
 
-  const { data, error } = await query
+  const { data, error, count } = await query
 
   if (error) {
     console.error('Error fetching categories:', error)
     return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 })
   }
 
-  return NextResponse.json(data)
+  const total = count ?? 0
+  return NextResponse.json({
+    data: data ?? [],
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  })
 }
 
 // POST - Create new category

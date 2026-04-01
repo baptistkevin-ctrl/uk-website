@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UK Grocery Store (Fresh Groceries)
+
+Full-stack e-commerce platform for UK grocery delivery with multi-vendor marketplace support.
+
+## Tech Stack
+
+- **Framework:** Next.js 16.1.3 (App Router), React 19, TypeScript
+- **Database:** Supabase (PostgreSQL + Auth + RLS)
+- **Payments:** Stripe Checkout + Stripe Connect (marketplace payouts)
+- **Styling:** TailwindCSS 4
+- **State:** Zustand
+- **Email:** Resend
+- **Testing:** Vitest (unit), Playwright (e2e)
+- **Monitoring:** Sentry
+
+## Key Features
+
+- Product catalog with category browsing and search
+- Multi-vendor marketplace with Stripe Connect and commission splits
+- Stripe-powered checkout and payment processing
+- Order tracking and order history
+- Loyalty points system
+- Coupon and discount system
+- Real-time notifications
+- Admin dashboard (product, order, vendor, and user management)
+- Vendor dashboard (inventory, orders, payouts)
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
+cp .env.example .env.local   # fill in Supabase, Stripe, and Resend keys
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Testing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test            # unit tests (Vitest)
+npm run test:e2e    # end-to-end tests (Playwright)
+```
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/app/(shop)/      # customer-facing storefront
+src/app/(account)/   # authenticated account pages
+src/app/admin/       # admin dashboard
+src/app/vendor/      # vendor dashboard
+src/app/api/         # REST API routes
+src/actions/         # server actions (checkout)
+src/components/      # shared React components
+src/lib/             # supabase, stripe, auth, cache, validation
+src/stores/          # Zustand stores (cart, ui)
+supabase/migrations/ # database migrations (SQL)
+e2e/                 # Playwright tests
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Hosted on Vercel. Push to `main` or run:
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npx vercel --prod --yes
+```

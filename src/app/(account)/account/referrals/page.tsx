@@ -61,6 +61,7 @@ interface ReferralData {
 export default function ReferralsPage() {
   const [data, setData] = useState<ReferralData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [activeTab, setActiveTab] = useState<'referrals' | 'credits'>('referrals')
 
@@ -70,11 +71,14 @@ export default function ReferralsPage() {
 
   const fetchData = async () => {
     try {
+      setError(null)
       const res = await fetch('/api/referrals')
+      if (!res.ok) throw new Error('Failed to load referral data')
       const json = await res.json()
       setData(json)
     } catch (error) {
       console.error('Error fetching referral data:', error)
+      setError('Unable to load your referral data. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -169,6 +173,22 @@ export default function ReferralsPage() {
             <div key={i} className="h-32 bg-slate-200 rounded-xl animate-pulse" />
           ))}
         </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <XCircle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+        <h2 className="text-lg font-semibold text-slate-900 mb-1">Something went wrong</h2>
+        <p className="text-slate-500 mb-4">{error}</p>
+        <button
+          onClick={() => { setLoading(true); fetchData() }}
+          className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+        >
+          Try again
+        </button>
       </div>
     )
   }

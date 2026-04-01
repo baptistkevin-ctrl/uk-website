@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
+import { z } from 'zod'
+import { formatZodErrors } from '@/lib/validation/schemas'
+
+const createWishlistSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100, 'Name too long').optional(),
+  is_public: z.boolean().optional(),
+})
 
 export const dynamic = 'force-dynamic'
 
@@ -120,7 +127,13 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-  const { name, is_public } = body
+
+  const parsed = createWishlistSchema.safeParse(body)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Validation failed', details: formatZodErrors(parsed.error) }, { status: 400 })
+  }
+
+  const { name, is_public } = parsed.data
 
   const supabaseAdmin = getSupabaseAdmin()
 

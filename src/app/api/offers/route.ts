@@ -9,6 +9,12 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const productIds = searchParams.get('products')?.split(',').filter(Boolean)
 
+  // Validate that all product IDs are valid UUIDs
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (productIds && productIds.some(id => !uuidRegex.test(id))) {
+    return NextResponse.json({ error: 'Invalid product ID format' }, { status: 400 })
+  }
+
   let query = supabaseAdmin
     .from('multibuy_offers')
     .select('*')

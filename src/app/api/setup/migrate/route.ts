@@ -867,6 +867,11 @@ export async function POST(request: NextRequest) {
  * GET - Check migration status / verify tables exist
  */
 export async function GET(request: NextRequest) {
+  const secret = request.headers.get('x-migration-secret') || new URL(request.url).searchParams.get('secret')
+  if (secret !== process.env.CRON_SECRET) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 

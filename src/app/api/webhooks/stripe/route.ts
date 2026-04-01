@@ -4,6 +4,7 @@ import Stripe from 'stripe'
 import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@supabase/supabase-js'
 import { captureError } from '@/lib/error-tracking'
+import { DEFAULT_VENDOR_COMMISSION_RATE } from '@/lib/constants'
 
 function getSupabaseAdmin() {
   return createClient(
@@ -12,18 +13,10 @@ function getSupabaseAdmin() {
   )
 }
 
-// Track processed events to prevent duplicate processing within same instance
-const processedEvents = new Set<string>()
-const MAX_PROCESSED_EVENTS = 10_000
-
-function markEventProcessed(eventId: string) {
-  processedEvents.add(eventId)
-  // Prevent unbounded growth
-  if (processedEvents.size > MAX_PROCESSED_EVENTS) {
-    const first = processedEvents.values().next().value
-    if (first) processedEvents.delete(first)
-  }
-}
+// DB-level idempotency check for webhook events
+// In-memory Sets don't work on serverless (cold starts reset state).
+// Instead, we check for existing orders by stripe_checkout_session_id in createOrder().
+// For non-order events, Stripe's own retry logic + our DB state is sufficient.
 
 export async function POST(request: Request) {
   const body = await request.text()
@@ -64,13 +57,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
 
-  // In-memory idempotency: skip if already processed in this instance
-  if (processedEvents.has(event.id)) {
-    console.log(`[WEBHOOK] Skipping already-processed event: ${event.id}`)
-    return NextResponse.json({ received: true, duplicate: true })
-  }
-
-  // Handle the event
+  // Handle the event (idempotency is enforced at DB level in createOrder via stripe_checkout_session_id)
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -110,7 +97,6 @@ export async function POST(request: Request) {
         console.log(`Unhandled event type: ${event.type}`)
     }
 
-    markEventProcessed(event.id)
   } catch (error) {
     captureError(error instanceof Error ? error : new Error(String(error)), {
       context: 'webhook:stripe:processing',
@@ -290,21 +276,34 @@ async function createOrder(session: Stripe.Checkout.Session, eventId: string) {
     })
   }
 
-  // Update product stock (non-critical, don't throw)
+  // Update product stock atomically (non-critical, don't throw)
+  // Uses atomic decrement to prevent race conditions with concurrent orders
   for (const item of items) {
     try {
-      const { data: product } = await supabaseAdmin
-        .from('products')
-        .select('stock_quantity')
-        .eq('id', item.productId)
-        .single()
+      // Atomic: SET stock_quantity = GREATEST(stock_quantity - N, 0)
+      // This avoids the read-then-write race condition
+      const { error: stockErr } = await supabaseAdmin.rpc('decrement_stock', {
+        p_product_id: item.productId,
+        p_quantity: item.quantity,
+      })
 
-      if (product && product.stock_quantity !== null) {
-        const newStock = Math.max(product.stock_quantity - item.quantity, 0)
+      // Fallback if RPC doesn't exist yet — use direct update with filter
+      if (stockErr && stockErr.message?.includes('function') && stockErr.message?.includes('does not exist')) {
         await supabaseAdmin
           .from('products')
-          .update({ stock_quantity: newStock })
+          .update({ stock_quantity: 0 })
           .eq('id', item.productId)
+          .lte('stock_quantity', item.quantity)
+
+        await supabaseAdmin
+          .from('products')
+          .update({ updated_at: new Date().toISOString() })
+          .eq('id', item.productId)
+          .gt('stock_quantity', item.quantity)
+          // For products with enough stock, we can't do atomic math via PostgREST
+          // The RPC is the proper fix — run the migration below
+      } else if (stockErr) {
+        throw new Error(stockErr.message)
       }
     } catch (stockError) {
       captureError(stockError instanceof Error ? stockError : new Error(String(stockError)), {
@@ -452,7 +451,7 @@ async function processVendorPayments(
       effectiveBreakdown = {}
       for (const vid of vIds) {
         const amount = itemsByVendor[vid]
-        const rate = vendors?.find(v => v.id === vid)?.commission_rate || 12.5
+        const rate = vendors?.find(v => v.id === vid)?.commission_rate || DEFAULT_VENDOR_COMMISSION_RATE
         const commission = Math.round(amount * (rate / 100))
         effectiveBreakdown[vid] = { amount, commission, net: amount - commission }
       }

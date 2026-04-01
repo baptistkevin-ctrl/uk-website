@@ -248,7 +248,7 @@ export default function AdminDeliveryPage() {
               delivery_fee_pence: 399,
               is_available: true,
             }),
-          }).catch(() => {}) // Ignore duplicate errors
+          }).catch((err) => console.error('Slot creation error:', err))
         }
       }
 

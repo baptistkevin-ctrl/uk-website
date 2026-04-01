@@ -91,7 +91,7 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
           setCategories(data)
         }
       })
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load categories:', err))
   }, [])
 
   // Auto-generate slug from name

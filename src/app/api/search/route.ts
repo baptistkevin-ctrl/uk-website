@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cached, TTL } from '@/lib/cache'
 import { captureError } from '@/lib/error-tracking'
+import { checkRateLimit, rateLimitConfigs, addRateLimitHeaders } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +14,16 @@ function getSupabaseAdmin() {
 }
 
 export async function GET(request: NextRequest) {
+  // Rate limiting — 30 requests per minute per IP
+  const rateLimit = checkRateLimit(request, rateLimitConfigs.search)
+  if (!rateLimit.allowed) {
+    const response = NextResponse.json(
+      { error: 'Too many search requests. Please slow down.' },
+      { status: 429 }
+    )
+    return addRateLimitHeaders(response, rateLimit)
+  }
+
   const searchParams = request.nextUrl.searchParams
   const rawQuery = searchParams.get('q') || ''
   // Cap query length to prevent abuse

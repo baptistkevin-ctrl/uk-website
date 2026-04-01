@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
 import { useCart } from '@/hooks/use-cart'
 import { formatPrice } from '@/lib/utils/format'
+import { DEFAULT_DELIVERY_FEE_PENCE, FREE_DELIVERY_THRESHOLD_PENCE } from '@/lib/constants'
 
 export function CartSheet() {
   const {
@@ -24,9 +25,9 @@ export function CartSheet() {
     itemCount
   } = useCart()
 
-  const deliveryFee = subtotal >= 5000 ? 0 : 399
-  const amountUntilFreeDelivery = 5000 - subtotal
-  const freeDeliveryProgress = Math.min((subtotal / 5000) * 100, 100)
+  const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD_PENCE ? 0 : DEFAULT_DELIVERY_FEE_PENCE
+  const amountUntilFreeDelivery = FREE_DELIVERY_THRESHOLD_PENCE - subtotal
+  const freeDeliveryProgress = Math.min((subtotal / FREE_DELIVERY_THRESHOLD_PENCE) * 100, 100)
 
   return (
     <Sheet open={isOpen} onOpenChange={closeCart}>

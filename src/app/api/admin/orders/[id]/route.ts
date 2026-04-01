@@ -25,7 +25,7 @@ export async function GET(
     .single()
 
   if (orderError) {
-    return NextResponse.json({ error: orderError.message }, { status: 404 })
+    return NextResponse.json({ error: 'Order not found' }, { status: 404 })
   }
 
   // Get order items
@@ -35,7 +35,8 @@ export async function GET(
     .eq('order_id', id)
 
   if (itemsError) {
-    return NextResponse.json({ error: itemsError.message }, { status: 500 })
+    console.error('Failed to fetch order items:', itemsError)
+    return NextResponse.json({ error: 'Failed to fetch order items' }, { status: 500 })
   }
 
   return NextResponse.json({ ...order, items })
@@ -67,7 +68,8 @@ export async function DELETE(
     .eq('order_id', id)
 
   if (itemsError) {
-    return NextResponse.json({ error: itemsError.message }, { status: 500 })
+    console.error('Failed to delete order items:', itemsError)
+    return NextResponse.json({ error: 'Failed to delete order items' }, { status: 500 })
   }
 
   // Then delete the order
@@ -77,7 +79,8 @@ export async function DELETE(
     .eq('id', id)
 
   if (orderError) {
-    return NextResponse.json({ error: orderError.message }, { status: 500 })
+    console.error('Failed to delete order:', orderError)
+    return NextResponse.json({ error: 'Failed to delete order' }, { status: 500 })
   }
 
   // Log audit event

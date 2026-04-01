@@ -90,9 +90,12 @@ export function NotificationBell() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [fetchError, setFetchError] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const failCountRef = useRef(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Fetch notifications
+  // Fetch notifications with backoff on repeated failures
   const fetchNotifications = useCallback(async () => {
     try {
       const res = await fetch('/api/notifications?limit=10')
@@ -100,20 +103,39 @@ export function NotificationBell() {
         const data = await res.json()
         setNotifications(data.notifications || [])
         setUnreadCount(data.unreadCount || 0)
+        setFetchError(false)
+        failCountRef.current = 0
+      } else {
+        failCountRef.current++
+        if (failCountRef.current >= 3) setFetchError(true)
       }
     } catch (error) {
       console.error('Failed to fetch notifications:', error)
+      failCountRef.current++
+      if (failCountRef.current >= 3) setFetchError(true)
     } finally {
       setLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    fetchNotifications()
+    let isMounted = true
+    void fetchNotifications()
 
-    // Poll for new notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000)
-    return () => clearInterval(interval)
+    // Poll every 30s, back off to 120s after 5 consecutive failures
+    const getInterval = () => failCountRef.current >= 5 ? 120000 : 30000
+
+    const startPolling = () => {
+      intervalRef.current = setInterval(() => {
+        if (isMounted) void fetchNotifications()
+      }, getInterval())
+    }
+    startPolling()
+
+    return () => {
+      isMounted = false
+      if (intervalRef.current) clearInterval(intervalRef.current)
+    }
   }, [fetchNotifications])
 
   // Close dropdown when clicking outside
@@ -185,6 +207,9 @@ export function NotificationBell() {
         aria-label="Notifications"
       >
         <Bell className="h-5 w-5" />
+        {fetchError && unreadCount === 0 && (
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-400 rounded-full" title="Unable to load notifications" />
+        )}
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-medium rounded-full flex items-center justify-center px-1">
             {unreadCount > 99 ? '99+' : unreadCount}
@@ -222,6 +247,17 @@ export function NotificationBell() {
             {loading ? (
               <div className="p-8 text-center">
                 <div className="w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+              </div>
+            ) : fetchError && notifications.length === 0 ? (
+              <div className="p-8 text-center">
+                <Bell className="h-12 w-12 text-amber-300 mx-auto mb-3" />
+                <p className="text-gray-500 mb-2">Unable to load notifications</p>
+                <button
+                  onClick={() => { setFetchError(false); failCountRef.current = 0; void fetchNotifications() }}
+                  className="text-sm text-green-600 hover:text-green-700 font-medium"
+                >
+                  Try again
+                </button>
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">

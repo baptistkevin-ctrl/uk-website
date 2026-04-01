@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { checkRateLimit, rateLimitConfigs, addRateLimitHeaders } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,12 +33,12 @@ interface RecommendedProduct {
   allow_backorder: boolean
   low_stock_threshold: number | null
   brand: string | null
-  vendor: {
+  vendor: Array<{
     id: string
     business_name: string
     slug: string
     is_verified: boolean
-  } | null
+  }> | null
 }
 
 // GET product recommendations
@@ -45,6 +46,16 @@ export async function GET(
   request: NextRequest,
   { params }: RecommendationParams
 ) {
+  // Rate limiting — 30 requests per minute per IP
+  const rateLimit = checkRateLimit(request, rateLimitConfigs.recommendationsGet)
+  if (!rateLimit.allowed) {
+    const response = NextResponse.json(
+      { error: 'Too many recommendation requests. Please slow down.' },
+      { status: 429 }
+    )
+    return addRateLimitHeaders(response, rateLimit)
+  }
+
   const { id } = await params
   const { searchParams } = new URL(request.url)
 
@@ -72,11 +83,10 @@ export async function GET(
       .eq('product_id', id)
     const categoryIds = (productCats || []).map(pc => pc.category_id)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const recommendations: {
-      similar: any[]
-      frequentlyBoughtTogether: any[]
-      youMightLike: any[]
+      similar: RecommendedProduct[]
+      frequentlyBoughtTogether: RecommendedProduct[]
+      youMightLike: RecommendedProduct[]
     } = {
       similar: [],
       frequentlyBoughtTogether: [],
@@ -182,9 +192,13 @@ export async function GET(
         .order('created_at', { ascending: false })
         .limit(limit * 2)
 
-      // Shuffle and pick random products to simulate "frequently bought together"
-      const shuffled = (frequentProducts || []).sort(() => Math.random() - 0.5)
-      recommendations.frequentlyBoughtTogether = shuffled.slice(0, Math.min(limit, 4))
+      // Fisher-Yates shuffle for unbiased randomization
+      const arr = [...(frequentProducts || [])]
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]]
+      }
+      recommendations.frequentlyBoughtTogether = arr.slice(0, Math.min(limit, 4))
     }
 
     // Get "you might also like" - products with matching dietary preferences

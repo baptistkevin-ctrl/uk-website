@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { checkRateLimit, rateLimitConfigs } from '@/lib/security/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
+  // Rate limit: 20 requests per minute per IP
+  const rateLimitResult = checkRateLimit(request, rateLimitConfigs.couponValidate)
+  if (!rateLimitResult.success) {
+    return rateLimitResult.error!
+  }
+
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()

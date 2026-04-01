@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import sanitizeHtml from 'sanitize-html'
 import {
   Mail,
   Search,
@@ -666,7 +667,7 @@ export default function EmailTemplatesPage() {
                 <TabsContent value="html">
                   <div
                     className="p-4 bg-white border rounded-lg min-h-[300px]"
-                    dangerouslySetInnerHTML={{ __html: selectedTemplate.body_html }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(selectedTemplate.body_html, { allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'style']), allowedAttributes: { ...sanitizeHtml.defaults.allowedAttributes, '*': ['style', 'class'] } }) }}
                   />
                 </TabsContent>
                 <TabsContent value="code">

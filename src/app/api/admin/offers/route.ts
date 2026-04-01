@@ -4,7 +4,7 @@ import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
-// GET all multi-buy offers
+// GET all multi-buy offers (paginated)
 export async function GET(request: NextRequest) {
   const authResult = await requireAdmin()
   if (!authResult.success) return authResult.error!
@@ -13,14 +13,19 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const activeOnly = searchParams.get('active') === 'true'
 
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
+  const limit = Math.min(200, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)))
+  const offset = (page - 1) * limit
+
   let query = supabaseAdmin
     .from('multibuy_offers')
     .select(`
       *,
       product:products(id, name, slug, price_pence, image_url),
       category:categories(id, name, slug)
-    `)
+    `, { count: 'exact' })
     .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1)
 
   if (activeOnly) {
     query = query
@@ -29,14 +34,23 @@ export async function GET(request: NextRequest) {
       .or('end_date.is.null,end_date.gte.now()')
   }
 
-  const { data, error } = await query
+  const { data, error, count } = await query
 
   if (error) {
     console.error('Error fetching offers:', error)
     return NextResponse.json({ error: 'Failed to fetch offers' }, { status: 500 })
   }
 
-  return NextResponse.json(data)
+  const total = count ?? 0
+  return NextResponse.json({
+    data: data ?? [],
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  })
 }
 
 // POST - Create new offer
