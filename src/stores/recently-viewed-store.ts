@@ -34,7 +34,7 @@ interface RecentlyViewedState {
 
 // Generate a session ID for anonymous users
 const generateSessionId = () => {
-  return 'sess_' + Math.random().toString(36).substring(2) + Date.now().toString(36)
+  return 'sess_' + crypto.randomUUID()
 }
 
 export const useRecentlyViewedStore = create<RecentlyViewedState>()(

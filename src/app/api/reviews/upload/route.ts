@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
 
       // Generate unique filename
       const timestamp = Date.now()
-      const randomStr = Math.random().toString(36).substring(7)
+      const randomStr = crypto.randomUUID().substring(0, 8)
       const ext = file.name.split('.').pop() || 'jpg'
       const fileName = `reviews/${user.id}/${timestamp}-${randomStr}.${ext}`
 

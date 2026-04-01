@@ -109,7 +109,7 @@ export function DeliverySlotPicker({
   const getSessionId = () => {
     let sessionId = localStorage.getItem('checkout_session_id')
     if (!sessionId) {
-      sessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now().toString(36)
+      sessionId = 'sess_' + crypto.randomUUID()
       localStorage.setItem('checkout_session_id', sessionId)
     }
     return sessionId

@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
       const product = p as Record<string, unknown>
       return {
         ...p,
-        sku: `SKU-${p.slug.toUpperCase().slice(0, 10)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+        sku: `SKU-${p.slug.toUpperCase().slice(0, 10)}-${crypto.randomUUID().slice(0, 4).toUpperCase()}`,
         track_inventory: true,
         low_stock_threshold: 10,
         is_active: true,

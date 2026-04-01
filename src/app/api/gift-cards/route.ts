@@ -115,9 +115,11 @@ export async function POST(request: NextRequest) {
 
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  const randomBytes = new Uint8Array(16)
+  crypto.getRandomValues(randomBytes)
   let result = ''
   for (let i = 0; i < 16; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length))
+    result += chars.charAt(randomBytes[i] % chars.length)
     if (i === 3 || i === 7 || i === 11) {
       result += '-'
     }

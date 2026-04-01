@@ -92,8 +92,10 @@ export default function VendorCouponsPage() {
 
   const generateCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    const randomBytes = new Uint8Array(8)
+    crypto.getRandomValues(randomBytes)
     let code = ''
-    for (let i = 0; i < 8; i++) code += chars.charAt(Math.floor(Math.random() * chars.length))
+    for (let i = 0; i < 8; i++) code += chars.charAt(randomBytes[i] % chars.length)
     setFormData(prev => ({ ...prev, code }))
   }
 

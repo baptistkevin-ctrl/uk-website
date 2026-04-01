@@ -11,19 +11,19 @@ const THREAT_CONFIG = {
   maxRequestsPerSecond: 50,
   // Suspicious patterns in input
   sqlInjectionPatterns: [
-    /(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b.*\b(from|into|table|database)\b)/i,
-    /(\b(or|and)\b\s+[\d\w]+\s*=\s*[\d\w]+)/i,
+    /\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b[^;]{0,100}\b(from|into|table|database)\b/i,
+    /\b(or|and)\b\s{1,10}\w{1,50}\s{0,10}=\s{0,10}\w{1,50}/i,
     /(--|\#|\/\*|\*\/)/,
-    /(\bwaitfor\b\s+\bdelay\b)/i,
-    /(\bsleep\s*\(\s*\d+\s*\))/i
+    /\bwaitfor\b\s{1,10}\bdelay\b/i,
+    /\bsleep\s{0,5}\(\s{0,5}\d{1,10}\s{0,5}\)/i
   ],
   xssPatterns: [
-    /<script[^>]*>/i,
+    /<script\b[^>]{0,200}>/i,
     /javascript:/i,
-    /on\w+\s*=/i,
-    /\beval\s*\(/i,
-    /\bdocument\s*\./i,
-    /\bwindow\s*\./i
+    /\bon\w{1,20}\s{0,5}=/i,
+    /\beval\s{0,5}\(/i,
+    /\bdocument\s{0,5}\./i,
+    /\bwindow\s{0,5}\./i
   ],
   pathTraversalPatterns: [
     /\.\.\//,
