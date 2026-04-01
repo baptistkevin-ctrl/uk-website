@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react"
 import { useRealtime } from "./use-realtime"
 import { createClient } from "@/lib/supabase/client"
 
-interface Notification {
+interface Notification extends Record<string, unknown> {
   id: string
   user_id: string
   title: string
