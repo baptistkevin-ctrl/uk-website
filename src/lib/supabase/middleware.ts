@@ -203,6 +203,55 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
+  // Maintenance mode check — block public pages for non-admin users
+  const isAdminRoute = pathname.startsWith('/admin') || pathname.startsWith('/api/admin')
+  const isVendorRoute = pathname.startsWith('/vendor') || pathname.startsWith('/api/vendor')
+  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register') || pathname.startsWith('/api/auth')
+  const isApiRoute = pathname.startsWith('/api/')
+  const isMaintenancePage = pathname === '/maintenance'
+  const isStaticOrInternal = pathname.startsWith('/_next') || pathname.startsWith('/api/health') || pathname.startsWith('/api/webhooks')
+
+  if (!isAdminRoute && !isAuthRoute && !isMaintenancePage && !isStaticOrInternal) {
+    try {
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      )
+      const { data: maintenanceSetting } = await supabaseAdmin
+        .from('store_settings')
+        .select('value')
+        .eq('key', 'maintenance_mode')
+        .single()
+
+      if (maintenanceSetting?.value === 'true') {
+        // Check if user is admin — admins can still browse
+        let isAdmin = false
+        if (user) {
+          const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+          isAdmin = ['admin', 'super_admin'].includes(profile?.role || '')
+        }
+
+        if (!isAdmin) {
+          if (isApiRoute) {
+            return NextResponse.json(
+              { error: 'Site is under maintenance. Please try again later.' },
+              { status: 503 }
+            )
+          }
+          const url = request.nextUrl.clone()
+          url.pathname = '/maintenance'
+          return NextResponse.redirect(url)
+        }
+      }
+    } catch {
+      // If check fails, don't block — fail open
+    }
+  }
+
   // Set CSRF token cookie if not present, and expose via response header
   if (!request.cookies.get('csrf_token')) {
     const csrfToken = await generateCsrfToken()

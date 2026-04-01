@@ -37,6 +37,10 @@ const ALLOWED_SETTING_KEYS = [
   'social_facebook',
   'social_twitter',
   'social_instagram',
+  'maintenance_mode',
+  'order_confirmation_email',
+  'low_stock_alert',
+  'low_stock_threshold',
 ]
 
 // GET all settings
