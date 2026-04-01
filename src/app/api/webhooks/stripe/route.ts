@@ -5,6 +5,9 @@ import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@supabase/supabase-js'
 import { captureError } from '@/lib/error-tracking'
 import { DEFAULT_VENDOR_COMMISSION_RATE } from '@/lib/constants'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'webhook:stripe' })
 
 function getSupabaseAdmin() {
   return createClient(
@@ -62,7 +65,7 @@ export async function POST(request: Request) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        console.log(`[WEBHOOK] checkout.session.completed: ${session.id}, payment_status=${session.payment_status}`)
+        log.info('Checkout session completed', { sessionId: session.id, paymentStatus: session.payment_status })
 
         if (session.payment_status === 'paid') {
           await createOrder(session, event.id)
@@ -72,7 +75,7 @@ export async function POST(request: Request) {
 
       case 'checkout.session.async_payment_succeeded': {
         const session = event.data.object as Stripe.Checkout.Session
-        console.log(`[WEBHOOK] async_payment_succeeded: ${session.id}`)
+        log.info('Async payment succeeded', { sessionId: session.id })
         await createOrder(session, event.id)
         break
       }
@@ -94,7 +97,7 @@ export async function POST(request: Request) {
       }
 
       default:
-        console.log(`Unhandled event type: ${event.type}`)
+        log.warn('Unhandled event type', { eventType: event.type })
     }
 
   } catch (error) {
@@ -122,7 +125,7 @@ async function updateVendorStripeStatus(account: Stripe.Account) {
       .single()
 
     if (error || !vendor) {
-      console.log(`No vendor found for Stripe account ${account.id}`)
+      log.warn('No vendor found for Stripe account', { accountId: account.id })
       return
     }
 
@@ -145,7 +148,7 @@ async function updateVendorStripeStatus(account: Stripe.Account) {
       return
     }
 
-    console.log(`Updated Stripe status for vendor ${vendor.id}: charges=${account.charges_enabled}, payouts=${account.payouts_enabled}`)
+    log.info('Updated vendor Stripe status', { vendorId: vendor.id, chargesEnabled: account.charges_enabled, payoutsEnabled: account.payouts_enabled })
   } catch (error) {
     captureError(error instanceof Error ? error : new Error(String(error)), {
       context: 'webhook:stripe:vendor_status',
@@ -155,7 +158,7 @@ async function updateVendorStripeStatus(account: Stripe.Account) {
 }
 
 async function createOrder(session: Stripe.Checkout.Session, eventId: string) {
-  console.log(`[createOrder] START for session ${session.id} (event: ${eventId})`)
+  log.info('Creating order', { sessionId: session.id, eventId })
   const metadata = session.metadata
   const supabaseAdmin = getSupabaseAdmin()
 
@@ -171,7 +174,7 @@ async function createOrder(session: Stripe.Checkout.Session, eventId: string) {
     .maybeSingle()
 
   if (existingOrder) {
-    console.log(`[createOrder] Order ${existingOrder.order_number} already exists for session ${session.id}, skipping`)
+    log.info('Order already exists, skipping', { orderNumber: existingOrder.order_number, sessionId: session.id })
     return
   }
 
@@ -213,7 +216,7 @@ async function createOrder(session: Stripe.Checkout.Session, eventId: string) {
   const userId = metadata.userId && metadata.userId.length > 0 ? metadata.userId : null
   const customerEmail = session.customer_details?.email || metadata.customerEmail || ''
 
-  console.log(`[createOrder] Creating order ${metadata.orderNumber}: userId=${userId}, email=${customerEmail}, total=${totalParsed}`)
+  log.info('Inserting order', { orderNumber: metadata.orderNumber, userId, email: customerEmail, totalPence: totalParsed })
 
   // Create order
   const { data: order, error: orderError } = await supabaseAdmin
@@ -251,7 +254,7 @@ async function createOrder(session: Stripe.Checkout.Session, eventId: string) {
     throw new Error(`Failed to create order: ${orderError.message}`)
   }
 
-  console.log(`[createOrder] Order created: ${order.order_number} (${order.id})`)
+  log.info('Order created', { orderNumber: order.order_number, orderId: order.id })
 
   // Create order items with vendor info
   const orderItems = items.map((item) => ({
@@ -337,7 +340,7 @@ async function createOrder(session: Stripe.Checkout.Session, eventId: string) {
       const isFirstOrder = (count || 0) === 0
       const result = await awardOrderPoints(userId, order.id, totalParsed, isFirstOrder)
       if (result.success) {
-        console.log(`[createOrder] Awarded ${result.points_awarded} loyalty points to user ${userId}`)
+        log.info('Loyalty points awarded', { pointsAwarded: result.points_awarded, userId })
       }
     } catch (loyaltyError) {
       captureError(loyaltyError instanceof Error ? loyaltyError : new Error(String(loyaltyError)), {
@@ -357,7 +360,7 @@ async function createOrder(session: Stripe.Checkout.Session, eventId: string) {
     })
   }
 
-  console.log(`[createOrder] SUCCESS: ${order.order_number}`)
+  log.info('Order processing complete', { orderNumber: order.order_number })
 }
 
 async function sendOrderConfirmationEmail(
@@ -418,7 +421,7 @@ async function sendOrderConfirmationEmail(
     `,
   })
 
-  console.log(`[createOrder] Confirmation email sent to ${customerEmail}`)
+  log.info('Confirmation email sent', { email: customerEmail })
 }
 
 async function processVendorPayments(
@@ -433,7 +436,7 @@ async function processVendorPayments(
   const vendorIdsFromBreakdown = Object.keys(effectiveBreakdown).filter(id => id !== 'platform')
 
   if (vendorIdsFromBreakdown.length === 0 && orderItems.length > 0) {
-    console.log('Rebuilding vendor breakdown from order items')
+    log.info('Rebuilding vendor breakdown from order items')
     const itemsByVendor: Record<string, number> = {}
     for (const item of orderItems) {
       if (item.vendorId) {
@@ -461,7 +464,7 @@ async function processVendorPayments(
   const vendorIds = Object.keys(effectiveBreakdown).filter(id => id !== 'platform')
 
   if (vendorIds.length === 0) {
-    console.log('No vendor items in this order')
+    log.info('No vendor items in this order')
     return
   }
 
@@ -472,7 +475,7 @@ async function processVendorPayments(
     .in('id', vendorIds)
 
   if (!vendors || vendors.length === 0) {
-    console.log('No vendors found')
+    log.warn('No vendors found in database', { vendorIds })
     return
   }
 
@@ -489,7 +492,7 @@ async function processVendorPayments(
       } else if (latestCharge && typeof latestCharge === 'object' && 'id' in latestCharge) {
         chargeId = latestCharge.id
       }
-      console.log(`Resolved charge ID: ${chargeId} from payment intent: ${paymentIntentId}`)
+      log.info('Resolved charge ID', { chargeId, paymentIntentId })
     } catch (piError) {
       captureError(piError instanceof Error ? piError : new Error(String(piError)), {
         context: 'webhook:stripe:resolve_charge',
@@ -554,7 +557,7 @@ async function processVendorPayments(
           })
           .eq('id', vendorOrder.id)
 
-        console.log(`Transfer ${transfer.id} created for vendor ${vendor.id}: ${breakdown.net}p`)
+        log.info('Transfer created', { transferId: transfer.id, vendorId: vendor.id, amountPence: breakdown.net })
       } catch (transferError) {
         captureError(transferError instanceof Error ? transferError : new Error(String(transferError)), {
           context: 'webhook:stripe:transfer',
@@ -572,7 +575,7 @@ async function processVendorPayments(
         .update({ status: 'pending_payout' })
         .eq('id', vendorOrder.id)
 
-      console.log(`Vendor ${vendor.id} no Stripe connected - marked as pending payout`)
+      log.warn('Vendor has no Stripe account, marked as pending payout', { vendorId: vendor.id })
     }
   }
 }

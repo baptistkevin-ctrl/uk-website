@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAdmin } from '@/lib/auth/verify'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'admin:dashboard' })
 
 export const dynamic = 'force-dynamic'
 
@@ -300,7 +303,7 @@ export async function GET(request: NextRequest) {
       ],
     })
   } catch (error) {
-    console.error('Dashboard stats error:', error)
+    log.error('Dashboard stats error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch dashboard stats' }, { status: 500 })
   }
 }
