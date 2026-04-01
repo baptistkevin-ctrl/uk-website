@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +30,9 @@ export async function GET(request: Request) {
 
 // POST - Create new category
 export async function POST(request: Request) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
@@ -66,6 +70,9 @@ export async function POST(request: Request) {
 
 // PUT - Update category
 export async function PUT(request: Request) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
@@ -98,6 +105,9 @@ export async function PUT(request: Request) {
 
 // DELETE - Delete category
 export async function DELETE(request: Request) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
