@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "@/lib/supabase/admin"
+import { getSupabaseAdmin } from "@/lib/supabase/server"
 import { logger } from "@/lib/utils/logger"
 import type { ModelConfig } from "./model-router"
 
@@ -40,7 +40,7 @@ export async function trackAICost(
     created_at: new Date().toISOString(),
   }
 
-  await supabaseAdmin.from("ai_usage_logs").insert(entry)
+  await getSupabaseAdmin().from("ai_usage_logs").insert(entry)
 
   logger.info("AI usage tracked", {
     model: model.id,
@@ -56,7 +56,7 @@ export async function trackAICost(
 
 export async function checkAIBudget(userId: string): Promise<boolean> {
   const today = new Date().toISOString().split("T")[0]
-  const { data } = await supabaseAdmin
+  const { data } = await getSupabaseAdmin()
     .from("ai_usage_logs")
     .select("cost_cents")
     .eq("user_id", userId)

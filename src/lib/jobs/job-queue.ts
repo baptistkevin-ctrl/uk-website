@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "@/lib/supabase/admin"
+import { getSupabaseAdmin } from "@/lib/supabase/server"
 import { logger } from "@/lib/utils/logger"
 
 interface JobDefinition {
@@ -49,7 +49,7 @@ export const jobQueue = {
   async enqueue(job: JobDefinition): Promise<string> {
     const scheduledFor = job.delay ? addDuration(new Date(), job.delay) : new Date()
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
       .from("background_jobs")
       .insert({
         queue: job.queue || "default",
@@ -69,7 +69,7 @@ export const jobQueue = {
   },
 
   async dequeue(queue = "default"): Promise<Job | null> {
-    const { data, error } = await supabaseAdmin.rpc("claim_next_job", {
+    const { data, error } = await getSupabaseAdmin().rpc("claim_next_job", {
       queue_name: queue,
     })
 
@@ -78,7 +78,7 @@ export const jobQueue = {
   },
 
   async complete(jobId: string, result?: unknown): Promise<void> {
-    await supabaseAdmin
+    await getSupabaseAdmin()
       .from("background_jobs")
       .update({
         status: "completed",
@@ -90,7 +90,7 @@ export const jobQueue = {
   },
 
   async fail(jobId: string, errorMessage: string): Promise<void> {
-    const { data: job } = await supabaseAdmin
+    const { data: job } = await getSupabaseAdmin()
       .from("background_jobs")
       .select("attempts, max_attempts")
       .eq("id", jobId)
@@ -98,7 +98,7 @@ export const jobQueue = {
 
     const isDead = (job?.attempts || 0) >= (job?.max_attempts || 3)
 
-    await supabaseAdmin
+    await getSupabaseAdmin()
       .from("background_jobs")
       .update({
         status: isDead ? "dead" : "pending",
@@ -121,7 +121,7 @@ export const jobQueue = {
   },
 
   async getStatus(jobId: string): Promise<Job | null> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
       .from("background_jobs")
       .select("*")
       .eq("id", jobId)

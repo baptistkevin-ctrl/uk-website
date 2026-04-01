@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "@/lib/supabase/admin"
+import { getSupabaseAdmin } from "@/lib/supabase/server"
 import { AppError } from "@/lib/utils/errors"
 import { getTenant } from "./tenant-context"
 
@@ -23,7 +23,7 @@ export async function enforceLimit(
 
   if (resource === "products") {
     if (limits.maxProducts === -1) return
-    const { count } = await supabaseAdmin
+    const { count } = await getSupabaseAdmin()
       .from("products")
       .select("id", { count: "exact", head: true })
       .eq("vendor_id", tenant.tenantId)

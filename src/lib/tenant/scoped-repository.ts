@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "@/lib/supabase/admin"
+import { getSupabaseAdmin } from "@/lib/supabase/server"
 import { getTenant } from "./tenant-context"
 
 interface PaginatedResponse<T> {
@@ -18,7 +18,7 @@ export function createTenantScopedRepository<T extends Record<string, unknown>>(
   return {
     async findById(id: string): Promise<T | null> {
       const tenant = getTenant()
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await getSupabaseAdmin()
         .from(tableName)
         .select("*")
         .eq("id", id)
@@ -37,7 +37,7 @@ export function createTenantScopedRepository<T extends Record<string, unknown>>(
       const tenant = getTenant()
       const offset = (params.page - 1) * params.limit
 
-      const { data, error, count } = await supabaseAdmin
+      const { data, error, count } = await getSupabaseAdmin()
         .from(tableName)
         .select("*", { count: "exact" })
         .eq(tenantColumn, tenant.tenantId)
@@ -62,7 +62,7 @@ export function createTenantScopedRepository<T extends Record<string, unknown>>(
       record: Omit<T, "id" | "created_at" | "updated_at">
     ): Promise<T> {
       const tenant = getTenant()
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await getSupabaseAdmin()
         .from(tableName)
         .insert({ ...record, [tenantColumn]: tenant.tenantId })
         .select()
@@ -74,7 +74,7 @@ export function createTenantScopedRepository<T extends Record<string, unknown>>(
 
     async update(id: string, updates: Partial<T>): Promise<T> {
       const tenant = getTenant()
-      const { data, error } = await supabaseAdmin
+      const { data, error } = await getSupabaseAdmin()
         .from(tableName)
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq("id", id)
@@ -88,7 +88,7 @@ export function createTenantScopedRepository<T extends Record<string, unknown>>(
 
     async softDelete(id: string): Promise<void> {
       const tenant = getTenant()
-      const { error } = await supabaseAdmin
+      const { error } = await getSupabaseAdmin()
         .from(tableName)
         .update({ deleted_at: new Date().toISOString() })
         .eq("id", id)

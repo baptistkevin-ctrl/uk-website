@@ -1,6 +1,6 @@
 import { ok, fail, type Result } from "@/lib/utils/result"
 import { logger } from "@/lib/utils/logger"
-import { supabaseAdmin } from "@/lib/supabase/admin"
+import { getSupabaseAdmin } from "@/lib/supabase/server"
 
 const DEFAULT_COMMISSION_RATE = 0.125 // 12.5%
 
@@ -12,7 +12,7 @@ export const commissionService = {
     vendorId: string
   ): Promise<{ platformPence: number; vendorPence: number; rate: number }> {
     // Get vendor-specific commission rate, fallback to default
-    const { data: vendor } = await supabaseAdmin
+    const { data: vendor } = await getSupabaseAdmin()
       .from("vendors")
       .select("commission_rate")
       .eq("id", vendorId)
@@ -37,7 +37,7 @@ export const commissionService = {
     rate: number
     stripePaymentIntentId?: string
   }): Promise<Result<{ id: string }>> {
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await getSupabaseAdmin()
       .from("commissions")
       .insert({
         order_id: params.orderId,
@@ -70,7 +70,7 @@ export const commissionService = {
     orderId: string,
     refundAmountPence: number
   ): Promise<Result<{ platformRefundPence: number; vendorRefundPence: number }>> {
-    const { data: commission } = await supabaseAdmin
+    const { data: commission } = await getSupabaseAdmin()
       .from("commissions")
       .select("*")
       .eq("order_id", orderId)
@@ -85,7 +85,7 @@ export const commissionService = {
 
     const isFullRefund = refundAmountPence === commission.order_total_pence
 
-    await supabaseAdmin
+    await getSupabaseAdmin()
       .from("commissions")
       .update({
         status: isFullRefund ? "refunded" : "partially_refunded",

@@ -1,6 +1,6 @@
 import { ok, fail, type Result } from "@/lib/utils/result"
 import { logger } from "@/lib/utils/logger"
-import { supabaseAdmin } from "@/lib/supabase/admin"
+import { getSupabaseAdmin } from "@/lib/supabase/server"
 
 type SubStatus = "trialing" | "active" | "past_due" | "canceled" | "incomplete" | "paused"
 
@@ -21,7 +21,7 @@ const log = logger.child({ service: "subscription" })
 
 export const subscriptionService = {
   async findByUserId(userId: string) {
-    const { data } = await supabaseAdmin
+    const { data } = await getSupabaseAdmin()
       .from("subscriptions")
       .select("*")
       .eq("user_id", userId)
@@ -34,7 +34,7 @@ export const subscriptionService = {
     subscriptionId: string,
     action: string
   ): Promise<Result<{ status: SubStatus }>> {
-    const { data: sub } = await supabaseAdmin
+    const { data: sub } = await getSupabaseAdmin()
       .from("subscriptions")
       .select("id, status")
       .eq("id", subscriptionId)
@@ -50,7 +50,7 @@ export const subscriptionService = {
       )
     }
 
-    const { error } = await supabaseAdmin
+    const { error } = await getSupabaseAdmin()
       .from("subscriptions")
       .update({ status: newStatus, updated_at: new Date().toISOString() })
       .eq("id", subscriptionId)
@@ -68,7 +68,7 @@ export const subscriptionService = {
   },
 
   async handlePaymentFailed(stripeSubId: string): Promise<void> {
-    const { data: sub } = await supabaseAdmin
+    const { data: sub } = await getSupabaseAdmin()
       .from("subscriptions")
       .select("id, user_id, status")
       .eq("stripe_subscription_id", stripeSubId)
@@ -76,7 +76,7 @@ export const subscriptionService = {
 
     if (!sub) return
 
-    await supabaseAdmin
+    await getSupabaseAdmin()
       .from("subscriptions")
       .update({ status: "past_due", updated_at: new Date().toISOString() })
       .eq("id", sub.id)
@@ -88,7 +88,7 @@ export const subscriptionService = {
   },
 
   async handlePaymentSucceeded(stripeSubId: string): Promise<void> {
-    const { data: sub } = await supabaseAdmin
+    const { data: sub } = await getSupabaseAdmin()
       .from("subscriptions")
       .select("id, user_id, status")
       .eq("stripe_subscription_id", stripeSubId)
@@ -97,7 +97,7 @@ export const subscriptionService = {
     if (!sub) return
 
     if (sub.status === "past_due" || sub.status === "incomplete") {
-      await supabaseAdmin
+      await getSupabaseAdmin()
         .from("subscriptions")
         .update({ status: "active", updated_at: new Date().toISOString() })
         .eq("id", sub.id)
