@@ -15,7 +15,10 @@ import {
   Store,
   LogOut,
   HelpCircle,
-  ExternalLink
+  ExternalLink,
+  Star,
+  Ticket,
+  Zap,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
@@ -24,6 +27,9 @@ const vendorNavItems = [
   { href: '/vendor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/vendor/products', label: 'Products', icon: Package },
   { href: '/vendor/orders', label: 'Orders', icon: ShoppingCart },
+  { href: '/vendor/reviews', label: 'Reviews', icon: Star },
+  { href: '/vendor/coupons', label: 'Coupons', icon: Ticket },
+  { href: '/vendor/deals', label: 'Flash Deals', icon: Zap },
   { href: '/vendor/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/vendor/payouts', label: 'Payouts', icon: CreditCard },
   { href: '/vendor/settings', label: 'Settings', icon: Settings },
