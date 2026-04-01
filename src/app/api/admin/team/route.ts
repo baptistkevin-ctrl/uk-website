@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,8 +29,10 @@ export async function GET(request: NextRequest) {
     const role = searchParams.get('role')
     const search = searchParams.get('search')
 
-    // Build query
-    let query = supabase
+    const admin = getSupabaseAdmin()
+
+    // Build query using admin client to bypass RLS
+    let query = admin
       .from('team_members')
       .select('*')
       .order('created_at', { ascending: false })
@@ -99,7 +102,9 @@ export async function POST(request: NextRequest) {
     const invitation_expires_at = new Date()
     invitation_expires_at.setDate(invitation_expires_at.getDate() + 7) // 7 days expiry
 
-    const { data: member, error } = await supabase
+    const admin = getSupabaseAdmin()
+
+    const { data: member, error } = await admin
       .from('team_members')
       .insert({
         first_name,

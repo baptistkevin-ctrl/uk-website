@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,7 +27,8 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { data: member, error } = await supabase
+    const admin = getSupabaseAdmin()
+    const { data: member, error } = await admin
       .from('team_members')
       .select('*')
       .eq('id', id)
@@ -95,7 +96,8 @@ export async function PATCH(
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
     }
 
-    const { data: member, error } = await supabase
+    const admin = getSupabaseAdmin()
+    const { data: member, error } = await admin
       .from('team_members')
       .update(updates)
       .eq('id', id)
@@ -141,7 +143,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Only super admins can delete team members' }, { status: 403 })
     }
 
-    const { error } = await supabase
+    const admin = getSupabaseAdmin()
+    const { error } = await admin
       .from('team_members')
       .delete()
       .eq('id', id)
