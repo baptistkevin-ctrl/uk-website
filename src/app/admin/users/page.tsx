@@ -61,16 +61,18 @@ interface UserDetail extends UserProfile {
   }>
 }
 
-const roleColors = {
+const roleColors: Record<string, string> = {
   customer: 'bg-blue-100 text-blue-700',
   vendor: 'bg-purple-100 text-purple-700',
   admin: 'bg-amber-100 text-amber-700',
+  super_admin: 'bg-red-100 text-red-700',
 }
 
-const roleIcons = {
+const roleIcons: Record<string, typeof User> = {
   customer: User,
   vendor: Store,
   admin: Crown,
+  super_admin: ShieldCheck,
 }
 
 export default function UsersPage() {
@@ -317,7 +319,7 @@ export default function UsersPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {users.map((user) => {
-                  const RoleIcon = roleIcons[user.role]
+                  const RoleIcon = roleIcons[user.role] || User
                   return (
                     <tr key={user.id} className="hover:bg-slate-50 transition-colors">
                       <td className="px-6 py-4">
