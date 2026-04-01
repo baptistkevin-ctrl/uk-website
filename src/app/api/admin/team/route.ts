@@ -50,11 +50,15 @@ export async function GET(request: NextRequest) {
     const { data: members, error } = await query
 
     if (error) {
+      // If table doesn't exist, return empty array instead of 500
+      if (error.code === 'PGRST205' || error.message?.includes('team_members')) {
+        return NextResponse.json({ members: [] })
+      }
       console.error('Error fetching team members:', error)
       return NextResponse.json({ error: 'Failed to fetch team members' }, { status: 500 })
     }
 
-    return NextResponse.json({ members })
+    return NextResponse.json({ members: members || [] })
   } catch (error) {
     console.error('Get team members error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -125,6 +129,9 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
+      if (error.code === 'PGRST205' || error.message?.includes('team_members')) {
+        return NextResponse.json({ error: 'Team members table not set up yet. Please run the migration in Supabase Dashboard.' }, { status: 500 })
+      }
       if (error.code === '23505') {
         return NextResponse.json({ error: 'A team member with this email already exists' }, { status: 400 })
       }
