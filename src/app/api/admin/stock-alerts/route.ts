@@ -138,7 +138,7 @@ export async function DELETE(request: NextRequest) {
       .lt('updated_at', cutoffDate.toISOString())
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
     }
 
     // Log audit event

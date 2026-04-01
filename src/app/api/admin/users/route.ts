@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     const { data: users, error, count } = await query.range(offset, offset + limit - 1)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
     }
 
     // Get order counts for each user

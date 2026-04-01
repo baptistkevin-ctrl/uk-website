@@ -52,7 +52,8 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error updating vendor settings:', error)
+      return NextResponse.json({ error: 'Failed to update vendor settings' }, { status: 500 })
     }
 
     return NextResponse.json(data)

@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error fetching offers:', error)
+    return NextResponse.json({ error: 'Failed to fetch offers' }, { status: 500 })
   }
 
   return NextResponse.json(data)
@@ -79,7 +80,8 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error creating offer:', error)
+      return NextResponse.json({ error: 'Failed to create offer' }, { status: 500 })
     }
 
     // Update product's offer badge if product-specific offer
@@ -133,7 +135,8 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error updating offer:', error)
+      return NextResponse.json({ error: 'Failed to update offer' }, { status: 500 })
     }
 
     // Update product offer badges
@@ -190,7 +193,8 @@ export async function DELETE(request: NextRequest) {
     .eq('id', id)
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error deleting offer:', error)
+    return NextResponse.json({ error: 'Failed to delete offer' }, { status: 500 })
   }
 
   // Remove badge from product

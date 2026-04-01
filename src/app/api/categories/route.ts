@@ -22,7 +22,8 @@ export async function GET(request: Request) {
   const { data, error } = await query
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error fetching categories:', error)
+    return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 })
   }
 
   return NextResponse.json(data)
@@ -59,7 +60,8 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error creating category:', error)
+      return NextResponse.json({ error: 'Failed to create category' }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 201 })
@@ -94,7 +96,8 @@ export async function PUT(request: Request) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error updating category:', error)
+      return NextResponse.json({ error: 'Failed to update category' }, { status: 500 })
     }
 
     return NextResponse.json(data)
@@ -122,7 +125,8 @@ export async function DELETE(request: Request) {
     .eq('id', id)
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error deleting category:', error)
+    return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })

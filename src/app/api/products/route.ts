@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
       context: 'api:products:get',
       extra: { category, limit, offset },
     })
-    return NextResponse.json({ error: 'Failed to fetch products', details: error instanceof Error ? error.message : String(error) }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
   }
 }
 
@@ -139,7 +139,8 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error creating product:', error)
+    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
   }
 
   // Log audit event

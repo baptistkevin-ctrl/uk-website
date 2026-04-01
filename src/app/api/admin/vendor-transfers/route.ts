@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: false })
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
   }
 
   return NextResponse.json(data)
@@ -71,8 +71,8 @@ export async function POST(request: NextRequest) {
     }
 
     for (const vo of vendorOrders) {
-      const vendor = vo.vendor as any
-      const order = vo.order as any
+      const vendor = vo.vendor as { id?: string; business_name?: string; stripe_account_id?: string } | null
+      const order = vo.order as { id?: string; order_number?: string; stripe_payment_intent_id?: string } | null
 
       if (!vendor?.stripe_account_id) {
         results.push({
@@ -122,15 +122,15 @@ export async function POST(request: NextRequest) {
         }
 
         // Create transfer
-        const transferParams: any = {
+        const transferParams: Record<string, unknown> = {
           amount: vo.vendor_amount,
           currency: 'gbp',
           destination: vendor.stripe_account_id,
           transfer_group: order.id,
           metadata: {
-            order_id: order.id,
-            order_number: order.order_number,
-            vendor_id: vendor.id,
+            order_id: order.id || '',
+            order_number: order.order_number || '',
+            vendor_id: vendor.id || '',
             vendor_order_id: vo.id,
             retry: 'true',
           },
@@ -140,7 +140,7 @@ export async function POST(request: NextRequest) {
           transferParams.source_transaction = chargeId
         }
 
-        const transfer = await stripe.transfers.create(transferParams)
+        const transfer = await stripe.transfers.create(transferParams as unknown as Parameters<typeof stripe.transfers.create>[0])
 
         // Update vendor order
         await supabaseAdmin
@@ -154,10 +154,10 @@ export async function POST(request: NextRequest) {
 
         results.push({
           vendor_order_id: vo.id,
-          vendor_name: vendor.business_name,
+          vendor_name: vendor.business_name || 'Unknown',
           amount: vo.vendor_amount,
           status: 'transferred',
-          message: `Transfer ${transfer.id} created - ${vo.vendor_amount} pence sent to ${vendor.business_name}`,
+          message: `Transfer ${transfer.id} created - ${vo.vendor_amount} pence sent to ${vendor.business_name || 'vendor'}`,
         })
       } catch (transferError: any) {
         results.push({

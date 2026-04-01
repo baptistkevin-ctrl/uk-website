@@ -155,7 +155,7 @@ export async function PUT(
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
     }
 
     // Audit log for role changes and bans
@@ -233,7 +233,7 @@ export async function DELETE(
         .eq('id', id)
 
       if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
       }
 
       return NextResponse.json({
@@ -249,7 +249,7 @@ export async function DELETE(
       .eq('id', id)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
     }
 
     return NextResponse.json({ message: 'User deleted successfully' })

@@ -47,7 +47,8 @@ export async function GET(request: NextRequest) {
   const { data, error, count } = await query
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error fetching orders:', error)
+    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
   }
 
   return NextResponse.json({
@@ -126,7 +127,8 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error updating order:', error)
+      return NextResponse.json({ error: 'Failed to update order' }, { status: 500 })
     }
 
     // Log audit event

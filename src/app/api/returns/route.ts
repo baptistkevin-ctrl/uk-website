@@ -75,7 +75,8 @@ export async function GET(request: NextRequest) {
   const { data, error, count } = await query.range(offset, offset + limit - 1)
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error fetching returns:', error)
+    return NextResponse.json({ error: 'Failed to fetch returns' }, { status: 500 })
   }
 
   return NextResponse.json({

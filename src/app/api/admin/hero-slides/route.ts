@@ -17,7 +17,8 @@ export async function GET() {
     .order('display_order', { ascending: true })
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error fetching hero slides:', error)
+    return NextResponse.json({ error: 'Failed to fetch hero slides' }, { status: 500 })
   }
 
   return NextResponse.json(data)
@@ -66,7 +67,8 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error creating hero slide:', error)
+      return NextResponse.json({ error: 'Failed to create hero slide' }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 201 })
@@ -104,7 +106,8 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error updating hero slide:', error)
+      return NextResponse.json({ error: 'Failed to update hero slide' }, { status: 500 })
     }
 
     return NextResponse.json(data)
@@ -132,7 +135,8 @@ export async function DELETE(request: NextRequest) {
     .eq('id', id)
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error deleting hero slide:', error)
+    return NextResponse.json({ error: 'Failed to delete hero slide' }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })

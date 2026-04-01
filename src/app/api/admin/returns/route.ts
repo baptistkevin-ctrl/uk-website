@@ -55,7 +55,8 @@ export async function GET(request: NextRequest) {
   const { data, error, count } = await query.range(offset, offset + limit - 1)
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error fetching returns:', error)
+    return NextResponse.json({ error: 'Failed to fetch returns' }, { status: 500 })
   }
 
   return NextResponse.json({
@@ -164,7 +165,8 @@ export async function PUT(request: NextRequest) {
     .single()
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error updating return:', error)
+    return NextResponse.json({ error: 'Failed to update return' }, { status: 500 })
   }
 
   return NextResponse.json(data)

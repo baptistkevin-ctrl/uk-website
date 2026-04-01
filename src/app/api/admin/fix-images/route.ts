@@ -191,7 +191,8 @@ export async function GET() {
       .select('id, name, image_url')
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error fetching product images:', error)
+      return NextResponse.json({ error: 'Failed to fetch product images' }, { status: 500 })
     }
 
     const needsUpdate = products?.filter(p => !p.image_url || p.image_url.startsWith('/')) || []

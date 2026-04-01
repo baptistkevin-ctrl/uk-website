@@ -56,7 +56,7 @@ export async function GET() {
     .order('category', { ascending: true })
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
   }
 
   // Transform to key-value object
@@ -143,7 +143,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 201 })

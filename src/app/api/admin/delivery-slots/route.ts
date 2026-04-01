@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error fetching delivery slots:', error)
+    return NextResponse.json({ error: 'Failed to fetch delivery slots' }, { status: 500 })
   }
 
   return NextResponse.json(data)
@@ -77,7 +78,8 @@ export async function POST(request: NextRequest) {
           { status: 409 }
         )
       }
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error creating delivery slot:', error)
+      return NextResponse.json({ error: 'Failed to create delivery slot' }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 201 })
@@ -115,7 +117,8 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error updating delivery slot:', error)
+      return NextResponse.json({ error: 'Failed to update delivery slot' }, { status: 500 })
     }
 
     return NextResponse.json(data)
@@ -157,7 +160,8 @@ export async function DELETE(request: NextRequest) {
     .eq('id', id)
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error deleting delivery slot:', error)
+    return NextResponse.json({ error: 'Failed to delete delivery slot' }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })

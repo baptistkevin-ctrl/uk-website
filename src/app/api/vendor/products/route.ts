@@ -219,26 +219,44 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
+    // Whitelist of fields vendors can update
+    const VENDOR_ALLOWED_FIELDS = new Set([
+      'name', 'description', 'short_description', 'price_pence', 'price',
+      'compare_at_price_pence', 'compare_at_price', 'image_url', 'images',
+      'sku', 'barcode', 'stock_quantity', 'low_stock_threshold',
+      'unit', 'unit_value', 'brand', 'is_active',
+      'is_organic', 'is_vegan', 'is_vegetarian', 'is_gluten_free',
+      'category_id',
+    ])
+
+    // Only allow whitelisted fields
+    const sanitizedUpdates: Record<string, unknown> = {}
+    for (const key of Object.keys(updates)) {
+      if (VENDOR_ALLOWED_FIELDS.has(key)) {
+        sanitizedUpdates[key] = updates[key]
+      }
+    }
+
     // Price fields should already be in pence from the client
     // Rename to match database column names if client sends different keys
-    if (updates.price !== undefined) {
-      updates.price_pence = updates.price
-      delete updates.price
+    if (sanitizedUpdates.price !== undefined) {
+      sanitizedUpdates.price_pence = sanitizedUpdates.price
+      delete sanitizedUpdates.price
     }
-    if (updates.compare_at_price !== undefined) {
-      updates.compare_at_price_pence = updates.compare_at_price
-      delete updates.compare_at_price
+    if (sanitizedUpdates.compare_at_price !== undefined) {
+      sanitizedUpdates.compare_at_price_pence = sanitizedUpdates.compare_at_price
+      delete sanitizedUpdates.compare_at_price
     }
 
     // Extract category_id before updating products (it's in a join table)
-    const categoryId = updates.category_id
-    delete updates.category_id
+    const categoryId = sanitizedUpdates.category_id
+    delete sanitizedUpdates.category_id
 
     // Update product
     const { data: product, error: updateError } = await supabaseAdmin
       .from('products')
       .update({
-        ...updates,
+        ...sanitizedUpdates,
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
