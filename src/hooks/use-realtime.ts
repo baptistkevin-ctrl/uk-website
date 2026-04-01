@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { createClient } from "@/lib/supabase/client"
-import type { RealtimeChannel } from "@supabase/supabase-js"
+import type { RealtimeChannel, RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 
-interface UseRealtimeOptions<T> {
+interface UseRealtimeOptions<T extends Record<string, unknown>> {
   table: string
   filter?: string             // e.g., "vendor_id=eq.vendor_123"
   event?: "INSERT" | "UPDATE" | "DELETE" | "*"
@@ -11,7 +11,7 @@ interface UseRealtimeOptions<T> {
   onDelete?: (record: T) => void
 }
 
-export function useRealtime<T>(options: UseRealtimeOptions<T>) {
+export function useRealtime<T extends Record<string, unknown>>(options: UseRealtimeOptions<T>) {
   const { table, filter, event = "*", onInsert, onUpdate, onDelete } = options
   const [isConnected, setIsConnected] = useState(false)
 
@@ -23,21 +23,21 @@ export function useRealtime<T>(options: UseRealtimeOptions<T>) {
 
     channel = supabase
       .channel(channelName)
-      .on(
-        "postgres_changes",
+      .on<T>(
+        "postgres_changes" as const,
         {
-          event,
+          event: event as "*",
           schema: "public",
           table,
           ...(filter && { filter }),
         },
-        (payload) => {
+        (payload: RealtimePostgresChangesPayload<T>) => {
           switch (payload.eventType) {
             case "INSERT":
-              onInsert?.(payload.new as T)
+              onInsert?.(payload.new)
               break
             case "UPDATE":
-              onUpdate?.(payload.new as T)
+              onUpdate?.(payload.new)
               break
             case "DELETE":
               onDelete?.(payload.old as T)
