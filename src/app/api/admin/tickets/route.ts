@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sanitizeSearchQuery } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -65,7 +66,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      query = query.or(`subject.ilike.%${search}%,ticket_number.ilike.%${search}%`)
+      const sanitizedSearch = sanitizeSearchQuery(search)
+      if (sanitizedSearch) {
+        query = query.or(`subject.ilike.%${sanitizedSearch}%,ticket_number.ilike.%${sanitizedSearch}%`)
+      }
     }
 
     const { data: tickets, error, count } = await query

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { sanitizeSearchQuery } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,7 +44,10 @@ export async function GET(request: NextRequest) {
       query = query.eq('role', role)
     }
     if (search) {
-      query = query.or(`first_name.ilike.%${search}%,last_name.ilike.%${search}%,email.ilike.%${search}%`)
+      const sanitizedSearch = sanitizeSearchQuery(search)
+      if (sanitizedSearch) {
+        query = query.or(`first_name.ilike.%${sanitizedSearch}%,last_name.ilike.%${sanitizedSearch}%,email.ilike.%${sanitizedSearch}%`)
+      }
     }
 
     const { data: members, error } = await query

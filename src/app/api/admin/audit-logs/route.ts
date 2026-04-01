@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sanitizeSearchQuery } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,7 +59,10 @@ export async function GET(request: NextRequest) {
       query = query.lte('created_at', endDate)
     }
     if (search) {
-      query = query.or(`entity_name.ilike.%${search}%,user_email.ilike.%${search}%`)
+      const sanitizedSearch = sanitizeSearchQuery(search)
+      if (sanitizedSearch) {
+        query = query.or(`entity_name.ilike.%${sanitizedSearch}%,user_email.ilike.%${sanitizedSearch}%`)
+      }
     }
 
     // Pagination

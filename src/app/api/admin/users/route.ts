@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { sanitizeSearchQuery } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,7 +50,10 @@ export async function GET(request: NextRequest) {
 
     // Search by email or name
     if (search) {
-      query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`)
+      const sanitizedSearch = sanitizeSearchQuery(search)
+      if (sanitizedSearch) {
+        query = query.or(`email.ilike.%${sanitizedSearch}%,full_name.ilike.%${sanitizedSearch}%`)
+      }
     }
 
     // Filter by role

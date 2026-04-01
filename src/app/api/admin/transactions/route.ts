@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sanitizeSearchQuery } from '@/lib/security'
 
 export async function GET(request: NextRequest) {
   try {
@@ -37,7 +38,10 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      query = query.or(`order_number.ilike.%${search}%,customer_name.ilike.%${search}%,customer_email.ilike.%${search}%,stripe_payment_intent_id.ilike.%${search}%`)
+      const sanitizedSearch = sanitizeSearchQuery(search)
+      if (sanitizedSearch) {
+        query = query.or(`order_number.ilike.%${sanitizedSearch}%,customer_name.ilike.%${sanitizedSearch}%,customer_email.ilike.%${sanitizedSearch}%,stripe_payment_intent_id.ilike.%${sanitizedSearch}%`)
+      }
     }
 
     if (dateFrom) {

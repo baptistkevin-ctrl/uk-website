@@ -5,8 +5,11 @@ import { cookies } from 'next/headers'
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
-  const redirectTo = searchParams.get('redirectTo') || '/'
   const referralCode = searchParams.get('ref') || null
+
+  // Validate redirectTo to prevent open redirect attacks
+  const rawRedirect = searchParams.get('redirectTo') || '/'
+  const redirectTo = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/'
 
   if (code) {
     const cookieStore = await cookies()
