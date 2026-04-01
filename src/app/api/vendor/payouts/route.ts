@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
         totalEarnings,
         pendingAmount,
         paidOut,
-        available: pendingAmount - paidOut
+        available: Math.max(0, pendingAmount - paidOut)
       }
     })
   } catch (error) {

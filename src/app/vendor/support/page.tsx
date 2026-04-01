@@ -251,7 +251,7 @@ export default function VendorSupportPortal() {
         </a>
 
         <a
-          href="tel:+441onal2345678"
+          href="tel:+442012345678"
           className="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all group"
         >
           <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">

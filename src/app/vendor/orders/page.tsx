@@ -98,9 +98,13 @@ export default function VendorOrdersPage() {
         if (selectedOrder?.id === orderId) {
           setSelectedOrder({ ...selectedOrder, status: newStatus })
         }
+      } else {
+        const data = await res.json().catch(() => ({}))
+        alert(data.error || 'Failed to update order status')
       }
     } catch (error) {
       console.error('Update status error:', error)
+      alert('Failed to update order status')
     } finally {
       setUpdatingStatus(null)
     }
@@ -260,9 +264,11 @@ export default function VendorOrdersPage() {
                   {/* Mini milestone progress bar */}
                   {order.status !== 'cancelled' && (
                     <div className="mt-3 flex items-center gap-1">
-                      {['pending', 'confirmed', 'processing', 'shipped', 'delivered'].map((step, i) => {
+                      {['pending', 'confirmed', 'processing', 'shipped', 'delivered'].map((step) => {
                         const statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered']
-                        const currentIdx = statusOrder.indexOf(order.status)
+                        const rawIdx = statusOrder.indexOf(order.status)
+                        // For statuses not in milestone list (transferred, pending_payout), treat as delivered
+                        const currentIdx = rawIdx === -1 ? statusOrder.length - 1 : rawIdx
                         const stepIdx = statusOrder.indexOf(step)
                         return (
                           <div key={step} className="flex items-center flex-1">
@@ -396,7 +402,9 @@ export default function VendorOrdersPage() {
                           { key: 'delivered', label: 'Delivered', icon: PackageCheck, description: 'Order delivered to customer' },
                         ]
                         const statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered']
-                        const currentIndex = statusOrder.indexOf(selectedOrder.status)
+                        const rawIndex = statusOrder.indexOf(selectedOrder.status)
+                        // For statuses not in milestone list (transferred, pending_payout), treat as delivered
+                        const currentIndex = rawIndex === -1 ? statusOrder.length - 1 : rawIndex
                         const nextStatus = currentIndex < statusOrder.length - 1 ? statusOrder[currentIndex + 1] : null
 
                         return (

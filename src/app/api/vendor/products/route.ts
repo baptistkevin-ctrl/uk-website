@@ -230,6 +230,10 @@ export async function PUT(request: NextRequest) {
       delete updates.compare_at_price
     }
 
+    // Extract category_id before updating products (it's in a join table)
+    const categoryId = updates.category_id
+    delete updates.category_id
+
     // Update product
     const { data: product, error: updateError } = await supabaseAdmin
       .from('products')
@@ -240,6 +244,18 @@ export async function PUT(request: NextRequest) {
       .eq('id', id)
       .select()
       .single()
+
+    // Update category link if provided
+    if (categoryId && product) {
+      await supabaseAdmin
+        .from('product_categories')
+        .delete()
+        .eq('product_id', id)
+
+      await supabaseAdmin
+        .from('product_categories')
+        .insert({ product_id: id, category_id: categoryId })
+    }
 
     if (updateError) {
       return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })

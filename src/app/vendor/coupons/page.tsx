@@ -191,7 +191,7 @@ export default function VendorCouponsPage() {
 
   const discountLabel = (coupon: Coupon) => {
     if (coupon.discount_type === 'percentage') return `${coupon.discount_value}% off`
-    if (coupon.discount_type === 'fixed_amount') return `${formatPrice(coupon.discount_value * 100)} off`
+    if (coupon.discount_type === 'fixed_amount') return `${formatPrice(coupon.discount_value)} off`
     return 'Free shipping'
   }
 

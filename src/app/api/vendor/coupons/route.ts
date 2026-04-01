@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
         max_discount_pence: max_discount_pence || null,
         usage_limit: usage_limit || null,
         per_user_limit: per_user_limit || 1,
+        vendor_id: vendor.id,
         applies_to: 'vendors',
         applicable_ids: [vendor.id],
         exclude_sale_items: exclude_sale_items || false,
