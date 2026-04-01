@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 import { userAudit } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
@@ -28,8 +28,10 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    const admin = getSupabaseAdmin()
+
     // Get user profile
-    const { data: userProfile, error } = await supabase
+    const { data: userProfile, error } = await admin
       .from('profiles')
       .select('*')
       .eq('id', id)
@@ -40,7 +42,7 @@ export async function GET(
     }
 
     // Get user orders
-    const { data: orders, count: orderCount } = await supabase
+    const { data: orders, count: orderCount } = await admin
       .from('orders')
       .select('id, order_number, total_pence, status, created_at', { count: 'exact' })
       .eq('user_id', id)
@@ -48,7 +50,7 @@ export async function GET(
       .limit(10)
 
     // Get total spent
-    const { data: totalData } = await supabase
+    const { data: totalData } = await admin
       .from('orders')
       .select('total_pence')
       .eq('user_id', id)
@@ -57,13 +59,13 @@ export async function GET(
     const totalSpent = totalData?.reduce((sum, o) => sum + (o.total_pence || 0), 0) || 0
 
     // Get user addresses
-    const { data: addresses } = await supabase
+    const { data: addresses } = await admin
       .from('addresses')
       .select('*')
       .eq('user_id', id)
 
     // Get user reviews
-    const { count: reviewCount } = await supabase
+    const { count: reviewCount } = await admin
       .from('product_reviews')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', id)
@@ -144,7 +146,8 @@ export async function PUT(
     if (full_name !== undefined) updateData.full_name = full_name
     if (phone !== undefined) updateData.phone = phone
 
-    const { data: updatedUser, error } = await supabase
+    const admin = getSupabaseAdmin()
+    const { data: updatedUser, error } = await admin
       .from('profiles')
       .update(updateData)
       .eq('id', id)
@@ -207,15 +210,17 @@ export async function DELETE(
       return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 })
     }
 
+    const admin = getSupabaseAdmin()
+
     // Check if user has orders
-    const { count: orderCount } = await supabase
+    const { count: orderCount } = await admin
       .from('orders')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', id)
 
     if (orderCount && orderCount > 0) {
       // Instead of deleting, anonymize the user
-      const { error } = await supabase
+      const { error } = await admin
         .from('profiles')
         .update({
           email: `deleted_${id.substring(0, 8)}@deleted.user`,
@@ -238,7 +243,7 @@ export async function DELETE(
     }
 
     // Delete user profile (cascade will handle related records)
-    const { error } = await supabase
+    const { error } = await admin
       .from('profiles')
       .delete()
       .eq('id', id)

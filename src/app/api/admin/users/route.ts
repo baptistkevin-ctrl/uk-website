@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,7 +31,8 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') || ''
     const offset = (page - 1) * limit
 
-    let query = supabase
+    const admin = getSupabaseAdmin()
+    let query = admin
       .from('profiles')
       .select(`
         id,
@@ -71,7 +72,7 @@ export async function GET(request: NextRequest) {
 
     // Get order counts for each user
     const userIds = users?.map(u => u.id) || []
-    const { data: orderCounts } = await supabase
+    const { data: orderCounts } = await admin
       .from('orders')
       .select('user_id')
       .in('user_id', userIds)
