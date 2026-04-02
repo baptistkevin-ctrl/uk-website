@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:team' })
 
 export const dynamic = 'force-dynamic'
 
@@ -35,13 +38,13 @@ export async function GET(
       .single()
 
     if (error) {
-      console.error('Error fetching team member:', error)
+      log.error('Error fetching team member', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Team member not found' }, { status: 404 })
     }
 
     return NextResponse.json({ member })
   } catch (error) {
-    console.error('Get team member error:', error)
+    log.error('Get team member error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -108,13 +111,13 @@ export async function PATCH(
       if (error.code === '23505') {
         return NextResponse.json({ error: 'A team member with this email already exists' }, { status: 400 })
       }
-      console.error('Error updating team member:', error)
+      log.error('Error updating team member', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to update team member' }, { status: 500 })
     }
 
     return NextResponse.json({ member })
   } catch (error) {
-    console.error('Update team member error:', error)
+    log.error('Update team member error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -150,13 +153,13 @@ export async function DELETE(
       .eq('id', id)
 
     if (error) {
-      console.error('Error deleting team member:', error)
+      log.error('Error deleting team member', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to delete team member' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Delete team member error:', error)
+    log.error('Delete team member error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

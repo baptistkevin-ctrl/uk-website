@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:vendor:payouts' })
 
 export const dynamic = 'force-dynamic'
 
@@ -34,7 +37,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (payoutsError) {
-      console.error('Payouts error:', payoutsError)
+      log.error('Payouts error', { error: payoutsError instanceof Error ? payoutsError.message : String(payoutsError) })
     }
 
     // Get vendor orders summary for pending payouts
@@ -64,7 +67,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Payouts error:', error)
+    log.error('Payouts error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch payouts' }, { status: 500 })
   }
 }

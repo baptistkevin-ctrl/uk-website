@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sanitizeSearchQuery } from '@/lib/security'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:email-templates' })
 
 export const dynamic = 'force-dynamic'
 
@@ -48,13 +51,13 @@ export async function GET(request: NextRequest) {
     const { data: templates, error } = await query
 
     if (error) {
-      console.error('Error fetching email templates:', error)
+      log.error('Error fetching email templates', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch email templates' }, { status: 500 })
     }
 
     return NextResponse.json({ templates })
   } catch (error) {
-    console.error('Get email templates error:', error)
+    log.error('Get email templates error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -116,13 +119,13 @@ export async function POST(request: NextRequest) {
       if (error.code === '23505') {
         return NextResponse.json({ error: 'A template with this slug already exists' }, { status: 400 })
       }
-      console.error('Error creating email template:', error)
+      log.error('Error creating email template', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create email template' }, { status: 500 })
     }
 
     return NextResponse.json({ template })
   } catch (error) {
-    console.error('Create email template error:', error)
+    log.error('Create email template error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

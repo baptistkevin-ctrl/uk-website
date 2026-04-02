@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:vendor-applications' })
 
 export const dynamic = 'force-dynamic'
 
@@ -106,7 +109,7 @@ export async function PUT(request: NextRequest) {
         .single()
 
       if (vendorError) {
-        console.error('Vendor creation error:', vendorError)
+        log.error('Vendor creation error', { error: vendorError instanceof Error ? vendorError.message : String(vendorError) })
         return NextResponse.json({ error: 'Failed to create vendor' }, { status: 500 })
       }
 
@@ -132,7 +135,7 @@ export async function PUT(request: NextRequest) {
       message: `Application ${status}`
     })
   } catch (error) {
-    console.error('Application update error:', error)
+    log.error('Application update error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
 }

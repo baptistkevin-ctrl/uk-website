@@ -3,6 +3,9 @@ import { createClient } from '@supabase/supabase-js'
 import { cached, TTL } from '@/lib/cache'
 import { captureError } from '@/lib/error-tracking'
 import { checkRateLimit, rateLimitConfigs, addRateLimitHeaders } from '@/lib/security'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:search' })
 
 export const dynamic = 'force-dynamic'
 
@@ -175,7 +178,7 @@ export async function GET(request: NextRequest) {
     const { data: products, error, count } = await dbQuery.range(offset, offset + limit - 1)
 
     if (error) {
-      console.error('Search error:', JSON.stringify(error))
+      log.error('Search error', { error: JSON.stringify(error) })
       // Supabase returns error when range exceeds total rows - return empty results gracefully
       return NextResponse.json({
         products: [],

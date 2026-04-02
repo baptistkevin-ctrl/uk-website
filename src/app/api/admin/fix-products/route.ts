@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:fix-products' })
 
 export const dynamic = 'force-dynamic'
 
@@ -118,6 +122,9 @@ const categoryMapping: Record<string, string[]> = {
 }
 
 export async function POST(request: NextRequest) {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
@@ -227,12 +234,15 @@ export async function POST(request: NextRequest) {
       categories: Object.keys(categoryIdMap)
     })
   } catch (error) {
-    console.error('Error:', error)
+    log.error('Error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fix products' }, { status: 500 })
   }
 }
 
 export async function GET() {
+  const authResult = await requireAdmin()
+  if (!authResult.success) return authResult.error!
+
   return NextResponse.json({
     message: 'Fix Products API - Updates products with correct category_id',
     usage: 'POST /api/admin/fix-products'

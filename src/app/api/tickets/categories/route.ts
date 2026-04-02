@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:tickets:categories' })
 
 export const dynamic = 'force-dynamic'
 
@@ -14,13 +17,13 @@ export async function GET() {
       .order('sort_order', { ascending: true })
 
     if (error) {
-      console.error('Error fetching categories:', error)
+      log.error('Error fetching categories', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 })
     }
 
     return NextResponse.json({ categories: categories || [] })
   } catch (error) {
-    console.error('Categories API error:', error)
+    log.error('Categories API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

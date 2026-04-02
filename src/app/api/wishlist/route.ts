@@ -4,6 +4,9 @@ import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import { z } from 'zod'
 import { formatZodErrors } from '@/lib/validation/schemas'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:wishlist' })
 
 const createWishlistSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name too long').optional(),
@@ -72,7 +75,7 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error('Wishlist fetch error:', error)
+    log.error('Wishlist fetch error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch wishlists' }, { status: 500 })
   }
 
@@ -107,7 +110,7 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (createError) {
-      console.error('Wishlist creation error:', createError)
+      log.error('Wishlist creation error', { error: createError instanceof Error ? createError.message : String(createError) })
       return NextResponse.json({ error: 'Failed to create wishlist' }, { status: 500 })
     }
 
@@ -148,7 +151,7 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) {
-    console.error('Wishlist creation error:', error)
+    log.error('Wishlist creation error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to create wishlist' }, { status: 500 })
   }
 

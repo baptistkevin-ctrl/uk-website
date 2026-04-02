@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkRateLimit, rateLimitConfigs } from '@/lib/security/rate-limit'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:coupons:validate' })
 
 export const dynamic = 'force-dynamic'
 
@@ -42,7 +45,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
-      console.error('Coupon validation error:', error)
+      log.error('Coupon validation error', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to validate coupon' }, { status: 500 })
     }
 
@@ -72,7 +75,7 @@ export async function POST(request: NextRequest) {
       description: coupon?.description,
     })
   } catch (error) {
-    console.error('Coupon validation error:', error)
+    log.error('Coupon validation error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to validate coupon' }, { status: 500 })
   }
 }

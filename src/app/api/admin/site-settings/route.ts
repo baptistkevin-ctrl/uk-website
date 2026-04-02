@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:site-settings' })
 
 export const dynamic = 'force-dynamic'
 
@@ -39,19 +42,19 @@ export async function GET() {
         .single()
 
       if (insertError) {
-        console.error('Error creating settings:', insertError)
+        log.error('Error creating settings', { error: insertError instanceof Error ? insertError.message : String(insertError) })
         return NextResponse.json({ error: 'Failed to create settings' }, { status: 500 })
       }
 
       settings = newSettings
     } else if (error) {
-      console.error('Error fetching settings:', error)
+      log.error('Error fetching settings', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 })
     }
 
     return NextResponse.json({ settings })
   } catch (error) {
-    console.error('Get settings error:', error)
+    log.error('Get settings error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -94,7 +97,7 @@ export async function PATCH(request: NextRequest) {
         .single()
 
       if (error) {
-        console.error('Error creating settings:', error)
+        log.error('Error creating settings', { error: error instanceof Error ? error.message : String(error) })
         return NextResponse.json({ error: 'Failed to create settings' }, { status: 500 })
       }
 
@@ -110,13 +113,13 @@ export async function PATCH(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error updating settings:', error)
+      log.error('Error updating settings', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 })
     }
 
     return NextResponse.json({ settings })
   } catch (error) {
-    console.error('Update settings error:', error)
+    log.error('Update settings error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

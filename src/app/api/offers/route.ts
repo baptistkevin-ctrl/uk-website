@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:offers' })
 
 export const dynamic = 'force-dynamic'
 
@@ -29,7 +32,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query
 
   if (error) {
-    console.error('Error fetching offers:', error)
+    log.error('Error fetching offers', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch offers' }, { status: 500 })
   }
 

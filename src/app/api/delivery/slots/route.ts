@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:delivery:slots' })
 
 export const dynamic = 'force-dynamic'
 
@@ -93,7 +96,7 @@ export async function GET(request: NextRequest) {
       })
 
     if (slotsError) {
-      console.error('Error fetching slots:', slotsError)
+      log.error('Error fetching slots', { error: slotsError instanceof Error ? slotsError.message : String(slotsError) })
 
       // Fallback: direct query
       const { data: fallbackSlots, error: fallbackError } = await supabase
@@ -129,7 +132,7 @@ export async function GET(request: NextRequest) {
       slotsByDate
     })
   } catch (error) {
-    console.error('Delivery slots API error:', error)
+    log.error('Delivery slots API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -163,7 +166,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Error reserving slot:', error)
+      log.error('Error reserving slot', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to reserve slot' }, { status: 500 })
     }
 
@@ -181,7 +184,7 @@ export async function POST(request: NextRequest) {
       expires_at: result.expires_at
     })
   } catch (error) {
-    console.error('Slot reservation error:', error)
+    log.error('Slot reservation error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

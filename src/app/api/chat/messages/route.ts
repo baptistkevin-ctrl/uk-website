@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:chat:messages' })
 
 export const dynamic = 'force-dynamic'
 
@@ -31,13 +34,13 @@ export async function GET(request: NextRequest) {
     const { data: messages, error } = await query
 
     if (error) {
-      console.error('Error fetching messages:', error)
+      log.error('Error fetching messages', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch messages' }, { status: 500 })
     }
 
     return NextResponse.json({ messages: messages || [] })
   } catch (error) {
-    console.error('Chat messages API error:', error)
+    log.error('Chat messages API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -110,7 +113,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Error sending message:', error)
+      log.error('Error sending message', { error: error instanceof Error ? error.message : String(error) })
 
       // Fallback: direct insert
       const { data: message, error: insertError } = await supabase
@@ -155,7 +158,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message })
   } catch (error) {
-    console.error('Send message error:', error)
+    log.error('Send message error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

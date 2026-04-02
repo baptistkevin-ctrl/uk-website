@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sanitizeSearchQuery } from '@/lib/security'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:stores' })
 
 export const dynamic = 'force-dynamic'
 
@@ -77,7 +80,7 @@ export async function GET(request: NextRequest) {
     const { data: vendors, count, error } = await query
 
     if (error) {
-      console.error('Error fetching stores:', error)
+      log.error('Error fetching stores', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch stores' }, { status: 500 })
     }
 
@@ -127,7 +130,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Stores API error:', error)
+    log.error('Stores API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

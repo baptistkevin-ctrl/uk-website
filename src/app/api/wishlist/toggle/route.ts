@@ -4,6 +4,9 @@ import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import { z } from 'zod'
 import { uuidSchema, formatZodErrors } from '@/lib/validation/schemas'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:wishlist:toggle' })
 
 const wishlistToggleSchema = z.object({
   product_id: uuidSchema,
@@ -80,7 +83,7 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (createError) {
-        console.error('Wishlist creation error:', createError)
+        log.error('Wishlist creation error', { error: createError instanceof Error ? createError.message : String(createError) })
         return NextResponse.json({ error: 'Failed to create wishlist' }, { status: 500 })
       }
 
@@ -104,7 +107,7 @@ export async function POST(request: NextRequest) {
       .eq('id', existingItem.id)
 
     if (error) {
-      console.error('Wishlist item removal error:', error)
+      log.error('Wishlist item removal error', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to remove from wishlist' }, { status: 500 })
     }
 
@@ -127,7 +130,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Wishlist item addition error:', error)
+      log.error('Wishlist item addition error', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to add to wishlist' }, { status: 500 })
     }
 

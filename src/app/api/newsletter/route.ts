@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { emailSchema, formatZodErrors } from '@/lib/validation/schemas'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:newsletter' })
 
 const newsletterPostSchema = z.object({
   email: emailSchema,
@@ -45,7 +48,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Error subscribing:', error)
+      log.error('Error subscribing', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to subscribe' }, { status: 500 })
     }
 
@@ -56,7 +59,7 @@ export async function POST(request: NextRequest) {
       message: result?.message || 'Subscribed successfully'
     })
   } catch (error) {
-    console.error('Newsletter subscribe error:', error)
+    log.error('Newsletter subscribe error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -81,7 +84,7 @@ export async function DELETE(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Error unsubscribing:', error)
+      log.error('Error unsubscribing', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to unsubscribe' }, { status: 500 })
     }
 
@@ -92,7 +95,7 @@ export async function DELETE(request: NextRequest) {
       message: result?.message || 'Unsubscribed successfully'
     })
   } catch (error) {
-    console.error('Newsletter unsubscribe error:', error)
+    log.error('Newsletter unsubscribe error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -135,7 +138,7 @@ export async function GET(request: NextRequest) {
       subscribed_at: subscriber.created_at
     })
   } catch (error) {
-    console.error('Newsletter status error:', error)
+    log.error('Newsletter status error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -171,13 +174,13 @@ export async function PUT(request: NextRequest) {
       .eq('email', profile.email)
 
     if (error) {
-      console.error('Error updating preferences:', error)
+      log.error('Error updating preferences', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to update preferences' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Newsletter update error:', error)
+    log.error('Newsletter update error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

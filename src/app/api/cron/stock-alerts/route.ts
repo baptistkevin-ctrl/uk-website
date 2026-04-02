@@ -4,6 +4,9 @@ import {
   checkLowStockAndAlert,
   getStockAlertStats
 } from '@/lib/stock/stock-alert-processor'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:cron:stock-alerts' })
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60 // Allow up to 60 seconds for processing
@@ -14,7 +17,7 @@ function verifyCronSecret(request: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET
 
   if (!cronSecret) {
-    console.error('CRON_SECRET is not set. Cron routes are disabled.')
+    log.error('CRON_SECRET is not set. Cron routes are disabled.')
     return false
   }
 
@@ -66,7 +69,7 @@ export async function GET(request: NextRequest) {
       results
     })
   } catch (error) {
-    console.error('Stock alert cron error:', error)
+    log.error('Stock alert cron error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -115,7 +118,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    console.error('Stock alert manual trigger error:', error)
+    log.error('Stock alert manual trigger error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
 import { checkRateLimit, rateLimitConfigs, addRateLimitHeaders } from '@/lib/security'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:categories' })
 
 export const dynamic = 'force-dynamic'
 
@@ -38,7 +41,7 @@ export async function GET(request: NextRequest) {
   const { data, error, count } = await query
 
   if (error) {
-    console.error('Error fetching categories:', error)
+    log.error('Error fetching categories', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 })
   }
 
@@ -85,7 +88,7 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      console.error('Error creating category:', error)
+      log.error('Error creating category', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create category' }, { status: 500 })
     }
 
@@ -121,7 +124,7 @@ export async function PUT(request: Request) {
       .single()
 
     if (error) {
-      console.error('Error updating category:', error)
+      log.error('Error updating category', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to update category' }, { status: 500 })
     }
 
@@ -150,7 +153,7 @@ export async function DELETE(request: Request) {
     .eq('id', id)
 
   if (error) {
-    console.error('Error deleting category:', error)
+    log.error('Error deleting category', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 })
   }
 

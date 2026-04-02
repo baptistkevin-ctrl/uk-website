@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:notifications' })
 
 export const dynamic = 'force-dynamic'
 
@@ -34,7 +37,7 @@ export async function GET(request: NextRequest) {
     const { data: notifications, error, count } = await query
 
     if (error) {
-      console.error('Error fetching notifications:', error)
+      log.error('Error fetching notifications', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch notifications' }, { status: 500 })
     }
 
@@ -56,7 +59,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Notifications API error:', error)
+    log.error('Notifications API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -83,7 +86,7 @@ export async function PUT(request: NextRequest) {
         .eq('is_read', false)
 
       if (error) {
-        console.error('Error marking all as read:', error)
+        log.error('Error marking all as read', { error: error instanceof Error ? error.message : String(error) })
         return NextResponse.json({ error: 'Failed to mark notifications as read' }, { status: 500 })
       }
     } else if (notification_ids && notification_ids.length > 0) {
@@ -96,14 +99,14 @@ export async function PUT(request: NextRequest) {
         .eq('is_read', false)
 
       if (error) {
-        console.error('Error marking notifications as read:', error)
+        log.error('Error marking notifications as read', { error: error instanceof Error ? error.message : String(error) })
         return NextResponse.json({ error: 'Failed to mark notifications as read' }, { status: 500 })
       }
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Mark notifications error:', error)
+    log.error('Mark notifications error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -131,7 +134,7 @@ export async function DELETE(request: NextRequest) {
         .eq('is_read', true)
 
       if (error) {
-        console.error('Error clearing notifications:', error)
+        log.error('Error clearing notifications', { error: error instanceof Error ? error.message : String(error) })
         return NextResponse.json({ error: 'Failed to clear notifications' }, { status: 500 })
       }
     } else if (notificationId) {
@@ -143,14 +146,14 @@ export async function DELETE(request: NextRequest) {
         .eq('id', notificationId)
 
       if (error) {
-        console.error('Error deleting notification:', error)
+        log.error('Error deleting notification', { error: error instanceof Error ? error.message : String(error) })
         return NextResponse.json({ error: 'Failed to delete notification' }, { status: 500 })
       }
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Delete notifications error:', error)
+    log.error('Delete notifications error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

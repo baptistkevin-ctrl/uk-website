@@ -4,6 +4,9 @@ import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
 import { sanitizeText, sanitizeBasicHtml, sanitizeUrl, checkRateLimit, rateLimitConfigs, addRateLimitHeaders } from '@/lib/security'
 import { reviewCreateSchema, validateData, formatZodErrors } from '@/lib/validation/schemas'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:reviews' })
 
 export const dynamic = 'force-dynamic'
 
@@ -81,7 +84,7 @@ export async function GET(request: NextRequest) {
     .range(offset, offset + limit - 1)
 
   if (error) {
-    console.error('Reviews fetch error:', error)
+    log.error('Reviews fetch error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch reviews' }, { status: 500 })
   }
 
@@ -191,7 +194,7 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) {
-    console.error('Review creation error:', error)
+    log.error('Review creation error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to submit review' }, { status: 500 })
   }
 

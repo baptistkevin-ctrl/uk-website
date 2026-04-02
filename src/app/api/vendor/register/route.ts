@@ -4,6 +4,9 @@ import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { checkRateLimit, rateLimitConfigs } from '@/lib/security/rate-limit'
 import { z } from 'zod'
 import { formatZodErrors, phoneSchema, urlSchema } from '@/lib/validation/schemas'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:vendor:register' })
 
 const vendorRegisterSchema = z.object({
   business_name: z.string().min(2, 'Business name is required').max(200, 'Business name too long'),
@@ -98,7 +101,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (appError) {
-      console.error('Application error:', appError)
+      log.error('Application error', { error: appError instanceof Error ? appError.message : String(appError) })
       return NextResponse.json({ error: 'Failed to submit application' }, { status: 500 })
     }
 
@@ -108,7 +111,7 @@ export async function POST(request: NextRequest) {
       application
     }, { status: 201 })
   } catch (error) {
-    console.error('Vendor registration error:', error)
+    log.error('Vendor registration error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to process registration' }, { status: 500 })
   }
 }
@@ -155,7 +158,7 @@ export async function GET(request: NextRequest) {
       application
     })
   } catch (error) {
-    console.error('Get vendor status error:', error)
+    log.error('Get vendor status error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to get status' }, { status: 500 })
   }
 }

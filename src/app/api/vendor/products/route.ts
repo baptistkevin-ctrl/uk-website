@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { cacheInvalidateTag } from '@/lib/cache'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:vendor:products' })
 
 export const dynamic = 'force-dynamic'
 
@@ -53,7 +56,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ products })
   } catch (error) {
-    console.error('Vendor products error:', error)
+    log.error('Vendor products error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to get products' }, { status: 500 })
   }
 }
@@ -156,7 +159,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (productError) {
-      console.error('Product creation error:', productError)
+      log.error('Product creation error', { error: productError instanceof Error ? productError.message : String(productError) })
       return NextResponse.json({ error: `Failed to create product: ${productError.message}` }, { status: 500 })
     }
 
@@ -173,7 +176,7 @@ export async function POST(request: NextRequest) {
     await cacheInvalidateTag('products')
     return NextResponse.json({ product }, { status: 201 })
   } catch (error) {
-    console.error('Create product error:', error)
+    log.error('Create product error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
   }
 }
@@ -282,7 +285,7 @@ export async function PUT(request: NextRequest) {
     await cacheInvalidateTag('products')
     return NextResponse.json({ product })
   } catch (error) {
-    console.error('Update product error:', error)
+    log.error('Update product error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
   }
 }
@@ -344,7 +347,7 @@ export async function DELETE(request: NextRequest) {
     await cacheInvalidateTag('products')
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Delete product error:', error)
+    log.error('Delete product error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 })
   }
 }

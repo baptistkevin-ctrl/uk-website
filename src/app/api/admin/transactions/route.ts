@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sanitizeSearchQuery } from '@/lib/security'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:transactions' })
 
 export async function GET(request: NextRequest) {
   try {
@@ -56,7 +59,7 @@ export async function GET(request: NextRequest) {
       .range(offset, offset + limit - 1)
 
     if (error) {
-      console.error('Transactions fetch error:', error)
+      log.error('Transactions fetch error', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch transactions' }, { status: 500 })
     }
 
@@ -113,7 +116,7 @@ export async function GET(request: NextRequest) {
       stats,
     })
   } catch (error) {
-    console.error('Transactions error:', error)
+    log.error('Transactions error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

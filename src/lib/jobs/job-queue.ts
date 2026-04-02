@@ -74,11 +74,14 @@ export const jobQueue = {
     })
 
     if (error || !data) return null
+    // The RPC returns a JSON object matching the Job shape; double-cast is needed
+    // because Supabase types the RPC return as `unknown`. The Job fields are
+    // validated downstream when accessed.
     return data as unknown as Job
   },
 
   async complete(jobId: string, result?: unknown): Promise<void> {
-    await getSupabaseAdmin()
+    const { error } = await getSupabaseAdmin()
       .from("background_jobs")
       .update({
         status: "completed",
@@ -87,6 +90,10 @@ export const jobQueue = {
         updated_at: new Date().toISOString(),
       })
       .eq("id", jobId)
+
+    if (error) {
+      logger.error("Failed to mark job as completed", { jobId, error: error.message })
+    }
   },
 
   async fail(jobId: string, errorMessage: string): Promise<void> {
@@ -98,7 +105,10 @@ export const jobQueue = {
 
     const isDead = (job?.attempts || 0) >= (job?.max_attempts || 3)
 
-    await getSupabaseAdmin()
+    const MAX_BACKOFF_MS = 3_600_000 // 1 hour cap
+    const backoffMs = Math.min(1000 * Math.pow(2, job?.attempts || 0), MAX_BACKOFF_MS)
+
+    const { error: updateError } = await getSupabaseAdmin()
       .from("background_jobs")
       .update({
         status: isDead ? "dead" : "pending",
@@ -109,11 +119,15 @@ export const jobQueue = {
           ? {}
           : {
               scheduled_for: new Date(
-                Date.now() + 1000 * Math.pow(2, job?.attempts || 0)
+                Date.now() + backoffMs
               ).toISOString(),
             }),
       })
       .eq("id", jobId)
+
+    if (updateError) {
+      logger.error("Failed to update job failure status", { jobId, error: updateError.message })
+    }
 
     if (isDead) {
       logger.error("Job permanently failed", { jobId, error: errorMessage })

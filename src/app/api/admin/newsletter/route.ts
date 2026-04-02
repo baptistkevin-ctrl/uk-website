@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sanitizeSearchQuery } from '@/lib/security'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:newsletter' })
 
 export const dynamic = 'force-dynamic'
 
@@ -65,7 +68,7 @@ export async function GET(request: NextRequest) {
       const { data: campaigns, error, count } = await query
 
       if (error) {
-        console.error('Error fetching campaigns:', error)
+        log.error('Error fetching campaigns', { error: error instanceof Error ? error.message : String(error) })
         return NextResponse.json({ error: 'Failed to fetch campaigns' }, { status: 500 })
       }
 
@@ -111,7 +114,7 @@ export async function GET(request: NextRequest) {
     const { data: subscribers, error, count } = await query
 
     if (error) {
-      console.error('Error fetching subscribers:', error)
+      log.error('Error fetching subscribers', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch subscribers' }, { status: 500 })
     }
 
@@ -125,7 +128,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Admin newsletter API error:', error)
+    log.error('Admin newsletter API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -186,13 +189,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating campaign:', error)
+      log.error('Error creating campaign', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create campaign' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true, campaign })
   } catch (error) {
-    console.error('Create campaign error:', error)
+    log.error('Create campaign error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -276,7 +279,7 @@ export async function PATCH(request: NextRequest) {
             sentCount += batch.length
           }
         } catch (err) {
-          console.error('Batch send error:', err)
+          log.error('Batch send error', { error: err instanceof Error ? err.message : String(err) })
         }
       }
     } else {
@@ -302,7 +305,7 @@ export async function PATCH(request: NextRequest) {
       total_recipients: subscribers.length,
     })
   } catch (error) {
-    console.error('Send campaign error:', error)
+    log.error('Send campaign error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

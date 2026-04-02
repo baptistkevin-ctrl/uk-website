@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:loyalty' })
 
 export const dynamic = 'force-dynamic'
 
@@ -79,7 +82,7 @@ export async function GET(request: NextRequest) {
       transactions: transactions || [],
     })
   } catch (error) {
-    console.error('Loyalty API error:', error)
+    log.error('Loyalty API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -110,7 +113,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Error redeeming points:', error)
+      log.error('Error redeeming points', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to redeem points' }, { status: 500 })
     }
 
@@ -130,7 +133,7 @@ export async function POST(request: NextRequest) {
       reward_value: result.reward_value,
     })
   } catch (error) {
-    console.error('Loyalty redeem error:', error)
+    log.error('Loyalty redeem error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

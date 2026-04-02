@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:vendor:reviews' })
 
 export const dynamic = 'force-dynamic'
 
@@ -67,7 +70,7 @@ export async function GET(request: NextRequest) {
     const { data: reviews, error, count } = await query.range(offset, offset + limit - 1)
 
     if (error) {
-      console.error('Vendor reviews error:', error)
+      log.error('Vendor reviews error', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch reviews' }, { status: 500 })
     }
 
@@ -94,7 +97,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Vendor reviews error:', error)
+    log.error('Vendor reviews error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch reviews' }, { status: 500 })
   }
 }

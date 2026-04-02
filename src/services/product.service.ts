@@ -63,6 +63,12 @@ export const productService = {
    * Get a single product by ID.
    */
   async getById(productId: string): Promise<Result<Product>> {
+    // Validate UUID format before querying to avoid Postgres 22P02 errors
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(productId)) {
+      return fail('Product not found', 'NOT_FOUND')
+    }
+
     try {
       const data = await productRepository.findById(productId)
       if (!data) {
@@ -71,6 +77,9 @@ export const productService = {
       }
       return ok(data as unknown as Product)
     } catch (error) {
+      if ((error as { code?: string }).code === 'PGRST116') {
+        return fail('Product not found', 'NOT_FOUND')
+      }
       log.error('Failed to get product', { productId, error: (error as Error).message })
       return fail('Failed to fetch product', 'INTERNAL_ERROR')
     }
@@ -134,6 +143,11 @@ export const productService = {
    * Update a product. Only whitelisted fields are applied.
    */
   async update(productId: string, input: Record<string, unknown>): Promise<Result<Product>> {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(productId)) {
+      return fail('Product not found', 'NOT_FOUND')
+    }
+
     const fields = sanitizeFields(input)
 
     if (Object.keys(fields).length === 0) {
@@ -157,6 +171,11 @@ export const productService = {
    * Soft-delete a product (set is_active = false).
    */
   async softDelete(productId: string): Promise<Result<{ deleted: true }>> {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(productId)) {
+      return fail('Product not found', 'NOT_FOUND')
+    }
+
     try {
       await productRepository.softDelete(productId)
       log.info('Product soft-deleted', { productId })

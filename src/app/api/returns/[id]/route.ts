@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:returns' })
 
 export const dynamic = 'force-dynamic'
 
@@ -118,7 +121,7 @@ export async function PATCH(
     .single()
 
   if (error) {
-    console.error('Error cancelling return:', error)
+    log.error('Error cancelling return', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to cancel return request' }, { status: 500 })
   }
 

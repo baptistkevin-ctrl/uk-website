@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:gift-cards:redeem' })
 
 export const dynamic = 'force-dynamic'
 
@@ -63,7 +66,7 @@ export async function POST(request: NextRequest) {
       .select()
 
     if (updateError) {
-      console.error('Error updating gift card:', updateError)
+      log.error('Error updating gift card', { error: updateError instanceof Error ? updateError.message : String(updateError) })
       return NextResponse.json({ error: 'Failed to redeem gift card' }, { status: 500 })
     }
 
@@ -89,7 +92,7 @@ export async function POST(request: NextRequest) {
       remaining_balance_pence: newBalance
     })
   } catch (error) {
-    console.error('Redeem gift card error:', error)
+    log.error('Redeem gift card error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

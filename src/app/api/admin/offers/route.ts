@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:offers' })
 
 export const dynamic = 'force-dynamic'
 
@@ -37,7 +40,7 @@ export async function GET(request: NextRequest) {
   const { data, error, count } = await query
 
   if (error) {
-    console.error('Error fetching offers:', error)
+    log.error('Error fetching offers', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch offers' }, { status: 500 })
   }
 
@@ -94,7 +97,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating offer:', error)
+      log.error('Error creating offer', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create offer' }, { status: 500 })
     }
 
@@ -149,7 +152,7 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error updating offer:', error)
+      log.error('Error updating offer', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to update offer' }, { status: 500 })
     }
 
@@ -207,7 +210,7 @@ export async function DELETE(request: NextRequest) {
     .eq('id', id)
 
   if (error) {
-    console.error('Error deleting offer:', error)
+    log.error('Error deleting offer', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to delete offer' }, { status: 500 })
   }
 

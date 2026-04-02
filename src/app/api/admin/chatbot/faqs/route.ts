@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:chatbot:faqs' })
 
 export const dynamic = 'force-dynamic'
 
@@ -31,13 +34,13 @@ export async function GET(request: NextRequest) {
       .order('order_index')
 
     if (error) {
-      console.error('Error fetching FAQs:', error)
+      log.error('Error fetching FAQs', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch FAQs' }, { status: 500 })
     }
 
     return NextResponse.json({ faqs: faqs || [] })
   } catch (error) {
-    console.error('Get FAQs error:', error)
+    log.error('Get FAQs error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -83,13 +86,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating FAQ:', error)
+      log.error('Error creating FAQ', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create FAQ' }, { status: 500 })
     }
 
     return NextResponse.json({ faq })
   } catch (error) {
-    console.error('Create FAQ error:', error)
+    log.error('Create FAQ error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:abandoned-carts' })
 
 export const dynamic = 'force-dynamic'
 
@@ -43,7 +46,7 @@ export async function GET(request: NextRequest) {
     const { data: carts, error } = await query
 
     if (error) {
-      console.error('Error fetching abandoned carts:', error)
+      log.error('Error fetching abandoned carts', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch abandoned carts' }, { status: 500 })
     }
 
@@ -61,7 +64,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ carts: allCarts, stats })
   } catch (error) {
-    console.error('Get abandoned carts error:', error)
+    log.error('Get abandoned carts error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

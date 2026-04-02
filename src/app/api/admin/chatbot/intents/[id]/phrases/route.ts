@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:chatbot:intents:phrases' })
 
 export const dynamic = 'force-dynamic'
 
@@ -46,13 +49,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       .single()
 
     if (error) {
-      console.error('Error adding phrase:', error)
+      log.error('Error adding phrase', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to add phrase' }, { status: 500 })
     }
 
     return NextResponse.json({ phrase: newPhrase })
   } catch (error) {
-    console.error('Add phrase error:', error)
+    log.error('Add phrase error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

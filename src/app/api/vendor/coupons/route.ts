@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:vendor:coupons' })
 
 export const dynamic = 'force-dynamic'
 
@@ -48,7 +51,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ coupons: coupons || [] })
   } catch (error) {
-    console.error('Vendor coupons error:', error)
+    log.error('Vendor coupons error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch coupons' }, { status: 500 })
   }
 }
@@ -129,13 +132,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Create coupon error:', error)
+      log.error('Create coupon error', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create coupon' }, { status: 500 })
     }
 
     return NextResponse.json({ coupon })
   } catch (error) {
-    console.error('Vendor coupon create error:', error)
+    log.error('Vendor coupon create error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to create coupon' }, { status: 500 })
   }
 }

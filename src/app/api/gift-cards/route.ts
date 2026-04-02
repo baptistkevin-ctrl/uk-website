@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { checkRateLimit, rateLimitConfigs } from '@/lib/security/rate-limit'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:gift-cards' })
 
 export const dynamic = 'force-dynamic'
 
@@ -41,7 +44,7 @@ export async function GET(request: NextRequest) {
       expires_at: giftCard.expires_at
     })
   } catch (error) {
-    console.error('Get gift card error:', error)
+    log.error('Get gift card error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -106,7 +109,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating gift card:', error)
+      log.error('Error creating gift card', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create gift card' }, { status: 500 })
     }
 
@@ -115,7 +118,7 @@ export async function POST(request: NextRequest) {
       message: 'Gift card created. Complete payment to activate.'
     })
   } catch (error) {
-    console.error('Purchase gift card error:', error)
+    log.error('Purchase gift card error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

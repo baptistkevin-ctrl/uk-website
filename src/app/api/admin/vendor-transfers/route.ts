@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
 import { getStripe } from '@/lib/stripe/client'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:vendor-transfers' })
 
 export const dynamic = 'force-dynamic'
 
@@ -175,7 +178,7 @@ export async function POST(request: NextRequest) {
       results,
     })
   } catch (error) {
-    console.error('Vendor transfer error:', error)
+    log.error('Vendor transfer error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
 }

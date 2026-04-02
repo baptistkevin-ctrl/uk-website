@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:vendor:stripe:onboarding' })
 
 export const dynamic = 'force-dynamic'
 
@@ -118,7 +121,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: accountLink.url })
   } catch (error: unknown) {
-    console.error(`Stripe onboarding error at step [${step}]:`, error)
+    log.error('Stripe onboarding error at step [${step}]', { error: error instanceof Error ? error.message : String(error) })
     const message = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json({
       error: 'Failed to create onboarding link',

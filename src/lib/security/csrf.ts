@@ -208,9 +208,6 @@ export const csrfExemptRoutes = [
   '/api/chat/', // Chat message endpoints
   '/api/vendor/stripe/', // Stripe Connect endpoints use Stripe auth
   '/api/vendor/register', // Vendor registration
-  '/api/vendor/products', // Vendor product management (session auth)
-  '/api/vendor/orders', // Vendor order management (session auth)
-  '/api/vendor/settings', // Vendor settings (session auth)
 ]
 
 /**

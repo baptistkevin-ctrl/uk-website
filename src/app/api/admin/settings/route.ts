@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:settings' })
 
 export const dynamic = 'force-dynamic'
 
@@ -99,7 +102,7 @@ export async function PUT(request: NextRequest) {
         )
 
       if (error) {
-        console.error(`Error upserting ${key}:`, error)
+        log.error('Error upserting ${key}', { error: error instanceof Error ? error.message : String(error) })
       }
     }
 

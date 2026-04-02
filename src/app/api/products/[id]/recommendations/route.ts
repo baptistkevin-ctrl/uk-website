@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { checkRateLimit, rateLimitConfigs, addRateLimitHeaders } from '@/lib/security'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:products:recommendations' })
 
 export const dynamic = 'force-dynamic'
 
@@ -336,7 +339,7 @@ export async function GET(
       }
     })
   } catch (error) {
-    console.error('Error fetching recommendations:', error)
+    log.error('Error fetching recommendations', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json(
       { error: 'Failed to fetch recommendations' },
       { status: 500 }

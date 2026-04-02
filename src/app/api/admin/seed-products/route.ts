@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:seed-products' })
 
 export const dynamic = 'force-dynamic'
 
@@ -168,7 +171,7 @@ export async function POST(request: NextRequest) {
       .select()
 
     if (error) {
-      console.error('Insert error:', error)
+      log.error('Insert error', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
     }
 
@@ -179,7 +182,7 @@ export async function POST(request: NextRequest) {
       products: data?.map(p => p.name)
     })
   } catch (error) {
-    console.error('Error:', error)
+    log.error('Error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to add products' }, { status: 500 })
   }
 }

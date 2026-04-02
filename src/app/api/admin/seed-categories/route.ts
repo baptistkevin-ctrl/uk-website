@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:seed-categories' })
 
 export const dynamic = 'force-dynamic'
 
@@ -198,7 +201,7 @@ export async function POST() {
           .single()
 
         if (parentError) {
-          console.error(`Error inserting ${category.name}:`, parentError)
+          log.error('Error inserting ${category.name}', { error: parentError instanceof Error ? parentError.message : String(parentError) })
           continue
         }
 
@@ -247,7 +250,7 @@ export async function POST() {
       categories: addedCategories
     })
   } catch (error) {
-    console.error('Error seeding categories:', error)
+    log.error('Error seeding categories', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to seed categories' }, { status: 500 })
   }
 }

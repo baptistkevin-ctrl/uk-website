@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:gift-cards' })
 
 export const dynamic = 'force-dynamic'
 
@@ -43,13 +46,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       .eq('id', id)
 
     if (error) {
-      console.error('Error updating gift card:', error)
+      log.error('Error updating gift card', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to update gift card' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Update gift card error:', error)
+    log.error('Update gift card error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -98,7 +101,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ giftCard })
   } catch (error) {
-    console.error('Get gift card error:', error)
+    log.error('Get gift card error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -5,6 +5,9 @@ import { productCreateSchema, validateData, formatZodErrors, uuidSchema } from '
 import { sanitizeText, sanitizeRichHtml, sanitizeUrl, productAudit } from '@/lib/security'
 import { cached, TTL, cacheInvalidateTag } from '@/lib/cache'
 import { captureError } from '@/lib/error-tracking'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:products' })
 
 export const dynamic = 'force-dynamic'
 
@@ -79,7 +82,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Products API error:', error)
+    log.error('Products API error', { error: error instanceof Error ? error.message : String(error) })
     captureError(error instanceof Error ? error : new Error(String(error)), {
       context: 'api:products:get',
       extra: { category, limit, offset },
@@ -139,7 +142,7 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) {
-    console.error('Error creating product:', error)
+    log.error('Error creating product', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
   }
 

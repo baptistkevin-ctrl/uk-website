@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:unsplash' })
 
 export const dynamic = 'force-dynamic'
 
@@ -66,7 +69,7 @@ export async function GET(request: NextRequest) {
 
     if (!response.ok) {
       const error = await response.text()
-      console.error('Unsplash API error:', error)
+      log.error('Unsplash API error', { error })
       return NextResponse.json({ error: 'Failed to fetch images from Unsplash' }, { status: response.status })
     }
 
@@ -89,7 +92,7 @@ export async function GET(request: NextRequest) {
       totalPages: data.total_pages,
     })
   } catch (error) {
-    console.error('Unsplash fetch error:', error)
+    log.error('Unsplash fetch error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch images' }, { status: 500 })
   }
 }

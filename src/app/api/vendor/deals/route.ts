@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:vendor:deals' })
 
 export const dynamic = 'force-dynamic'
 
@@ -47,7 +50,7 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Vendor deals error:', error)
+      log.error('Vendor deals error', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch deals' }, { status: 500 })
     }
 
@@ -64,7 +67,7 @@ export async function GET(request: NextRequest) {
       products: products || []
     })
   } catch (error) {
-    console.error('Vendor deals error:', error)
+    log.error('Vendor deals error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch deals' }, { status: 500 })
   }
 }
@@ -140,13 +143,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Create deal error:', error)
+      log.error('Create deal error', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create deal' }, { status: 500 })
     }
 
     return NextResponse.json({ deal })
   } catch (error) {
-    console.error('Vendor deal create error:', error)
+    log.error('Vendor deal create error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to create deal' }, { status: 500 })
   }
 }

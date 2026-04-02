@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:stores:products' })
 
 export const dynamic = 'force-dynamic'
 
@@ -100,7 +103,7 @@ export async function GET(
     .range(offset, offset + limit - 1)
 
   if (error) {
-    console.error('Store products fetch error:', error)
+    log.error('Store products fetch error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
   }
 

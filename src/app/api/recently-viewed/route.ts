@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:recently-viewed' })
 
 export const dynamic = 'force-dynamic'
 
@@ -25,7 +28,7 @@ export async function GET(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Error fetching recently viewed:', error)
+      log.error('Error fetching recently viewed', { error: error instanceof Error ? error.message : String(error) })
 
       // Fallback to manual query if RPC doesn't exist
       const { data: fallbackData, error: fallbackError } = await supabase
@@ -74,7 +77,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ products: products || [] })
   } catch (error) {
-    console.error('Recently viewed API error:', error)
+    log.error('Recently viewed API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -109,7 +112,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
-      console.error('Error tracking view:', error)
+      log.error('Error tracking view', { error: error instanceof Error ? error.message : String(error) })
 
       // Fallback: Direct insert if RPC doesn't exist yet
       if (user) {
@@ -126,14 +129,14 @@ export async function POST(request: NextRequest) {
           })
 
         if (insertError) {
-          console.error('Fallback insert error:', insertError)
+          log.error('Fallback insert error', { error: insertError instanceof Error ? insertError.message : String(insertError) })
         }
       }
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Track view error:', error)
+    log.error('Track view error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -160,7 +163,7 @@ export async function DELETE(request: NextRequest) {
         .eq('product_id', productId)
 
       if (error) {
-        console.error('Error removing product:', error)
+        log.error('Error removing product', { error: error instanceof Error ? error.message : String(error) })
         return NextResponse.json({ error: 'Failed to remove product' }, { status: 500 })
       }
     } else {
@@ -171,14 +174,14 @@ export async function DELETE(request: NextRequest) {
         .eq('user_id', user.id)
 
       if (error) {
-        console.error('Error clearing recently viewed:', error)
+        log.error('Error clearing recently viewed', { error: error instanceof Error ? error.message : String(error) })
         return NextResponse.json({ error: 'Failed to clear recently viewed' }, { status: 500 })
       }
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Delete recently viewed error:', error)
+    log.error('Delete recently viewed error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

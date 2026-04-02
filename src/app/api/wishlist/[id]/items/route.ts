@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:wishlist:items' })
 
 export const dynamic = 'force-dynamic'
 
@@ -82,7 +85,7 @@ export async function POST(
     .single()
 
   if (error) {
-    console.error('Add item error:', error)
+    log.error('Add item error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to add item' }, { status: 500 })
   }
 
@@ -129,7 +132,7 @@ export async function DELETE(
     .eq('product_id', productId)
 
   if (error) {
-    console.error('Remove item error:', error)
+    log.error('Remove item error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to remove item' }, { status: 500 })
   }
 

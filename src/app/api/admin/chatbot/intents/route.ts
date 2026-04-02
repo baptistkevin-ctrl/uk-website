@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:chatbot:intents' })
 
 export const dynamic = 'force-dynamic'
 
@@ -35,7 +38,7 @@ export async function GET(request: NextRequest) {
       .order('intent_name')
 
     if (error) {
-      console.error('Error fetching intents:', error)
+      log.error('Error fetching intents', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch intents' }, { status: 500 })
     }
 
@@ -56,7 +59,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ intents: formattedIntents })
   } catch (error) {
-    console.error('Get intents error:', error)
+    log.error('Get intents error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -97,7 +100,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (intentError) {
-      console.error('Error creating intent:', intentError)
+      log.error('Error creating intent', { error: intentError instanceof Error ? intentError.message : String(intentError) })
       return NextResponse.json({ error: 'Failed to create intent' }, { status: 500 })
     }
 
@@ -125,7 +128,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ intent })
   } catch (error) {
-    console.error('Create intent error:', error)
+    log.error('Create intent error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

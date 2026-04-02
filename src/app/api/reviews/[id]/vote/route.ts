@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:reviews:vote' })
 
 export const dynamic = 'force-dynamic'
 
@@ -104,7 +107,7 @@ export async function POST(
     })
 
   if (error) {
-    console.error('Vote error:', error)
+    log.error('Vote error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to submit vote' }, { status: 500 })
   }
 

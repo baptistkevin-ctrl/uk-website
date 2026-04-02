@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:questions' })
 
 export const dynamic = 'force-dynamic'
 
@@ -36,13 +39,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       .eq('id', id)
 
     if (error) {
-      console.error('Error updating question:', error)
+      log.error('Error updating question', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to update question' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Update question error:', error)
+    log.error('Update question error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -80,13 +83,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       .eq('id', id)
 
     if (error) {
-      console.error('Error deleting question:', error)
+      log.error('Error deleting question', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to delete question' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Delete question error:', error)
+    log.error('Delete question error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

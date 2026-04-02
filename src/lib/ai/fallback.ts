@@ -42,27 +42,45 @@ async function callModel(
   const url = getProviderUrl(model.provider)
   const apiKey = getApiKey(model.provider)
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: model.id,
-      messages,
-      max_tokens: model.maxTokens,
-    }),
-  })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 30_000)
+
+  let response: Response
+  try {
+    response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: model.id,
+        messages,
+        max_tokens: model.maxTokens,
+      }),
+      signal: controller.signal,
+    })
+  } finally {
+    clearTimeout(timeout)
+  }
 
   if (!response.ok) {
     throw new Error(`AI API error: ${response.status} ${response.statusText}`)
   }
 
-  const data = await response.json()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let data: any
+  try {
+    data = await response.json()
+  } catch {
+    throw new Error("AI API returned invalid JSON response")
+  }
 
   // Normalize response across providers
   const text = data.choices?.[0]?.message?.content || data.content?.[0]?.text || ""
+  if (!text) {
+    throw new Error("AI API returned empty response text")
+  }
   const usage: TokenUsage = {
     inputTokens: data.usage?.prompt_tokens || data.usage?.input_tokens || 0,
     outputTokens: data.usage?.completion_tokens || data.usage?.output_tokens || 0,
@@ -86,12 +104,21 @@ function getProviderUrl(provider: string): string {
 
 function getApiKey(provider: string): string {
   switch (provider) {
-    case "anthropic":
-      return process.env.ANTHROPIC_API_KEY || ""
-    case "openai":
-      return process.env.OPENAI_API_KEY || ""
-    case "deepseek":
-      return process.env.DEEPSEEK_API_KEY || ""
+    case "anthropic": {
+      const key = process.env.ANTHROPIC_API_KEY
+      if (!key) throw new Error("Missing ANTHROPIC_API_KEY environment variable")
+      return key
+    }
+    case "openai": {
+      const key = process.env.OPENAI_API_KEY
+      if (!key) throw new Error("Missing OPENAI_API_KEY environment variable")
+      return key
+    }
+    case "deepseek": {
+      const key = process.env.DEEPSEEK_API_KEY
+      if (!key) throw new Error("Missing DEEPSEEK_API_KEY environment variable")
+      return key
+    }
     default:
       throw new Error(`Unknown AI provider: ${provider}`)
   }

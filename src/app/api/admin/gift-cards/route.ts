@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:gift-cards' })
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +42,7 @@ export async function GET(request: NextRequest) {
     const { data: giftCards, error } = await query
 
     if (error) {
-      console.error('Error fetching gift cards:', error)
+      log.error('Error fetching gift cards', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch gift cards' }, { status: 500 })
     }
 
@@ -58,7 +61,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ giftCards: allCards, stats })
   } catch (error) {
-    console.error('Get gift cards error:', error)
+    log.error('Get gift cards error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:reviews:upload' })
 
 export const dynamic = 'force-dynamic'
 
@@ -89,7 +92,7 @@ export async function POST(request: NextRequest) {
         })
 
       if (error) {
-        console.error('Upload error:', error)
+        log.error('Upload error', { error: error instanceof Error ? error.message : String(error) })
         // If bucket doesn't exist, try to create it
         if (error.message.includes('Bucket not found')) {
           await supabaseAdmin.storage.createBucket('review-images', {
@@ -107,7 +110,7 @@ export async function POST(request: NextRequest) {
             })
 
           if (retryError) {
-            console.error('Retry upload error:', retryError)
+            log.error('Retry upload error', { error: retryError instanceof Error ? retryError.message : String(retryError) })
             return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
           }
 
@@ -134,7 +137,7 @@ export async function POST(request: NextRequest) {
       urls: uploadedUrls
     })
   } catch (error) {
-    console.error('Review image upload error:', error)
+    log.error('Review image upload error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

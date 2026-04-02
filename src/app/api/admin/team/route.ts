@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 import { sanitizeSearchQuery } from '@/lib/security'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:team' })
 
 export const dynamic = 'force-dynamic'
 
@@ -57,13 +60,13 @@ export async function GET(request: NextRequest) {
       if (error.code === 'PGRST205' || error.message?.includes('team_members')) {
         return NextResponse.json({ members: [] })
       }
-      console.error('Error fetching team members:', error)
+      log.error('Error fetching team members', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch team members' }, { status: 500 })
     }
 
     return NextResponse.json({ members: members || [] })
   } catch (error) {
-    console.error('Get team members error:', error)
+    log.error('Get team members error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -138,13 +141,13 @@ export async function POST(request: NextRequest) {
       if (error.code === '23505') {
         return NextResponse.json({ error: 'A team member with this email already exists' }, { status: 400 })
       }
-      console.error('Error creating team member:', error)
+      log.error('Error creating team member', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create team member' }, { status: 500 })
     }
 
     return NextResponse.json({ member })
   } catch (error) {
-    console.error('Create team member error:', error)
+    log.error('Create team member error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

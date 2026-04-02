@@ -7,6 +7,9 @@ import {
   getStockAlertStats
 } from '@/lib/stock/stock-alert-processor'
 import { logAuditEvent } from '@/lib/security/audit'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:admin:stock-alerts' })
 
 export const dynamic = 'force-dynamic'
 
@@ -43,7 +46,7 @@ export async function GET(request: NextRequest) {
     const { data: alerts, error, count } = await query
 
     if (error) {
-      console.error('Error fetching stock alerts:', error)
+      log.error('Error fetching stock alerts', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch stock alerts' }, { status: 500 })
     }
 
@@ -67,7 +70,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Get stock alerts error:', error)
+    log.error('Get stock alerts error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -120,7 +123,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    console.error('Manual stock alert trigger error:', error)
+    log.error('Manual stock alert trigger error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -172,7 +175,7 @@ export async function DELETE(request: NextRequest) {
       message: `Deleted ${count || 0} old stock alerts`
     })
   } catch (error) {
-    console.error('Stock alerts cleanup error:', error)
+    log.error('Stock alerts cleanup error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:stock-alerts' })
 
 export const dynamic = 'force-dynamic'
 
@@ -31,13 +34,13 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (error) {
-      console.error('Error fetching stock alerts:', error)
+      log.error('Error fetching stock alerts', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch alerts' }, { status: 500 })
     }
 
     return NextResponse.json({ alerts: alerts || [] })
   } catch (error) {
-    console.error('Get stock alerts error:', error)
+    log.error('Get stock alerts error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -105,7 +108,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating stock alert:', error)
+      log.error('Error creating stock alert', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create alert' }, { status: 500 })
     }
 
@@ -114,7 +117,7 @@ export async function POST(request: NextRequest) {
       message: `We'll notify you at ${alertEmail} when "${product.name}" is back in stock!`
     })
   } catch (error) {
-    console.error('Create stock alert error:', error)
+    log.error('Create stock alert error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -139,13 +142,13 @@ export async function DELETE(request: NextRequest) {
       .eq('user_id', user?.id)
 
     if (error) {
-      console.error('Error deleting stock alert:', error)
+      log.error('Error deleting stock alert', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to delete alert' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Delete stock alert error:', error)
+    log.error('Delete stock alert error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

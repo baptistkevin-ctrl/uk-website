@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:tickets' })
 
 export const dynamic = 'force-dynamic'
 
@@ -42,7 +45,7 @@ export async function GET(request: NextRequest) {
     const { data: tickets, error, count } = await query
 
     if (error) {
-      console.error('Error fetching tickets:', error)
+      log.error('Error fetching tickets', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch tickets' }, { status: 500 })
     }
 
@@ -61,7 +64,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Tickets API error:', error)
+    log.error('Tickets API error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -98,7 +101,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Error creating ticket:', error)
+      log.error('Error creating ticket', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create ticket' }, { status: 500 })
     }
 
@@ -115,7 +118,7 @@ export async function POST(request: NextRequest) {
       message: result.message
     })
   } catch (error) {
-    console.error('Create ticket error:', error)
+    log.error('Create ticket error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

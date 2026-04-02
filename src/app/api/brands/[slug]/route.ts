@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { logger } from '@/lib/utils/logger'
+
+const log = logger.child({ context: 'api:brands' })
 
 export const dynamic = 'force-dynamic'
 
@@ -94,7 +97,7 @@ export async function GET(
     const { data: products, error, count } = await query.range(offset, offset + limit - 1)
 
     if (error) {
-      console.error('Error fetching brand products:', error)
+      log.error('Error fetching brand products', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
     }
 
@@ -118,7 +121,7 @@ export async function GET(
       priceRange,
     })
   } catch (error) {
-    console.error('Error fetching brand:', error)
+    log.error('Error fetching brand', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Failed to fetch brand' }, { status: 500 })
   }
 }

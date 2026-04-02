@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sanitizeSearchQuery } from '@/lib/security'
+import { logger } from '@/lib/utils/logger'
+
+const auditLogger = logger.child({ context: 'api:admin:audit-logs' })
 
 export const dynamic = 'force-dynamic'
 
@@ -71,7 +74,7 @@ export async function GET(request: NextRequest) {
     const { data: logs, error, count } = await query
 
     if (error) {
-      console.error('Error fetching audit logs:', error)
+      auditLogger.error('Error fetching audit logs', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to fetch audit logs' }, { status: 500 })
     }
 
@@ -85,7 +88,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    console.error('Get audit logs error:', error)
+    auditLogger.error('Get audit logs error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -137,13 +140,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating audit log:', error)
+      auditLogger.error('Error creating audit log', { error: error instanceof Error ? error.message : String(error) })
       return NextResponse.json({ error: 'Failed to create audit log' }, { status: 500 })
     }
 
     return NextResponse.json({ log })
   } catch (error) {
-    console.error('Create audit log error:', error)
+    auditLogger.error('Create audit log error', { error: error instanceof Error ? error.message : String(error) })
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
