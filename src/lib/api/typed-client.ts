@@ -50,7 +50,7 @@ export async function apiClient<T>(
       'Content-Type': 'application/json',
       ...headers,
     },
-    ...(body && { body: JSON.stringify(body) }),
+    ...(body ? { body: JSON.stringify(body) } : {}),
   })
 
   if (!response.ok) {

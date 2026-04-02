@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server"
 
 const DEFAULT_COMMISSION_RATE = 0.125 // 12.5%
 
-const log = logger.child({ service: "commission" })
+const log = logger.child({ context: "commission" })
 
 export const commissionService = {
   async calculateSplit(

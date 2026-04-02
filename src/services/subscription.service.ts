@@ -17,7 +17,7 @@ function canTransition(currentStatus: SubStatus, action: string): SubStatus | nu
   return SUB_TRANSITIONS[currentStatus]?.[action] || null
 }
 
-const log = logger.child({ service: "subscription" })
+const log = logger.child({ context: "subscription" })
 
 export const subscriptionService = {
   async findByUserId(userId: string) {

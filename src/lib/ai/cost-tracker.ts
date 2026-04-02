@@ -8,6 +8,7 @@ interface TokenUsage {
 }
 
 interface AICostEntry {
+  [key: string]: unknown
   model: string
   provider: string
   prompt_id?: string

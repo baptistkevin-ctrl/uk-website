@@ -10,10 +10,9 @@ const handlers: Record<string, JobHandler> = {
       template: string
       data: Record<string, unknown>
     }
-    // Import dynamically to avoid circular deps
-    const { sendEmail } = await import("@/lib/email/send")
-    await sendEmail({ to, template, data })
-    return { sent: true }
+    // Placeholder: email module not yet implemented
+    logger.info("Send email job received (no-op)", { to, template, data })
+    return { sent: false, reason: "email module not available" }
   },
 
   "generate-product-description": async (payload) => {

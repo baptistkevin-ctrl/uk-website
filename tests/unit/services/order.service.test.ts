@@ -51,8 +51,8 @@ describe('OrderService', () => {
         { id: 'item-1', order_id: 'order-1', quantity: 2 },
       ]
 
-      mockRepo.findById.mockResolvedValue(mockOrder)
-      mockRepo.findItemsByOrderId.mockResolvedValue(mockItems)
+      mockRepo.findById.mockResolvedValue(mockOrder as any)
+      mockRepo.findItemsByOrderId.mockResolvedValue(mockItems as any)
 
       const result = await orderService.getById('order-1')
 
@@ -64,7 +64,7 @@ describe('OrderService', () => {
     })
 
     it('should return NOT_FOUND when order does not exist', async () => {
-      mockRepo.findById.mockResolvedValue(null)
+      mockRepo.findById.mockResolvedValue(null as any)
 
       const result = await orderService.getById('nonexistent')
 
@@ -75,7 +75,7 @@ describe('OrderService', () => {
     })
 
     it('should return INTERNAL_ERROR when repository throws', async () => {
-      mockRepo.findById.mockRejectedValue(new Error('DB connection lost'))
+      mockRepo.findById.mockRejectedValue(new Error('DB connection lost') as any)
 
       const result = await orderService.getById('order-1')
 
@@ -92,12 +92,12 @@ describe('OrderService', () => {
         id: 'order-1',
         status: 'pending',
         order_number: 'ORD-001',
-      })
+      } as any)
       mockRepo.update.mockResolvedValue({
         id: 'order-1',
         status: 'confirmed',
         order_number: 'ORD-001',
-      })
+      } as any)
 
       const result = await orderService.updateStatus('order-1', 'CONFIRM')
 
@@ -112,7 +112,7 @@ describe('OrderService', () => {
         id: 'order-1',
         status: 'delivered',
         order_number: 'ORD-001',
-      })
+      } as any)
 
       const result = await orderService.updateStatus('order-1', 'CONFIRM')
 
@@ -122,8 +122,8 @@ describe('OrderService', () => {
 
   describe('delete', () => {
     it('should delete items then order', async () => {
-      mockRepo.deleteItems.mockResolvedValue(undefined)
-      mockRepo.deleteOrder.mockResolvedValue(undefined)
+      mockRepo.deleteItems.mockResolvedValue(undefined as any)
+      mockRepo.deleteOrder.mockResolvedValue(undefined as any)
 
       const result = await orderService.delete('order-1')
 
@@ -138,7 +138,7 @@ describe('OrderService', () => {
       mockRepo.findMany.mockResolvedValue({
         data: [{ id: 'order-1' }, { id: 'order-2' }],
         total: 50,
-      })
+      } as any)
 
       const result = await orderService.list({ page: 1, limit: 20 })
 
@@ -150,7 +150,7 @@ describe('OrderService', () => {
     })
 
     it('should cap limit at 200', async () => {
-      mockRepo.findMany.mockResolvedValue({ data: [], total: 0 })
+      mockRepo.findMany.mockResolvedValue({ data: [], total: 0 } as any)
 
       await orderService.list({ limit: 999 })
 

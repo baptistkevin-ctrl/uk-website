@@ -40,7 +40,7 @@ describe('ProductService', () => {
         id: 'prod-1',
         name: 'Organic Milk',
         price_pence: 199,
-      })
+      } as any)
 
       const result = await productService.getById('prod-1')
 
@@ -51,7 +51,7 @@ describe('ProductService', () => {
     })
 
     it('should return NOT_FOUND when product does not exist', async () => {
-      mockRepo.findById.mockResolvedValue(null)
+      mockRepo.findById.mockResolvedValue(null as any)
 
       const result = await productService.getById('nonexistent')
 
@@ -68,7 +68,7 @@ describe('ProductService', () => {
         id: 'prod-new',
         name: 'Fresh Bread',
         price_pence: 150,
-      })
+      } as any)
 
       const result = await productService.create({
         name: 'Fresh Bread',
@@ -102,7 +102,7 @@ describe('ProductService', () => {
     })
 
     it('should strip non-whitelisted fields (mass assignment protection)', async () => {
-      mockRepo.create.mockResolvedValue({ id: 'prod-new', name: 'Test', price_pence: 100 })
+      mockRepo.create.mockResolvedValue({ id: 'prod-new', name: 'Test', price_pence: 100 } as any)
 
       await productService.create({
         name: 'Test',
@@ -118,7 +118,7 @@ describe('ProductService', () => {
     })
 
     it('should set vendor_id when provided', async () => {
-      mockRepo.create.mockResolvedValue({ id: 'prod-new', name: 'Test', price_pence: 100 })
+      mockRepo.create.mockResolvedValue({ id: 'prod-new', name: 'Test', price_pence: 100 } as any)
 
       await productService.create({ name: 'Test', price_pence: 100 }, 'vendor-123')
 
@@ -133,7 +133,7 @@ describe('ProductService', () => {
         id: 'prod-1',
         name: 'Updated Name',
         price_pence: 250,
-      })
+      } as any)
 
       const result = await productService.update('prod-1', { name: 'Updated Name' })
 
@@ -154,7 +154,7 @@ describe('ProductService', () => {
 
   describe('softDelete', () => {
     it('should soft-delete product', async () => {
-      mockRepo.softDelete.mockResolvedValue(undefined)
+      mockRepo.softDelete.mockResolvedValue(undefined as any)
 
       const result = await productService.softDelete('prod-1')
 
@@ -170,7 +170,7 @@ describe('ProductService', () => {
       mockRepo.findMany.mockResolvedValue({
         data: [{ id: '1' }, { id: '2' }],
         total: 100,
-      })
+      } as any)
 
       const result = await productService.list({ page: 1, limit: 20 })
 
