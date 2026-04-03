@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 import { chat as geminiChat } from '@/lib/ai/gemini'
 
 export const dynamic = 'force-dynamic'
@@ -29,6 +29,14 @@ export async function POST(request: NextRequest) {
 
     if (!message) {
       return NextResponse.json({ error: 'Message required' }, { status: 400 })
+    }
+
+    // Require either an authenticated user or a session_id for basic validation
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user && !session_id) {
+      return NextResponse.json({ error: 'Authentication or session ID required' }, { status: 401 })
     }
 
     // Get chatbot settings

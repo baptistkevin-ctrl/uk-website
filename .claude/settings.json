@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nslookup uk-grocery-store.com 8.8.8.8)",
+      "WebFetch(domain:uk-grocery-store.vercel.app)",
+      "WebFetch(domain:uk-grocery-store.com)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d, indent=2\\)[:1000]\\)\")"
+    ]
+  }
+}

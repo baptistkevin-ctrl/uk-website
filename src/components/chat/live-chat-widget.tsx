@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   MessageCircle,
   X,
@@ -118,12 +118,18 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
   const [feedback, setFeedback] = useState('')
   const [showRatingForm, setShowRatingForm] = useState(false)
 
+  // Error state for inline feedback
+  const [error, setError] = useState<string | null>(null)
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const newChatNameRef = useRef<HTMLInputElement>(null)
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const listPollRef = useRef<NodeJS.Timeout | null>(null)
   const lastMessageTimeRef = useRef<string | null>(null)
   const initialLoadDoneRef = useRef(false)
+  const botTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const errorTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // ─── Helpers ─────────────────────────────────────────────────
   const getSessionId = () => {
@@ -135,6 +141,13 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     }
     return sessionId
   }
+
+  // ─── Error helper ────────────────────────────────────────────
+  const showError = useCallback((msg: string) => {
+    setError(msg)
+    if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current)
+    errorTimeoutRef.current = setTimeout(() => setError(null), 5000)
+  }, [])
 
   // ─── Bot API ─────────────────────────────────────────────────
   const fetchBotSettings = async () => {
@@ -212,7 +225,9 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
 
   const fetchMessages = async (conversationId: string, since?: string) => {
     try {
+      const sessionId = getSessionId()
       let url = `/api/chat/messages?conversation_id=${conversationId}`
+      if (sessionId) url += `&session_id=${sessionId}`
       if (since) url += `&since=${since}`
       const res = await fetch(url)
       if (res.ok) {
@@ -226,9 +241,12 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
         } else {
           setMessages(data.messages || [])
         }
+      } else {
+        if (!since) showError('Failed to load messages.')
       }
-    } catch (error) {
-      console.error('Failed to fetch messages:', error)
+    } catch (err) {
+      console.error('Failed to fetch messages:', err)
+      if (!since) showError('Failed to load messages.')
     }
   }
 
@@ -292,7 +310,8 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
           if (!isVendorChat && botSettings?.isEnabled) {
             setBotTyping(true)
             const botResponse = await sendToBotAPI(formMessage, data.conversation_id)
-            setTimeout(() => {
+            if (botTimeoutRef.current) clearTimeout(botTimeoutRef.current)
+            botTimeoutRef.current = setTimeout(() => {
               setBotTyping(false)
               if (botResponse) {
                 addBotMessage(
@@ -328,6 +347,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
       }
     } catch (error) {
       console.error('Failed to start conversation:', error)
+      showError('Failed to start conversation. Please try again.')
     } finally {
       setFormLoading(false)
     }
@@ -424,7 +444,8 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
         if (isBotActive && botSettings?.isEnabled && !isVendorChat) {
           setBotTyping(true)
           const botResponse = await sendToBotAPI(messageContent, activeConversation.id)
-          setTimeout(() => {
+          if (botTimeoutRef.current) clearTimeout(botTimeoutRef.current)
+          botTimeoutRef.current = setTimeout(() => {
             setBotTyping(false)
             if (botResponse) {
               addBotMessage(
@@ -438,10 +459,12 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
         }
       } else {
         setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id))
+        showError('Failed to send message.')
       }
     } catch (error) {
       console.error('Failed to send message:', error)
       setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id))
+      showError('Failed to send message. Please try again.')
     } finally {
       setSending(false)
     }
@@ -466,7 +489,8 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     if (isBotActive && botSettings?.isEnabled) {
       setBotTyping(true)
       const botResponse = await sendToBotAPI(reply.value, activeConversation?.id)
-      setTimeout(() => {
+      if (botTimeoutRef.current) clearTimeout(botTimeoutRef.current)
+      botTimeoutRef.current = setTimeout(() => {
         setBotTyping(false)
         if (botResponse) {
           addBotMessage(botResponse.message, botResponse.botName || botSettings.botName, botResponse.quickReplies)
@@ -515,6 +539,26 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
   }
 
   // ─── Effects ────────────────────────────────────────────────
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (botTimeoutRef.current) clearTimeout(botTimeoutRef.current)
+      if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current)
+    }
+  }, [])
+
+  // Focus management between views
+  useEffect(() => {
+    if (view === 'chat') {
+      // Small delay to ensure the DOM has rendered
+      const t = setTimeout(() => inputRef.current?.focus(), 100)
+      return () => clearTimeout(t)
+    } else if (view === 'new-chat') {
+      const t = setTimeout(() => newChatNameRef.current?.focus(), 100)
+      return () => clearTimeout(t)
+    }
+  }, [view])
+
   // Track last message time for polling
   useEffect(() => {
     if (messages.length > 0) {
@@ -902,6 +946,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
 
             <div className="space-y-3">
               <input
+                ref={newChatNameRef}
                 type="text"
                 placeholder="Your name (optional)"
                 value={formName}
@@ -1082,6 +1127,13 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
             </div>
           )}
 
+          {/* Error banner */}
+          {error && (
+            <div className="px-3 py-2 bg-red-50 border-t border-red-200">
+              <p className="text-xs text-red-600 text-center">{error}</p>
+            </div>
+          )}
+
           {/* Input bar */}
           <div className="px-2 py-2 bg-[#F0F0F0] flex items-end gap-2">
             <textarea
@@ -1141,7 +1193,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
 
             <div className="flex gap-2 mb-6">
               {[1, 2, 3, 4, 5].map(star => (
-                <button key={star} onClick={() => setRating(star)} className="p-1">
+                <button key={star} onClick={() => setRating(star)} className="p-1" aria-label={`Rate ${star} out of 5 stars`}>
                   <Star className={`h-10 w-10 transition-colors ${
                     star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
                   }`} />

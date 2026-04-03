@@ -6,15 +6,54 @@ export const dynamic = 'force-dynamic'
 // Get messages for a conversation
 export async function GET(request: NextRequest) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
     const supabaseAdmin = getSupabaseAdmin()
 
     const { searchParams } = new URL(request.url)
     const conversationId = searchParams.get('conversation_id')
+    const sessionId = searchParams.get('session_id')
     const since = searchParams.get('since')
     const limit = Math.min(parseInt(searchParams.get('limit') || '50') || 50, 100)
 
     if (!conversationId) {
       return NextResponse.json({ error: 'Conversation ID required' }, { status: 400 })
+    }
+
+    // Require either an authenticated user or a session_id
+    if (!user && !sessionId) {
+      return NextResponse.json({ error: 'Authentication or session ID required' }, { status: 401 })
+    }
+
+    // Verify the conversation belongs to this user/session
+    const { data: conversation, error: convError } = await supabaseAdmin
+      .from('chat_conversations')
+      .select('id, user_id, session_id')
+      .eq('id', conversationId)
+      .single()
+
+    if (convError || !conversation) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
+    }
+
+    // Check ownership: user must match user_id, or session must match session_id
+    const isOwner = (user && conversation.user_id === user.id) ||
+      (sessionId && conversation.session_id === sessionId)
+
+    if (!isOwner) {
+      // Also allow admins/agents to read messages
+      let isAdmin = false
+      if (user) {
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'vendor'
+      }
+      if (!isAdmin) {
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+      }
     }
 
     let query = supabaseAdmin
