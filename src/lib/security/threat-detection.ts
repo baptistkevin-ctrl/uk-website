@@ -20,10 +20,10 @@ const THREAT_CONFIG = {
   xssPatterns: [
     /<script[^>]*>/i,
     /javascript:/i,
-    /on\w+\s*=/i,
+    /(<[^>]+|\s)on\w+\s*=/i,
     /\beval\s*\(/i,
-    /\bdocument\s*\./i,
-    /\bwindow\s*\./i
+    /\bdocument\s*\.\s*(cookie|write|location)/i,
+    /\bwindow\s*\.\s*(location|open)/i
   ],
   pathTraversalPatterns: [
     /\.\.\//,
