@@ -63,7 +63,7 @@ function LoginFormContent() {
 
       // Check user role to determine redirect
       const redirectParam = searchParams.get('redirectTo')
-      if (redirectParam) {
+      if (redirectParam && redirectParam.startsWith('/') && !redirectParam.startsWith('//')) {
         window.location.href = redirectParam
         return
       }

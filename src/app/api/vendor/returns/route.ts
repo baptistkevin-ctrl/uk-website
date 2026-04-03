@@ -179,6 +179,20 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Return not found or not authorized' }, { status: 403 })
     }
 
+    // Verify ALL items in this return belong to the vendor (prevent cross-vendor approval)
+    const { data: allReturnItems } = await supabaseAdmin
+      .from('return_items')
+      .select('product_id')
+      .eq('return_id', returnId)
+
+    const totalItemCount = allReturnItems?.length || 0
+    if (totalItemCount > returnItems.length) {
+      return NextResponse.json(
+        { error: 'This return contains items from multiple vendors. Only admin can process it.' },
+        { status: 403 }
+      )
+    }
+
     // Verify the return is currently pending
     const { data: currentReturn, error: fetchError } = await supabaseAdmin
       .from('returns')

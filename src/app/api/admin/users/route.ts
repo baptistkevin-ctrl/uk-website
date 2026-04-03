@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { sanitizeSearchQuery } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,8 +25,8 @@ export async function GET(request: NextRequest) {
     }
 
     const searchParams = request.nextUrl.searchParams
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1') || 1)
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20') || 20))
     const search = searchParams.get('search') || ''
     const role = searchParams.get('role') || ''
     const status = searchParams.get('status') || ''
@@ -49,7 +50,10 @@ export async function GET(request: NextRequest) {
 
     // Search by email or name
     if (search) {
-      query = query.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`)
+      const sanitized = sanitizeSearchQuery(search)
+      if (sanitized) {
+        query = query.or(`email.ilike.%${sanitized}%,full_name.ilike.%${sanitized}%`)
+      }
     }
 
     // Filter by role
@@ -67,7 +71,8 @@ export async function GET(request: NextRequest) {
     const { data: users, error, count } = await query.range(offset, offset + limit - 1)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Admin users fetch error:', error)
+      return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
     }
 
     // Get order counts for each user

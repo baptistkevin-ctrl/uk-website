@@ -81,7 +81,7 @@ export default function VendorDashboard() {
         method: 'POST'
       })
       const data = await res.json()
-      if (data.url) {
+      if (data.url && (data.url.startsWith('https://connect.stripe.com') || data.url.startsWith('https://dashboard.stripe.com'))) {
         window.location.href = data.url
       } else {
         alert(data.error || 'Failed to start onboarding')
@@ -100,7 +100,7 @@ export default function VendorDashboard() {
         method: 'POST'
       })
       const data = await res.json()
-      if (data.url) {
+      if (data.url && (data.url.startsWith('https://connect.stripe.com') || data.url.startsWith('https://dashboard.stripe.com'))) {
         window.open(data.url, '_blank')
       } else {
         alert(data.error || 'Failed to open dashboard')

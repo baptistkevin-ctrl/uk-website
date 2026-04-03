@@ -30,9 +30,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const body = await request.json()
 
+    const allowedFields = ['status', 'is_approved', 'is_featured', 'admin_notes', 'answer']
+    const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
+    for (const key of allowedFields) {
+      if (key in body) updates[key] = body[key]
+    }
+
     const { error } = await supabase
       .from('product_questions')
-      .update({ ...body, updated_at: new Date().toISOString() })
+      .update(updates)
       .eq('id', id)
 
     if (error) {

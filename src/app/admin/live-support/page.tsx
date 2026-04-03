@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { AdminLayout } from '@/components/admin/layout'
 import {
   MessageCircle,
@@ -9,20 +9,14 @@ import {
   Clock,
   Send,
   CheckCircle,
-  XCircle,
-  AlertCircle,
   Loader2,
-  Phone,
   Mail,
-  MapPin,
-  Package,
-  RefreshCw,
   ChevronDown,
   ChevronUp,
   Headphones,
   UserCheck,
-  Users,
-  Store
+  Store,
+  ArrowLeft
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 
@@ -67,7 +61,6 @@ interface AgentStats {
   activeChats: number
   waitingChats: number
   resolvedToday: number
-  avgResponseTime: string
 }
 
 export default function LiveSupportPage() {
@@ -82,8 +75,7 @@ export default function LiveSupportPage() {
   const [stats, setStats] = useState<AgentStats>({
     activeChats: 0,
     waitingChats: 0,
-    resolvedToday: 0,
-    avgResponseTime: '0m'
+    resolvedToday: 0
   })
   const [showAIHistory, setShowAIHistory] = useState(true)
   const [actionError, setActionError] = useState<string | null>(null)
@@ -278,7 +270,10 @@ export default function LiveSupportPage() {
     fetchConversations()
 
     // Poll for new conversations every 5 seconds
-    pollIntervalRef.current = setInterval(fetchConversations, 5000)
+    pollIntervalRef.current = setInterval(() => {
+      if (!navigator.onLine) return
+      fetchConversations()
+    }, 5000)
 
     return () => {
       if (pollIntervalRef.current) {
@@ -299,6 +294,7 @@ export default function LiveSupportPage() {
     if (!selectedConversation) return
 
     const pollMessages = setInterval(() => {
+      if (!navigator.onLine) return
       if (lastMsgTimeRef.current) {
         fetchMessages(selectedConversation.id, lastMsgTimeRef.current)
       }
@@ -313,8 +309,15 @@ export default function LiveSupportPage() {
     return conv.status === filter
   })
 
-  // Get AI conversation history (bot messages)
-  const aiMessages = messages.filter(m => m.sender_type === 'bot' || m.sender_type === 'customer')
+  // Get AI conversation history (bot messages and customer messages before agent joined)
+  const aiMessages = (() => {
+    const result: Message[] = []
+    for (const m of messages) {
+      if (m.sender_type === 'agent') break // stop at first agent message
+      if (m.sender_type === 'bot' || m.sender_type === 'customer') result.push(m)
+    }
+    return result
+  })()
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -358,35 +361,35 @@ export default function LiveSupportPage() {
     <AdminLayout>
       <div className="h-[calc(100vh-120px)] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Headphones className="h-7 w-7 text-emerald-600" />
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <Headphones className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-600" />
               Live Support
             </h1>
-            <p className="text-gray-500 mt-1">
+            <p className="text-gray-500 mt-1 text-sm">
               Manage chat conversations in real-time
             </p>
           </div>
 
           {/* Stats */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 rounded-lg">
-              <Clock className="h-4 w-4 text-orange-600" />
-              <span className="text-sm font-medium text-orange-700">
+          <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-orange-50 rounded-lg">
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-orange-600" />
+              <span className="text-xs sm:text-sm font-medium text-orange-700">
                 {stats.waitingChats} waiting
               </span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 rounded-lg">
-              <MessageCircle className="h-4 w-4 text-emerald-600" />
-              <span className="text-sm font-medium text-emerald-700">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-emerald-50 rounded-lg">
+              <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600" />
+              <span className="text-xs sm:text-sm font-medium text-emerald-700">
                 {stats.activeChats} active
               </span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
-              <CheckCircle className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">
-                {stats.resolvedToday} resolved today
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-50 rounded-lg">
+              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-600" />
+              <span className="text-xs sm:text-sm font-medium text-blue-700">
+                {stats.resolvedToday} resolved
               </span>
             </div>
           </div>
@@ -395,7 +398,9 @@ export default function LiveSupportPage() {
         {/* Main Content */}
         <div className="flex-1 flex gap-4 min-h-0">
           {/* Conversations List */}
-          <div className="w-80 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+          <div className={`w-full md:w-80 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col ${
+            selectedConversation ? 'hidden md:flex' : 'flex'
+          }`}>
             {/* Channel Filter */}
             <div className="p-3 border-b">
               <div className="flex gap-1 mb-2">
@@ -514,12 +519,20 @@ export default function LiveSupportPage() {
           </div>
 
           {/* Chat Area */}
-          <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+          <div className={`flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col ${
+            selectedConversation ? 'flex' : 'hidden md:flex'
+          }`}>
             {selectedConversation ? (
               <>
                 {/* Chat Header */}
-                <div className="p-4 border-b flex items-center justify-between">
+                <div className="p-3 sm:p-4 border-b flex items-center justify-between">
                   <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => { setSelectedConversation(null); setMessages([]) }}
+                      className="md:hidden p-1 hover:bg-gray-100 rounded-full"
+                    >
+                      <ArrowLeft className="h-5 w-5 text-gray-600" />
+                    </button>
                     <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                       <User className="h-5 w-5 text-gray-600" />
                     </div>
@@ -561,7 +574,7 @@ export default function LiveSupportPage() {
                 </div>
 
                 {/* AI History Panel */}
-                {aiMessages.length > 0 && selectedConversation.status === 'waiting' && (
+                {aiMessages.length > 0 && (selectedConversation.status === 'waiting' || selectedConversation.status === 'active') && (
                   <div className="border-b bg-amber-50">
                     <button
                       onClick={() => setShowAIHistory(!showAIHistory)}

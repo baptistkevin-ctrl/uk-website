@@ -104,6 +104,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Code, discount type, and value are required' }, { status: 400 })
     }
 
+    // Validate discount value
+    if (typeof discount_value !== 'number' || discount_value <= 0) {
+      return NextResponse.json({ error: 'Discount value must be a positive number' }, { status: 400 })
+    }
+
+    if (discount_type === 'percentage' && discount_value > 100) {
+      return NextResponse.json({ error: 'Percentage discount cannot exceed 100%' }, { status: 400 })
+    }
+
+    if (!['percentage', 'fixed'].includes(discount_type)) {
+      return NextResponse.json({ error: 'Discount type must be "percentage" or "fixed"' }, { status: 400 })
+    }
+
     // Check if code already exists
     const { data: existing } = await supabase
       .from('coupons')

@@ -16,7 +16,7 @@ export async function GET() {
     const supabaseAdmin = getSupabaseAdmin()
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
-      .select('*')
+      .select('id, full_name, email, phone, avatar_url, role, created_at, updated_at')
       .eq('id', user.id)
       .single()
 

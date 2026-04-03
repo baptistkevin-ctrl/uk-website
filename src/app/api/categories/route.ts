@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-// GET all categories
+// GET all categories (public)
 export async function GET(request: Request) {
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
@@ -21,22 +21,48 @@ export async function GET(request: Request) {
   const { data, error } = await query
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 })
   }
 
   return NextResponse.json(data)
 }
 
-// POST - Create new category
-export async function POST(request: Request) {
+// Helper to verify admin role
+async function requireAdminAuth() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const supabaseAdmin = getSupabaseAdmin()
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile || !['admin', 'super_admin'].includes(profile.role)) return null
+  return user
+}
+
+// POST - Create new category (admin only)
+export async function POST(request: NextRequest) {
+  const user = await requireAdminAuth()
+  if (!user) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
     const body = await request.json()
     const { name, slug, description, image_url, emoji, parent_id, display_order, is_active } = body
 
-    if (!name || !slug) {
-      return NextResponse.json({ error: 'Name and slug are required' }, { status: 400 })
+    if (!name || typeof name !== 'string' || name.length > 200) {
+      return NextResponse.json({ error: 'Valid name is required (max 200 chars)' }, { status: 400 })
+    }
+
+    if (!slug || typeof slug !== 'string' || !/^[a-z0-9-]+$/.test(slug)) {
+      return NextResponse.json({ error: 'Valid slug is required (lowercase, numbers, hyphens only)' }, { status: 400 })
     }
 
     const { data, error } = await supabaseAdmin
@@ -55,49 +81,89 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      if (error.code === '23505') {
+        return NextResponse.json({ error: 'Category with this slug already exists' }, { status: 409 })
+      }
+      return NextResponse.json({ error: 'Failed to create category' }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 201 })
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 }
 
-// PUT - Update category
-export async function PUT(request: Request) {
+// PUT - Update category (admin only)
+export async function PUT(request: NextRequest) {
+  const user = await requireAdminAuth()
+  if (!user) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
     const body = await request.json()
-    const { id, ...updates } = body
+    const { id, name, slug, description, image_url, emoji, parent_id, display_order, is_active } = body
 
     if (!id) {
       return NextResponse.json({ error: 'Category ID is required' }, { status: 400 })
     }
 
+    // Only allow specific fields to be updated
+    const updateData: Record<string, unknown> = {
+      updated_at: new Date().toISOString(),
+    }
+
+    if (name !== undefined) {
+      if (typeof name !== 'string' || name.length > 200) {
+        return NextResponse.json({ error: 'Invalid name' }, { status: 400 })
+      }
+      updateData.name = name
+    }
+    if (slug !== undefined) {
+      if (typeof slug !== 'string' || !/^[a-z0-9-]+$/.test(slug)) {
+        return NextResponse.json({ error: 'Invalid slug' }, { status: 400 })
+      }
+      updateData.slug = slug
+    }
+    if (description !== undefined) updateData.description = description
+    if (image_url !== undefined) updateData.image_url = image_url
+    if (emoji !== undefined) updateData.emoji = emoji
+    if (parent_id !== undefined) {
+      // Prevent circular reference
+      if (parent_id === id) {
+        return NextResponse.json({ error: 'Category cannot be its own parent' }, { status: 400 })
+      }
+      updateData.parent_id = parent_id
+    }
+    if (display_order !== undefined) updateData.display_order = display_order
+    if (is_active !== undefined) updateData.is_active = is_active
+
     const { data, error } = await supabaseAdmin
       .from('categories')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to update category' }, { status: 500 })
     }
 
     return NextResponse.json(data)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 }
 
-// DELETE - Delete category
-export async function DELETE(request: Request) {
+// DELETE - Delete category (admin only)
+export async function DELETE(request: NextRequest) {
+  const user = await requireAdminAuth()
+  if (!user) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+  }
+
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
@@ -112,7 +178,10 @@ export async function DELETE(request: Request) {
     .eq('id', id)
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    if (error.code === '23503') {
+      return NextResponse.json({ error: 'Cannot delete category with linked products. Remove products first.' }, { status: 400 })
+    }
+    return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })

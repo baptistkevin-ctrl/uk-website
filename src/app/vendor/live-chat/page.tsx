@@ -15,7 +15,8 @@ import {
   Headphones,
   UserCheck,
   Store,
-  ShieldCheck
+  ShieldCheck,
+  ArrowLeft
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 
@@ -229,7 +230,10 @@ export default function VendorLiveChatPage() {
 
   useEffect(() => {
     fetchConversations()
-    pollIntervalRef.current = setInterval(fetchConversations, 5000)
+    pollIntervalRef.current = setInterval(() => {
+      if (!navigator.onLine) return
+      fetchConversations()
+    }, 5000)
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
     }
@@ -245,6 +249,7 @@ export default function VendorLiveChatPage() {
   useEffect(() => {
     if (!selectedConversation) return
     const pollMessages = setInterval(() => {
+      if (!navigator.onLine) return
       if (lastMsgTimeRef.current) {
         fetchMessages(selectedConversation.id, lastMsgTimeRef.current)
       }
@@ -257,7 +262,15 @@ export default function VendorLiveChatPage() {
     return conv.status === filter
   })
 
-  const aiMessages = messages.filter(m => m.sender_type === 'bot' || m.sender_type === 'customer')
+  // AI conversation history - only messages before vendor/agent joined
+  const aiMessages = (() => {
+    const result: Message[] = []
+    for (const m of messages) {
+      if (m.sender_type === 'vendor' || m.sender_type === 'agent') break
+      if (m.sender_type === 'bot' || m.sender_type === 'customer') result.push(m)
+    }
+    return result
+  })()
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -284,21 +297,6 @@ export default function VendorLiveChatPage() {
     }
   }
 
-  const getSenderStyle = (senderType: string) => {
-    switch (senderType) {
-      case 'vendor':
-        return 'bg-emerald-600 text-white rounded-2xl rounded-br-md'
-      case 'agent':
-        return 'bg-blue-600 text-white rounded-2xl rounded-br-md'
-      case 'bot':
-        return 'bg-amber-50 text-gray-900 rounded-2xl rounded-bl-md border border-amber-200'
-      case 'customer':
-        return 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'
-      default:
-        return 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'
-    }
-  }
-
   const isOwnMessage = (senderType: string) => {
     if (channelTab === 'customer_vendor') return senderType === 'vendor'
     if (channelTab === 'vendor_admin') return senderType === 'customer' // vendor is 'customer' in vendor_admin
@@ -314,29 +312,29 @@ export default function VendorLiveChatPage() {
   }
 
   return (
-    <div className="p-6 h-[calc(100vh-80px)] flex flex-col">
+    <div className="p-3 sm:p-6 h-[calc(100vh-80px)] flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <MessageCircle className="h-7 w-7 text-emerald-600" />
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-600" />
             Live Chat
           </h1>
-          <p className="text-gray-500 mt-1">
+          <p className="text-gray-500 mt-1 text-sm">
             {channelTab === 'customer_vendor'
               ? 'Chat with customers about your products & orders'
               : 'Get help from platform admin'}
           </p>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-3 py-2 bg-orange-50 rounded-lg">
-            <Clock className="h-4 w-4 text-orange-600" />
-            <span className="text-sm font-medium text-orange-700">{stats.waiting} waiting</span>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-orange-50 rounded-lg">
+            <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-orange-600" />
+            <span className="text-xs sm:text-sm font-medium text-orange-700">{stats.waiting} waiting</span>
           </div>
-          <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 rounded-lg">
-            <MessageCircle className="h-4 w-4 text-emerald-600" />
-            <span className="text-sm font-medium text-emerald-700">{stats.active} active</span>
+          <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-emerald-50 rounded-lg">
+            <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600" />
+            <span className="text-xs sm:text-sm font-medium text-emerald-700">{stats.active} active</span>
           </div>
         </div>
       </div>
@@ -344,7 +342,7 @@ export default function VendorLiveChatPage() {
       {/* Channel Tabs */}
       <div className="flex gap-2 mb-4">
         <button
-          onClick={() => { setChannelTab('customer_vendor'); setSelectedConversation(null); setMessages([]) }}
+          onClick={() => { setChannelTab('customer_vendor'); setSelectedConversation(null); setMessages([]); setFilter('all') }}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             channelTab === 'customer_vendor'
               ? 'bg-emerald-600 text-white'
@@ -355,7 +353,7 @@ export default function VendorLiveChatPage() {
           Customer Chats
         </button>
         <button
-          onClick={() => { setChannelTab('vendor_admin'); setSelectedConversation(null); setMessages([]) }}
+          onClick={() => { setChannelTab('vendor_admin'); setSelectedConversation(null); setMessages([]); setFilter('all') }}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             channelTab === 'vendor_admin'
               ? 'bg-blue-600 text-white'
@@ -370,7 +368,9 @@ export default function VendorLiveChatPage() {
       {/* Main Content */}
       <div className="flex-1 flex gap-4 min-h-0">
         {/* Conversations List */}
-        <div className="w-80 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+        <div className={`w-full md:w-80 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col ${
+          selectedConversation ? 'hidden md:flex' : 'flex'
+        }`}>
           {/* Filter Tabs */}
           <div className="p-3 border-b">
             <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
@@ -456,12 +456,20 @@ export default function VendorLiveChatPage() {
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+        <div className={`flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col ${
+          selectedConversation ? 'flex' : 'hidden md:flex'
+        }`}>
           {selectedConversation ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b flex items-center justify-between">
+              <div className="p-3 sm:p-4 border-b flex items-center justify-between">
                 <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => { setSelectedConversation(null); setMessages([]) }}
+                    className="md:hidden p-1 hover:bg-gray-100 rounded-full"
+                  >
+                    <ArrowLeft className="h-5 w-5 text-gray-600" />
+                  </button>
                   <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                     <User className="h-5 w-5 text-gray-600" />
                   </div>
@@ -503,7 +511,7 @@ export default function VendorLiveChatPage() {
               </div>
 
               {/* AI History Panel */}
-              {aiMessages.length > 0 && selectedConversation.status === 'waiting' && channelTab === 'customer_vendor' && (
+              {aiMessages.length > 0 && (selectedConversation.status === 'waiting' || selectedConversation.status === 'active') && channelTab === 'customer_vendor' && (
                 <div className="border-b bg-amber-50">
                   <button
                     onClick={() => setShowAIHistory(!showAIHistory)}
@@ -657,9 +665,12 @@ export default function VendorLiveChatPage() {
                         })
                         if (res.ok) {
                           fetchConversations()
+                        } else {
+                          showActionError('Failed to start support chat. Please try again.')
                         }
                       } catch (error) {
                         console.error('Failed to start support chat:', error)
+                        showActionError('Failed to start support chat. Please try again.')
                       }
                     }}
                     className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"

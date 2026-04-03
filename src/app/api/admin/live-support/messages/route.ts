@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { sanitizeText } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -127,8 +128,8 @@ export async function POST(request: NextRequest) {
         conversation_id,
         sender_type: 'agent',
         sender_id: user.id,
-        sender_name: profile.full_name || 'Support Agent',
-        content,
+        sender_name: sanitizeText(profile.full_name || 'Support Agent'),
+        content: sanitizeText(content),
         message_type: 'text'
       })
       .select()

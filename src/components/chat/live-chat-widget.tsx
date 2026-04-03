@@ -39,11 +39,8 @@ interface QuickReply {
 
 interface BotResponse {
   message: string
-  type: 'text' | 'quick_reply' | 'card' | 'carousel'
   quickReplies?: QuickReply[]
   shouldHandoff?: boolean
-  intent?: string
-  confidence?: number
   botName?: string
   typingDelay?: number
 }
@@ -616,6 +613,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     if (activeConversation.status === 'closed' || activeConversation.status === 'resolved') return
 
     const poll = () => {
+      if (!navigator.onLine) return // skip when offline
       if (lastMessageTimeRef.current) {
         fetchMessages(activeConversation.id, lastMessageTimeRef.current)
       }
@@ -627,7 +625,11 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
   // Poll conversation list
   useEffect(() => {
     if (!isOpen || view !== 'list') return
-    listPollRef.current = setInterval(fetchConversations, 8000)
+    const poll = () => {
+      if (!navigator.onLine) return
+      fetchConversations()
+    }
+    listPollRef.current = setInterval(poll, 8000)
     return () => { if (listPollRef.current) clearInterval(listPollRef.current) }
   }, [isOpen, view])
 
@@ -731,6 +733,8 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
   // ─── RENDER: Widget ────────────────────────────────────────
   return (
     <div
+      role="dialog"
+      aria-label="Live chat"
       className={`fixed bottom-16 lg:bottom-6 right-2 lg:right-6 w-[calc(100vw-16px)] sm:w-[400px] bg-white rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col ${
         isMinimized ? 'h-14' : 'h-[calc(100vh-5rem)] lg:h-[600px]'
       } transition-all duration-200 border border-gray-200`}
@@ -746,12 +750,14 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                 <button
                   onClick={() => setIsMinimized(!isMinimized)}
                   className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  aria-label={isMinimized ? 'Expand chat' : 'Minimize chat'}
                 >
                   <Minimize2 className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  aria-label="Close chat"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -1037,7 +1043,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
               ? 'bg-purple-700 text-white'
               : 'bg-[#075E54] text-white'
           }`}>
-            <button onClick={() => { setView('list'); setActiveConversation(null) }} className="p-1 hover:bg-white/10 rounded-full">
+            <button onClick={() => { setView('list'); setActiveConversation(null) }} className="p-1 hover:bg-white/10 rounded-full" aria-label="Back to conversations">
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
@@ -1189,6 +1195,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
             <button
               onClick={sendMessage}
               disabled={!newMessage.trim() || sending}
+              aria-label="Send message"
               className="w-10 h-10 bg-[#25D366] text-white rounded-full flex items-center justify-center hover:bg-[#20BD5A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
             >
               {sending ? (
