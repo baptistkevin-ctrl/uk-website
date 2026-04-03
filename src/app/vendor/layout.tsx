@@ -18,6 +18,7 @@ import {
   ExternalLink,
   Star,
   Ticket,
+  Tag,
   Zap,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
@@ -29,6 +30,7 @@ const vendorNavItems = [
   { href: '/vendor/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/vendor/reviews', label: 'Reviews', icon: Star },
   { href: '/vendor/coupons', label: 'Coupons', icon: Ticket },
+  { href: '/vendor/offers', label: 'Multi-Buy Offers', icon: Tag },
   { href: '/vendor/deals', label: 'Flash Deals', icon: Zap },
   { href: '/vendor/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/vendor/payouts', label: 'Payouts', icon: CreditCard },

@@ -46,7 +46,6 @@ const sidebarLinks = [
   { href: '/admin/invoices', label: 'Invoices', icon: FileText },
   { href: '/admin/vendors', label: 'Vendors', icon: Store },
   { href: '/admin/vendor-applications', label: 'Applications', icon: FileText },
-  { href: '/admin/offers', label: 'Multi-Buy Offers', icon: Tag },
   { href: '/admin/gift-cards', label: 'Gift Cards', icon: Gift },
   { href: '/admin/live-support', label: 'Live Support', icon: Headphones },
   { href: '/admin/chatbot', label: 'Chatbot', icon: Bot },
