@@ -203,6 +203,8 @@ export default function LiveSupportPage() {
       sender_name: 'You',
       content: messageContent,
       message_type: 'text',
+      attachments: [],
+      metadata: {},
       is_read: false,
       created_at: new Date().toISOString()
     }

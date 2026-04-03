@@ -46,6 +46,8 @@ interface Message {
   sender_name: string | null
   content: string
   message_type: string
+  attachments: any[]
+  metadata: any
   is_read: boolean
   created_at: string
 }
@@ -160,6 +162,8 @@ export default function VendorLiveChatPage() {
       sender_name: 'You',
       content: messageContent,
       message_type: 'text',
+      attachments: [],
+      metadata: {},
       is_read: false,
       created_at: new Date().toISOString()
     }
