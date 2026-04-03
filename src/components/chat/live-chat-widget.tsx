@@ -344,6 +344,8 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
           setFormName('')
           setFormEmail('')
         }
+      } else {
+        showError('Failed to start conversation.')
       }
     } catch (error) {
       console.error('Failed to start conversation:', error)
@@ -397,10 +399,33 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
             setIsBotActive(!isVendorChat && (botSettings?.isEnabled || false))
             fetchMessages(data.conversation_id)
             fetchConversations()
+
+            // Trigger bot response for support chats
+            if (!isVendorChat && botSettings?.isEnabled) {
+              setBotTyping(true)
+              const botResponse = await sendToBotAPI(msg, data.conversation_id)
+              if (botTimeoutRef.current) clearTimeout(botTimeoutRef.current)
+              botTimeoutRef.current = setTimeout(() => {
+                setBotTyping(false)
+                if (botResponse) {
+                  addBotMessage(
+                    botResponse.message,
+                    botResponse.botName || botSettings.botName,
+                    botResponse.quickReplies
+                  )
+                  if (botResponse.shouldHandoff) setIsBotActive(false)
+                }
+              }, botResponse?.typingDelay || botSettings.typingDelay || 1000)
+            }
           }
+        } else {
+          showError('Failed to start conversation.')
+          setNewMessage(msg) // restore message
         }
       } catch (error) {
         console.error('Failed to create conversation:', error)
+        showError('Failed to start conversation. Please try again.')
+        setNewMessage(msg) // restore message
       } finally {
         setFormLoading(false)
       }
@@ -506,7 +531,10 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ conversation_id: activeConversation.id, content: reply.text })
         })
-      } catch {}
+      } catch (err) {
+        console.error('Failed to save quick reply:', err)
+        showError('Failed to send reply.')
+      }
     }
   }
 
@@ -546,6 +574,11 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
       if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current)
     }
   }, [])
+
+  // Reset minimize when leaving list view
+  useEffect(() => {
+    if (view !== 'list') setIsMinimized(false)
+  }, [view])
 
   // Focus management between views
   useEffect(() => {

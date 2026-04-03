@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
     // Verify conversation belongs to this vendor
     const { data: conversation } = await supabaseAdmin
       .from('chat_conversations')
-      .select('id, vendor_id, channel_type')
+      .select('id, vendor_id, channel_type, unread_customer, unread_agent')
       .eq('id', conversation_id)
       .eq('vendor_id', vendor.id)
       .single()
@@ -154,8 +154,12 @@ export async function POST(request: NextRequest) {
       .from('chat_conversations')
       .update({
         last_message_at: new Date().toISOString(),
-        unread_customer: conversation.channel_type === 'customer_vendor' ? 1 : 0,
-        unread_agent: conversation.channel_type === 'vendor_admin' ? 1 : 0
+        unread_customer: conversation.channel_type === 'customer_vendor'
+          ? (conversation.unread_customer || 0) + 1
+          : conversation.unread_customer || 0,
+        unread_agent: conversation.channel_type === 'vendor_admin'
+          ? (conversation.unread_agent || 0) + 1
+          : conversation.unread_agent || 0
       })
       .eq('id', conversation_id)
 

@@ -116,6 +116,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
     }
 
+    // Verify ownership: user_id, session_id, or admin/vendor role
+    const isOwner = (user && conversation.user_id === user.id) ||
+      (!user && conversation.session_id && body.session_id === conversation.session_id)
+
+    if (!isOwner && user) {
+      const { data: senderProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      const isPrivileged = senderProfile?.role === 'admin' || senderProfile?.role === 'super_admin' || senderProfile?.role === 'vendor'
+      if (!isPrivileged) {
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+      }
+    } else if (!isOwner && !user) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+    }
+
     // Determine sender type and name based on role and channel
     let senderType = 'customer'
     let senderName = conversation.guest_name || 'Customer'

@@ -62,6 +62,25 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ conversation: null })
       }
 
+      // Verify ownership: user_id, session_id, or admin/vendor role
+      const isOwner = (user && conversation.user_id === user.id) ||
+        (sessionId && conversation.session_id === sessionId)
+
+      if (!isOwner) {
+        let isPrivileged = false
+        if (user) {
+          const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single()
+          isPrivileged = profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'vendor'
+        }
+        if (!isPrivileged) {
+          return NextResponse.json({ conversation: null })
+        }
+      }
+
       // Mark messages as read
       if (user) {
         await supabaseAdmin
@@ -266,6 +285,33 @@ export async function PUT(request: NextRequest) {
 
     if (!conversation_id) {
       return NextResponse.json({ error: 'Conversation ID required' }, { status: 400 })
+    }
+
+    // Verify ownership
+    const { data: conv } = await supabaseAdmin
+      .from('chat_conversations')
+      .select('user_id, session_id')
+      .eq('id', conversation_id)
+      .single()
+
+    if (!conv) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
+    }
+
+    const isOwner = (user && conv.user_id === user.id)
+    if (!isOwner) {
+      let isPrivileged = false
+      if (user) {
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        isPrivileged = profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'vendor'
+      }
+      if (!isPrivileged) {
+        return NextResponse.json({ error: 'Access denied' }, { status: 403 })
+      }
     }
 
     if (action === 'close' || action === 'resolve') {

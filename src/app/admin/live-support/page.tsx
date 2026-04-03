@@ -136,7 +136,7 @@ export default function LiveSupportPage() {
           // Append new messages
           setMessages(prev => {
             const existingIds = new Set(prev.map(m => m.id))
-            const newMessages = data.messages.filter((m: Message) => !existingIds.has(m.id))
+            const newMessages = (data.messages || []).filter((m: Message) => !existingIds.has(m.id))
             return [...prev, ...newMessages]
           })
         } else {
@@ -193,6 +193,21 @@ export default function LiveSupportPage() {
     setNewMessage('')
     setSending(true)
 
+    // Optimistic update
+    const tempId = 'temp-' + Date.now()
+    const optimisticMsg: Message = {
+      id: tempId,
+      conversation_id: selectedConversation.id,
+      sender_type: 'agent',
+      sender_id: null,
+      sender_name: 'You',
+      content: messageContent,
+      message_type: 'text',
+      is_read: false,
+      created_at: new Date().toISOString()
+    }
+    setMessages(prev => [...prev, optimisticMsg])
+
     try {
       const res = await fetch('/api/admin/live-support/messages', {
         method: 'POST',
@@ -205,10 +220,17 @@ export default function LiveSupportPage() {
 
       if (res.ok) {
         const data = await res.json()
-        setMessages(prev => [...prev, data.message])
+        // Replace optimistic message with real one
+        setMessages(prev => prev.map(m => m.id === tempId ? data.message : m))
+      } else {
+        // Rollback optimistic message, restore input
+        setMessages(prev => prev.filter(m => m.id !== tempId))
+        setNewMessage(messageContent)
       }
     } catch (error) {
       console.error('Failed to send message:', error)
+      setMessages(prev => prev.filter(m => m.id !== tempId))
+      setNewMessage(messageContent)
     } finally {
       setSending(false)
     }
