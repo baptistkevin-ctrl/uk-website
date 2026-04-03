@@ -433,6 +433,11 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
       return
     }
 
+    if (activeConversation.status === 'closed' || activeConversation.status === 'resolved') {
+      showError('This conversation is closed.')
+      return
+    }
+
     const messageContent = newMessage.trim()
     setNewMessage('')
     setSending(true)
@@ -457,6 +462,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           conversation_id: activeConversation.id,
+          session_id: getSessionId(),
           content: messageContent
         })
       })
@@ -530,7 +536,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
         await fetch('/api/chat/messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ conversation_id: activeConversation.id, content: reply.text })
+          body: JSON.stringify({ conversation_id: activeConversation.id, session_id: getSessionId(), content: reply.text })
         })
       } catch (err) {
         console.error('Failed to save quick reply:', err)

@@ -54,19 +54,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch messages' }, { status: 500 })
     }
 
-    // Mark messages as read by agent
-    await supabaseAdmin
-      .from('chat_messages')
-      .update({ is_read: true, read_at: new Date().toISOString() })
-      .eq('conversation_id', conversationId)
-      .eq('is_read', false)
-      .neq('sender_type', 'agent')
+    // Only mark as read on initial load (not during polling)
+    if (!since) {
+      await supabaseAdmin
+        .from('chat_messages')
+        .update({ is_read: true, read_at: new Date().toISOString() })
+        .eq('conversation_id', conversationId)
+        .eq('is_read', false)
+        .neq('sender_type', 'agent')
 
-    // Reset unread count for agent
-    await supabaseAdmin
-      .from('chat_conversations')
-      .update({ unread_agent: 0 })
-      .eq('id', conversationId)
+      await supabaseAdmin
+        .from('chat_conversations')
+        .update({ unread_agent: 0 })
+        .eq('id', conversationId)
+    }
 
     return NextResponse.json({ messages: messages || [] })
   } catch (error) {

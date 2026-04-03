@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    if (!profile || !['admin', 'super_admin', 'vendor'].includes(profile.role)) {
+    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -56,15 +56,10 @@ export async function GET(request: NextRequest) {
       query = query.in('status', ['waiting', 'active', 'resolved'])
     }
 
-    // Filter by channel type - vendors should only use their own endpoint
-    if (profile.role === 'vendor') {
-      return NextResponse.json({ error: 'Use /api/vendor/live-chat/conversations instead' }, { status: 403 })
-    }
-
+    // Admin sees customer_admin and vendor_admin chats
     if (channelType) {
       query = query.eq('channel_type', channelType)
     } else {
-      // Admin sees customer_admin and vendor_admin chats
       query = query.in('channel_type', ['customer_admin', 'vendor_admin'])
     }
 
