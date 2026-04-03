@@ -193,41 +193,59 @@ export async function PUT(request: NextRequest) {
 
     // Sync status to the parent orders table so customers see the update
     if (updatedOrder?.order_id) {
-      // For single-vendor orders, directly sync the status.
-      // For multi-vendor orders, use the most advanced status across all vendor_orders.
+      // Map vendor_orders statuses to orders table statuses
+      // vendor_orders uses: pending, confirmed, processing, shipped, delivered, cancelled, transferred, pending_payout
+      // orders table uses:  pending, confirmed, processing, ready_for_delivery, out_for_delivery, delivered, cancelled
+      const vendorToOrderStatus: Record<string, string> = {
+        pending: 'pending',
+        confirmed: 'confirmed',
+        processing: 'processing',
+        shipped: 'out_for_delivery',
+        delivered: 'delivered',
+        cancelled: 'cancelled',
+        transferred: 'processing',
+        pending_payout: 'processing',
+      }
+
+      const statusPriority: Record<string, number> = {
+        pending: 0,
+        confirmed: 1,
+        processing: 2,
+        ready_for_delivery: 3,
+        out_for_delivery: 4,
+        delivered: 5,
+        cancelled: -1,
+      }
+
       const { data: allVendorOrders } = await supabaseAdmin
         .from('vendor_orders')
         .select('status')
         .eq('order_id', updatedOrder.order_id)
 
       if (allVendorOrders && allVendorOrders.length > 0) {
-        const statusPriority: Record<string, number> = {
-          pending: 0,
-          confirmed: 1,
-          processing: 2,
-          ready_for_delivery: 3,
-          out_for_delivery: 4,
-          delivered: 5,
-          cancelled: -1,
-        }
-
-        // For multi-vendor: use the minimum (least progressed) non-cancelled status
-        // so the parent order only advances when ALL vendors have reached that stage
         const nonCancelled = allVendorOrders.filter(vo => vo.status !== 'cancelled')
-        let parentStatus = status
+        let parentStatus: string
 
-        if (nonCancelled.length > 1) {
-          parentStatus = nonCancelled.reduce((min, vo) =>
-            (statusPriority[vo.status] ?? 0) < (statusPriority[min] ?? 0) ? vo.status : min
-          , nonCancelled[0].status)
-        } else if (nonCancelled.length === 0) {
+        if (nonCancelled.length === 0) {
           parentStatus = 'cancelled'
+        } else if (nonCancelled.length === 1) {
+          parentStatus = vendorToOrderStatus[nonCancelled[0].status] || 'processing'
+        } else {
+          // Multi-vendor: map each to order status, then pick least progressed
+          const mapped = nonCancelled.map(vo => vendorToOrderStatus[vo.status] || 'processing')
+          parentStatus = mapped.reduce((min, s) =>
+            (statusPriority[s] ?? 0) < (statusPriority[min] ?? 0) ? s : min
+          , mapped[0])
         }
 
-        await supabaseAdmin
+        const { error: syncError } = await supabaseAdmin
           .from('orders')
           .update({ status: parentStatus, updated_at: new Date().toISOString() })
           .eq('id', updatedOrder.order_id)
+
+        if (syncError) {
+          console.error('Order status sync error:', syncError)
+        }
       }
     }
 
