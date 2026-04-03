@@ -271,10 +271,40 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
           const convRes = await fetch(`/api/chat?conversation_id=${data.conversation_id}`)
           if (convRes.ok) {
             const convData = await convRes.json()
-            setConversation(convData.conversation)
-            setMessages(convData.conversation?.chat_messages || [])
+            if (convData.conversation) {
+              setConversation(convData.conversation)
+              setMessages(convData.conversation?.chat_messages || [])
+              setShowStartForm(false)
+            } else {
+              // Fallback: create minimal conversation object so send works
+              setConversation({
+                id: data.conversation_id,
+                status: 'waiting',
+                assigned_agent_id: null,
+                department: 'general',
+                channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
+                vendor_id: isVendorChat ? vendorId! : null,
+                subject: subject || null,
+                rating: null,
+                created_at: new Date().toISOString()
+              })
+              setShowStartForm(false)
+            }
+          } else {
+            // Even if GET fails, we have the conversation_id
+            setConversation({
+              id: data.conversation_id,
+              status: 'waiting',
+              assigned_agent_id: null,
+              department: 'general',
+              channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
+              vendor_id: isVendorChat ? vendorId! : null,
+              subject: subject || null,
+              rating: null,
+              created_at: new Date().toISOString()
+            })
+            setShowStartForm(false)
           }
-          setShowStartForm(false)
 
           // If bot is enabled and not a vendor chat, get bot response
           if (botSettings?.isEnabled && chatMode !== 'vendor') {
@@ -907,7 +937,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                   />
                   <button
                     onClick={sendMessage}
-                    disabled={!newMessage.trim() || sending}
+                    disabled={!newMessage.trim() || sending || !conversation}
                     className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {sending ? (
