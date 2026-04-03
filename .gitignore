@@ -60,3 +60,5 @@ k6/results.json
 scripts/
 
 .env*.local
+.claude/
+products_export.csv
