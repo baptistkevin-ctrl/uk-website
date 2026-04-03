@@ -86,6 +86,12 @@ export default function LiveSupportPage() {
     avgResponseTime: '0m'
   })
   const [showAIHistory, setShowAIHistory] = useState(true)
+  const [actionError, setActionError] = useState<string | null>(null)
+
+  const showActionError = (msg: string) => {
+    setActionError(msg)
+    setTimeout(() => setActionError(null), 5000)
+  }
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -159,9 +165,13 @@ export default function LiveSupportPage() {
         if (selectedConversation?.id === conversationId) {
           setSelectedConversation(prev => prev ? { ...prev, status: 'active' } : null)
         }
+      } else {
+        const data = await res.json().catch(() => ({}))
+        showActionError(data.error || 'Failed to accept conversation')
       }
     } catch (error) {
       console.error('Failed to accept conversation:', error)
+      showActionError('Failed to accept conversation')
     }
   }
 
@@ -179,9 +189,13 @@ export default function LiveSupportPage() {
           setSelectedConversation(null)
           setMessages([])
         }
+      } else {
+        const data = await res.json().catch(() => ({}))
+        showActionError(data.error || 'Failed to close conversation')
       }
     } catch (error) {
       console.error('Failed to close conversation:', error)
+      showActionError('Failed to close conversation')
     }
   }
 
@@ -228,11 +242,13 @@ export default function LiveSupportPage() {
         // Rollback optimistic message, restore input
         setMessages(prev => prev.filter(m => m.id !== tempId))
         setNewMessage(messageContent)
+        showActionError('Failed to send message')
       }
     } catch (error) {
       console.error('Failed to send message:', error)
       setMessages(prev => prev.filter(m => m.id !== tempId))
       setNewMessage(messageContent)
+      showActionError('Failed to send message')
     } finally {
       setSending(false)
     }
@@ -643,6 +659,14 @@ export default function LiveSupportPage() {
                   ))}
                   <div ref={messagesEndRef} />
                 </div>
+
+                {/* Error Banner */}
+                {actionError && (
+                  <div className="px-4 py-2 bg-red-50 border-t border-red-200 text-red-700 text-sm flex items-center justify-between">
+                    <span>{actionError}</span>
+                    <button onClick={() => setActionError(null)} className="text-red-500 hover:text-red-700 ml-2">&times;</button>
+                  </div>
+                )}
 
                 {/* Reply Input */}
                 {selectedConversation.status === 'active' && (

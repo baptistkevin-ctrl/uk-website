@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    if (!profile || !['admin', 'super_admin', 'vendor'].includes(profile.role)) {
+    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       .eq('id', user.id)
       .single()
 
-    if (!profile || !['admin', 'super_admin', 'vendor'].includes(profile.role)) {
+    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
@@ -102,6 +102,21 @@ export async function POST(request: NextRequest) {
 
     if (!conversation_id || !content) {
       return NextResponse.json({ error: 'Conversation ID and content required' }, { status: 400 })
+    }
+
+    if (content.length > 5000) {
+      return NextResponse.json({ error: 'Message too long (max 5000 characters)' }, { status: 400 })
+    }
+
+    // Verify conversation exists and get current unread count
+    const { data: conversation } = await supabaseAdmin
+      .from('chat_conversations')
+      .select('id, unread_customer')
+      .eq('id', conversation_id)
+      .single()
+
+    if (!conversation) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
     }
 
     // Insert message
@@ -123,12 +138,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to send message' }, { status: 500 })
     }
 
-    // Update conversation
+    // Update conversation - increment unread counter
     await supabaseAdmin
       .from('chat_conversations')
       .update({
         last_message_at: new Date().toISOString(),
-        unread_customer: 1
+        unread_customer: (conversation.unread_customer || 0) + 1
       })
       .eq('id', conversation_id)
 

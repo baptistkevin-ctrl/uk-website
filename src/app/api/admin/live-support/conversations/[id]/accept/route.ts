@@ -24,8 +24,27 @@ export async function POST(
       .eq('id', user.id)
       .single()
 
-    if (!profile || !['admin', 'super_admin', 'vendor'].includes(profile.role)) {
+    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Check current status to prevent double-accept
+    const { data: conversation } = await supabase
+      .from('chat_conversations')
+      .select('status, assigned_agent_id')
+      .eq('id', conversationId)
+      .single()
+
+    if (!conversation) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
+    }
+
+    if (conversation.status === 'active' && conversation.assigned_agent_id) {
+      return NextResponse.json({ error: 'Conversation already accepted' }, { status: 409 })
+    }
+
+    if (conversation.status === 'closed' || conversation.status === 'resolved') {
+      return NextResponse.json({ error: 'Conversation is already closed' }, { status: 400 })
     }
 
     // Update conversation status

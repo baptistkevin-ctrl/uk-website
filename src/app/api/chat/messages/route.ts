@@ -105,6 +105,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message content required' }, { status: 400 })
     }
 
+    if (content && content.length > 5000) {
+      return NextResponse.json({ error: 'Message too long (max 5000 characters)' }, { status: 400 })
+    }
+
+    if (attachments.length > 10) {
+      return NextResponse.json({ error: 'Maximum 10 attachments allowed' }, { status: 400 })
+    }
+
     // Get conversation
     const { data: conversation, error: convError } = await supabaseAdmin
       .from('chat_conversations')

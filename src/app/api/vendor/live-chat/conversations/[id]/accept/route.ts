@@ -41,6 +41,21 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
     }
 
+    // Check current status to prevent double-accept
+    const { data: convStatus } = await supabaseAdmin
+      .from('chat_conversations')
+      .select('status, assigned_agent_id')
+      .eq('id', id)
+      .single()
+
+    if (convStatus?.status === 'active' && convStatus?.assigned_agent_id) {
+      return NextResponse.json({ error: 'Conversation already accepted' }, { status: 409 })
+    }
+
+    if (convStatus?.status === 'closed' || convStatus?.status === 'resolved') {
+      return NextResponse.json({ error: 'Conversation is already closed' }, { status: 400 })
+    }
+
     // Accept the conversation
     await supabaseAdmin
       .from('chat_conversations')

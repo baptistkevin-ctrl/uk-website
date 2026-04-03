@@ -56,15 +56,16 @@ export async function GET(request: NextRequest) {
       query = query.in('status', ['waiting', 'active', 'resolved'])
     }
 
-    // Filter by channel type
+    // Filter by channel type - vendors should only use their own endpoint
+    if (profile.role === 'vendor') {
+      return NextResponse.json({ error: 'Use /api/vendor/live-chat/conversations instead' }, { status: 403 })
+    }
+
     if (channelType) {
       query = query.eq('channel_type', channelType)
     } else {
       // Admin sees customer_admin and vendor_admin chats
-      // Vendors see customer_vendor chats via their own endpoint
-      if (profile.role === 'admin' || profile.role === 'super_admin') {
-        query = query.in('channel_type', ['customer_admin', 'vendor_admin'])
-      }
+      query = query.in('channel_type', ['customer_admin', 'vendor_admin'])
     }
 
     const { data: conversations, error } = await query.limit(50)

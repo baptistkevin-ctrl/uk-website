@@ -136,7 +136,8 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     if (typeof window === 'undefined') return null
     let sessionId = localStorage.getItem('chat_session_id')
     if (!sessionId) {
-      sessionId = 'chat_' + Math.random().toString(36).substring(2) + Date.now().toString(36)
+      const bytes = crypto.getRandomValues(new Uint8Array(16))
+      sessionId = 'chat_' + Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('')
       localStorage.setItem('chat_session_id', sessionId)
     }
     return sessionId

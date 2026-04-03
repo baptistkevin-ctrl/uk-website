@@ -26,15 +26,33 @@ export async function POST(
       .eq('id', user.id)
       .single()
 
-    if (!profile || !['admin', 'super_admin', 'vendor'].includes(profile.role)) {
+    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    // Validate status
+    const validStatus = ['resolved', 'closed'].includes(status) ? status : 'resolved'
+
+    // Check if already closed
+    const { data: conversation } = await supabase
+      .from('chat_conversations')
+      .select('status')
+      .eq('id', conversationId)
+      .single()
+
+    if (!conversation) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
+    }
+
+    if (conversation.status === 'closed' || conversation.status === 'resolved') {
+      return NextResponse.json({ error: 'Conversation already closed' }, { status: 400 })
     }
 
     // Update conversation status
     const { error: updateError } = await supabase
       .from('chat_conversations')
       .update({
-        status,
+        status: validStatus,
         resolved_at: new Date().toISOString()
       })
       .eq('id', conversationId)

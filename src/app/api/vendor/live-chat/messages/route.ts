@@ -113,6 +113,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Conversation ID and content required' }, { status: 400 })
     }
 
+    if (content.length > 5000) {
+      return NextResponse.json({ error: 'Message too long (max 5000 characters)' }, { status: 400 })
+    }
+
     // Verify conversation belongs to this vendor
     const { data: conversation } = await supabaseAdmin
       .from('chat_conversations')

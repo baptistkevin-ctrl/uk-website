@@ -40,6 +40,17 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
     }
 
+    // Check if already closed
+    const { data: convStatus } = await supabaseAdmin
+      .from('chat_conversations')
+      .select('status')
+      .eq('id', id)
+      .single()
+
+    if (convStatus?.status === 'closed' || convStatus?.status === 'resolved') {
+      return NextResponse.json({ error: 'Conversation already closed' }, { status: 400 })
+    }
+
     const body = await request.json()
     const requestedStatus = body.status || 'resolved'
     const status = ['resolved', 'closed'].includes(requestedStatus) ? requestedStatus : 'resolved'
