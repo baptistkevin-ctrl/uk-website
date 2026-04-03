@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { createClient } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
+import { vendorAudit } from '@/lib/security/audit'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,6 +41,13 @@ export async function PUT(request: NextRequest) {
   const supabaseAdmin = getSupabaseAdmin()
   const supabase = await createClient()
   const { data: { user: adminUser } } = await supabase.auth.getUser()
+
+  // Get admin profile for audit
+  const { data: adminProfile } = await supabase
+    .from('profiles')
+    .select('role, email')
+    .eq('id', adminUser?.id || '')
+    .single()
 
   try {
     const body = await request.json()
@@ -120,11 +128,32 @@ export async function PUT(request: NextRequest) {
         })
         .eq('id', application.user_id)
 
+      if (adminUser) {
+        await vendorAudit.logCreate(
+          request,
+          { id: adminUser.id, email: adminProfile?.email || adminUser.email || '', role: adminProfile?.role || 'admin' },
+          vendor.id,
+          application.business_name,
+          { application_id: id, user_id: application.user_id, status: 'approved' }
+        )
+      }
+
       return NextResponse.json({
         application,
         vendor,
         message: 'Application approved and vendor account created'
       })
+    }
+
+    if (adminUser) {
+      await vendorAudit.logAction(
+        request,
+        { id: adminUser.id, email: adminProfile?.email || adminUser.email || '', role: adminProfile?.role || 'admin' },
+        `application_${status}`,
+        id,
+        application.business_name,
+        { status, admin_notes }
+      )
     }
 
     return NextResponse.json({

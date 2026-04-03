@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { couponAudit } from '@/lib/security/audit'
 
 export const dynamic = 'force-dynamic'
 
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
     // Check if admin
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, email')
       .eq('id', user.id)
       .single()
 
@@ -139,6 +140,14 @@ export async function POST(request: NextRequest) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    await couponAudit.logCreate(
+      request,
+      { id: user.id, email: profile?.email || '', role: profile?.role || 'admin' },
+      coupon.id,
+      coupon.code,
+      { discount_type: coupon.discount_type, discount_value: coupon.discount_value, expires_at: coupon.expires_at }
+    )
 
     return NextResponse.json(coupon, { status: 201 })
   } catch (error) {

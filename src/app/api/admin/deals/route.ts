@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
+import { dealAudit } from '@/lib/security/audit'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,6 +42,22 @@ async function isAdmin() {
     .single()
 
   return profile?.role === 'admin' || profile?.role === 'super_admin'
+}
+
+async function getAdminUser(): Promise<{ id: string; email: string; role: string } | null> {
+  const supabase = await getSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const supabaseAdmin = getSupabaseAdmin()
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('role, email')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) return null
+  return { id: user.id, email: profile.email || user.email || '', role: profile.role }
 }
 
 // GET - Get all deals (admin view)
@@ -178,6 +195,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to create deal' }, { status: 500 })
   }
 
+  const adminUser = await getAdminUser()
+  if (adminUser) {
+    await dealAudit.logCreate(request, adminUser, deal.id, deal.title, {
+      product_id: deal.product_id,
+      deal_price_pence: deal.deal_price_pence,
+      starts_at: deal.starts_at,
+      ends_at: deal.ends_at,
+    })
+  }
+
   return NextResponse.json({ deal })
 }
 
@@ -209,6 +236,13 @@ export async function PUT(request: NextRequest) {
     }
   }
 
+  // Fetch old values for audit
+  const { data: oldDeal } = await supabaseAdmin
+    .from('flash_deals')
+    .select('*')
+    .eq('id', id)
+    .single()
+
   const { data: deal, error } = await supabaseAdmin
     .from('flash_deals')
     .update(updates)
@@ -227,6 +261,11 @@ export async function PUT(request: NextRequest) {
   if (error) {
     console.error('Deal update error:', error)
     return NextResponse.json({ error: 'Failed to update deal' }, { status: 500 })
+  }
+
+  const adminUser = await getAdminUser()
+  if (adminUser) {
+    await dealAudit.logUpdate(request, adminUser, id, deal.title, oldDeal || {}, updates)
   }
 
   return NextResponse.json({ deal })
@@ -255,6 +294,11 @@ export async function DELETE(request: NextRequest) {
   if (error) {
     console.error('Deal deletion error:', error)
     return NextResponse.json({ error: 'Failed to delete deal' }, { status: 500 })
+  }
+
+  const adminUser = await getAdminUser()
+  if (adminUser) {
+    await dealAudit.logDelete(request, adminUser, id, `deal:${id}`)
   }
 
   return NextResponse.json({ success: true })

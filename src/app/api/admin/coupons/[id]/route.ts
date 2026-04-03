@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { couponAudit } from '@/lib/security/audit'
 
 export const dynamic = 'force-dynamic'
 
@@ -68,7 +69,7 @@ export async function PUT(
     // Check if admin
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, email')
       .eq('id', user.id)
       .single()
 
@@ -129,6 +130,13 @@ export async function PUT(
     if (expires_at !== undefined) updateData.expires_at = expires_at
     if (is_active !== undefined) updateData.is_active = is_active
 
+    // Fetch old values before update for audit
+    const { data: oldCoupon } = await supabase
+      .from('coupons')
+      .select('*')
+      .eq('id', id)
+      .single()
+
     const { data: coupon, error } = await supabase
       .from('coupons')
       .update(updateData)
@@ -139,6 +147,15 @@ export async function PUT(
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    await couponAudit.logUpdate(
+      request,
+      { id: user.id, email: profile?.email || '', role: profile?.role || 'admin' },
+      id,
+      coupon.code,
+      oldCoupon || {},
+      updateData
+    )
 
     return NextResponse.json(coupon)
   } catch (error) {
@@ -162,13 +179,15 @@ export async function DELETE(
     // Check if admin
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, email')
       .eq('id', user.id)
       .single()
 
     if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
+
+    const auditUser = { id: user.id, email: profile?.email || '', role: profile?.role || 'admin' }
 
     // Check if coupon has been used
     const { count: usageCount } = await supabase
@@ -187,6 +206,8 @@ export async function DELETE(
         return NextResponse.json({ error: error.message }, { status: 500 })
       }
 
+      await couponAudit.logDelete(request, auditUser, id, `coupon:${id}`, { deactivated: true })
+
       return NextResponse.json({
         message: 'Coupon has been used and cannot be deleted. It has been deactivated instead.',
         deactivated: true
@@ -201,6 +222,8 @@ export async function DELETE(
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    await couponAudit.logDelete(request, auditUser, id, `coupon:${id}`)
 
     return NextResponse.json({ message: 'Coupon deleted successfully' })
   } catch (error) {

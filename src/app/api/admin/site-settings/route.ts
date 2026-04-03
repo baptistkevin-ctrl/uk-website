@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { settingsAudit } from '@/lib/security/audit'
 
 export const dynamic = 'force-dynamic'
 
@@ -68,7 +69,7 @@ export async function PATCH(request: NextRequest) {
 
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, email')
       .eq('id', user.id)
       .single()
 
@@ -76,6 +77,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    const auditUser = { id: user.id, email: profile.email || user.email || '', role: profile.role }
     const updates = await request.json()
 
     // Get existing settings
@@ -98,6 +100,8 @@ export async function PATCH(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to create settings' }, { status: 500 })
       }
 
+      await settingsAudit.logCreate(request, auditUser, settings.id, 'site_settings', updates)
+
       return NextResponse.json({ settings })
     }
 
@@ -113,6 +117,8 @@ export async function PATCH(request: NextRequest) {
       console.error('Error updating settings:', error)
       return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 })
     }
+
+    await settingsAudit.logUpdate(request, auditUser, existing.id, 'site_settings', {}, updates)
 
     return NextResponse.json({ settings })
   } catch (error) {

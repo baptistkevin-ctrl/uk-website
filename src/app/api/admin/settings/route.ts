@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
+import { settingsAudit } from '@/lib/security/audit'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,6 +75,11 @@ export async function PUT(request: NextRequest) {
   if (!authResult.success) return authResult.error!
 
   const supabaseAdmin = getSupabaseAdmin()
+  const auditUser = {
+    id: authResult.user!.id,
+    email: authResult.profile?.email || authResult.user!.email || '',
+    role: authResult.profile?.role || 'admin',
+  }
 
   try {
     const body = await request.json()
@@ -81,6 +87,7 @@ export async function PUT(request: NextRequest) {
     // Upsert each setting (create if not exists, update if exists)
     // Skip keys not in the whitelist to prevent arbitrary setting injection
     const rejectedKeys: string[] = []
+    const updatedKeys: string[] = []
     for (const [key, value] of Object.entries(body)) {
       if (!ALLOWED_SETTING_KEYS.includes(key)) {
         rejectedKeys.push(key)
@@ -100,7 +107,20 @@ export async function PUT(request: NextRequest) {
 
       if (error) {
         console.error(`Error upserting ${key}:`, error)
+      } else {
+        updatedKeys.push(key)
       }
+    }
+
+    if (updatedKeys.length > 0) {
+      await settingsAudit.logUpdate(
+        request,
+        auditUser,
+        'store_settings',
+        'store_settings',
+        {},
+        { updated_keys: updatedKeys, values: body }
+      )
     }
 
     return NextResponse.json({
@@ -118,6 +138,11 @@ export async function POST(request: NextRequest) {
   if (!authResult.success) return authResult.error!
 
   const supabaseAdmin = getSupabaseAdmin()
+  const auditUser = {
+    id: authResult.user!.id,
+    email: authResult.profile?.email || authResult.user!.email || '',
+    role: authResult.profile?.role || 'admin',
+  }
 
   try {
     const body = await request.json()
@@ -145,6 +170,14 @@ export async function POST(request: NextRequest) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    await settingsAudit.logCreate(
+      request,
+      auditUser,
+      key,
+      key,
+      { value, description, category: category || 'general' }
+    )
 
     return NextResponse.json(data, { status: 201 })
   } catch {

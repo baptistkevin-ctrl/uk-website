@@ -100,7 +100,7 @@ export async function PUT(
     // Check if admin
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, email')
       .eq('id', user.id)
       .single()
 
@@ -163,7 +163,7 @@ export async function PUT(
       try {
         await userAudit.logUpdate(
           request,
-          { id: user.id, email: user.email || '', role: profile?.role || 'admin' },
+          { id: user.id, email: profile?.email || user.email || '', role: profile?.role || 'admin' },
           id,
           `user:${id}`,
           { role: body.role, is_banned: body.is_banned },
@@ -197,7 +197,7 @@ export async function DELETE(
     // Check if admin
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, email')
       .eq('id', user.id)
       .single()
 
@@ -211,6 +211,7 @@ export async function DELETE(
     }
 
     const admin = getSupabaseAdmin()
+    const auditUser = { id: user.id, email: profile?.email || user.email || '', role: profile?.role || 'admin' }
 
     // Check if user has orders
     const { count: orderCount } = await admin
@@ -236,6 +237,8 @@ export async function DELETE(
         return NextResponse.json({ error: error.message }, { status: 500 })
       }
 
+      await userAudit.logDelete(request, auditUser, id, `user:${id}`, { anonymized: true })
+
       return NextResponse.json({
         message: 'User has orders and cannot be fully deleted. Account has been anonymized and banned.',
         anonymized: true
@@ -251,6 +254,8 @@ export async function DELETE(
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    await userAudit.logDelete(request, auditUser, id, `user:${id}`)
 
     return NextResponse.json({ message: 'User deleted successfully' })
   } catch (error) {
