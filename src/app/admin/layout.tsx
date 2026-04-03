@@ -49,7 +49,6 @@ const sidebarLinks = [
   { href: '/admin/live-support', label: 'Live Support', icon: Headphones },
   { href: '/admin/chatbot', label: 'Chatbot', icon: Bot },
   { href: '/admin/questions', label: 'Q&A', icon: MessageCircleQuestion },
-  { href: '/admin/stock-alerts', label: 'Stock Alerts', icon: BellRing },
   { href: '/admin/abandoned-carts', label: 'Abandoned Carts', icon: RotateCcw },
   { href: '/admin/hero-slides', label: 'Hero Slides', icon: ImageIcon },
   { href: '/admin/delivery', label: 'Delivery', icon: Truck },

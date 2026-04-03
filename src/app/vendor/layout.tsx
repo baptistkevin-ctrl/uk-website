@@ -21,6 +21,8 @@ import {
   Tag,
   Gift,
   Zap,
+  BellRing,
+  RotateCcw,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Button } from '@/components/ui/button'
@@ -29,11 +31,13 @@ const vendorNavItems = [
   { href: '/vendor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/vendor/products', label: 'Products', icon: Package },
   { href: '/vendor/orders', label: 'Orders', icon: ShoppingCart },
+  { href: '/vendor/returns', label: 'Returns', icon: RotateCcw },
   { href: '/vendor/reviews', label: 'Reviews', icon: Star },
   { href: '/vendor/coupons', label: 'Coupons', icon: Ticket },
   { href: '/vendor/offers', label: 'Multi-Buy Offers', icon: Tag },
   { href: '/vendor/gift-cards', label: 'Gift Cards', icon: Gift },
   { href: '/vendor/deals', label: 'Flash Deals', icon: Zap },
+  { href: '/vendor/stock-alerts', label: 'Stock Alerts', icon: BellRing },
   { href: '/vendor/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/vendor/payouts', label: 'Payouts', icon: CreditCard },
   { href: '/vendor/settings', label: 'Settings', icon: Settings },
