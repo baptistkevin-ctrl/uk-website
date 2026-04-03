@@ -35,6 +35,10 @@ export async function GET(request: NextRequest) {
       .order('intent_name')
 
     if (error) {
+      // Table may not exist yet
+      if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        return NextResponse.json({ intents: [] })
+      }
       console.error('Error fetching intents:', error)
       return NextResponse.json({ error: 'Failed to fetch intents' }, { status: 500 })
     }

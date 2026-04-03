@@ -31,6 +31,10 @@ export async function GET(request: NextRequest) {
       .order('order_index')
 
     if (error) {
+      // Table may not exist yet
+      if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        return NextResponse.json({ faqs: [] })
+      }
       console.error('Error fetching FAQs:', error)
       return NextResponse.json({ error: 'Failed to fetch FAQs' }, { status: 500 })
     }

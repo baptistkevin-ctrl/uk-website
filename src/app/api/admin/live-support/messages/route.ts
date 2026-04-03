@@ -45,6 +45,10 @@ export async function GET(request: NextRequest) {
     const { data: messages, error } = await query
 
     if (error) {
+      // Table may not exist yet
+      if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        return NextResponse.json({ messages: [] })
+      }
       console.error('Error fetching messages:', error)
       return NextResponse.json({ error: 'Failed to fetch messages' }, { status: 500 })
     }

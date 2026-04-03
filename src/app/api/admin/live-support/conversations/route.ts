@@ -53,6 +53,9 @@ export async function GET(request: NextRequest) {
     const { data: conversations, error } = await query.limit(50)
 
     if (error) {
+      if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+        return NextResponse.json({ conversations: [] })
+      }
       console.error('Error fetching conversations:', error)
       return NextResponse.json({ error: 'Failed to fetch conversations' }, { status: 500 })
     }

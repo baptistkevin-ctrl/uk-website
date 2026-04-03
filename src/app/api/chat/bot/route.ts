@@ -356,6 +356,15 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Get chatbot status error:', error)
-    return NextResponse.json({ error: 'Failed to get chatbot status' }, { status: 500 })
+    // Return defaults if tables don't exist yet
+    return NextResponse.json({
+      isEnabled: false,
+      botName: 'FreshBot',
+      welcomeMessage: "Hi! I'm FreshBot, your virtual assistant. How can I help you today?",
+      botAvatar: '/images/bot-avatar.png',
+      typingDelay: 1000,
+      conversationContext: null,
+      suggestedFaqs: []
+    })
   }
 }
