@@ -3,42 +3,36 @@ import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-// Get all conversations for agents
+// Get conversations for vendor
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
-
-    // Verify admin/agent access
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const supabaseAdmin = getSupabaseAdmin()
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
+
+    // Get vendor record
+    const { data: vendor } = await supabaseAdmin
+      .from('vendors')
+      .select('id, business_name')
+      .eq('user_id', user.id)
       .single()
 
-    if (!profile || !['admin', 'super_admin', 'vendor'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (!vendor) {
+      return NextResponse.json({ error: 'Vendor not found' }, { status: 403 })
     }
 
-    // Fetch conversations
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
-    const channelType = searchParams.get('channel_type')
+    const channelType = searchParams.get('channel_type') || 'customer_vendor'
 
     let query = supabaseAdmin
       .from('chat_conversations')
       .select(`
         *,
-        vendors (
-          id,
-          business_name,
-          logo_url
-        ),
         chat_messages (
           id,
           sender_type,
@@ -47,6 +41,8 @@ export async function GET(request: NextRequest) {
           created_at
         )
       `)
+      .eq('vendor_id', vendor.id)
+      .eq('channel_type', channelType)
       .order('last_message_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
 
@@ -56,30 +52,19 @@ export async function GET(request: NextRequest) {
       query = query.in('status', ['waiting', 'active', 'resolved'])
     }
 
-    // Filter by channel type
-    if (channelType) {
-      query = query.eq('channel_type', channelType)
-    } else {
-      // Admin sees customer_admin and vendor_admin chats
-      // Vendors see customer_vendor chats via their own endpoint
-      if (profile.role === 'admin' || profile.role === 'super_admin') {
-        query = query.in('channel_type', ['customer_admin', 'vendor_admin'])
-      }
-    }
-
     const { data: conversations, error } = await query.limit(50)
 
     if (error) {
-      if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
-        return NextResponse.json({ conversations: [] })
+      if (error.code === '42P01' || error.message?.includes('does not exist')) {
+        return NextResponse.json({ conversations: [], vendor })
       }
-      console.error('Error fetching conversations:', error)
+      console.error('Error fetching vendor conversations:', error)
       return NextResponse.json({ error: 'Failed to fetch conversations' }, { status: 500 })
     }
 
-    return NextResponse.json({ conversations: conversations || [] })
+    return NextResponse.json({ conversations: conversations || [], vendor })
   } catch (error) {
-    console.error('Live support API error:', error)
+    console.error('Vendor live chat API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

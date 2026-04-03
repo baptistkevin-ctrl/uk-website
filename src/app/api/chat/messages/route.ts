@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
     }
 
-    // Determine sender type and name
+    // Determine sender type and name based on role and channel
     let senderType = 'customer'
     let senderName = conversation.guest_name || 'Customer'
 
@@ -88,7 +88,27 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id)
         .single()
 
-      if (profile?.role === 'admin' || profile?.role === 'super_admin' || profile?.role === 'vendor') {
+      if (profile?.role === 'vendor') {
+        if (conversation.channel_type === 'customer_vendor') {
+          // Vendor replying to customer — sender is 'vendor'
+          senderType = 'vendor'
+          // Get vendor business name
+          const { data: vendor } = await supabaseAdmin
+            .from('vendors')
+            .select('business_name')
+            .eq('user_id', user.id)
+            .single()
+          senderName = vendor?.business_name || profile.full_name || 'Vendor'
+        } else if (conversation.channel_type === 'vendor_admin') {
+          // Vendor chatting with admin — vendor is the 'customer' side
+          senderType = 'customer'
+          senderName = profile.full_name || 'Vendor'
+        } else {
+          // Vendor acting as agent on customer_admin chats
+          senderType = 'agent'
+          senderName = profile.full_name || 'Support Agent'
+        }
+      } else if (profile?.role === 'admin' || profile?.role === 'super_admin') {
         senderType = 'agent'
         senderName = profile.full_name || 'Support Agent'
       } else {

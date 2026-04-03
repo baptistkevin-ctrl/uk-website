@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ProductCard } from '@/components/products/product-card'
 import { StoreBanner, SortSelect } from '@/components/store'
+import { VendorChatButton } from '@/components/chat/vendor-chat-button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Package, ArrowUpDown } from 'lucide-react'
 
@@ -179,6 +180,14 @@ export default async function StorePage({ params, searchParams }: StorePageProps
     <div className="min-h-screen bg-gray-50">
       {/* Store Banner */}
       <StoreBanner vendor={vendorWithCount} />
+
+      {/* Chat with Store Button */}
+      <div className="container mx-auto px-4 pt-4">
+        <VendorChatButton
+          vendorId={vendor.id}
+          vendorName={vendor.business_name}
+        />
+      </div>
 
       {/* Products Section */}
       <div className="container mx-auto px-4 py-8">

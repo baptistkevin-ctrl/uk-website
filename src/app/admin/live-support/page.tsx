@@ -21,7 +21,8 @@ import {
   ChevronUp,
   Headphones,
   UserCheck,
-  Users
+  Users,
+  Store
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 
@@ -33,6 +34,9 @@ interface Conversation {
   guest_email: string | null
   subject: string | null
   department: string
+  channel_type: 'customer_admin' | 'customer_vendor' | 'vendor_admin'
+  vendor_id: string | null
+  vendors?: { id: string; business_name: string; logo_url: string | null } | null
   status: 'waiting' | 'active' | 'resolved' | 'closed'
   assigned_agent_id: string | null
   unread_agent: number
@@ -48,7 +52,7 @@ interface Conversation {
 interface Message {
   id: string
   conversation_id: string
-  sender_type: 'customer' | 'agent' | 'system' | 'bot'
+  sender_type: 'customer' | 'agent' | 'system' | 'bot' | 'vendor'
   sender_id: string | null
   sender_name: string | null
   content: string
@@ -74,6 +78,7 @@ export default function LiveSupportPage() {
   const [loading, setLoading] = useState(true)
   const [sending, setSending] = useState(false)
   const [filter, setFilter] = useState<'all' | 'waiting' | 'active' | 'resolved'>('all')
+  const [channelFilter, setChannelFilter] = useState<'all' | 'customer_admin' | 'vendor_admin'>('all')
   const [stats, setStats] = useState<AgentStats>({
     activeChats: 0,
     waitingChats: 0,
@@ -88,7 +93,8 @@ export default function LiveSupportPage() {
   // Fetch conversations
   const fetchConversations = async () => {
     try {
-      const res = await fetch('/api/admin/live-support/conversations')
+      const channelParam = channelFilter !== 'all' ? `?channel_type=${channelFilter}` : ''
+      const res = await fetch(`/api/admin/live-support/conversations${channelParam}`)
       if (res.ok) {
         const data = await res.json()
         setConversations(data.conversations || [])
@@ -237,7 +243,7 @@ export default function LiveSupportPage() {
         clearInterval(pollIntervalRef.current)
       }
     }
-  }, [])
+  }, [channelFilter])
 
   // Poll for new messages when conversation is selected
   useEffect(() => {
@@ -311,7 +317,7 @@ export default function LiveSupportPage() {
               Live Support
             </h1>
             <p className="text-gray-500 mt-1">
-              Manage customer chat conversations in real-time
+              Manage chat conversations in real-time
             </p>
           </div>
 
@@ -342,7 +348,29 @@ export default function LiveSupportPage() {
         <div className="flex-1 flex gap-4 min-h-0">
           {/* Conversations List */}
           <div className="w-80 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
-            {/* Filter Tabs */}
+            {/* Channel Filter */}
+            <div className="p-3 border-b">
+              <div className="flex gap-1 mb-2">
+                {[
+                  { id: 'all', label: 'All Chats' },
+                  { id: 'customer_admin', label: 'Customers' },
+                  { id: 'vendor_admin', label: 'Vendors' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => { setChannelFilter(tab.id as typeof channelFilter); setSelectedConversation(null); setMessages([]) }}
+                    className={`flex-1 px-2 py-1 text-xs font-medium rounded-md transition-colors ${
+                      channelFilter === tab.id
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Status Filter Tabs */}
             <div className="p-3 border-b">
               <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
                 {[
@@ -402,11 +430,20 @@ export default function LiveSupportPage() {
                           </div>
                           <div>
                             <p className="font-medium text-gray-900 text-sm">
-                              {conv.guest_name || 'Guest'}
+                              {conv.channel_type === 'vendor_admin'
+                                ? conv.vendors?.business_name || 'Vendor'
+                                : conv.guest_name || 'Guest'}
                             </p>
-                            <p className="text-xs text-gray-500">
-                              {conv.subject || 'No subject'}
-                            </p>
+                            <div className="flex items-center gap-1">
+                              {conv.channel_type === 'vendor_admin' && (
+                                <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] rounded font-medium">
+                                  Vendor
+                                </span>
+                              )}
+                              <p className="text-xs text-gray-500">
+                                {conv.subject || 'No subject'}
+                              </p>
+                            </div>
                           </div>
                         </div>
                         {conv.unread_agent > 0 && (
@@ -536,22 +573,27 @@ export default function LiveSupportPage() {
                           className={`max-w-[70%] ${
                             msg.sender_type === 'agent'
                               ? 'bg-emerald-600 text-white rounded-2xl rounded-br-md'
-                              : msg.sender_type === 'bot'
-                                ? 'bg-amber-50 text-gray-900 rounded-2xl rounded-bl-md border border-amber-200'
-                                : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'
+                              : msg.sender_type === 'vendor'
+                                ? 'bg-purple-100 text-gray-900 rounded-2xl rounded-bl-md border border-purple-200'
+                                : msg.sender_type === 'bot'
+                                  ? 'bg-amber-50 text-gray-900 rounded-2xl rounded-bl-md border border-amber-200'
+                                  : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'
                           } px-4 py-2`}
                         >
                           {msg.sender_type !== 'agent' && (
                             <div className="flex items-center gap-1 mb-1">
                               {msg.sender_type === 'bot' ? (
                                 <Bot className="h-3 w-3 text-amber-600" />
+                              ) : msg.sender_type === 'vendor' ? (
+                                <Store className="h-3 w-3 text-purple-600" />
                               ) : (
                                 <User className="h-3 w-3 text-gray-500" />
                               )}
                               <span className={`text-xs font-medium ${
-                                msg.sender_type === 'bot' ? 'text-amber-600' : 'text-gray-500'
+                                msg.sender_type === 'bot' ? 'text-amber-600' :
+                                msg.sender_type === 'vendor' ? 'text-purple-600' : 'text-gray-500'
                               }`}>
-                                {msg.sender_name || (msg.sender_type === 'bot' ? 'FreshBot' : 'Customer')}
+                                {msg.sender_name || (msg.sender_type === 'bot' ? 'FreshBot' : msg.sender_type === 'vendor' ? 'Vendor' : 'Customer')}
                               </span>
                             </div>
                           )}

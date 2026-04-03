@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
     const action = searchParams.get('action')
     const conversationId = searchParams.get('conversation_id')
     const sessionId = searchParams.get('session_id')
+    const channelType = searchParams.get('channel_type')
 
     // Check availability
     if (action === 'availability') {
@@ -87,6 +88,11 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
       .limit(1)
 
+    // Filter by channel type if specified
+    if (channelType) {
+      query = query.eq('channel_type', channelType)
+    }
+
     if (user) {
       query = query.eq('user_id', user.id)
     } else if (sessionId) {
@@ -126,7 +132,9 @@ export async function POST(request: NextRequest) {
       subject,
       department,
       initial_message,
-      metadata
+      metadata,
+      channel_type = 'customer_admin',
+      vendor_id = null
     } = body
 
     const userAgent = request.headers.get('user-agent')
@@ -149,7 +157,9 @@ export async function POST(request: NextRequest) {
         p_subject: subject || null,
         p_department: department || 'general',
         p_initial_message: initial_message || null,
-        p_metadata: fullMetadata
+        p_metadata: fullMetadata,
+        p_channel_type: channel_type,
+        p_vendor_id: vendor_id
       })
 
     if (error) {
@@ -166,7 +176,9 @@ export async function POST(request: NextRequest) {
           subject,
           department: department || 'general',
           metadata: fullMetadata,
-          status: 'waiting'
+          status: 'waiting',
+          channel_type,
+          vendor_id
         })
         .select()
         .single()

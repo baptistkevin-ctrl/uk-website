@@ -27,6 +27,7 @@ import { AddToCartButton } from '@/components/products/add-to-cart-button'
 import { StarRatingCompact, ReviewList } from '@/components/reviews'
 import { WishlistButton } from '@/components/wishlist'
 import { VendorBadge } from '@/components/store'
+import { VendorChatButton } from '@/components/chat/vendor-chat-button'
 import { ProductViewTracker } from '@/components/products/product-view-tracker'
 import { ProductGallery } from '@/components/products/product-gallery'
 import { StockAlertButton } from '@/components/products/stock-alert-button'
@@ -222,6 +223,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <>
                   {product.brand && <span className="text-gray-300">•</span>}
                   <VendorBadge vendor={vendor} />
+                  <span className="text-gray-300">•</span>
+                  <VendorChatButton
+                    vendorId={vendor.id}
+                    vendorName={vendor.business_name}
+                    productSlug={product.slug}
+                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md hover:bg-emerald-100 transition-colors"
+                  />
                 </>
               )}
             </div>

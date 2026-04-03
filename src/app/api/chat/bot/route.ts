@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
 
       // If handoff requested, add system message
       if (response.shouldHandoff) {
-        await supabase
+        await supabaseAdmin
           .from('chat_messages')
           .insert({
             conversation_id,

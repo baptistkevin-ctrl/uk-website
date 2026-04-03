@@ -20,7 +20,7 @@ import { formatDistanceToNow, format } from 'date-fns'
 
 interface Message {
   id: string
-  sender_type: 'customer' | 'agent' | 'system' | 'bot'
+  sender_type: 'customer' | 'agent' | 'system' | 'bot' | 'vendor'
   sender_name: string | null
   content: string
   message_type: string
@@ -60,6 +60,8 @@ interface Conversation {
   status: string
   assigned_agent_id: string | null
   department: string
+  channel_type: string
+  vendor_id: string | null
   subject: string | null
   rating: number | null
   created_at: string
@@ -71,7 +73,13 @@ interface Availability {
   available_agents: number
 }
 
-export function LiveChatWidget() {
+interface LiveChatWidgetProps {
+  vendorId?: string
+  vendorName?: string
+  productSlug?: string
+}
+
+export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWidgetProps = {}) {
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
   const [conversation, setConversation] = useState<Conversation | null>(null)
@@ -90,6 +98,9 @@ export function LiveChatWidget() {
   const [isBotActive, setIsBotActive] = useState(true)
   const [botTyping, setBotTyping] = useState(false)
   const [quickReplies, setQuickReplies] = useState<QuickReply[]>([])
+
+  // Vendor chat mode
+  const [chatMode, setChatMode] = useState<'support' | 'vendor'>(vendorId ? 'vendor' : 'support')
 
   // Form fields
   const [name, setName] = useState('')
@@ -234,6 +245,7 @@ export function LiveChatWidget() {
 
     setLoading(true)
     try {
+      const isVendorChat = chatMode === 'vendor' && vendorId
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -241,10 +253,13 @@ export function LiveChatWidget() {
           session_id: getSessionId(),
           guest_name: name || undefined,
           guest_email: email || undefined,
-          subject: subject || undefined,
+          subject: subject || (isVendorChat ? `Question about ${vendorName || 'product'}` : undefined),
           initial_message: initialMessage,
+          channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
+          vendor_id: isVendorChat ? vendorId : undefined,
           metadata: {
-            page: window.location.href
+            page: window.location.href,
+            product_slug: productSlug || undefined
           }
         })
       })
@@ -261,8 +276,8 @@ export function LiveChatWidget() {
           }
           setShowStartForm(false)
 
-          // If bot is enabled, get bot response
-          if (botSettings?.isEnabled) {
+          // If bot is enabled and not a vendor chat, get bot response
+          if (botSettings?.isEnabled && chatMode !== 'vendor') {
             setBotTyping(true)
             const botResponse = await sendToBotAPI(initialMessage, data.conversation_id)
 
@@ -402,8 +417,8 @@ export function LiveChatWidget() {
           prev.map(m => m.id === optimisticMessage.id ? data.message : m)
         )
 
-        // If bot is active, get bot response
-        if (isBotActive && botSettings?.isEnabled) {
+        // If bot is active and not vendor chat, get bot response
+        if (isBotActive && botSettings?.isEnabled && chatMode !== 'vendor') {
           setBotTyping(true)
           const botResponse = await sendToBotAPI(messageContent, conversation.id)
 
@@ -522,6 +537,8 @@ export function LiveChatWidget() {
     switch (senderType) {
       case 'agent':
         return <User className="h-4 w-4" />
+      case 'vendor':
+        return <User className="h-4 w-4" />
       case 'bot':
         return <Bot className="h-4 w-4" />
       case 'system':
@@ -557,14 +574,20 @@ export function LiveChatWidget() {
           </div>
           <div>
             <h3 className="font-semibold text-sm">
-              {isBotActive ? (botSettings?.botName || 'FreshBot') : 'FreshMart Support'}
+              {chatMode === 'vendor' && vendorName
+                ? vendorName
+                : isBotActive
+                  ? (botSettings?.botName || 'FreshBot')
+                  : 'FreshMart Support'}
             </h3>
             <p className="text-xs text-green-100">
-              {isBotActive
-                ? 'AI Assistant - Ask me anything!'
-                : availability?.is_available
-                  ? 'Online - We\'re here to help!'
-                  : 'Leave a message'}
+              {chatMode === 'vendor'
+                ? 'Chat with seller'
+                : isBotActive
+                  ? 'AI Assistant - Ask me anything!'
+                  : availability?.is_available
+                    ? 'Online - We\'re here to help!'
+                    : 'Leave a message'}
             </p>
           </div>
         </div>
@@ -604,14 +627,44 @@ export function LiveChatWidget() {
                 </div>
               )}
 
+              {/* Chat mode selector when vendor context available */}
+              {vendorId && (
+                <div className="mb-4 flex gap-2">
+                  <button
+                    onClick={() => setChatMode('vendor')}
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                      chatMode === 'vendor'
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    Chat with {vendorName || 'Seller'}
+                  </button>
+                  <button
+                    onClick={() => setChatMode('support')}
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                      chatMode === 'support'
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                    }`}
+                  >
+                    FreshMart Support
+                  </button>
+                </div>
+              )}
+
               <div className="mb-4">
-                <h4 className="font-semibold text-gray-900 mb-1">Start a conversation</h4>
+                <h4 className="font-semibold text-gray-900 mb-1">
+                  {chatMode === 'vendor' ? `Message ${vendorName || 'Seller'}` : 'Start a conversation'}
+                </h4>
                 <p className="text-sm text-gray-500">
-                  {botSettings?.isEnabled
-                    ? 'Our AI assistant is ready to help instantly!'
-                    : availability?.is_available
-                      ? 'Our team is ready to help you.'
-                      : `Average response time: ${availability?.estimated_wait_minutes || 5} minutes`}
+                  {chatMode === 'vendor'
+                    ? 'Ask about products, orders, or anything else'
+                    : botSettings?.isEnabled
+                      ? 'Our AI assistant is ready to help instantly!'
+                      : availability?.is_available
+                        ? 'Our team is ready to help you.'
+                        : `Average response time: ${availability?.estimated_wait_minutes || 5} minutes`}
                 </p>
               </div>
 
@@ -758,7 +811,9 @@ export function LiveChatWidget() {
                             ? 'bg-green-600 text-white rounded-2xl rounded-br-md'
                             : message.sender_type === 'bot'
                               ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-gray-900 rounded-2xl rounded-bl-md border border-green-100'
-                              : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'
+                              : message.sender_type === 'vendor'
+                                ? 'bg-purple-50 text-gray-900 rounded-2xl rounded-bl-md border border-purple-200'
+                                : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'
                         } px-4 py-2`}
                       >
                         {message.sender_type !== 'customer' && (
