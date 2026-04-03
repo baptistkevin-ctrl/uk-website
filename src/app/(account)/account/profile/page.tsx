@@ -128,6 +128,7 @@ export default function ProfilePage() {
                 </div>
                 <button
                   type="button"
+                  aria-label="Change profile photo"
                   className="absolute -bottom-1 -right-1 w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
                 >
                   <Camera className="h-4 w-4 text-gray-600" />

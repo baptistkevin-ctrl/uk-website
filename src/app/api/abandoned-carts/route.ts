@@ -146,6 +146,16 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Recovery link has expired' }, { status: 400 })
     }
 
+    // Mark token as used so recovery links are single-use
+    await supabase
+      .from('abandoned_carts')
+      .update({
+        recovery_status: 'recovered',
+        recovered_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', cart.id)
+
     return NextResponse.json({
       cart_items: cart.cart_items,
       cart_total_pence: cart.cart_total_pence,

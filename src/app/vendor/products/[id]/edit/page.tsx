@@ -333,7 +333,7 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {images.map((url, index) => (
                   <div key={index} className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden group">
-                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <img src={url} alt={formData.name || "Product image"} className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removeImage(index)}

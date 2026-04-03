@@ -78,7 +78,11 @@ export default function SharedWishlistPage() {
           url
         })
       } catch (err) {
-        // User cancelled or share failed
+        // AbortError means user cancelled the share dialog — not an error
+        if (err instanceof Error && err.name !== 'AbortError') {
+          console.error('Share failed:', err)
+          setError('Sharing failed. Please try copying the link instead.')
+        }
       }
     } else {
       await navigator.clipboard.writeText(url)

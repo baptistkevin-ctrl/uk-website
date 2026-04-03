@@ -32,9 +32,37 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const { status } = body
 
     // Validate status
-    const validStatuses = ['active', 'pending', 'used', 'expired', 'cancelled']
+    const validStatuses = ['active', 'pending', 'used', 'expired', 'cancelled', 'suspended']
     if (status && !validStatuses.includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
+    }
+
+    // Validate state transition
+    if (status) {
+      const { data: currentCard, error: fetchError } = await supabase
+        .from('gift_cards')
+        .select('status')
+        .eq('id', id)
+        .single()
+
+      if (fetchError || !currentCard) {
+        return NextResponse.json({ error: 'Gift card not found' }, { status: 404 })
+      }
+
+      const allowedTransitions: Record<string, string[]> = {
+        active: ['suspended', 'expired'],
+        suspended: ['active', 'expired'],
+        expired: [],
+        used: [],
+      }
+
+      const allowed = allowedTransitions[currentCard.status]
+      if (allowed !== undefined && !allowed.includes(status)) {
+        return NextResponse.json(
+          { error: `Cannot transition from '${currentCard.status}' to '${status}'` },
+          { status: 400 }
+        )
+      }
     }
 
     const { error } = await supabase

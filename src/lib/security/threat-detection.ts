@@ -39,6 +39,9 @@ const lockedAccounts = new Map<string, number>() // email -> lockout expiry
 const blockedIPs = new Map<string, number>() // IP -> block expiry
 const requestCounts = new Map<string, { count: number; windowStart: number }>()
 
+// Maximum entries per map to prevent OOM under sustained attack
+const MAX_MAP_SIZE = 10000
+
 // Cleanup expired entries periodically
 setInterval(() => {
   const now = Date.now()
@@ -84,6 +87,7 @@ export function isIPBlocked(ip: string): boolean {
  * Block an IP address
  */
 export function blockIP(ip: string, durationMs: number = 3600000): void {
+  if (blockedIPs.size > MAX_MAP_SIZE) blockedIPs.clear()
   blockedIPs.set(ip, Date.now() + durationMs)
 }
 
@@ -125,10 +129,12 @@ export function recordFailedLogin(email: string, ip: string): { locked: boolean;
     attempts.count++
   }
 
+  if (failedLoginAttempts.size > MAX_MAP_SIZE) failedLoginAttempts.clear()
   failedLoginAttempts.set(key, attempts)
 
   if (attempts.count >= THREAT_CONFIG.maxFailedLogins) {
     // Lock the account
+    if (lockedAccounts.size > MAX_MAP_SIZE) lockedAccounts.clear()
     lockedAccounts.set(key, now + THREAT_CONFIG.lockoutDuration)
     failedLoginAttempts.delete(key)
 
@@ -232,6 +238,7 @@ export function checkRequestRate(ip: string): { allowed: boolean; requestsInWind
 
   if (!data || data.windowStart + windowMs < now) {
     data = { count: 1, windowStart: now }
+    if (requestCounts.size > MAX_MAP_SIZE) requestCounts.clear()
     requestCounts.set(ip, data)
     return { allowed: true, requestsInWindow: 1 }
   }
