@@ -12,19 +12,6 @@ function getSupabaseAdmin() {
   )
 }
 
-// Track processed events to prevent duplicate processing within same instance
-const processedEvents = new Set<string>()
-const MAX_PROCESSED_EVENTS = 10_000
-
-function markEventProcessed(eventId: string) {
-  processedEvents.add(eventId)
-  // Prevent unbounded growth
-  if (processedEvents.size > MAX_PROCESSED_EVENTS) {
-    const first = processedEvents.values().next().value
-    if (first) processedEvents.delete(first)
-  }
-}
-
 export async function POST(request: Request) {
   const body = await request.text()
   const headersList = await headers()
@@ -62,12 +49,6 @@ export async function POST(request: Request) {
       level: 'warning',
     })
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
-  }
-
-  // In-memory idempotency: skip if already processed in this instance
-  if (processedEvents.has(event.id)) {
-    console.log(`[WEBHOOK] Skipping already-processed event: ${event.id}`)
-    return NextResponse.json({ received: true, duplicate: true })
   }
 
   // Handle the event
@@ -110,7 +91,6 @@ export async function POST(request: Request) {
         console.log(`Unhandled event type: ${event.type}`)
     }
 
-    markEventProcessed(event.id)
   } catch (error) {
     captureError(error instanceof Error ? error : new Error(String(error)), {
       context: 'webhook:stripe:processing',

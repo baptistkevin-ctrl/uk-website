@@ -44,32 +44,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Gift card has no balance' }, { status: 400 })
     }
 
-    // Calculate redemption amount
+    // Calculate the desired redemption amount (capped by the balance we read).
+    // This is a best-effort cap; the authoritative check is in the atomic update below.
     const redeemAmount = Math.min(amount_pence, giftCard.current_balance_pence)
-    const newBalance = giftCard.current_balance_pence - redeemAmount
 
-    // Atomic update with balance check to prevent double-spend race condition.
-    // The .gte('current_balance_pence', redeemAmount) filter ensures the update
-    // only succeeds if the balance hasn't been reduced by a concurrent request.
+    // Atomic balance deduction via Supabase RPC-style raw SQL.
+    // We use .rpc() to call a single UPDATE … SET current_balance_pence = current_balance_pence - $amount
+    // WHERE id = $id AND current_balance_pence >= $amount, which is fully atomic.
+    // Since Supabase JS .update() doesn't support SQL expressions, we use .rpc().
     const { data: updatedRows, error: updateError } = await supabase
-      .from('gift_cards')
-      .update({
-        current_balance_pence: newBalance,
-        status: newBalance === 0 ? 'used' : 'active',
-        updated_at: new Date().toISOString()
+      .rpc('redeem_gift_card_balance', {
+        card_id: giftCard.id,
+        redeem_amount: redeemAmount
       })
-      .eq('id', giftCard.id)
-      .gte('current_balance_pence', redeemAmount)
-      .select()
 
     if (updateError) {
       console.error('Error updating gift card:', updateError)
       return NextResponse.json({ error: 'Failed to redeem gift card' }, { status: 500 })
     }
 
-    if (!updatedRows || updatedRows.length === 0) {
+    // The RPC returns the updated row(s). If empty, the WHERE … >= check failed.
+    if (!updatedRows || (Array.isArray(updatedRows) && updatedRows.length === 0)) {
       return NextResponse.json({ error: 'Insufficient gift card balance. Please try again.' }, { status: 409 })
     }
+
+    // Read the authoritative new balance from the database response
+    const updatedCard = Array.isArray(updatedRows) ? updatedRows[0] : updatedRows
+    const newBalance: number = updatedCard.current_balance_pence
 
     // Record transaction
     await supabase
