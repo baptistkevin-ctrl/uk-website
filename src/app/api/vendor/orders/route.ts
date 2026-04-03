@@ -184,11 +184,51 @@ export async function PUT(request: NextRequest) {
       .update({ status, updated_at: new Date().toISOString() })
       .eq('id', vendor_order_id)
       .eq('vendor_id', vendor.id)
-      .select()
+      .select('*, order_id')
       .single()
 
     if (updateError) {
       return NextResponse.json({ error: 'Failed to update order' }, { status: 500 })
+    }
+
+    // Sync status to the parent orders table so customers see the update
+    if (updatedOrder?.order_id) {
+      // For single-vendor orders, directly sync the status.
+      // For multi-vendor orders, use the most advanced status across all vendor_orders.
+      const { data: allVendorOrders } = await supabaseAdmin
+        .from('vendor_orders')
+        .select('status')
+        .eq('order_id', updatedOrder.order_id)
+
+      if (allVendorOrders && allVendorOrders.length > 0) {
+        const statusPriority: Record<string, number> = {
+          pending: 0,
+          confirmed: 1,
+          processing: 2,
+          ready_for_delivery: 3,
+          out_for_delivery: 4,
+          delivered: 5,
+          cancelled: -1,
+        }
+
+        // For multi-vendor: use the minimum (least progressed) non-cancelled status
+        // so the parent order only advances when ALL vendors have reached that stage
+        const nonCancelled = allVendorOrders.filter(vo => vo.status !== 'cancelled')
+        let parentStatus = status
+
+        if (nonCancelled.length > 1) {
+          parentStatus = nonCancelled.reduce((min, vo) =>
+            (statusPriority[vo.status] ?? 0) < (statusPriority[min] ?? 0) ? vo.status : min
+          , nonCancelled[0].status)
+        } else if (nonCancelled.length === 0) {
+          parentStatus = 'cancelled'
+        }
+
+        await supabaseAdmin
+          .from('orders')
+          .update({ status: parentStatus, updated_at: new Date().toISOString() })
+          .eq('id', updatedOrder.order_id)
+      }
     }
 
     return NextResponse.json(updatedOrder)
