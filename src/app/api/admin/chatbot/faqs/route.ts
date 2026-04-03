@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       .from('chatbot_faqs')
       .select('*')
       .order('category')
-      .order('order_index')
+      .order('sort_order')
 
     if (error) {
       // Table may not exist yet

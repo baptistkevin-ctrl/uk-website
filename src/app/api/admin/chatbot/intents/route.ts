@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         training_phrases:chatbot_training_phrases(id, phrase, created_at),
         responses:chatbot_responses(id, response_text, response_type, quick_replies, card_data)
       `)
-      .order('intent_name')
+      .order('name')
 
     if (error) {
       // Table may not exist yet
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     const { data: intent, error: intentError } = await supabase
       .from('chatbot_intents')
       .insert({
-        intent_name,
+        name: intent_name,
         description,
         is_active: true
       })
