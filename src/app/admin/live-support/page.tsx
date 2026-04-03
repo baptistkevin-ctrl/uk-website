@@ -89,6 +89,7 @@ export default function LiveSupportPage() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const lastMsgTimeRef = useRef<string | null>(null)
 
   // Fetch conversations
   const fetchConversations = async () => {
@@ -100,9 +101,10 @@ export default function LiveSupportPage() {
         setConversations(data.conversations || [])
 
         // Update stats
-        const waiting = data.conversations.filter((c: Conversation) => c.status === 'waiting').length
-        const active = data.conversations.filter((c: Conversation) => c.status === 'active').length
-        const resolvedToday = data.conversations.filter((c: Conversation) => {
+        const convs = data.conversations || []
+        const waiting = convs.filter((c: Conversation) => c.status === 'waiting').length
+        const active = convs.filter((c: Conversation) => c.status === 'active').length
+        const resolvedToday = convs.filter((c: Conversation) => {
           const today = new Date().toDateString()
           return c.status === 'resolved' && new Date(c.created_at).toDateString() === today
         }).length
@@ -245,19 +247,25 @@ export default function LiveSupportPage() {
     }
   }, [channelFilter])
 
+  // Track last message time for polling
+  useEffect(() => {
+    if (messages.length > 0) {
+      lastMsgTimeRef.current = messages[messages.length - 1].created_at
+    }
+  }, [messages])
+
   // Poll for new messages when conversation is selected
   useEffect(() => {
     if (!selectedConversation) return
 
     const pollMessages = setInterval(() => {
-      const lastMessage = messages[messages.length - 1]
-      if (lastMessage) {
-        fetchMessages(selectedConversation.id, lastMessage.created_at)
+      if (lastMsgTimeRef.current) {
+        fetchMessages(selectedConversation.id, lastMsgTimeRef.current)
       }
     }, 3000)
 
     return () => clearInterval(pollMessages)
-  }, [selectedConversation, messages])
+  }, [selectedConversation])
 
   // Filter conversations
   const filteredConversations = conversations.filter(conv => {

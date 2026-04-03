@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const conversationId = searchParams.get('conversation_id')
     const since = searchParams.get('since')
-    const limit = parseInt(searchParams.get('limit') || '50')
+    const limit = Math.min(parseInt(searchParams.get('limit') || '50') || 50, 100)
 
     if (!conversationId) {
       return NextResponse.json({ error: 'Conversation ID required' }, { status: 400 })
@@ -137,15 +137,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to send message' }, { status: 500 })
     }
 
-    // Update conversation timestamp
+    // Update conversation timestamp and unread counters
+    // vendor messages in customer_vendor should increment unread_customer
+    const incrementCustomerUnread = senderType === 'agent' || senderType === 'vendor'
+    const incrementAgentUnread = senderType === 'customer'
     await supabaseAdmin
       .from('chat_conversations')
       .update({
         last_message_at: new Date().toISOString(),
-        unread_customer: senderType === 'agent'
+        unread_customer: incrementCustomerUnread
           ? (conversation.unread_customer || 0) + 1
           : conversation.unread_customer || 0,
-        unread_agent: senderType === 'customer'
+        unread_agent: incrementAgentUnread
           ? (conversation.unread_agent || 0) + 1
           : conversation.unread_agent || 0
       })

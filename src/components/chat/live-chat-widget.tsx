@@ -7,10 +7,8 @@ import {
   Send,
   Minimize2,
   Loader2,
-  User,
   Bot,
   Star,
-  Clock,
   Check,
   CheckCheck,
   Sparkles,
@@ -18,9 +16,8 @@ import {
   Headphones,
   Store,
   Plus,
-  Search
 } from 'lucide-react'
-import { format, formatDistanceToNow } from 'date-fns'
+import { format } from 'date-fns'
 
 // ─── Types ───────────────────────────────────────────────────────
 interface Message {
@@ -125,6 +122,8 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const listPollRef = useRef<NodeJS.Timeout | null>(null)
+  const lastMessageTimeRef = useRef<string | null>(null)
+  const initialLoadDoneRef = useRef(false)
 
   // ─── Helpers ─────────────────────────────────────────────────
   const getSessionId = () => {
@@ -189,10 +188,10 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
   }
 
   // ─── Conversations API ──────────────────────────────────────
-  const fetchConversations = async () => {
+  const fetchConversations = async (isInitial = false) => {
     const sessionId = getSessionId()
     if (!sessionId) return
-    setLoadingConversations(true)
+    if (isInitial) setLoadingConversations(true)
     try {
       const res = await fetch(`/api/chat?session_id=${sessionId}&list=true`)
       if (res.ok) {
@@ -339,10 +338,52 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     if (!newMessage.trim() || sending) return
 
     if (!activeConversation) {
-      // Auto-create conversation
-      setFormMessage(newMessage)
+      // Auto-create conversation — pass message directly to avoid stale state
+      const msg = newMessage.trim()
       setNewMessage('')
-      startNewConversation()
+      setFormLoading(true)
+      try {
+        const isVendorChat = newChatType === 'vendor' && vendorId
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: getSessionId(),
+            guest_name: formName || undefined,
+            guest_email: formEmail || undefined,
+            initial_message: msg,
+            channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
+            vendor_id: isVendorChat ? vendorId : undefined,
+            metadata: { page: globalThis.location?.href }
+          })
+        })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.conversation_id) {
+            const conv: Conversation = {
+              id: data.conversation_id,
+              status: 'waiting',
+              assigned_agent_id: null,
+              department: 'general',
+              channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
+              vendor_id: isVendorChat ? vendorId! : null,
+              subject: null,
+              rating: null,
+              created_at: new Date().toISOString(),
+              last_message: msg,
+              last_message_at: new Date().toISOString()
+            }
+            setActiveConversation(conv)
+            setIsBotActive(!isVendorChat && (botSettings?.isEnabled || false))
+            fetchMessages(data.conversation_id)
+            fetchConversations()
+          }
+        }
+      } catch (error) {
+        console.error('Failed to create conversation:', error)
+      } finally {
+        setFormLoading(false)
+      }
       return
     }
 
@@ -474,22 +515,30 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
   }
 
   // ─── Effects ────────────────────────────────────────────────
+  // Track last message time for polling
+  useEffect(() => {
+    if (messages.length > 0) {
+      lastMessageTimeRef.current = messages[messages.length - 1].created_at
+    }
+  }, [messages])
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, botTyping])
 
-  // Poll messages in active chat
+  // Poll messages in active chat — uses ref to avoid restarting on every message
   useEffect(() => {
     if (!activeConversation || view !== 'chat') return
     if (activeConversation.status === 'closed' || activeConversation.status === 'resolved') return
 
     const poll = () => {
-      const lastMessage = messages[messages.length - 1]
-      if (lastMessage) fetchMessages(activeConversation.id, lastMessage.created_at)
+      if (lastMessageTimeRef.current) {
+        fetchMessages(activeConversation.id, lastMessageTimeRef.current)
+      }
     }
     pollIntervalRef.current = setInterval(poll, 3000)
     return () => { if (pollIntervalRef.current) clearInterval(pollIntervalRef.current) }
-  }, [activeConversation, messages, view])
+  }, [activeConversation, view])
 
   // Poll conversation list
   useEffect(() => {
@@ -498,16 +547,34 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     return () => { if (listPollRef.current) clearInterval(listPollRef.current) }
   }, [isOpen, view])
 
+  // Listen for vendor chat button clicks
+  useEffect(() => {
+    const handleOpenVendorChat = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      if (detail?.vendorId) {
+        setIsOpen(true)
+        setActiveTab('sellers')
+        setNewChatType('vendor')
+        setView('new-chat')
+      }
+    }
+    globalThis.addEventListener('open-vendor-chat', handleOpenVendorChat)
+    return () => globalThis.removeEventListener('open-vendor-chat', handleOpenVendorChat)
+  }, [])
+
   // Initial load
   useEffect(() => {
-    if (isOpen) {
-      fetchConversations()
+    if (isOpen && !initialLoadDoneRef.current) {
+      initialLoadDoneRef.current = true
+      fetchConversations(true)
       fetchBotSettings()
 
-      // If opened with vendorId and no existing vendor chat, go straight to new chat
       if (vendorId) {
         setNewChatType('vendor')
       }
+    }
+    if (!isOpen) {
+      initialLoadDoneRef.current = false
     }
   }, [isOpen])
 

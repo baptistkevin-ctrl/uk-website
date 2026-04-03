@@ -41,7 +41,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     const body = await request.json()
-    const status = body.status || 'resolved'
+    const requestedStatus = body.status || 'resolved'
+    const status = ['resolved', 'closed'].includes(requestedStatus) ? requestedStatus : 'resolved'
 
     await supabaseAdmin
       .from('chat_conversations')

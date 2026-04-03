@@ -72,9 +72,10 @@ export default function VendorLiveChatPage() {
         const data = await res.json()
         setConversations(data.conversations || [])
 
-        const waiting = data.conversations.filter((c: Conversation) => c.status === 'waiting').length
-        const active = data.conversations.filter((c: Conversation) => c.status === 'active').length
-        const resolved = data.conversations.filter((c: Conversation) => c.status === 'resolved').length
+        const convs = data.conversations || []
+        const waiting = convs.filter((c: Conversation) => c.status === 'waiting').length
+        const active = convs.filter((c: Conversation) => c.status === 'active').length
+        const resolved = convs.filter((c: Conversation) => c.status === 'resolved').length
         setStats({ waiting, active, resolved })
       }
     } catch (error) {
@@ -194,16 +195,22 @@ export default function VendorLiveChatPage() {
     }
   }, [channelTab])
 
+  const lastMsgTimeRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (messages.length > 0) {
+      lastMsgTimeRef.current = messages[messages.length - 1].created_at
+    }
+  }, [messages])
+
   useEffect(() => {
     if (!selectedConversation) return
     const pollMessages = setInterval(() => {
-      const lastMessage = messages[messages.length - 1]
-      if (lastMessage) {
-        fetchMessages(selectedConversation.id, lastMessage.created_at)
+      if (lastMsgTimeRef.current) {
+        fetchMessages(selectedConversation.id, lastMsgTimeRef.current)
       }
     }, 3000)
     return () => clearInterval(pollMessages)
-  }, [selectedConversation, messages])
+  }, [selectedConversation])
 
   const filteredConversations = conversations.filter(conv => {
     if (filter === 'all') return conv.status !== 'closed'
@@ -537,7 +544,7 @@ export default function VendorLiveChatPage() {
               </div>
 
               {/* Reply Input */}
-              {(selectedConversation.status === 'active' || channelTab === 'vendor_admin') && (
+              {(selectedConversation.status === 'active' || (channelTab === 'vendor_admin' && selectedConversation.status !== 'resolved' && selectedConversation.status !== 'closed')) && (
                 <div className="p-4 border-t">
                   <div className="flex gap-2">
                     <textarea

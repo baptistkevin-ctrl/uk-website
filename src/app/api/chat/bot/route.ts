@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { chat as geminiChat } from '@/lib/ai/gemini'
 
 export const dynamic = 'force-dynamic'
@@ -42,9 +42,9 @@ export async function POST(request: NextRequest) {
     }, {} as Record<string, unknown>) || {}
 
     const isEnabled = settingsMap['is_enabled'] === true || settingsMap['is_enabled'] === 'true'
-    const useAI = settingsMap['use_ai'] === true || settingsMap['use_ai'] === 'true' || true // Default to AI
+    const useAI = settingsMap['use_ai'] !== false && settingsMap['use_ai'] !== 'false' // Default to AI
     const botName = (settingsMap['bot_name'] as string) || 'FreshBot'
-    const typingDelay = parseInt(String(settingsMap['typing_delay_ms'] || '1000'))
+    const typingDelay = Number.parseInt(typeof settingsMap['typing_delay_ms'] === 'string' ? settingsMap['typing_delay_ms'] : '1000')
 
     if (!isEnabled) {
       return NextResponse.json({
@@ -116,12 +116,12 @@ export async function POST(request: NextRequest) {
         quickReplies,
         shouldHandoff: aiResponse.shouldHandoff,
         intent: aiResponse.intent,
-        confidence: aiResponse.shouldHandoff ? 1.0 : 0.9
+        confidence: aiResponse.shouldHandoff ? 1 : 0.9
       }
     } else {
       // Fallback to database-driven responses
       const handoffKeywords = (settingsMap['handoff_keywords'] as string[]) || ['agent', 'human', 'person']
-      const fallbackThreshold = parseFloat(String(settingsMap['fallback_threshold'] || '0.3'))
+      const fallbackThreshold = Number.parseFloat(typeof settingsMap['fallback_threshold'] === 'string' ? settingsMap['fallback_threshold'] : '0.3')
       const messageLower = message.toLowerCase()
       const shouldHandoffImmediately = handoffKeywords.some(kw =>
         messageLower.includes(kw.toLowerCase())
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
           type: 'text',
           shouldHandoff: true,
           intent: 'contact_human',
-          confidence: 1.0,
+          confidence: 1,
           botName,
           typingDelay
         })
@@ -354,7 +354,7 @@ export async function GET(request: NextRequest) {
       botName: settingsMap['bot_name'] || 'FreshBot',
       welcomeMessage: settingsMap['welcome_message'] || "Hi! I'm FreshBot, your virtual assistant. How can I help you today?",
       botAvatar: settingsMap['bot_avatar'] || '/images/bot-avatar.png',
-      typingDelay: parseInt(String(settingsMap['typing_delay_ms'] || '1000')),
+      typingDelay: Number.parseInt(typeof settingsMap['typing_delay_ms'] === 'string' ? settingsMap['typing_delay_ms'] : '1000'),
       conversationContext,
       suggestedFaqs: faqs || []
     })
