@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   MessageCircle,
   X,
@@ -9,15 +9,20 @@ import {
   Loader2,
   User,
   Bot,
-  Paperclip,
   Star,
   Clock,
   Check,
   CheckCheck,
-  Sparkles
+  Sparkles,
+  ArrowLeft,
+  Headphones,
+  Store,
+  Plus,
+  Search
 } from 'lucide-react'
-import { formatDistanceToNow, format } from 'date-fns'
+import { format, formatDistanceToNow } from 'date-fns'
 
+// ─── Types ───────────────────────────────────────────────────────
 interface Message {
   id: string
   sender_type: 'customer' | 'agent' | 'system' | 'bot' | 'vendor'
@@ -65,12 +70,11 @@ interface Conversation {
   subject: string | null
   rating: number | null
   created_at: string
-}
-
-interface Availability {
-  is_available: boolean
-  estimated_wait_minutes: number
-  available_agents: number
+  updated_at?: string
+  last_message?: string
+  last_message_at?: string
+  unread_customer?: number
+  vendors?: { business_name: string; logo_url: string | null }
 }
 
 interface LiveChatWidgetProps {
@@ -79,40 +83,50 @@ interface LiveChatWidgetProps {
   productSlug?: string
 }
 
+// ─── Views ───────────────────────────────────────────────────────
+type WidgetView = 'list' | 'chat' | 'new-chat' | 'rating'
+type TabType = 'support' | 'sellers'
+
 export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWidgetProps = {}) {
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
-  const [conversation, setConversation] = useState<Conversation | null>(null)
+  const [view, setView] = useState<WidgetView>('list')
+  const [activeTab, setActiveTab] = useState<TabType>(vendorId ? 'sellers' : 'support')
+
+  // Conversations list
+  const [conversations, setConversations] = useState<Conversation[]>([])
+  const [loadingConversations, setLoadingConversations] = useState(false)
+
+  // Active chat
+  const [activeConversation, setActiveConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
-  const [loading, setLoading] = useState(false)
   const [sending, setSending] = useState(false)
-  const [availability, setAvailability] = useState<Availability | null>(null)
-  const [showStartForm, setShowStartForm] = useState(true)
-  const [showRatingForm, setShowRatingForm] = useState(false)
-  const [rating, setRating] = useState(0)
-  const [feedback, setFeedback] = useState('')
 
-  // Bot-related state
+  // Bot
   const [botSettings, setBotSettings] = useState<BotSettings | null>(null)
   const [isBotActive, setIsBotActive] = useState(true)
   const [botTyping, setBotTyping] = useState(false)
   const [quickReplies, setQuickReplies] = useState<QuickReply[]>([])
 
-  // Vendor chat mode
-  const [chatMode, setChatMode] = useState<'support' | 'vendor'>(vendorId ? 'vendor' : 'support')
+  // New chat form
+  const [newChatType, setNewChatType] = useState<'support' | 'vendor'>('support')
+  const [formName, setFormName] = useState('')
+  const [formEmail, setFormEmail] = useState('')
+  const [formMessage, setFormMessage] = useState('')
+  const [formLoading, setFormLoading] = useState(false)
 
-  // Form fields
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [subject, setSubject] = useState('')
-  const [initialMessage, setInitialMessage] = useState('')
+  // Rating
+  const [rating, setRating] = useState(0)
+  const [feedback, setFeedback] = useState('')
+  const [showRatingForm, setShowRatingForm] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const listPollRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Generate session ID
+  // ─── Helpers ─────────────────────────────────────────────────
   const getSessionId = () => {
     if (typeof window === 'undefined') return null
     let sessionId = localStorage.getItem('chat_session_id')
@@ -123,7 +137,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     return sessionId
   }
 
-  // Fetch bot settings
+  // ─── Bot API ─────────────────────────────────────────────────
   const fetchBotSettings = async () => {
     try {
       const sessionId = getSessionId()
@@ -139,7 +153,6 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     return null
   }
 
-  // Send message to bot
   const sendToBotAPI = async (message: string, conversationId?: string): Promise<BotResponse | null> => {
     try {
       const res = await fetch('/api/chat/bot', {
@@ -149,87 +162,68 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
           message,
           conversation_id: conversationId,
           session_id: getSessionId(),
-          context: {
-            page: typeof window !== 'undefined' ? window.location.href : ''
-          }
+          context: { page: typeof window !== 'undefined' ? window.location.href : '' }
         })
       })
-
-      if (res.ok) {
-        return await res.json()
-      }
+      if (res.ok) return await res.json()
     } catch (error) {
       console.error('Failed to get bot response:', error)
     }
     return null
   }
 
-  // Add bot message to chat
-  const addBotMessage = (content: string, botName: string = 'FreshBot', quickReplies?: QuickReply[]) => {
+  const addBotMessage = (content: string, botName: string = 'FreshBot', qr?: QuickReply[]) => {
     const botMessage: Message = {
       id: 'bot-' + Date.now(),
       sender_type: 'bot',
       sender_name: botName,
       content,
-      message_type: quickReplies ? 'quick_reply' : 'text',
+      message_type: qr ? 'quick_reply' : 'text',
       attachments: [],
-      metadata: { quickReplies },
+      metadata: { quickReplies: qr },
       is_read: true,
       created_at: new Date().toISOString()
     }
     setMessages(prev => [...prev, botMessage])
-    if (quickReplies) {
-      setQuickReplies(quickReplies)
-    }
+    if (qr) setQuickReplies(qr)
   }
 
-  // Check availability
-  const checkAvailability = async () => {
-    try {
-      const res = await fetch('/api/chat?action=availability')
-      if (res.ok) {
-        const data = await res.json()
-        setAvailability(data)
-      }
-    } catch (error) {
-      console.error('Failed to check availability:', error)
-    }
-  }
-
-  // Check for existing conversation
-  const checkExistingConversation = async () => {
+  // ─── Conversations API ──────────────────────────────────────
+  const fetchConversations = async () => {
     const sessionId = getSessionId()
+    if (!sessionId) return
+    setLoadingConversations(true)
     try {
-      const res = await fetch(`/api/chat?session_id=${sessionId}`)
+      const res = await fetch(`/api/chat?session_id=${sessionId}&list=true`)
       if (res.ok) {
         const data = await res.json()
-        if (data.conversation) {
-          setConversation(data.conversation)
-          setShowStartForm(false)
-          fetchMessages(data.conversation.id)
-          // Check if bot is still active for this conversation
-          if (data.conversation.status === 'waiting' || data.conversation.assigned_agent_id) {
-            setIsBotActive(false)
-          }
+        if (data.conversations) {
+          setConversations(data.conversations)
+        } else if (data.conversation) {
+          // Single conversation returned — wrap it
+          setConversations([data.conversation])
         }
       }
     } catch (error) {
-      console.error('Failed to check conversation:', error)
+      console.error('Failed to fetch conversations:', error)
+    } finally {
+      setLoadingConversations(false)
     }
   }
 
-  // Fetch messages
   const fetchMessages = async (conversationId: string, since?: string) => {
     try {
       let url = `/api/chat/messages?conversation_id=${conversationId}`
       if (since) url += `&since=${since}`
-
       const res = await fetch(url)
       if (res.ok) {
         const data = await res.json()
         if (since) {
-          // Append new messages
-          setMessages(prev => [...prev, ...data.messages])
+          setMessages(prev => {
+            const existingIds = new Set(prev.map(m => m.id))
+            const newMsgs = (data.messages || []).filter((m: Message) => !existingIds.has(m.id))
+            return [...prev, ...newMsgs]
+          })
         } else {
           setMessages(data.messages || [])
         }
@@ -239,78 +233,66 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     }
   }
 
-  // Start conversation with bot greeting
-  const startConversation = async () => {
-    if (!initialMessage.trim()) return
+  // ─── Open a conversation ────────────────────────────────────
+  const openConversation = (conv: Conversation) => {
+    setActiveConversation(conv)
+    setMessages([])
+    setQuickReplies([])
+    setView('chat')
+    setIsBotActive(conv.status !== 'active' && !conv.assigned_agent_id && conv.channel_type === 'customer_admin')
+    fetchMessages(conv.id)
+  }
 
-    setLoading(true)
+  // ─── Start new conversation ─────────────────────────────────
+  const startNewConversation = async () => {
+    if (!formMessage.trim()) return
+    setFormLoading(true)
+
     try {
-      const isVendorChat = chatMode === 'vendor' && vendorId
+      const isVendorChat = newChatType === 'vendor' && vendorId
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           session_id: getSessionId(),
-          guest_name: name || undefined,
-          guest_email: email || undefined,
-          subject: subject || (isVendorChat ? `Question about ${vendorName || 'product'}` : undefined),
-          initial_message: initialMessage,
+          guest_name: formName || undefined,
+          guest_email: formEmail || undefined,
+          subject: isVendorChat ? `Question about ${vendorName || 'product'}` : undefined,
+          initial_message: formMessage,
           channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
           vendor_id: isVendorChat ? vendorId : undefined,
-          metadata: {
-            page: window.location.href,
-            product_slug: productSlug || undefined
-          }
+          metadata: { page: window.location.href, product_slug: productSlug || undefined }
         })
       })
 
       if (res.ok) {
         const data = await res.json()
         if (data.conversation_id) {
-          // Fetch the full conversation
-          const convRes = await fetch(`/api/chat?conversation_id=${data.conversation_id}`)
-          if (convRes.ok) {
-            const convData = await convRes.json()
-            if (convData.conversation) {
-              setConversation(convData.conversation)
-              setMessages(convData.conversation?.chat_messages || [])
-              setShowStartForm(false)
-            } else {
-              // Fallback: create minimal conversation object so send works
-              setConversation({
-                id: data.conversation_id,
-                status: 'waiting',
-                assigned_agent_id: null,
-                department: 'general',
-                channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
-                vendor_id: isVendorChat ? vendorId! : null,
-                subject: subject || null,
-                rating: null,
-                created_at: new Date().toISOString()
-              })
-              setShowStartForm(false)
-            }
-          } else {
-            // Even if GET fails, we have the conversation_id
-            setConversation({
-              id: data.conversation_id,
-              status: 'waiting',
-              assigned_agent_id: null,
-              department: 'general',
-              channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
-              vendor_id: isVendorChat ? vendorId! : null,
-              subject: subject || null,
-              rating: null,
-              created_at: new Date().toISOString()
-            })
-            setShowStartForm(false)
+          const conv: Conversation = {
+            id: data.conversation_id,
+            status: 'waiting',
+            assigned_agent_id: null,
+            department: 'general',
+            channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
+            vendor_id: isVendorChat ? vendorId! : null,
+            subject: isVendorChat ? `Question about ${vendorName || 'product'}` : null,
+            rating: null,
+            created_at: new Date().toISOString(),
+            last_message: formMessage,
+            last_message_at: new Date().toISOString()
           }
 
-          // If bot is enabled and not a vendor chat, get bot response
-          if (botSettings?.isEnabled && chatMode !== 'vendor') {
-            setBotTyping(true)
-            const botResponse = await sendToBotAPI(initialMessage, data.conversation_id)
+          setActiveConversation(conv)
+          setView('chat')
+          setIsBotActive(!isVendorChat && (botSettings?.isEnabled || false))
 
+          // Fetch messages for this conversation
+          fetchMessages(data.conversation_id)
+
+          // Bot response for support chats
+          if (!isVendorChat && botSettings?.isEnabled) {
+            setBotTyping(true)
+            const botResponse = await sendToBotAPI(formMessage, data.conversation_id)
             setTimeout(() => {
               setBotTyping(false)
               if (botResponse) {
@@ -319,10 +301,8 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                   botResponse.botName || botSettings.botName,
                   botResponse.quickReplies
                 )
-
                 if (botResponse.shouldHandoff) {
                   setIsBotActive(false)
-                  // Add system message about handoff
                   const systemMsg: Message = {
                     id: 'system-' + Date.now(),
                     sender_type: 'system',
@@ -340,120 +320,29 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
             }, botResponse?.typingDelay || botSettings.typingDelay || 1000)
           }
 
-          setInitialMessage('')
+          // Refresh list
+          fetchConversations()
+          setFormMessage('')
+          setFormName('')
+          setFormEmail('')
         }
       }
     } catch (error) {
       console.error('Failed to start conversation:', error)
     } finally {
-      setLoading(false)
+      setFormLoading(false)
     }
   }
 
-  // Handle quick reply click
-  const handleQuickReply = async (reply: QuickReply) => {
-    setQuickReplies([])
-
-    // Add user's selection as a message
-    const userMessage: Message = {
-      id: 'user-' + Date.now(),
-      sender_type: 'customer',
-      sender_name: name || 'You',
-      content: reply.text,
-      message_type: 'text',
-      attachments: [],
-      metadata: {},
-      is_read: false,
-      created_at: new Date().toISOString()
-    }
-    setMessages(prev => [...prev, userMessage])
-
-    // Send the value to bot
-    if (isBotActive && botSettings?.isEnabled) {
-      setBotTyping(true)
-      const botResponse = await sendToBotAPI(reply.value, conversation?.id)
-
-      setTimeout(() => {
-        setBotTyping(false)
-        if (botResponse) {
-          addBotMessage(
-            botResponse.message,
-            botResponse.botName || botSettings.botName,
-            botResponse.quickReplies
-          )
-
-          if (botResponse.shouldHandoff) {
-            setIsBotActive(false)
-          }
-        }
-      }, botResponse?.typingDelay || botSettings.typingDelay || 1000)
-    }
-
-    // Also save to conversation if exists
-    if (conversation) {
-      try {
-        await fetch('/api/chat/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            conversation_id: conversation.id,
-            content: reply.text
-          })
-        })
-      } catch (error) {
-        console.error('Failed to save quick reply:', error)
-      }
-    }
-  }
-
-  // Send message
+  // ─── Send message ───────────────────────────────────────────
   const sendMessage = async () => {
     if (!newMessage.trim() || sending) return
 
-    // If no conversation exists, create one first
-    if (!conversation) {
-      setLoading(true)
-      try {
-        const isVendorChat = chatMode === 'vendor' && vendorId
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: getSessionId(),
-            guest_name: name || undefined,
-            guest_email: email || undefined,
-            subject: subject || undefined,
-            initial_message: newMessage.trim(),
-            channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
-            vendor_id: isVendorChat ? vendorId : undefined,
-            metadata: { page: window.location.href }
-          })
-        })
-        if (res.ok) {
-          const data = await res.json()
-          if (data.conversation_id) {
-            const conv: Conversation = {
-              id: data.conversation_id,
-              status: 'waiting',
-              assigned_agent_id: null,
-              department: 'general',
-              channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
-              vendor_id: isVendorChat ? vendorId! : null,
-              subject: null,
-              rating: null,
-              created_at: new Date().toISOString()
-            }
-            setConversation(conv)
-            setNewMessage('')
-            // Fetch messages
-            fetchMessages(data.conversation_id)
-          }
-        }
-      } catch (error) {
-        console.error('Failed to create conversation:', error)
-      } finally {
-        setLoading(false)
-      }
+    if (!activeConversation) {
+      // Auto-create conversation
+      setFormMessage(newMessage)
+      setNewMessage('')
+      startNewConversation()
       return
     }
 
@@ -462,11 +351,10 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     setSending(true)
     setQuickReplies([])
 
-    // Optimistic update
     const optimisticMessage: Message = {
       id: 'temp-' + Date.now(),
       sender_type: 'customer',
-      sender_name: name || 'You',
+      sender_name: formName || 'You',
       content: messageContent,
       message_type: 'text',
       attachments: [],
@@ -477,28 +365,24 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     setMessages(prev => [...prev, optimisticMessage])
 
     try {
-      // Save user message
       const res = await fetch('/api/chat/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          conversation_id: conversation.id,
+          conversation_id: activeConversation.id,
           content: messageContent
         })
       })
 
       if (res.ok) {
         const data = await res.json()
-        // Replace optimistic message with real one
-        setMessages(prev =>
-          prev.map(m => m.id === optimisticMessage.id ? data.message : m)
-        )
+        setMessages(prev => prev.map(m => m.id === optimisticMessage.id ? data.message : m))
 
-        // If bot is active and not vendor chat, get bot response
-        if (isBotActive && botSettings?.isEnabled && chatMode !== 'vendor') {
+        // Bot response for support chats
+        const isVendorChat = activeConversation.channel_type === 'customer_vendor'
+        if (isBotActive && botSettings?.isEnabled && !isVendorChat) {
           setBotTyping(true)
-          const botResponse = await sendToBotAPI(messageContent, conversation.id)
-
+          const botResponse = await sendToBotAPI(messageContent, activeConversation.id)
           setTimeout(() => {
             setBotTyping(false)
             if (botResponse) {
@@ -507,16 +391,11 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                 botResponse.botName || botSettings.botName,
                 botResponse.quickReplies
               )
-
-              if (botResponse.shouldHandoff) {
-                setIsBotActive(false)
-              }
+              if (botResponse.shouldHandoff) setIsBotActive(false)
             }
           }, botResponse?.typingDelay || botSettings.typingDelay || 1000)
         }
       } else {
-        console.error('Failed to send message, status:', res.status)
-        // Remove optimistic message on failure
         setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id))
       }
     } catch (error) {
@@ -527,505 +406,712 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     }
   }
 
-  // Close conversation
-  const closeConversation = async () => {
-    if (!conversation) return
+  // ─── Quick reply ────────────────────────────────────────────
+  const handleQuickReply = async (reply: QuickReply) => {
+    setQuickReplies([])
+    const userMessage: Message = {
+      id: 'user-' + Date.now(),
+      sender_type: 'customer',
+      sender_name: formName || 'You',
+      content: reply.text,
+      message_type: 'text',
+      attachments: [],
+      metadata: {},
+      is_read: false,
+      created_at: new Date().toISOString()
+    }
+    setMessages(prev => [...prev, userMessage])
 
-    setShowRatingForm(true)
+    if (isBotActive && botSettings?.isEnabled) {
+      setBotTyping(true)
+      const botResponse = await sendToBotAPI(reply.value, activeConversation?.id)
+      setTimeout(() => {
+        setBotTyping(false)
+        if (botResponse) {
+          addBotMessage(botResponse.message, botResponse.botName || botSettings.botName, botResponse.quickReplies)
+          if (botResponse.shouldHandoff) setIsBotActive(false)
+        }
+      }, botResponse?.typingDelay || botSettings.typingDelay || 1000)
+    }
+
+    if (activeConversation) {
+      try {
+        await fetch('/api/chat/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ conversation_id: activeConversation.id, content: reply.text })
+        })
+      } catch {}
+    }
   }
 
-  // Submit rating
+  // ─── Close / Rate ───────────────────────────────────────────
   const submitRating = async () => {
-    if (!conversation) return
-
+    if (!activeConversation) return
     try {
       await fetch('/api/chat', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          conversation_id: conversation.id,
+          conversation_id: activeConversation.id,
           action: 'resolve',
           rating: rating || undefined,
           feedback: feedback || undefined
         })
       })
-
-      setConversation(null)
+      setActiveConversation(null)
       setMessages([])
-      setShowStartForm(true)
+      setView('list')
       setShowRatingForm(false)
       setRating(0)
       setFeedback('')
       setIsBotActive(true)
       setQuickReplies([])
+      fetchConversations()
     } catch (error) {
       console.error('Failed to close conversation:', error)
     }
   }
 
-  // Scroll to bottom
+  // ─── Effects ────────────────────────────────────────────────
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, botTyping])
 
-  // Poll for new messages
+  // Poll messages in active chat
   useEffect(() => {
-    if (!conversation || conversation.status === 'closed' || conversation.status === 'resolved') {
-      return
-    }
+    if (!activeConversation || view !== 'chat') return
+    if (activeConversation.status === 'closed' || activeConversation.status === 'resolved') return
 
     const poll = () => {
       const lastMessage = messages[messages.length - 1]
-      if (lastMessage) {
-        fetchMessages(conversation.id, lastMessage.created_at)
-      }
+      if (lastMessage) fetchMessages(activeConversation.id, lastMessage.created_at)
     }
-
     pollIntervalRef.current = setInterval(poll, 3000)
+    return () => { if (pollIntervalRef.current) clearInterval(pollIntervalRef.current) }
+  }, [activeConversation, messages, view])
 
-    return () => {
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current)
-      }
-    }
-  }, [conversation, messages])
+  // Poll conversation list
+  useEffect(() => {
+    if (!isOpen || view !== 'list') return
+    listPollRef.current = setInterval(fetchConversations, 8000)
+    return () => { if (listPollRef.current) clearInterval(listPollRef.current) }
+  }, [isOpen, view])
 
   // Initial load
   useEffect(() => {
     if (isOpen) {
-      checkAvailability()
-      checkExistingConversation()
+      fetchConversations()
       fetchBotSettings()
+
+      // If opened with vendorId and no existing vendor chat, go straight to new chat
+      if (vendorId) {
+        setNewChatType('vendor')
+      }
     }
   }, [isOpen])
 
-  // Handle key press
+  // Key press handler
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      if (showStartForm) {
-        startConversation()
-      } else {
-        sendMessage()
-      }
+      if (view === 'new-chat') startNewConversation()
+      else if (view === 'chat') sendMessage()
     }
   }
 
-  const getMessageIcon = (senderType: string) => {
-    switch (senderType) {
-      case 'agent':
-        return <User className="h-4 w-4" />
-      case 'vendor':
-        return <User className="h-4 w-4" />
-      case 'bot':
-        return <Bot className="h-4 w-4" />
-      case 'system':
-        return <Clock className="h-4 w-4" />
-      default:
-        return null
+  // ─── Filter conversations by tab ───────────────────────────
+  const filteredConversations = conversations.filter(c => {
+    if (activeTab === 'support') return c.channel_type === 'customer_admin'
+    return c.channel_type === 'customer_vendor'
+  })
+
+  const activeConversationCount = conversations.filter(c =>
+    c.status !== 'closed' && c.status !== 'resolved'
+  ).length
+
+  // ─── Chat header info ──────────────────────────────────────
+  const getChatName = () => {
+    if (!activeConversation) return 'Chat'
+    if (activeConversation.channel_type === 'customer_vendor') {
+      return activeConversation.vendors?.business_name || vendorName || 'Seller'
     }
+    if (isBotActive) return botSettings?.botName || 'FreshBot'
+    return 'FreshMart Support'
   }
 
+  const getChatSubtitle = () => {
+    if (!activeConversation) return ''
+    if (activeConversation.channel_type === 'customer_vendor') return 'Seller Chat'
+    if (isBotActive) return 'AI Assistant'
+    if (activeConversation.status === 'active') return 'Agent connected'
+    return 'Waiting for agent...'
+  }
+
+  const getChatIcon = () => {
+    if (!activeConversation) return <MessageCircle className="h-5 w-5" />
+    if (activeConversation.channel_type === 'customer_vendor') return <Store className="h-5 w-5" />
+    if (isBotActive) return <Bot className="h-5 w-5" />
+    return <Headphones className="h-5 w-5" />
+  }
+
+  // ─── RENDER: Closed bubble ─────────────────────────────────
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 w-12 h-12 lg:w-14 lg:h-14 bg-green-600 text-white rounded-full shadow-lg hover:bg-green-700 hover:scale-105 transition-all flex items-center justify-center z-40"
+        className="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 z-40 group"
         aria-label="Open chat"
       >
-        <MessageCircle className="h-5 w-5 lg:h-6 lg:w-6" />
+        <div className="relative">
+          <div className="w-14 h-14 bg-[#25D366] text-white rounded-full shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+            <MessageCircle className="h-7 w-7" />
+          </div>
+          {activeConversationCount > 0 && (
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+              {activeConversationCount}
+            </span>
+          )}
+        </div>
       </button>
     )
   }
 
+  // ─── RENDER: Widget ────────────────────────────────────────
   return (
     <div
-      className={`fixed bottom-16 lg:bottom-6 right-2 lg:right-6 w-[calc(100vw-16px)] sm:w-96 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col ${
-        isMinimized ? 'h-14' : 'h-[calc(100vh-5rem)] lg:h-[550px]'
-      } transition-all duration-200`}
+      className={`fixed bottom-16 lg:bottom-6 right-2 lg:right-6 w-[calc(100vw-16px)] sm:w-[400px] bg-white rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col ${
+        isMinimized ? 'h-14' : 'h-[calc(100vh-5rem)] lg:h-[600px]'
+      } transition-all duration-200 border border-gray-200`}
     >
-      {/* Header */}
-      <div className="bg-green-600 text-white px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-            {isBotActive ? <Bot className="h-4 w-4" /> : <MessageCircle className="h-4 w-4" />}
-          </div>
-          <div>
-            <h3 className="font-semibold text-sm">
-              {chatMode === 'vendor' && vendorName
-                ? vendorName
-                : isBotActive
-                  ? (botSettings?.botName || 'FreshBot')
-                  : 'FreshMart Support'}
-            </h3>
-            <p className="text-xs text-green-100">
-              {chatMode === 'vendor'
-                ? 'Chat with seller'
-                : isBotActive
-                  ? 'AI Assistant - Ask me anything!'
-                  : availability?.is_available
-                    ? 'Online - We\'re here to help!'
-                    : 'Leave a message'}
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setIsMinimized(!isMinimized)}
-            className="p-2 hover:bg-white/20 rounded-full transition-colors"
-          >
-            <Minimize2 className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-2 hover:bg-white/20 rounded-full transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      {!isMinimized && (
+      {/* ═══ LIST VIEW ═══ */}
+      {view === 'list' && (
         <>
-          {/* Start Form */}
-          {showStartForm && !showRatingForm && (
-            <div className="flex-1 p-4 overflow-y-auto">
-              {/* Bot Welcome */}
-              {botSettings?.isEnabled && (
-                <div className="mb-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-100">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                      <Sparkles className="h-4 w-4 text-green-600" />
-                    </div>
-                    <span className="font-semibold text-green-800">{botSettings.botName}</span>
-                  </div>
-                  <p className="text-sm text-green-700">
-                    {botSettings.welcomeMessage}
-                  </p>
-                </div>
-              )}
-
-              {/* Chat mode selector when vendor context available */}
-              {vendorId && (
-                <div className="mb-4 flex gap-2">
-                  <button
-                    onClick={() => setChatMode('vendor')}
-                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                      chatMode === 'vendor'
-                        ? 'border-green-500 bg-green-50 text-green-700'
-                        : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                    }`}
-                  >
-                    Chat with {vendorName || 'Seller'}
-                  </button>
-                  <button
-                    onClick={() => setChatMode('support')}
-                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                      chatMode === 'support'
-                        ? 'border-green-500 bg-green-50 text-green-700'
-                        : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                    }`}
-                  >
-                    FreshMart Support
-                  </button>
-                </div>
-              )}
-
-              <div className="mb-4">
-                <h4 className="font-semibold text-gray-900 mb-1">
-                  {chatMode === 'vendor' ? `Message ${vendorName || 'Seller'}` : 'Start a conversation'}
-                </h4>
-                <p className="text-sm text-gray-500">
-                  {chatMode === 'vendor'
-                    ? 'Ask about products, orders, or anything else'
-                    : botSettings?.isEnabled
-                      ? 'Our AI assistant is ready to help instantly!'
-                      : availability?.is_available
-                        ? 'Our team is ready to help you.'
-                        : `Average response time: ${availability?.estimated_wait_minutes || 5} minutes`}
-                </p>
-              </div>
-
-              {/* Suggested Questions */}
-              {botSettings?.suggestedFaqs && botSettings.suggestedFaqs.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-xs text-gray-500 mb-2">Popular questions:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {botSettings.suggestedFaqs.slice(0, 3).map((faq) => (
-                      <button
-                        key={faq.id}
-                        onClick={() => setInitialMessage(faq.question)}
-                        className="text-xs px-3 py-1.5 bg-gray-100 text-gray-700 rounded-full hover:bg-green-100 hover:text-green-700 transition-colors"
-                      >
-                        {faq.question.length > 40 ? faq.question.substring(0, 40) + '...' : faq.question}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-3">
-                <input
-                  type="text"
-                  placeholder="Your name (optional)"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-                <input
-                  type="email"
-                  placeholder="Your email (optional)"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                />
-                <textarea
-                  placeholder="How can we help you today?"
-                  value={initialMessage}
-                  onChange={(e) => setInitialMessage(e.target.value)}
-                  onKeyDown={handleKeyPress}
-                  rows={3}
-                  className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
-                />
+          {/* Header */}
+          <div className="bg-[#075E54] text-white px-5 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-bold">Chats</h3>
+              <div className="flex items-center gap-1">
                 <button
-                  onClick={startConversation}
-                  disabled={!initialMessage.trim() || loading}
-                  className="w-full py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  onClick={() => setIsMinimized(!isMinimized)}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
                 >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Starting...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4" />
-                      Start Chat
-                    </>
-                  )}
+                  <Minimize2 className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                >
+                  <X className="h-4 w-4" />
                 </button>
               </div>
             </div>
-          )}
 
-          {/* Rating Form */}
-          {showRatingForm && (
-            <div className="flex-1 p-4 overflow-y-auto">
-              <div className="text-center mb-6">
-                <h4 className="font-semibold text-gray-900 mb-2">How was your experience?</h4>
-                <p className="text-sm text-gray-500">Your feedback helps us improve</p>
-              </div>
-
-              <div className="flex justify-center gap-2 mb-6">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    onClick={() => setRating(star)}
-                    className="p-1"
-                  >
-                    <Star
-                      className={`h-8 w-8 ${
-                        star <= rating
-                          ? 'fill-yellow-400 text-yellow-400'
-                          : 'text-gray-300'
-                      } transition-colors`}
-                    />
-                  </button>
-                ))}
-              </div>
-
-              <textarea
-                placeholder="Any additional feedback? (optional)"
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none mb-4"
-              />
-
-              <div className="flex gap-3">
+            {!isMinimized && (
+              <div className="flex gap-0 bg-[#064E46] rounded-lg p-1">
                 <button
-                  onClick={() => {
-                    setShowRatingForm(false)
-                    setConversation(null)
-                    setMessages([])
-                    setShowStartForm(true)
-                    setIsBotActive(true)
-                  }}
-                  className="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  onClick={() => setActiveTab('support')}
+                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                    activeTab === 'support'
+                      ? 'bg-[#25D366] text-white shadow-sm'
+                      : 'text-green-200 hover:text-white'
+                  }`}
                 >
-                  Skip
+                  <Headphones className="h-4 w-4" />
+                  Support
                 </button>
                 <button
-                  onClick={submitRating}
-                  className="flex-1 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  onClick={() => setActiveTab('sellers')}
+                  className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                    activeTab === 'sellers'
+                      ? 'bg-[#25D366] text-white shadow-sm'
+                      : 'text-green-200 hover:text-white'
+                  }`}
                 >
-                  Submit
+                  <Store className="h-4 w-4" />
+                  Sellers
                 </button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* Messages */}
-          {!showStartForm && !showRatingForm && !conversation && (
-            <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
-              <p className="text-sm text-gray-500 mb-3">Something went wrong loading the conversation.</p>
-              <button
-                onClick={() => {
-                  setShowStartForm(true)
-                  setMessages([])
-                  setIsBotActive(true)
-                  setQuickReplies([])
-                }}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
-              >
-                Start New Chat
-              </button>
-            </div>
-          )}
-          {!showStartForm && !showRatingForm && conversation && (
+          {!isMinimized && (
             <>
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${
-                      message.sender_type === 'customer' ? 'justify-end' : 'justify-start'
-                    }`}
-                  >
-                    {message.sender_type === 'system' ? (
-                      <div className="w-full text-center">
-                        <span className="inline-block px-3 py-1 bg-gray-100 text-gray-500 text-xs rounded-full">
-                          {message.content}
-                        </span>
-                      </div>
-                    ) : (
-                      <div
-                        className={`max-w-[80%] ${
-                          message.sender_type === 'customer'
-                            ? 'bg-green-600 text-white rounded-2xl rounded-br-md'
-                            : message.sender_type === 'bot'
-                              ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-gray-900 rounded-2xl rounded-bl-md border border-green-100'
-                              : message.sender_type === 'vendor'
-                                ? 'bg-purple-50 text-gray-900 rounded-2xl rounded-bl-md border border-purple-200'
-                                : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'
-                        } px-4 py-2`}
+              {/* Conversation list */}
+              <div className="flex-1 overflow-y-auto bg-white">
+                {loadingConversations && conversations.length === 0 ? (
+                  <div className="flex items-center justify-center py-16">
+                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                  </div>
+                ) : filteredConversations.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                      {activeTab === 'support' ? (
+                        <Headphones className="h-8 w-8 text-gray-300" />
+                      ) : (
+                        <Store className="h-8 w-8 text-gray-300" />
+                      )}
+                    </div>
+                    <p className="text-gray-900 font-medium mb-1">
+                      {activeTab === 'support' ? 'No support chats yet' : 'No seller chats yet'}
+                    </p>
+                    <p className="text-gray-500 text-sm mb-4">
+                      {activeTab === 'support'
+                        ? 'Start a conversation with our support team'
+                        : 'Chat with sellers about their products'}
+                    </p>
+                    <button
+                      onClick={() => {
+                        setNewChatType(activeTab === 'support' ? 'support' : 'vendor')
+                        setView('new-chat')
+                      }}
+                      className="px-4 py-2 bg-[#25D366] text-white rounded-full text-sm font-medium hover:bg-[#20BD5A] transition-colors"
+                    >
+                      Start a chat
+                    </button>
+                  </div>
+                ) : (
+                  filteredConversations.map(conv => {
+                    const isActive = conv.status !== 'closed' && conv.status !== 'resolved'
+                    return (
+                      <button
+                        key={conv.id}
+                        onClick={() => openConversation(conv)}
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-left"
                       >
-                        {message.sender_type !== 'customer' && (
-                          <div className="flex items-center gap-1 mb-1">
-                            {getMessageIcon(message.sender_type)}
-                            <span className={`text-xs font-medium ${
-                              message.sender_type === 'bot' ? 'text-green-700' : ''
-                            }`}>
-                              {message.sender_name || 'Support'}
-                            </span>
-                            {message.sender_type === 'bot' && (
-                              <span className="text-xs text-green-500 ml-1">AI</span>
-                            )}
-                          </div>
-                        )}
-                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                        <div className={`flex items-center justify-end gap-1 mt-1 ${
-                          message.sender_type === 'customer'
-                            ? 'text-green-100'
-                            : message.sender_type === 'bot'
-                              ? 'text-green-400'
-                              : 'text-gray-400'
+                        {/* Avatar */}
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          conv.channel_type === 'customer_vendor'
+                            ? 'bg-purple-100 text-purple-600'
+                            : 'bg-[#DCF8C6] text-[#075E54]'
                         }`}>
-                          <span className="text-xs">
-                            {format(new Date(message.created_at), 'HH:mm')}
-                          </span>
-                          {message.sender_type === 'customer' && (
-                            message.is_read ? (
-                              <CheckCheck className="h-3 w-3" />
-                            ) : (
-                              <Check className="h-3 w-3" />
-                            )
+                          {conv.channel_type === 'customer_vendor' ? (
+                            <Store className="h-6 w-6" />
+                          ) : (
+                            <Headphones className="h-6 w-6" />
                           )}
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
 
-                {/* Bot Typing Indicator */}
-                {botTyping && (
-                  <div className="flex justify-start">
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 text-gray-900 rounded-2xl rounded-bl-md border border-green-100 px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        <Bot className="h-4 w-4 text-green-600" />
-                        <span className="text-xs font-medium text-green-700">
-                          {botSettings?.botName || 'FreshBot'}
-                        </span>
-                      </div>
-                      <div className="flex gap-1 mt-2">
-                        <span className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <span className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <span className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                      </div>
-                    </div>
-                  </div>
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-gray-900 text-sm truncate">
+                              {conv.channel_type === 'customer_vendor'
+                                ? (conv.vendors?.business_name || vendorName || 'Seller')
+                                : 'FreshMart Support'}
+                            </span>
+                            <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
+                              {conv.last_message_at || conv.updated_at
+                                ? format(new Date(conv.last_message_at || conv.updated_at || conv.created_at), 'HH:mm')
+                                : format(new Date(conv.created_at), 'HH:mm')}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between mt-0.5">
+                            <p className="text-xs text-gray-500 truncate pr-2">
+                              {conv.last_message || conv.subject || 'No messages yet'}
+                            </p>
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              {isActive && (
+                                <span className={`w-2 h-2 rounded-full ${
+                                  conv.status === 'active' ? 'bg-green-400' : 'bg-yellow-400'
+                                }`} />
+                              )}
+                              {(conv.unread_customer || 0) > 0 && (
+                                <span className="min-w-[20px] h-5 bg-[#25D366] text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+                                  {conv.unread_customer}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </button>
+                    )
+                  })
                 )}
-
-                <div ref={messagesEndRef} />
               </div>
 
-              {/* Quick Replies */}
-              {quickReplies.length > 0 && (
-                <div className="px-4 py-2 border-t bg-gray-50">
-                  <div className="flex flex-wrap gap-2">
-                    {quickReplies.map((reply, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleQuickReply(reply)}
-                        className="px-3 py-1.5 bg-white border border-green-200 text-green-700 rounded-full text-sm hover:bg-green-50 hover:border-green-300 transition-colors"
-                      >
-                        {reply.text}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Input */}
-              <div className="p-4 border-t">
-                <div className="flex items-end gap-2">
-                  <textarea
-                    ref={inputRef}
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    placeholder="Type a message..."
-                    rows={1}
-                    className="flex-1 px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none max-h-24"
-                    style={{ minHeight: '40px' }}
-                  />
-                  <button
-                    onClick={sendMessage}
-                    disabled={!newMessage.trim() || sending}
-                    className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {sending ? (
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                    ) : (
-                      <Send className="h-5 w-5" />
-                    )}
-                  </button>
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <button
-                    onClick={closeConversation}
-                    className="text-xs text-gray-500 hover:text-gray-700"
-                  >
-                    End conversation
-                  </button>
-                  <span className="text-xs text-gray-400 flex items-center gap-1">
-                    {isBotActive && <Bot className="h-3 w-3" />}
-                    Powered by FreshMart
-                  </span>
-                </div>
+              {/* FAB - new chat */}
+              <div className="absolute bottom-4 right-4">
+                <button
+                  onClick={() => {
+                    setNewChatType(activeTab === 'support' ? 'support' : 'vendor')
+                    setView('new-chat')
+                  }}
+                  className="w-14 h-14 bg-[#25D366] text-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#20BD5A] hover:scale-105 transition-all"
+                >
+                  <Plus className="h-6 w-6" />
+                </button>
               </div>
             </>
           )}
+        </>
+      )}
+
+      {/* ═══ NEW CHAT VIEW ═══ */}
+      {view === 'new-chat' && (
+        <>
+          <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setView('list')} className="p-1 hover:bg-white/10 rounded-full">
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="flex-1">
+              <h3 className="font-semibold text-sm">New Chat</h3>
+              <p className="text-xs text-green-200">
+                {newChatType === 'vendor' ? `Chat with ${vendorName || 'Seller'}` : 'FreshMart Support'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex-1 p-4 overflow-y-auto">
+            {/* Chat type toggle */}
+            {vendorId && (
+              <div className="flex gap-2 mb-5">
+                <button
+                  onClick={() => setNewChatType('support')}
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium border-2 transition-all ${
+                    newChatType === 'support'
+                      ? 'border-[#25D366] bg-green-50 text-[#075E54]'
+                      : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  <Headphones className="h-5 w-5" />
+                  Support
+                </button>
+                <button
+                  onClick={() => setNewChatType('vendor')}
+                  className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium border-2 transition-all ${
+                    newChatType === 'vendor'
+                      ? 'border-purple-400 bg-purple-50 text-purple-700'
+                      : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  <Store className="h-5 w-5" />
+                  {vendorName || 'Seller'}
+                </button>
+              </div>
+            )}
+
+            {/* Bot welcome for support */}
+            {newChatType === 'support' && botSettings?.isEnabled && (
+              <div className="mb-4 p-4 bg-[#DCF8C6] rounded-xl">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="h-4 w-4 text-[#075E54]" />
+                  <span className="font-semibold text-[#075E54] text-sm">{botSettings.botName}</span>
+                </div>
+                <p className="text-sm text-[#075E54]">{botSettings.welcomeMessage}</p>
+              </div>
+            )}
+
+            {/* Vendor info for seller chat */}
+            {newChatType === 'vendor' && (
+              <div className="mb-4 p-4 bg-purple-50 rounded-xl border border-purple-100">
+                <div className="flex items-center gap-2 mb-2">
+                  <Store className="h-4 w-4 text-purple-600" />
+                  <span className="font-semibold text-purple-800 text-sm">{vendorName || 'Seller'}</span>
+                </div>
+                <p className="text-sm text-purple-700">
+                  Ask about products, shipping, orders, or anything else.
+                </p>
+              </div>
+            )}
+
+            {/* Suggested FAQs */}
+            {newChatType === 'support' && botSettings?.suggestedFaqs && botSettings.suggestedFaqs.length > 0 && (
+              <div className="mb-4">
+                <p className="text-xs text-gray-500 mb-2 font-medium">Quick questions:</p>
+                <div className="flex flex-wrap gap-2">
+                  {botSettings.suggestedFaqs.slice(0, 4).map(faq => (
+                    <button
+                      key={faq.id}
+                      onClick={() => setFormMessage(faq.question)}
+                      className="text-xs px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-full hover:bg-[#DCF8C6] hover:border-[#25D366] hover:text-[#075E54] transition-colors"
+                    >
+                      {faq.question.length > 35 ? faq.question.substring(0, 35) + '...' : faq.question}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <input
+                type="text"
+                placeholder="Your name (optional)"
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] outline-none"
+              />
+              <input
+                type="email"
+                placeholder="Your email (optional)"
+                value={formEmail}
+                onChange={(e) => setFormEmail(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] outline-none"
+              />
+              <textarea
+                placeholder={newChatType === 'vendor' ? `Message to ${vendorName || 'seller'}...` : 'How can we help you?'}
+                value={formMessage}
+                onChange={(e) => setFormMessage(e.target.value)}
+                onKeyDown={handleKeyPress}
+                rows={3}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] resize-none outline-none"
+              />
+              <button
+                onClick={startNewConversation}
+                disabled={!formMessage.trim() || formLoading}
+                className={`w-full py-3 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                  newChatType === 'vendor'
+                    ? 'bg-purple-600 hover:bg-purple-700'
+                    : 'bg-[#25D366] hover:bg-[#20BD5A]'
+                }`}
+              >
+                {formLoading ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" /> Starting...</>
+                ) : (
+                  <><Send className="h-4 w-4" /> Send Message</>
+                )}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ═══ CHAT VIEW ═══ */}
+      {view === 'chat' && !showRatingForm && (
+        <>
+          {/* Chat header */}
+          <div className={`px-4 py-3 flex items-center gap-3 ${
+            activeConversation?.channel_type === 'customer_vendor'
+              ? 'bg-purple-700 text-white'
+              : 'bg-[#075E54] text-white'
+          }`}>
+            <button onClick={() => { setView('list'); setActiveConversation(null) }} className="p-1 hover:bg-white/10 rounded-full">
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              activeConversation?.channel_type === 'customer_vendor'
+                ? 'bg-white/20'
+                : 'bg-white/20'
+            }`}>
+              {getChatIcon()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm truncate">{getChatName()}</h3>
+              <p className="text-xs opacity-80">{getChatSubtitle()}</p>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="p-2 hover:bg-white/10 rounded-full"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div
+            className="flex-1 overflow-y-auto px-3 py-3 space-y-1"
+            style={{
+              backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23e5ddd5\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+              backgroundColor: '#ECE5DD'
+            }}
+          >
+            {/* Date pill */}
+            {messages.length > 0 && (
+              <div className="flex justify-center mb-2">
+                <span className="px-3 py-1 bg-white/80 text-gray-600 text-xs rounded-lg shadow-sm">
+                  {format(new Date(messages[0].created_at), 'MMM d, yyyy')}
+                </span>
+              </div>
+            )}
+
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${message.sender_type === 'customer' ? 'justify-end' : 'justify-start'} mb-1`}
+              >
+                {message.sender_type === 'system' ? (
+                  <div className="w-full flex justify-center my-2">
+                    <span className="inline-block px-4 py-1.5 bg-[#FFF3CD] text-[#856404] text-xs rounded-lg shadow-sm">
+                      {message.content}
+                    </span>
+                  </div>
+                ) : (
+                  <div
+                    className={`max-w-[85%] relative px-3 py-2 shadow-sm ${
+                      message.sender_type === 'customer'
+                        ? 'bg-[#DCF8C6] rounded-lg rounded-tr-none'
+                        : message.sender_type === 'bot'
+                          ? 'bg-white rounded-lg rounded-tl-none'
+                          : message.sender_type === 'vendor'
+                            ? 'bg-[#F3E8FF] rounded-lg rounded-tl-none'
+                            : 'bg-white rounded-lg rounded-tl-none'
+                    }`}
+                  >
+                    {/* Sender name for non-customer */}
+                    {message.sender_type !== 'customer' && (
+                      <p className={`text-xs font-semibold mb-0.5 ${
+                        message.sender_type === 'bot' ? 'text-[#25D366]'
+                          : message.sender_type === 'vendor' ? 'text-purple-600'
+                          : 'text-[#075E54]'
+                      }`}>
+                        {message.sender_type === 'bot' && '🤖 '}
+                        {message.sender_type === 'vendor' && '🏪 '}
+                        {message.sender_name || (message.sender_type === 'agent' ? 'Support' : 'Bot')}
+                      </p>
+                    )}
+
+                    <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{message.content}</p>
+
+                    <div className={`flex items-center justify-end gap-1 mt-0.5 ${
+                      message.sender_type === 'customer' ? 'text-gray-500' : 'text-gray-400'
+                    }`}>
+                      <span className="text-[10px]">
+                        {format(new Date(message.created_at), 'HH:mm')}
+                      </span>
+                      {message.sender_type === 'customer' && (
+                        message.is_read
+                          ? <CheckCheck className="h-3.5 w-3.5 text-blue-500" />
+                          : <Check className="h-3.5 w-3.5" />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Bot typing */}
+            {botTyping && (
+              <div className="flex justify-start mb-1">
+                <div className="bg-white rounded-lg rounded-tl-none px-3 py-2 shadow-sm">
+                  <p className="text-xs font-semibold text-[#25D366] mb-1">
+                    🤖 {botSettings?.botName || 'FreshBot'}
+                  </p>
+                  <div className="flex gap-1 py-1">
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Quick Replies */}
+          {quickReplies.length > 0 && (
+            <div className="px-3 py-2 bg-[#ECE5DD] border-t border-gray-200">
+              <div className="flex flex-wrap gap-1.5">
+                {quickReplies.map((reply, i) => (
+                  <button
+                    key={i}
+                    onClick={() => handleQuickReply(reply)}
+                    className="px-3 py-1.5 bg-white border border-[#25D366] text-[#075E54] rounded-full text-xs font-medium hover:bg-[#DCF8C6] transition-colors shadow-sm"
+                  >
+                    {reply.text}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Input bar */}
+          <div className="px-2 py-2 bg-[#F0F0F0] flex items-end gap-2">
+            <textarea
+              ref={inputRef}
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder="Type a message"
+              rows={1}
+              className="flex-1 px-4 py-2.5 bg-white rounded-3xl text-sm outline-none resize-none max-h-24 border-0"
+              style={{ minHeight: '42px' }}
+            />
+            <button
+              onClick={sendMessage}
+              disabled={!newMessage.trim() || sending}
+              className="w-10 h-10 bg-[#25D366] text-white rounded-full flex items-center justify-center hover:bg-[#20BD5A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+            >
+              {sending ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Send className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+
+          {/* Footer */}
+          <div className="px-3 py-1.5 bg-[#F0F0F0] flex items-center justify-between border-t border-gray-200">
+            <button
+              onClick={() => setShowRatingForm(true)}
+              className="text-[10px] text-gray-400 hover:text-gray-600"
+            >
+              End conversation
+            </button>
+            <span className="text-[10px] text-gray-400">
+              {isBotActive && '🤖 '} Powered by FreshMart
+            </span>
+          </div>
+        </>
+      )}
+
+      {/* ═══ RATING VIEW ═══ */}
+      {view === 'chat' && showRatingForm && (
+        <>
+          <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setShowRatingForm(false)} className="p-1 hover:bg-white/10 rounded-full">
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <h3 className="font-semibold text-sm">Rate your experience</h3>
+          </div>
+
+          <div className="flex-1 p-6 flex flex-col items-center justify-center">
+            <div className="w-16 h-16 bg-[#DCF8C6] rounded-full flex items-center justify-center mb-4">
+              <Star className="h-8 w-8 text-[#075E54]" />
+            </div>
+            <h4 className="font-semibold text-gray-900 text-lg mb-1">How was your experience?</h4>
+            <p className="text-sm text-gray-500 mb-6">Your feedback helps us improve</p>
+
+            <div className="flex gap-2 mb-6">
+              {[1, 2, 3, 4, 5].map(star => (
+                <button key={star} onClick={() => setRating(star)} className="p-1">
+                  <Star className={`h-10 w-10 transition-colors ${
+                    star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                  }`} />
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              placeholder="Any additional feedback? (optional)"
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+              rows={3}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] resize-none outline-none mb-4"
+            />
+
+            <div className="flex gap-3 w-full">
+              <button
+                onClick={() => {
+                  setShowRatingForm(false)
+                  setActiveConversation(null)
+                  setMessages([])
+                  setView('list')
+                  setIsBotActive(true)
+                  fetchConversations()
+                }}
+                className="flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium"
+              >
+                Skip
+              </button>
+              <button
+                onClick={submitRating}
+                className="flex-1 py-2.5 bg-[#25D366] text-white rounded-xl hover:bg-[#20BD5A] font-medium"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
         </>
       )}
     </div>

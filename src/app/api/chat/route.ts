@@ -80,7 +80,34 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ conversation })
     }
 
-    // Get user's active conversation
+    const listAll = searchParams.get('list')
+
+    // Return ALL conversations for this user/session
+    if (listAll === 'true') {
+      let listQuery = supabaseAdmin
+        .from('chat_conversations')
+        .select('*, vendors (business_name, logo_url)')
+        .order('updated_at', { ascending: false })
+
+      if (user) {
+        listQuery = listQuery.eq('user_id', user.id)
+      } else if (sessionId) {
+        listQuery = listQuery.eq('session_id', sessionId)
+      } else {
+        return NextResponse.json({ conversations: [] })
+      }
+
+      const { data: allConversations, error: listError } = await listQuery
+
+      if (listError) {
+        console.error('Chat list query error:', listError)
+        return NextResponse.json({ conversations: [] })
+      }
+
+      return NextResponse.json({ conversations: allConversations || [] })
+    }
+
+    // Get user's active conversation (single)
     let query = supabaseAdmin
       .from('chat_conversations')
       .select('*')
