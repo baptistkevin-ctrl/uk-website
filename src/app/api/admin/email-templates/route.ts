@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sanitizeSearchQuery, sanitizeEmailHtml } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,7 +39,10 @@ export async function GET(request: NextRequest) {
       query = query.eq('category', category)
     }
     if (search) {
-      query = query.or(`name.ilike.%${search}%,subject.ilike.%${search}%`)
+      const sanitized = sanitizeSearchQuery(search)
+      if (sanitized) {
+        query = query.or(`name.ilike.%${sanitized}%,subject.ilike.%${sanitized}%`)
+      }
     }
 
     const { data: templates, error } = await query
@@ -99,7 +103,7 @@ export async function POST(request: NextRequest) {
         description,
         category,
         subject,
-        body_html,
+        body_html: sanitizeEmailHtml(body_html),
         body_text,
         available_variables: available_variables || [],
         is_active: true,

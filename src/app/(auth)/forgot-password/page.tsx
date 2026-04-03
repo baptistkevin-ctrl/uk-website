@@ -22,9 +22,11 @@ export default function ForgotPasswordPage() {
         redirectTo: `${window.location.origin}/reset-password`,
       })
 
-      if (error) {
-        setError(error.message)
+      if (error && !error.message.toLowerCase().includes('user not found')) {
+        // Only surface genuine technical errors, not account existence info
+        setError('An unexpected error occurred. Please try again.')
       } else {
+        // Always show success whether the email exists or not
         setIsSuccess(true)
       }
     } catch (err) {
@@ -44,7 +46,7 @@ export default function ForgotPasswordPage() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
             <p className="text-gray-600 mb-6">
-              We've sent a password reset link to <span className="font-medium">{email}</span>
+              If an account exists with that email, you'll receive a password reset link.
             </p>
             <p className="text-sm text-gray-500 mb-6">
               Didn't receive the email? Check your spam folder or{' '}

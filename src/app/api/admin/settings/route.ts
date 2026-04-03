@@ -57,7 +57,8 @@ export async function GET() {
     .order('category', { ascending: true })
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Error:', error)
+    return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 })
   }
 
   // Transform to key-value object
@@ -168,7 +169,8 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error:', error)
+      return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 })
     }
 
     await settingsAudit.logCreate(

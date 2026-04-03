@@ -270,21 +270,19 @@ async function createOrder(session: Stripe.Checkout.Session, eventId: string) {
     })
   }
 
-  // Update product stock (non-critical, don't throw)
+  // Update product stock atomically (non-critical, don't throw)
   for (const item of items) {
     try {
-      const { data: product } = await supabaseAdmin
-        .from('products')
-        .select('stock_quantity')
-        .eq('id', item.productId)
-        .single()
+      const { error: rpcError } = await supabaseAdmin.rpc('decrement_stock', {
+        p_product_id: item.productId,
+        p_quantity: item.quantity,
+      })
 
-      if (product && product.stock_quantity !== null) {
-        const newStock = Math.max(product.stock_quantity - item.quantity, 0)
-        await supabaseAdmin
-          .from('products')
-          .update({ stock_quantity: newStock })
-          .eq('id', item.productId)
+      if (rpcError) {
+        captureError(new Error(`Stock decrement RPC failed: ${rpcError.message}`), {
+          context: 'webhook:stripe:stock_update',
+          extra: { productId: item.productId, orderId: order.id },
+        })
       }
     } catch (stockError) {
       captureError(stockError instanceof Error ? stockError : new Error(String(stockError)), {

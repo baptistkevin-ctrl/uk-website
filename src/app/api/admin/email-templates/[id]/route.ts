@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sanitizeEmailHtml } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -99,7 +100,7 @@ export async function PATCH(
     const updates: Record<string, unknown> = {}
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
-        updates[field] = body[field]
+        updates[field] = field === 'body_html' ? sanitizeEmailHtml(body[field]) : body[field]
       }
     }
 

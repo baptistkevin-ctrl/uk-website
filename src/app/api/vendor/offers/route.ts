@@ -46,7 +46,8 @@ export async function GET() {
       .order('created_at', { ascending: false })
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error:', error)
+      return NextResponse.json({ error: 'Failed to process request' }, { status: 500 })
     }
 
     // Also return vendor's products for the create form
@@ -102,7 +103,8 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error:', error)
+      return NextResponse.json({ error: 'Failed to process request' }, { status: 500 })
     }
 
     // Update product badge
@@ -159,7 +161,8 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error:', error)
+      return NextResponse.json({ error: 'Failed to process request' }, { status: 500 })
     }
 
     // Update product badge
@@ -225,7 +228,8 @@ export async function DELETE(request: NextRequest) {
       .eq('id', id)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error:', error)
+      return NextResponse.json({ error: 'Failed to process request' }, { status: 500 })
     }
 
     // Update product badge

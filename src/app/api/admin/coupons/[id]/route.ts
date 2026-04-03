@@ -145,7 +145,8 @@ export async function PUT(
       .single()
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error:', error)
+      return NextResponse.json({ error: 'Failed to process coupon' }, { status: 500 })
     }
 
     await couponAudit.logUpdate(
@@ -203,7 +204,8 @@ export async function DELETE(
         .eq('id', id)
 
       if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        console.error('Error:', error)
+        return NextResponse.json({ error: 'Failed to process coupon' }, { status: 500 })
       }
 
       await couponAudit.logDelete(request, auditUser, id, `coupon:${id}`, { deactivated: true })
@@ -220,7 +222,8 @@ export async function DELETE(
       .eq('id', id)
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 })
+      console.error('Error:', error)
+      return NextResponse.json({ error: 'Failed to process coupon' }, { status: 500 })
     }
 
     await couponAudit.logDelete(request, auditUser, id, `coupon:${id}`)
