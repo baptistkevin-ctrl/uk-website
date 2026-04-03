@@ -1,33 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { checkRateLimit, rateLimitConfigs } from '@/lib/security/rate-limit'
-import { z } from 'zod'
-import { formatZodErrors, phoneSchema, urlSchema } from '@/lib/validation/schemas'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:vendor:register' })
-
-const vendorRegisterSchema = z.object({
-  business_name: z.string().min(2, 'Business name is required').max(200, 'Business name too long'),
-  business_type: z.string().max(100).optional(),
-  description: z.string().max(2000).optional(),
-  product_categories: z.array(z.string().max(100)).max(20).optional(),
-  expected_monthly_sales: z.string().max(100).optional(),
-  website_url: urlSchema,
-  phone: phoneSchema,
-})
 
 export const dynamic = 'force-dynamic'
 
 // Submit vendor application
 export async function POST(request: NextRequest) {
-  // Rate limit: 5 requests per minute per IP
-  const rateLimitResult = checkRateLimit(request, rateLimitConfigs.vendorRegister)
-  if (!rateLimitResult.success) {
-    return rateLimitResult.error!
-  }
-
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -37,12 +15,6 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-
-    const parsed = vendorRegisterSchema.safeParse(body)
-    if (!parsed.success) {
-      return NextResponse.json({ error: 'Validation failed', details: formatZodErrors(parsed.error) }, { status: 400 })
-    }
-
     const {
       business_name,
       business_type,
@@ -51,7 +23,11 @@ export async function POST(request: NextRequest) {
       expected_monthly_sales,
       website_url,
       phone
-    } = parsed.data
+    } = body
+
+    if (!business_name) {
+      return NextResponse.json({ error: 'Business name is required' }, { status: 400 })
+    }
 
     const supabaseAdmin = getSupabaseAdmin()
 
@@ -101,7 +77,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (appError) {
-      log.error('Application error', { error: appError instanceof Error ? appError.message : String(appError) })
+      console.error('Application error:', appError)
       return NextResponse.json({ error: 'Failed to submit application' }, { status: 500 })
     }
 
@@ -111,7 +87,7 @@ export async function POST(request: NextRequest) {
       application
     }, { status: 201 })
   } catch (error) {
-    log.error('Vendor registration error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Vendor registration error:', error)
     return NextResponse.json({ error: 'Failed to process registration' }, { status: 500 })
   }
 }
@@ -158,7 +134,7 @@ export async function GET(request: NextRequest) {
       application
     })
   } catch (error) {
-    log.error('Get vendor status error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get vendor status error:', error)
     return NextResponse.json({ error: 'Failed to get status' }, { status: 500 })
   }
 }

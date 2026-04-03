@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:hero-slides' })
 
 export const dynamic = 'force-dynamic'
 
@@ -20,8 +17,7 @@ export async function GET() {
     .order('display_order', { ascending: true })
 
   if (error) {
-    log.error('Error fetching hero slides', { error: error instanceof Error ? error.message : String(error) })
-    return NextResponse.json({ error: 'Failed to fetch hero slides' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   return NextResponse.json(data)
@@ -70,8 +66,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      log.error('Error creating hero slide', { error: error instanceof Error ? error.message : String(error) })
-      return NextResponse.json({ error: 'Failed to create hero slide' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 201 })
@@ -109,8 +104,7 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      log.error('Error updating hero slide', { error: error instanceof Error ? error.message : String(error) })
-      return NextResponse.json({ error: 'Failed to update hero slide' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data)
@@ -138,8 +132,7 @@ export async function DELETE(request: NextRequest) {
     .eq('id', id)
 
   if (error) {
-    log.error('Error deleting hero slide', { error: error instanceof Error ? error.message : String(error) })
-    return NextResponse.json({ error: 'Failed to delete hero slide' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })

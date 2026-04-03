@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:live-support:conversations:close' })
 
 export const dynamic = 'force-dynamic'
 
@@ -43,7 +40,7 @@ export async function POST(
       .eq('id', conversationId)
 
     if (updateError) {
-      log.error('Error closing conversation', { error: updateError instanceof Error ? updateError.message : String(updateError) })
+      console.error('Error closing conversation:', updateError)
       return NextResponse.json({ error: 'Failed to close conversation' }, { status: 500 })
     }
 
@@ -60,7 +57,7 @@ export async function POST(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    log.error('Close conversation error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Close conversation error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

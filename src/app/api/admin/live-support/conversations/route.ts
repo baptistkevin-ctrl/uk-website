@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:live-support:conversations' })
 
 export const dynamic = 'force-dynamic'
 
@@ -56,13 +53,13 @@ export async function GET(request: NextRequest) {
     const { data: conversations, error } = await query.limit(50)
 
     if (error) {
-      log.error('Error fetching conversations', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching conversations:', error)
       return NextResponse.json({ error: 'Failed to fetch conversations' }, { status: 500 })
     }
 
     return NextResponse.json({ conversations: conversations || [] })
   } catch (error) {
-    log.error('Live support API error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Live support API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

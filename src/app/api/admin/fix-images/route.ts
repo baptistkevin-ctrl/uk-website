@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:fix-images' })
 
 export const dynamic = 'force-dynamic'
 
@@ -176,7 +173,7 @@ export async function POST() {
       updates
     })
   } catch (error) {
-    log.error('Error updating images', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Error updating images:', error)
     return NextResponse.json({ error: 'Failed to update images' }, { status: 500 })
   }
 }
@@ -194,8 +191,7 @@ export async function GET() {
       .select('id, name, image_url')
 
     if (error) {
-      log.error('Error fetching product images', { error: error instanceof Error ? error.message : String(error) })
-      return NextResponse.json({ error: 'Failed to fetch product images' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     const needsUpdate = products?.filter(p => !p.image_url || p.image_url.startsWith('/')) || []

@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { checkRateLimit, rateLimitConfigs } from '@/lib/security'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:orders:track' })
 
 export const dynamic = 'force-dynamic'
 
@@ -113,7 +110,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(safeOrder)
   } catch (error) {
-    log.error('Order tracking error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Order tracking error:', error)
     return NextResponse.json(
       { error: 'Failed to look up order' },
       { status: 500 }

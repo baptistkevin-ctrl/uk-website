@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sanitizeSearchQuery } from '@/lib/security'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:stores' })
 
 export const dynamic = 'force-dynamic'
 
@@ -40,10 +36,7 @@ export async function GET(request: NextRequest) {
 
     // Apply search filter
     if (search) {
-      const sanitizedSearch = sanitizeSearchQuery(search)
-      if (sanitizedSearch) {
-        query = query.or(`business_name.ilike.%${sanitizedSearch}%,description.ilike.%${sanitizedSearch}%`)
-      }
+      query = query.or(`business_name.ilike.%${search}%,description.ilike.%${search}%`)
     }
 
     // Apply city filter
@@ -68,8 +61,6 @@ export async function GET(request: NextRequest) {
         query = query.order('business_name', { ascending: true })
         break
       case 'popular':
-        query = query.order('review_count', { ascending: false, nullsFirst: false })
-        break
       default:
         query = query.order('review_count', { ascending: false, nullsFirst: false })
     }
@@ -80,7 +71,7 @@ export async function GET(request: NextRequest) {
     const { data: vendors, count, error } = await query
 
     if (error) {
-      log.error('Error fetching stores', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching stores:', error)
       return NextResponse.json({ error: 'Failed to fetch stores' }, { status: 500 })
     }
 
@@ -130,7 +121,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    log.error('Stores API error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Stores API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

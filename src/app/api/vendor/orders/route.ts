@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:vendor:orders' })
 
 export const dynamic = 'force-dynamic'
 
@@ -75,7 +72,7 @@ export async function GET(request: NextRequest) {
     const { data: vendorOrders, error: ordersError } = await query
 
     if (ordersError) {
-      log.error('Orders fetch error', { error: ordersError instanceof Error ? ordersError.message : String(ordersError) })
+      console.error('Orders fetch error:', ordersError)
       // Table may not exist yet - return empty
       if (ordersError.code === '42P01' || ordersError.message?.includes('relation') || ordersError.message?.includes('does not exist')) {
         return NextResponse.json({
@@ -147,7 +144,7 @@ export async function GET(request: NextRequest) {
       perPage: 20
     })
   } catch (error) {
-    log.error('Vendor orders error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Vendor orders error:', error)
     return NextResponse.json({ error: 'Failed to get orders' }, { status: 500 })
   }
 }
@@ -196,7 +193,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(updatedOrder)
   } catch (error) {
-    log.error('Update order error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Update order error:', error)
     return NextResponse.json({ error: 'Failed to update order' }, { status: 500 })
   }
 }

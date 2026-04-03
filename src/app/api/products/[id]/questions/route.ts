@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:products:questions' })
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +36,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .range(offset, offset + limit - 1)
 
     if (error) {
-      log.error('Error fetching questions', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching questions:', error)
       return NextResponse.json({ error: 'Failed to fetch questions' }, { status: 500 })
     }
 
@@ -53,7 +50,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       }
     })
   } catch (error) {
-    log.error('Get questions error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get questions error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -91,7 +88,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       .single()
 
     if (error) {
-      log.error('Error creating question', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error creating question:', error)
       return NextResponse.json({ error: 'Failed to submit question' }, { status: 500 })
     }
 
@@ -100,7 +97,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       message: 'Your question has been submitted and will appear once approved.'
     })
   } catch (error) {
-    log.error('Post question error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Post question error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

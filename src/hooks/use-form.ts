@@ -178,7 +178,7 @@ export const maxLength = (max: number, message?: string) =>
 export const email = (message = 'Please enter a valid email address') =>
   <T, K extends keyof T>(value: T[K]): string | undefined => {
     if (typeof value === 'string' && value) {
-      const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{1,63}$/
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
       if (!emailRegex.test(value)) {
         return message
       }

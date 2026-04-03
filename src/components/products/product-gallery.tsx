@@ -118,18 +118,20 @@ export function ProductGallery({
 
   // Share functionality
   const handleShare = async () => {
+    const imageUrl = galleryImages[currentIndex]
+
     if (navigator.share) {
       try {
         await navigator.share({
           title: productName,
           url: window.location.href
         })
-      } catch {
+      } catch (error) {
         // User cancelled or error
       }
     } else {
       // Fallback: copy URL to clipboard
-      await navigator.clipboard.writeText(window.location.href).catch(() => {})
+      navigator.clipboard.writeText(window.location.href)
     }
   }
 
@@ -159,7 +161,7 @@ export function ProductGallery({
         ref={imageContainerRef}
         className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4 group"
         onMouseMove={handleMouseMove}
-        onMouseLeave={() => { if (isZoomed) setIsZoomed(false) }}
+        onMouseLeave={() => isZoomed && setIsZoomed(false)}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -267,8 +269,6 @@ export function ProductGallery({
                   ? 'border-green-500 ring-2 ring-green-200'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
-              aria-label={`View image ${index + 1}`}
-              aria-current={index === currentIndex ? 'true' : undefined}
             >
               <Image
                 src={image}
@@ -301,8 +301,6 @@ export function ProductGallery({
       {/* Lightbox Modal */}
       {isLightboxOpen && (
         <div
-          role="dialog"
-          aria-label={`${productName} image gallery`}
           className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
           onClick={() => setIsLightboxOpen(false)}
         >
@@ -397,8 +395,6 @@ export function ProductGallery({
                       ? 'border-white opacity-100'
                       : 'border-transparent opacity-50 hover:opacity-75'
                   }`}
-                  aria-label={`View image ${index + 1}`}
-                  aria-current={index === currentIndex ? 'true' : undefined}
                 >
                   <Image
                     src={image}

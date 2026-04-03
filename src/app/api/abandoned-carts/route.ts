@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import crypto from 'crypto'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:abandoned-carts' })
 
 export const dynamic = 'force-dynamic'
 
@@ -49,7 +46,7 @@ export async function POST(request: NextRequest) {
         .eq('id', existing.id)
 
       if (error) {
-        log.error('Error updating abandoned cart', { error: error instanceof Error ? error.message : String(error) })
+        console.error('Error updating abandoned cart:', error)
         return NextResponse.json({ error: 'Failed to update cart' }, { status: 500 })
       }
 
@@ -69,14 +66,14 @@ export async function POST(request: NextRequest) {
         })
 
       if (error) {
-        log.error('Error creating abandoned cart', { error: error instanceof Error ? error.message : String(error) })
+        console.error('Error creating abandoned cart:', error)
         return NextResponse.json({ error: 'Failed to save cart' }, { status: 500 })
       }
 
       return NextResponse.json({ success: true, created: true })
     }
   } catch (error) {
-    log.error('Abandoned cart error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Abandoned cart error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -112,7 +109,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    log.error('Mark recovered error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Mark recovered error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -155,7 +152,7 @@ export async function GET(request: NextRequest) {
       discount_code: cart.discount_code || null
     })
   } catch (error) {
-    log.error('Get recovery cart error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get recovery cart error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

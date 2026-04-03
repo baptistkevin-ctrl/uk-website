@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sanitizeSearchQuery } from '@/lib/security'
-import { logger } from '@/lib/utils/logger'
-
-const auditLogger = logger.child({ context: 'api:admin:audit-logs' })
 
 export const dynamic = 'force-dynamic'
 
@@ -62,10 +58,7 @@ export async function GET(request: NextRequest) {
       query = query.lte('created_at', endDate)
     }
     if (search) {
-      const sanitizedSearch = sanitizeSearchQuery(search)
-      if (sanitizedSearch) {
-        query = query.or(`entity_name.ilike.%${sanitizedSearch}%,user_email.ilike.%${sanitizedSearch}%`)
-      }
+      query = query.or(`entity_name.ilike.%${search}%,user_email.ilike.%${search}%`)
     }
 
     // Pagination
@@ -74,7 +67,7 @@ export async function GET(request: NextRequest) {
     const { data: logs, error, count } = await query
 
     if (error) {
-      auditLogger.error('Error fetching audit logs', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching audit logs:', error)
       return NextResponse.json({ error: 'Failed to fetch audit logs' }, { status: 500 })
     }
 
@@ -88,7 +81,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    auditLogger.error('Get audit logs error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get audit logs error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -140,13 +133,13 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      auditLogger.error('Error creating audit log', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error creating audit log:', error)
       return NextResponse.json({ error: 'Failed to create audit log' }, { status: 500 })
     }
 
     return NextResponse.json({ log })
   } catch (error) {
-    auditLogger.error('Create audit log error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Create audit log error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

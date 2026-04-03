@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:chatbot:intents:phrases' })
 
 export const dynamic = 'force-dynamic'
 
@@ -38,13 +35,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       .eq('id', phraseId)
 
     if (error) {
-      log.error('Error deleting phrase', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error deleting phrase:', error)
       return NextResponse.json({ error: 'Failed to delete phrase' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    log.error('Delete phrase error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Delete phrase error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

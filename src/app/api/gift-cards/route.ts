@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { checkRateLimit, rateLimitConfigs } from '@/lib/security/rate-limit'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:gift-cards' })
 
 export const dynamic = 'force-dynamic'
 
@@ -44,19 +40,13 @@ export async function GET(request: NextRequest) {
       expires_at: giftCard.expires_at
     })
   } catch (error) {
-    log.error('Get gift card error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get gift card error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 // Purchase a gift card
 export async function POST(request: NextRequest) {
-  // Rate limit: 10 requests per minute per IP
-  const rateLimitResult = checkRateLimit(request, rateLimitConfigs.giftCard)
-  if (!rateLimitResult.success) {
-    return rateLimitResult.error!
-  }
-
   try {
     const supabase = await createClient()
     const body = await request.json()
@@ -109,7 +99,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      log.error('Error creating gift card', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error creating gift card:', error)
       return NextResponse.json({ error: 'Failed to create gift card' }, { status: 500 })
     }
 
@@ -118,18 +108,16 @@ export async function POST(request: NextRequest) {
       message: 'Gift card created. Complete payment to activate.'
     })
   } catch (error) {
-    log.error('Purchase gift card error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Purchase gift card error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
-  const randomBytes = new Uint8Array(16)
-  crypto.getRandomValues(randomBytes)
   let result = ''
   for (let i = 0; i < 16; i++) {
-    result += chars.charAt(randomBytes[i] % chars.length)
+    result += chars.charAt(Math.floor(Math.random() * chars.length))
     if (i === 3 || i === 7 || i === 11) {
       result += '-'
     }

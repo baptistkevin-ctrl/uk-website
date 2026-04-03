@@ -1,68 +1,148 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
-import { orderService } from '@/services/order.service'
-import { handleApiError, apiSuccess, apiCatchAll } from '@/lib/utils/api-error'
-import type { OrderEvent } from '@/services/order-state-machine'
+import { orderAudit, sanitizeSearchQuery } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
 // GET all orders with filtering
 export async function GET(request: NextRequest) {
-  try {
-    const auth = await requireAdmin(request)
-    if (!auth.success) return auth.error
+  // Verify admin authentication
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
-    const { searchParams } = new URL(request.url)
-    const status = searchParams.get('status') || undefined
-    const paymentStatus = searchParams.get('paymentStatus') || undefined
-    const search = searchParams.get('search') || undefined
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
+  const { searchParams } = new URL(request.url)
+  const status = searchParams.get('status')
+  const paymentStatus = searchParams.get('paymentStatus')
+  const search = searchParams.get('search')
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = parseInt(searchParams.get('limit') || '20')
+  const offset = (page - 1) * limit
 
-    const result = await orderService.list({
-      page,
-      limit,
-      status: status !== 'all' ? status : undefined,
-      paymentStatus: paymentStatus !== 'all' ? paymentStatus : undefined,
-      search,
-    })
+  const supabaseAdmin = getSupabaseAdmin()
 
-    if (!result.ok) return handleApiError(result)
+  let query = supabaseAdmin
+    .from('orders')
+    .select('*', { count: 'exact' })
 
-    return apiSuccess(result.data.orders, {
-      page,
-      limit,
-      total: result.data.total,
-      totalPages: Math.ceil(result.data.total / limit),
-    })
-  } catch (error) {
-    return apiCatchAll(error, 'admin:orders:list')
+  if (status && status !== 'all') {
+    query = query.eq('status', status)
   }
+
+  if (paymentStatus && paymentStatus !== 'all') {
+    query = query.eq('payment_status', paymentStatus)
+  }
+
+  if (search) {
+    const sanitizedSearch = sanitizeSearchQuery(search)
+    if (sanitizedSearch) {
+      query = query.or(`order_number.ilike.%${sanitizedSearch}%,customer_name.ilike.%${sanitizedSearch}%,customer_email.ilike.%${sanitizedSearch}%`)
+    }
+  }
+
+  query = query
+    .order('created_at', { ascending: false })
+    .range(offset, offset + limit - 1)
+
+  const { data, error, count } = await query
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({
+    orders: data,
+    total: count,
+    page,
+    limit,
+    totalPages: Math.ceil((count || 0) / limit)
+  })
 }
 
-// PUT - Update order status / payment_status / notes
+// PUT - Update order status
 export async function PUT(request: NextRequest) {
-  try {
-    const auth = await requireAdmin(request)
-    if (!auth.success) return auth.error
+  // Verify admin authentication
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
+  const supabaseAdmin = getSupabaseAdmin()
+
+  try {
     const body = await request.json()
-    const { id, event, payment_status, notes } = body as {
-      id?: string
-      event?: OrderEvent
-      payment_status?: string
-      notes?: string
-    }
+    const { id, status, payment_status, notes } = body
 
     if (!id) {
-      return handleApiError({ ok: false as const, error: 'Order ID is required', code: 'BAD_REQUEST' })
+      return NextResponse.json({ error: 'Order ID is required' }, { status: 400 })
     }
 
-    const result = await orderService.adminUpdate(id, { event, payment_status, notes })
-    if (!result.ok) return handleApiError(result)
+    // Get current order for audit logging
+    const { data: currentOrder } = await supabaseAdmin
+      .from('orders')
+      .select('*')
+      .eq('id', id)
+      .single()
 
-    return apiSuccess(result.data)
-  } catch (error) {
-    return apiCatchAll(error, 'admin:orders:update')
+    const updates: Record<string, unknown> = {
+      updated_at: new Date().toISOString()
+    }
+
+    if (status) {
+      updates.status = status
+
+      // Set relevant timestamps
+      const now = new Date().toISOString()
+      switch (status) {
+        case 'confirmed':
+          updates.confirmed_at = now
+          break
+        case 'out_for_delivery':
+          updates.dispatched_at = now
+          break
+        case 'delivered':
+          updates.delivered_at = now
+          break
+        case 'cancelled':
+          updates.cancelled_at = now
+          break
+      }
+    }
+
+    if (payment_status) {
+      updates.payment_status = payment_status
+      if (payment_status === 'paid') {
+        updates.paid_at = new Date().toISOString()
+      }
+    }
+
+    if (notes !== undefined) {
+      updates.notes = notes
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('orders')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Log audit event
+    if (auth.user && auth.profile) {
+      await orderAudit.logUpdate(
+        request,
+        { id: auth.user.id, email: auth.user.email || '', role: auth.profile.role },
+        id,
+        data.order_number || id,
+        currentOrder || {},
+        updates
+      )
+    }
+
+    return NextResponse.json(data)
+  } catch {
+    return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 }

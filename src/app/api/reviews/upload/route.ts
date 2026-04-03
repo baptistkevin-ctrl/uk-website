@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:reviews:upload' })
 
 export const dynamic = 'force-dynamic'
 
@@ -74,7 +71,7 @@ export async function POST(request: NextRequest) {
 
       // Generate unique filename
       const timestamp = Date.now()
-      const randomStr = crypto.randomUUID().substring(0, 8)
+      const randomStr = Math.random().toString(36).substring(7)
       const ext = file.name.split('.').pop() || 'jpg'
       const fileName = `reviews/${user.id}/${timestamp}-${randomStr}.${ext}`
 
@@ -92,7 +89,7 @@ export async function POST(request: NextRequest) {
         })
 
       if (error) {
-        log.error('Upload error', { error: error instanceof Error ? error.message : String(error) })
+        console.error('Upload error:', error)
         // If bucket doesn't exist, try to create it
         if (error.message.includes('Bucket not found')) {
           await supabaseAdmin.storage.createBucket('review-images', {
@@ -110,7 +107,7 @@ export async function POST(request: NextRequest) {
             })
 
           if (retryError) {
-            log.error('Retry upload error', { error: retryError instanceof Error ? retryError.message : String(retryError) })
+            console.error('Retry upload error:', retryError)
             return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
           }
 
@@ -137,7 +134,7 @@ export async function POST(request: NextRequest) {
       urls: uploadedUrls
     })
   } catch (error) {
-    log.error('Review image upload error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Review image upload error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

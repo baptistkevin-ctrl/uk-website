@@ -105,6 +105,7 @@ export default function AdminLayout({
           setUserRole(profile.role as 'admin' | 'super_admin')
         } else {
           // Not an admin, redirect to home
+          console.log('User role:', profile?.role, '- not admin')
           router.push('/')
         }
       } catch (error) {

@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:chatbot:faqs' })
 
 export const dynamic = 'force-dynamic'
 
@@ -51,13 +48,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       .single()
 
     if (error) {
-      log.error('Error updating FAQ', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error updating FAQ:', error)
       return NextResponse.json({ error: 'Failed to update FAQ' }, { status: 500 })
     }
 
     return NextResponse.json({ faq })
   } catch (error) {
-    log.error('Update FAQ error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Update FAQ error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -92,13 +89,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       .eq('id', id)
 
     if (error) {
-      log.error('Error updating FAQ', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error updating FAQ:', error)
       return NextResponse.json({ error: 'Failed to update FAQ' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    log.error('Patch FAQ error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Patch FAQ error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -131,13 +128,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       .eq('id', id)
 
     if (error) {
-      log.error('Error deleting FAQ', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error deleting FAQ:', error)
       return NextResponse.json({ error: 'Failed to delete FAQ' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    log.error('Delete FAQ error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Delete FAQ error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

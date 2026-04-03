@@ -1,19 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { checkRateLimit, rateLimitConfigs } from '@/lib/security/rate-limit'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:coupons:validate' })
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
-  // Rate limit: 20 requests per minute per IP
-  const rateLimitResult = checkRateLimit(request, rateLimitConfigs.couponValidate)
-  if (!rateLimitResult.success) {
-    return rateLimitResult.error!
-  }
-
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -45,7 +35,7 @@ export async function POST(request: NextRequest) {
     })
 
     if (error) {
-      log.error('Coupon validation error', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Coupon validation error:', error)
       return NextResponse.json({ error: 'Failed to validate coupon' }, { status: 500 })
     }
 
@@ -75,7 +65,7 @@ export async function POST(request: NextRequest) {
       description: coupon?.description,
     })
   } catch (error) {
-    log.error('Coupon validation error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Coupon validation error:', error)
     return NextResponse.json({ error: 'Failed to validate coupon' }, { status: 500 })
   }
 }

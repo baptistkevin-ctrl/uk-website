@@ -95,7 +95,7 @@ function generateFromId(productId: string, max: number, min: number = 0): number
   for (let i = 0; i < productId.length; i++) {
     const char = productId.charCodeAt(i)
     hash = ((hash << 5) - hash) + char
-    hash = hash | 0 // Convert to 32-bit integer
+    hash = hash & hash
   }
   return Math.abs(hash % (max - min)) + min
 }

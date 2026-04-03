@@ -99,19 +99,10 @@ export function HeroSlider({ slides }: HeroSliderProps) {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Main Hero Banner - Left Side */}
-          <div
-            className="lg:col-span-2 relative rounded-xl lg:rounded-2xl overflow-hidden h-[180px] sm:h-[280px] lg:h-[480px]"
-            role="region"
-            aria-roledescription="carousel"
-            aria-label="Hero banner"
-          >
+          <div className="lg:col-span-2 relative rounded-xl lg:rounded-2xl overflow-hidden h-[180px] sm:h-[280px] lg:h-[480px]">
             {activeSlides.map((s, index) => (
               <div
                 key={s.id}
-                role="group"
-                aria-roledescription="slide"
-                aria-label={`Slide ${index + 1} of ${activeSlides.length}: ${s.title}`}
-                aria-hidden={index !== currentSlide}
                 className={`absolute inset-0 transition-opacity duration-700 ${
                   index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
                 }`}
@@ -164,7 +155,6 @@ export function HeroSlider({ slides }: HeroSliderProps) {
                         : 'w-2 h-2 bg-gray-300 hover:bg-gray-400'
                     }`}
                     aria-label={`Go to slide ${index + 1}`}
-                    aria-current={index === currentSlide ? 'true' : undefined}
                   />
                 ))}
               </div>

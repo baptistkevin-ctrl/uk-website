@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:vendor:settings' })
 
 export const dynamic = 'force-dynamic'
 
@@ -55,13 +52,12 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      log.error('Error updating vendor settings', { error: error instanceof Error ? error.message : String(error) })
-      return NextResponse.json({ error: 'Failed to update vendor settings' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data)
   } catch (error) {
-    log.error('Settings update error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Settings update error:', error)
     return NextResponse.json({ error: 'Failed to update settings' }, { status: 500 })
   }
 }

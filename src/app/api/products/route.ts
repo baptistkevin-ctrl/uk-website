@@ -5,9 +5,6 @@ import { productCreateSchema, validateData, formatZodErrors, uuidSchema } from '
 import { sanitizeText, sanitizeRichHtml, sanitizeUrl, productAudit } from '@/lib/security'
 import { cached, TTL, cacheInvalidateTag } from '@/lib/cache'
 import { captureError } from '@/lib/error-tracking'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:products' })
 
 export const dynamic = 'force-dynamic'
 
@@ -82,12 +79,12 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    log.error('Products API error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Products API error:', error)
     captureError(error instanceof Error ? error : new Error(String(error)), {
       context: 'api:products:get',
       extra: { category, limit, offset },
     })
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch products', details: error instanceof Error ? error.message : String(error) }, { status: 500 })
   }
 }
 
@@ -142,8 +139,7 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) {
-    log.error('Error creating product', { error: error instanceof Error ? error.message : String(error) })
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   // Log audit event

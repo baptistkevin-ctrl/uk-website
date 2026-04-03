@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:live-support:messages' })
 
 export const dynamic = 'force-dynamic'
 
@@ -48,7 +45,7 @@ export async function GET(request: NextRequest) {
     const { data: messages, error } = await query
 
     if (error) {
-      log.error('Error fetching messages', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching messages:', error)
       return NextResponse.json({ error: 'Failed to fetch messages' }, { status: 500 })
     }
 
@@ -68,7 +65,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ messages: messages || [] })
   } catch (error) {
-    log.error('Get messages error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get messages error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -116,7 +113,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (insertError) {
-      log.error('Error sending message', { error: insertError instanceof Error ? insertError.message : String(insertError) })
+      console.error('Error sending message:', insertError)
       return NextResponse.json({ error: 'Failed to send message' }, { status: 500 })
     }
 
@@ -131,7 +128,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message })
   } catch (error) {
-    log.error('Send message error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Send message error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

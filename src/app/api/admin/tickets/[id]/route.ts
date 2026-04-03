@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:tickets' })
 
 export const dynamic = 'force-dynamic'
 
@@ -47,7 +44,7 @@ export async function PUT(
         .eq('id', id)
 
       if (error) {
-        log.error('Error updating ticket', { error: error instanceof Error ? error.message : String(error) })
+        console.error('Error updating ticket:', error)
         return NextResponse.json({ error: 'Failed to update ticket' }, { status: 500 })
       }
     }
@@ -97,7 +94,7 @@ export async function PUT(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    log.error('Admin update ticket error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Admin update ticket error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -161,7 +158,7 @@ export async function POST(
       })
 
     if (error) {
-      log.error('Error adding message', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error adding message:', error)
       return NextResponse.json({ error: 'Failed to add message' }, { status: 500 })
     }
 
@@ -170,7 +167,7 @@ export async function POST(
       message_id: messageId
     })
   } catch (error) {
-    log.error('Admin add message error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Admin add message error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

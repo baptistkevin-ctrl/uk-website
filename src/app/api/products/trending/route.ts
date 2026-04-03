@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:products:trending' })
 
 export const dynamic = 'force-dynamic'
 
@@ -23,7 +20,7 @@ export async function GET(request: NextRequest) {
       })
 
     if (error) {
-      log.error('Error fetching trending (RPC)', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching trending (RPC):', error)
 
       // Fallback: Get products ordered by view count or rating
       const { data: fallbackProducts, error: fallbackError } = await supabase
@@ -45,7 +42,7 @@ export async function GET(request: NextRequest) {
         .limit(limit)
 
       if (fallbackError) {
-        log.error('Fallback error', { error: fallbackError instanceof Error ? fallbackError.message : String(fallbackError) })
+        console.error('Fallback error:', fallbackError)
         return NextResponse.json({ error: 'Failed to fetch trending products' }, { status: 500 })
       }
 
@@ -68,7 +65,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ products: trendingProducts || [] })
   } catch (error) {
-    log.error('Trending products API error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Trending products API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

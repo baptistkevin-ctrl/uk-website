@@ -126,13 +126,13 @@ export default function AuditLogsPage() {
   }
 
   useEffect(() => {
-    void fetchLogs()
+    fetchLogs()
   }, [page, actionFilter, entityFilter])
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setPage(1)
-      void fetchLogs()
+      fetchLogs()
     }, 300)
     return () => clearTimeout(timer)
   }, [search])

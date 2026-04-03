@@ -189,7 +189,7 @@ export default function AdminDeliveryPage() {
         throw new Error(data.error || 'Failed to delete slot')
       }
 
-      await fetchSlots()
+      fetchSlots()
     } catch (error) {
       console.error('Delete error:', error)
       alert(error instanceof Error ? error.message : 'Failed to delete slot')
@@ -248,7 +248,7 @@ export default function AdminDeliveryPage() {
               delivery_fee_pence: 399,
               is_available: true,
             }),
-          }).catch((err) => console.error('Slot creation error:', err))
+          }).catch(() => {}) // Ignore duplicate errors
         }
       }
 

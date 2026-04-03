@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:referrals' })
 
 export const dynamic = 'force-dynamic'
 
@@ -21,7 +18,7 @@ export async function GET(request: NextRequest) {
       .rpc('get_or_create_referral_code', { p_user_id: user.id })
 
     if (codeError) {
-      log.error('Error getting referral code', { error: codeError instanceof Error ? codeError.message : String(codeError) })
+      console.error('Error getting referral code:', codeError)
       return NextResponse.json({ error: 'Failed to get referral code' }, { status: 500 })
     }
 
@@ -68,7 +65,7 @@ export async function GET(request: NextRequest) {
       shareUrl: code ? `${process.env.NEXT_PUBLIC_APP_URL || 'https://ukgrocerystore.com'}/register?ref=${code.code}` : null,
     })
   } catch (error) {
-    log.error('Referrals API error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Referrals API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -98,7 +95,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      log.error('Error applying referral code', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error applying referral code:', error)
       return NextResponse.json({ error: 'Failed to apply referral code' }, { status: 500 })
     }
 
@@ -117,7 +114,7 @@ export async function POST(request: NextRequest) {
       referrerName: result.referrer_name,
     })
   } catch (error) {
-    log.error('Referral apply error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Referral apply error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

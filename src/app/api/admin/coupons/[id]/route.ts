@@ -1,10 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAdmin } from '@/lib/auth/verify'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-import { apiSuccess, apiCatchAll } from '@/lib/utils/api-error'
-
-const log = logger.child({ context: 'admin:coupons:id' })
 
 export const dynamic = 'force-dynamic'
 
@@ -14,10 +9,23 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const auth = await requireAdmin(request)
-    if (!auth.success) return auth.error
-
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const { data: coupon, error } = await supabase
       .from('coupons')
@@ -26,10 +34,7 @@ export async function GET(
       .single()
 
     if (error || !coupon) {
-      return NextResponse.json(
-        { error: { code: 'NOT_FOUND', message: 'Coupon not found' } },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: 'Coupon not found' }, { status: 404 })
     }
 
     // Get usage statistics
@@ -38,12 +43,12 @@ export async function GET(
       .select('*', { count: 'exact', head: true })
       .eq('coupon_id', id)
 
-    return apiSuccess({
+    return NextResponse.json({
       ...coupon,
       total_usage: usageCount || 0,
     })
   } catch (error) {
-    return apiCatchAll(error, 'admin:coupons:id:get')
+    return NextResponse.json({ error: 'Failed to fetch coupon' }, { status: 500 })
   }
 }
 
@@ -53,10 +58,23 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
-    const auth = await requireAdmin(request)
-    if (!auth.success) return auth.error
-
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const body = await request.json()
     const {
@@ -87,10 +105,7 @@ export async function PUT(
         .single()
 
       if (existing) {
-        return NextResponse.json(
-          { error: { code: 'VALIDATION_ERROR', message: 'Coupon code already exists' } },
-          { status: 400 }
-        )
+        return NextResponse.json({ error: 'Coupon code already exists' }, { status: 400 })
       }
     }
 
@@ -122,17 +137,12 @@ export async function PUT(
       .single()
 
     if (error) {
-      log.error('Failed to update coupon', { error: error.message, couponId: id })
-      return NextResponse.json(
-        { error: { code: 'INTERNAL_ERROR', message: 'Failed to update coupon' } },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    log.info('Coupon updated', { couponId: id, admin: auth.user!.id })
-    return apiSuccess({ coupon })
+    return NextResponse.json(coupon)
   } catch (error) {
-    return apiCatchAll(error, 'admin:coupons:id:put')
+    return NextResponse.json({ error: 'Failed to update coupon' }, { status: 500 })
   }
 }
 
@@ -142,10 +152,23 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    const auth = await requireAdmin(request)
-    if (!auth.success) return auth.error
-
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     // Check if coupon has been used
     const { count: usageCount } = await supabase
@@ -161,17 +184,12 @@ export async function DELETE(
         .eq('id', id)
 
       if (error) {
-        log.error('Failed to deactivate coupon', { error: error.message, couponId: id })
-        return NextResponse.json(
-          { error: { code: 'INTERNAL_ERROR', message: 'Failed to deactivate coupon' } },
-          { status: 500 }
-        )
+        return NextResponse.json({ error: error.message }, { status: 500 })
       }
 
-      log.info('Coupon deactivated (has usage)', { couponId: id, usageCount, admin: auth.user!.id })
-      return apiSuccess({
+      return NextResponse.json({
         message: 'Coupon has been used and cannot be deleted. It has been deactivated instead.',
-        deactivated: true,
+        deactivated: true
       })
     }
 
@@ -181,16 +199,11 @@ export async function DELETE(
       .eq('id', id)
 
     if (error) {
-      log.error('Failed to delete coupon', { error: error.message, couponId: id })
-      return NextResponse.json(
-        { error: { code: 'INTERNAL_ERROR', message: 'Failed to delete coupon' } },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    log.info('Coupon deleted', { couponId: id, admin: auth.user!.id })
-    return apiSuccess({ message: 'Coupon deleted successfully' })
+    return NextResponse.json({ message: 'Coupon deleted successfully' })
   } catch (error) {
-    return apiCatchAll(error, 'admin:coupons:id:delete')
+    return NextResponse.json({ error: 'Failed to delete coupon' }, { status: 500 })
   }
 }

@@ -7,9 +7,6 @@ import {
   getStockAlertStats
 } from '@/lib/stock/stock-alert-processor'
 import { logAuditEvent } from '@/lib/security/audit'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:stock-alerts' })
 
 export const dynamic = 'force-dynamic'
 
@@ -24,10 +21,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status') || 'all'
 
-    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
-    const limit = Math.min(200, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)))
-    const offset = (page - 1) * limit
-
     // Build query
     let query = supabaseAdmin
       .from('stock_alerts')
@@ -35,42 +28,34 @@ export async function GET(request: NextRequest) {
         *,
         product:products(id, name, slug, image_url, stock_quantity, price_pence),
         user:profiles(id, full_name, email)
-      `, { count: 'exact' })
+      `)
       .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1)
 
     if (status !== 'all') {
       query = query.eq('status', status)
     }
 
-    const { data: alerts, error, count } = await query
+    const { data: alerts, error } = await query
 
     if (error) {
-      log.error('Error fetching stock alerts', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching stock alerts:', error)
       return NextResponse.json({ error: 'Failed to fetch stock alerts' }, { status: 500 })
     }
 
     // Get comprehensive stats
     const stats = await getStockAlertStats()
     const allAlerts = alerts || []
-    const total = count ?? 0
 
     return NextResponse.json({
-      data: allAlerts,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      alerts: allAlerts,
       stats: {
         ...stats,
-        total_alerts: total,
+        total_alerts: allAlerts.length,
         unique_products: new Set(allAlerts.map(a => a.product_id)).size
       }
     })
   } catch (error) {
-    log.error('Get stock alerts error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get stock alerts error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -123,7 +108,7 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    log.error('Manual stock alert trigger error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Manual stock alert trigger error:', error)
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -153,7 +138,7 @@ export async function DELETE(request: NextRequest) {
       .lt('updated_at', cutoffDate.toISOString())
 
     if (error) {
-      return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     // Log audit event
@@ -175,7 +160,7 @@ export async function DELETE(request: NextRequest) {
       message: `Deleted ${count || 0} old stock alerts`
     })
   } catch (error) {
-    log.error('Stock alerts cleanup error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Stock alerts cleanup error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

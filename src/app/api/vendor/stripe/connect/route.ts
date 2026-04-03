@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:vendor:stripe:connect' })
 
 export const dynamic = 'force-dynamic'
 
@@ -78,7 +75,7 @@ export async function POST(request: NextRequest) {
       try {
         await getStripe().accounts.del(account.id)
       } catch (cleanupError) {
-        log.error('Failed to clean up orphaned Stripe account', { accountId: account.id, error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError) })
+        console.error('Failed to clean up orphaned Stripe account:', account.id, cleanupError)
       }
 
       // Re-fetch vendor to return the existing account ID
@@ -99,7 +96,7 @@ export async function POST(request: NextRequest) {
       accountId: account.id
     })
   } catch (error) {
-    log.error('Stripe Connect error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Stripe Connect error:', error)
     return NextResponse.json({
       error: 'Failed to create Stripe account'
     }, { status: 500 })
@@ -162,7 +159,7 @@ export async function GET(request: NextRequest) {
       onboardingComplete: detailsSubmitted && chargesEnabled,
     })
   } catch (error) {
-    log.error('Stripe account status error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Stripe account status error:', error)
     return NextResponse.json({
       error: 'Failed to get account status'
     }, { status: 500 })

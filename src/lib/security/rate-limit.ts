@@ -103,27 +103,6 @@ export const rateLimitConfigs = {
     prefix: 'order',
     message: 'Too many order requests. Please slow down.'
   },
-  // Vendor registration limits
-  vendorRegister: {
-    limit: 5,
-    windowMs: 60 * 1000, // 1 minute
-    prefix: 'vendor-register',
-    message: 'Too many registration attempts. Please try again in a minute.'
-  },
-  // Coupon validation limits
-  couponValidate: {
-    limit: 20,
-    windowMs: 60 * 1000, // 1 minute
-    prefix: 'coupon-validate',
-    message: 'Too many coupon validation attempts. Please slow down.'
-  },
-  // Gift card purchase limits
-  giftCard: {
-    limit: 10,
-    windowMs: 60 * 1000, // 1 minute
-    prefix: 'gift-card',
-    message: 'Too many gift card requests. Please slow down.'
-  },
   // General API limits
   api: {
     limit: 100,
@@ -137,27 +116,6 @@ export const rateLimitConfigs = {
     windowMs: 60 * 1000, // 1 minute
     prefix: 'sensitive',
     message: 'Too many attempts. Please try again later.'
-  },
-  // Search endpoint limits
-  search: {
-    limit: 30,
-    windowMs: 60 * 1000, // 1 minute
-    prefix: 'search',
-    message: 'Too many search requests. Please slow down.'
-  },
-  // Categories GET limits
-  categoriesGet: {
-    limit: 60,
-    windowMs: 60 * 1000, // 1 minute
-    prefix: 'categories-get',
-    message: 'Too many category requests. Please slow down.'
-  },
-  // Product recommendations GET limits
-  recommendationsGet: {
-    limit: 30,
-    windowMs: 60 * 1000, // 1 minute
-    prefix: 'recommendations-get',
-    message: 'Too many recommendation requests. Please slow down.'
   }
 }
 

@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sanitizeSearchQuery } from '@/lib/security'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:tickets' })
 
 export const dynamic = 'force-dynamic'
 
@@ -69,16 +65,13 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      const sanitizedSearch = sanitizeSearchQuery(search)
-      if (sanitizedSearch) {
-        query = query.or(`subject.ilike.%${sanitizedSearch}%,ticket_number.ilike.%${sanitizedSearch}%`)
-      }
+      query = query.or(`subject.ilike.%${search}%,ticket_number.ilike.%${search}%`)
     }
 
     const { data: tickets, error, count } = await query
 
     if (error) {
-      log.error('Error fetching tickets', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching tickets:', error)
       return NextResponse.json({ error: 'Failed to fetch tickets' }, { status: 500 })
     }
 
@@ -116,7 +109,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    log.error('Admin tickets API error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Admin tickets API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

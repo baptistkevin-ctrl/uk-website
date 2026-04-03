@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:seed-products' })
 
 export const dynamic = 'force-dynamic'
 
@@ -153,7 +150,7 @@ export async function POST(request: NextRequest) {
       const product = p as Record<string, unknown>
       return {
         ...p,
-        sku: `SKU-${p.slug.toUpperCase().slice(0, 10)}-${crypto.randomUUID().slice(0, 4).toUpperCase()}`,
+        sku: `SKU-${p.slug.toUpperCase().slice(0, 10)}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
         track_inventory: true,
         low_stock_threshold: 10,
         is_active: true,
@@ -171,8 +168,8 @@ export async function POST(request: NextRequest) {
       .select()
 
     if (error) {
-      log.error('Insert error', { error: error instanceof Error ? error.message : String(error) })
-      return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
+      console.error('Insert error:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({
@@ -182,7 +179,7 @@ export async function POST(request: NextRequest) {
       products: data?.map(p => p.name)
     })
   } catch (error) {
-    log.error('Error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Error:', error)
     return NextResponse.json({ error: 'Failed to add products' }, { status: 500 })
   }
 }

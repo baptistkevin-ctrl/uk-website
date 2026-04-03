@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:fix-category-images' })
 
 export const dynamic = 'force-dynamic'
 
@@ -153,7 +150,7 @@ export async function POST() {
           .eq('id', category.id)
 
         if (updateError) {
-          log.error('Failed to update ${category.slug}', { error: updateError instanceof Error ? updateError.message : String(updateError) })
+          console.error(`Failed to update ${category.slug}:`, updateError)
           skipped++
         } else {
           updated++
@@ -170,7 +167,7 @@ export async function POST() {
       skipped,
     })
   } catch (error) {
-    log.error('Error fixing category images', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Error fixing category images:', error)
     return NextResponse.json(
       { error: 'Failed to fix category images' },
       { status: 500 }

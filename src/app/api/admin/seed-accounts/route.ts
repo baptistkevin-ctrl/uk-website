@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import crypto from 'crypto'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:seed-accounts' })
 
 export const dynamic = 'force-dynamic'
 
@@ -102,7 +99,7 @@ export async function POST(request: NextRequest) {
           }, { onConflict: 'id' })
 
         if (profileError) {
-          log.error('Profile upsert error for ${account.email}', { error: profileError instanceof Error ? profileError.message : String(profileError) })
+          console.error(`Profile upsert error for ${account.email}:`, profileError)
         }
 
         // If vendor, ensure vendor record exists
@@ -203,7 +200,7 @@ async function ensureVendorRecord(
       postcode: 'SW1A 1AA',
     })
     if (vendorError) {
-      log.error('Failed to create vendor record', { error: vendorError instanceof Error ? vendorError.message : String(vendorError) })
+      console.error('Failed to create vendor record:', vendorError)
     }
   }
 }

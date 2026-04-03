@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:wishlist' })
 
 export const dynamic = 'force-dynamic'
 
@@ -131,7 +128,7 @@ export async function PUT(
     .single()
 
   if (error) {
-    log.error('Wishlist update error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Wishlist update error:', error)
     return NextResponse.json({ error: 'Failed to update wishlist' }, { status: 500 })
   }
 
@@ -180,7 +177,7 @@ export async function DELETE(
     .eq('id', id)
 
   if (error) {
-    log.error('Wishlist delete error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Wishlist delete error:', error)
     return NextResponse.json({ error: 'Failed to delete wishlist' }, { status: 500 })
   }
 

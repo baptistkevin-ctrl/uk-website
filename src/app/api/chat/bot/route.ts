@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { chat as geminiChat } from '@/lib/ai/gemini'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:chat:bot' })
 
 export const dynamic = 'force-dynamic'
 
@@ -295,7 +292,7 @@ export async function POST(request: NextRequest) {
       typingDelay
     })
   } catch (error) {
-    log.error('Chatbot error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Chatbot error:', error)
     return NextResponse.json({
       error: 'Failed to process message',
       message: "I'm having trouble right now. Let me connect you with a human agent.",
@@ -358,7 +355,7 @@ export async function GET(request: NextRequest) {
       suggestedFaqs: faqs || []
     })
   } catch (error) {
-    log.error('Get chatbot status error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get chatbot status error:', error)
     return NextResponse.json({ error: 'Failed to get chatbot status' }, { status: 500 })
   }
 }

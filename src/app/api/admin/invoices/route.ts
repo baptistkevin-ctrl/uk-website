@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:invoices' })
 
 export const dynamic = 'force-dynamic'
 
@@ -46,7 +43,7 @@ export async function GET(request: NextRequest) {
     const { data: invoices, error } = await query
 
     if (error) {
-      log.error('Error fetching invoices', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching invoices:', error)
       return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 })
     }
 
@@ -64,7 +61,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ invoices: allInvoices, stats })
   } catch (error) {
-    log.error('Get invoices error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get invoices error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

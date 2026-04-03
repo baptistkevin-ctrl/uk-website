@@ -1,67 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { requireAdmin } from '@/lib/auth/verify'
-import { checkRateLimit, rateLimitConfigs, addRateLimitHeaders } from '@/lib/security'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:categories' })
 
 export const dynamic = 'force-dynamic'
 
 // GET all categories
-export async function GET(request: NextRequest) {
-  // Rate limiting — 60 requests per minute per IP
-  const rateLimit = checkRateLimit(request, rateLimitConfigs.categoriesGet)
-  if (!rateLimit.allowed) {
-    const response = NextResponse.json(
-      { error: 'Too many category requests. Please slow down.' },
-      { status: 429 }
-    )
-    return addRateLimitHeaders(response, rateLimit)
-  }
-
+export async function GET(request: Request) {
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
   const includeInactive = searchParams.get('includeInactive') === 'true'
 
-  const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
-  const limit = Math.min(200, Math.max(1, parseInt(searchParams.get('limit') || '50', 10)))
-  const offset = (page - 1) * limit
-
   let query = supabaseAdmin
     .from('categories')
-    .select('*, parent:parent_id(*)', { count: 'exact' })
+    .select('*, parent:parent_id(*)')
     .order('display_order', { ascending: true })
-    .range(offset, offset + limit - 1)
 
   if (!includeInactive) {
     query = query.eq('is_active', true)
   }
 
-  const { data, error, count } = await query
+  const { data, error } = await query
 
   if (error) {
-    log.error('Error fetching categories', { error: error instanceof Error ? error.message : String(error) })
-    return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  const total = count ?? 0
-  return NextResponse.json({
-    data: data ?? [],
-    pagination: {
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-    },
-  })
+  return NextResponse.json(data)
 }
 
 // POST - Create new category
 export async function POST(request: Request) {
-  const authResult = await requireAdmin()
-  if (!authResult.success) return authResult.error!
-
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
@@ -88,8 +55,7 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      log.error('Error creating category', { error: error instanceof Error ? error.message : String(error) })
-      return NextResponse.json({ error: 'Failed to create category' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 201 })
@@ -100,9 +66,6 @@ export async function POST(request: Request) {
 
 // PUT - Update category
 export async function PUT(request: Request) {
-  const authResult = await requireAdmin()
-  if (!authResult.success) return authResult.error!
-
   const supabaseAdmin = getSupabaseAdmin()
 
   try {
@@ -124,8 +87,7 @@ export async function PUT(request: Request) {
       .single()
 
     if (error) {
-      log.error('Error updating category', { error: error instanceof Error ? error.message : String(error) })
-      return NextResponse.json({ error: 'Failed to update category' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data)
@@ -136,9 +98,6 @@ export async function PUT(request: Request) {
 
 // DELETE - Delete category
 export async function DELETE(request: Request) {
-  const authResult = await requireAdmin()
-  if (!authResult.success) return authResult.error!
-
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
@@ -153,8 +112,7 @@ export async function DELETE(request: Request) {
     .eq('id', id)
 
   if (error) {
-    log.error('Error deleting category', { error: error instanceof Error ? error.message : String(error) })
-    return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })

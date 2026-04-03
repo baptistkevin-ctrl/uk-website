@@ -1,19 +1,6 @@
 export { cn } from './cn'
 export * from './format'
 
-// Solaris patterns
-export { ok, fail, tryCatch, codeToStatus } from './result'
-export type { Result, ErrorCode } from './result'
-export { logger } from './logger'
-export type { Logger } from './logger'
-export { handleApiError, apiSuccess, apiCreated, apiCatchAll } from './api-error'
-export {
-  AppError, NotFoundError, UnauthorizedError, ForbiddenError,
-  ConflictError, ValidationError, RateLimitError, handleAppError,
-} from './errors'
-export { invariant } from './invariant'
-export { graceful } from './graceful'
-
 // Re-export comprehensive locale and currency utilities
 // Note: Some exports are explicitly renamed to avoid conflicts
 export {

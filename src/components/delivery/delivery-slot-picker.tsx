@@ -103,14 +103,13 @@ export function DeliverySlotPicker({
     }
 
     fetchSlots()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postcode])
+  }, [postcode, selectedDate])
 
   // Generate session ID for reservations
   const getSessionId = () => {
     let sessionId = localStorage.getItem('checkout_session_id')
     if (!sessionId) {
-      sessionId = 'sess_' + crypto.randomUUID()
+      sessionId = 'sess_' + Math.random().toString(36).substring(2) + Date.now().toString(36)
       localStorage.setItem('checkout_session_id', sessionId)
     }
     return sessionId

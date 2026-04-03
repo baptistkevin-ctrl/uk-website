@@ -866,8 +866,8 @@ export default function AdminDashboard() {
 
           {loading ? (
             <div className="h-64 flex items-end gap-4 px-2">
-              {[80, 150, 120, 200, 100, 170, 130].map((h, i) => (
-                <div key={i} className="flex-1 bg-slate-200 rounded-xl animate-pulse" style={{ height: `${h}px` }} />
+              {[...Array(7)].map((_, i) => (
+                <div key={i} className="flex-1 bg-slate-200 rounded-xl animate-pulse" style={{ height: `${Math.random() * 200 + 50}px` }} />
               ))}
             </div>
           ) : data && (

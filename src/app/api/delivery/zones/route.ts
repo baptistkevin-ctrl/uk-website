@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:delivery:zones' })
 
 export const dynamic = 'force-dynamic'
 
@@ -58,13 +55,13 @@ export async function GET(request: NextRequest) {
       .order('name')
 
     if (error) {
-      log.error('Error fetching zones', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching zones:', error)
       return NextResponse.json({ error: 'Failed to fetch zones' }, { status: 500 })
     }
 
     return NextResponse.json({ zones: zones || [] })
   } catch (error) {
-    log.error('Delivery zones API error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Delivery zones API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -143,7 +140,7 @@ export async function POST(request: NextRequest) {
       free_delivery_threshold_pence: zone.free_delivery_threshold_pence
     })
   } catch (error) {
-    log.error('Delivery check error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Delivery check error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

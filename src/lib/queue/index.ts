@@ -63,7 +63,7 @@ class InMemoryQueue {
   }
 
   async add<T>(queue: string, data: T, priority: number = 0): Promise<string> {
-    const id = `${queue}:${Date.now()}:${crypto.randomUUID().slice(0, 8)}`
+    const id = `${queue}:${Date.now()}:${Math.random().toString(36).slice(2, 8)}`
     const job: Job<T> = {
       id,
       queue,

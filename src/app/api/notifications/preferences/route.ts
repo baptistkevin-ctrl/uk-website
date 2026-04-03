@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:notifications:preferences' })
 
 export const dynamic = 'force-dynamic'
 
@@ -23,13 +20,13 @@ export async function GET() {
       })
 
     if (error) {
-      log.error('Error fetching preferences', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching preferences:', error)
       return NextResponse.json({ error: 'Failed to fetch preferences' }, { status: 500 })
     }
 
     return NextResponse.json({ preferences: data })
   } catch (error) {
-    log.error('Notification preferences error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Notification preferences error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -80,13 +77,13 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      log.error('Error updating preferences', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error updating preferences:', error)
       return NextResponse.json({ error: 'Failed to update preferences' }, { status: 500 })
     }
 
     return NextResponse.json({ preferences: data })
   } catch (error) {
-    log.error('Update preferences error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Update preferences error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

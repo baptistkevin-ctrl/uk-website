@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe/client'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:vendor:stripe:dashboard' })
 
 export const dynamic = 'force-dynamic'
 
@@ -42,7 +39,7 @@ export async function POST(request: NextRequest) {
       url: loginLink.url
     })
   } catch (error) {
-    log.error('Stripe dashboard error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Stripe dashboard error:', error)
     return NextResponse.json({
       error: 'Failed to create dashboard link'
     }, { status: 500 })

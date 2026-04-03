@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:invoices' })
 
 export const dynamic = 'force-dynamic'
 
@@ -35,13 +32,13 @@ export async function GET(request: NextRequest) {
     const { data: invoices, error } = await query
 
     if (error) {
-      log.error('Error fetching invoices', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching invoices:', error)
       return NextResponse.json({ error: 'Failed to fetch invoices' }, { status: 500 })
     }
 
     return NextResponse.json({ invoices: invoices || [] })
   } catch (error) {
-    log.error('Get invoices error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get invoices error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -135,7 +132,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (invoiceError) {
-      log.error('Error creating invoice', { error: invoiceError instanceof Error ? invoiceError.message : String(invoiceError) })
+      console.error('Error creating invoice:', invoiceError)
       return NextResponse.json({ error: 'Failed to create invoice' }, { status: 500 })
     }
 
@@ -155,7 +152,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ invoice })
   } catch (error) {
-    log.error('Create invoice error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Create invoice error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

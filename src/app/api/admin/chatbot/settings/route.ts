@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:chatbot:settings' })
 
 export const dynamic = 'force-dynamic'
 
@@ -32,7 +29,7 @@ export async function GET(request: NextRequest) {
       .select('setting_key, setting_value')
 
     if (error) {
-      log.error('Error fetching settings', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching settings:', error)
       return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 })
     }
 
@@ -54,7 +51,7 @@ export async function GET(request: NextRequest) {
       }
     })
   } catch (error) {
-    log.error('Get settings error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get settings error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -114,7 +111,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    log.error('Update settings error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Update settings error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

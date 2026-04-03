@@ -1,19 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAdmin } from '@/lib/auth/verify'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-import { apiSuccess, apiCreated, apiCatchAll } from '@/lib/utils/api-error'
-
-const log = logger.child({ context: 'admin:coupons' })
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const auth = await requireAdmin(request)
-    if (!auth.success) return auth.error
-
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (!['admin', 'super_admin'].includes(profile?.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const searchParams = request.nextUrl.searchParams
     const page = parseInt(searchParams.get('page') || '1')
@@ -37,32 +45,39 @@ export async function GET(request: NextRequest) {
     const { data: coupons, error, count } = await query.range(offset, offset + limit - 1)
 
     if (error) {
-      log.error('Failed to fetch coupons', { error: error.message, status })
-      return NextResponse.json(
-        { error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch coupons' } },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return apiSuccess(
-      { coupons },
-      {
-        total: count || 0,
-        page,
-        totalPages: Math.ceil((count || 0) / limit),
-      }
-    )
+    return NextResponse.json({
+      coupons,
+      total: count || 0,
+      page,
+      totalPages: Math.ceil((count || 0) / limit),
+    })
   } catch (error) {
-    return apiCatchAll(error, 'admin:coupons:get')
+    return NextResponse.json({ error: 'Failed to fetch coupons' }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const auth = await requireAdmin(request)
-    if (!auth.success) return auth.error
-
     const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (!['admin', 'super_admin'].includes(profile?.role)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const body = await request.json()
     const {
@@ -85,10 +100,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!code || !discount_type || discount_value === undefined) {
-      return NextResponse.json(
-        { error: { code: 'VALIDATION_ERROR', message: 'Code, discount type, and value are required' } },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Code, discount type, and value are required' }, { status: 400 })
     }
 
     // Check if code already exists
@@ -99,10 +111,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (existing) {
-      return NextResponse.json(
-        { error: { code: 'VALIDATION_ERROR', message: 'Coupon code already exists' } },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Coupon code already exists' }, { status: 400 })
     }
 
     const { data: coupon, error } = await supabase
@@ -128,16 +137,11 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      log.error('Failed to create coupon', { error: error.message, code })
-      return NextResponse.json(
-        { error: { code: 'INTERNAL_ERROR', message: 'Failed to create coupon' } },
-        { status: 500 }
-      )
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    log.info('Coupon created', { couponId: coupon.id, code: coupon.code, admin: auth.user!.id })
-    return apiCreated({ coupon })
+    return NextResponse.json(coupon, { status: 201 })
   } catch (error) {
-    return apiCatchAll(error, 'admin:coupons:post')
+    return NextResponse.json({ error: 'Failed to create coupon' }, { status: 500 })
   }
 }

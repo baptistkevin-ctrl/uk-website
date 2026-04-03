@@ -127,14 +127,12 @@ export default function NotificationsPage() {
   const [pagination, setPagination] = useState<Pagination | null>(null)
   const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [fetchError, setFetchError] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'unread'>('all')
   const [page, setPage] = useState(1)
   const [selectedIds, setSelectedIds] = useState<string[]>([])
 
   const fetchNotifications = async () => {
     setLoading(true)
-    setFetchError(null)
     try {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -143,14 +141,14 @@ export default function NotificationsPage() {
       })
 
       const res = await fetch(`/api/notifications?${params}`)
-      if (!res.ok) throw new Error('Failed to load notifications')
-      const data = await res.json()
-      setNotifications(data.notifications || [])
-      setPagination(data.pagination)
-      setUnreadCount(data.unreadCount || 0)
+      if (res.ok) {
+        const data = await res.json()
+        setNotifications(data.notifications || [])
+        setPagination(data.pagination)
+        setUnreadCount(data.unreadCount || 0)
+      }
     } catch (error) {
       console.error('Failed to fetch notifications:', error)
-      setFetchError('Unable to load notifications. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -324,18 +322,6 @@ export default function NotificationsPage() {
           <div className="p-12 text-center">
             <Loader2 className="h-8 w-8 animate-spin text-green-600 mx-auto" />
             <p className="mt-2 text-gray-500">Loading notifications...</p>
-          </div>
-        ) : fetchError ? (
-          <div className="p-12 text-center">
-            <Bell className="h-16 w-16 text-red-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Something went wrong</h3>
-            <p className="text-gray-500 mb-4">{fetchError}</p>
-            <button
-              onClick={fetchNotifications}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
-            >
-              Try again
-            </button>
           </div>
         ) : notifications.length === 0 ? (
           <div className="p-12 text-center">

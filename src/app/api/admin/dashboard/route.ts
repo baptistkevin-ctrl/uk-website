@@ -1,15 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAdmin } from '@/lib/auth/verify'
-import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'admin:dashboard' })
+import { createClient } from '@supabase/supabase-js'
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 
 export const dynamic = 'force-dynamic'
 
+function getSupabaseAdmin() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
+
+async function getSupabaseServer() {
+  const cookieStore = await cookies()
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+      },
+    }
+  )
+}
+
+async function isAdmin() {
+  const supabase = await getSupabaseServer()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return false
+
+  const supabaseAdmin = getSupabaseAdmin()
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  return profile?.role === 'admin' || profile?.role === 'super_admin'
+}
+
 export async function GET(request: NextRequest) {
-  const auth = await requireAdmin(request)
-  if (!auth.success) return auth.error
+  if (!(await isAdmin())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  }
 
   const supabase = getSupabaseAdmin()
   const now = new Date()
@@ -18,15 +55,9 @@ export async function GET(request: NextRequest) {
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 7)
 
   try {
-    // Calculate date boundaries for filtered queries
-    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, 1).toISOString()
-
     // Run ALL queries in parallel for maximum speed
     const [
-      // Only fetch orders from last 6 months for chart data (not ALL orders ever)
-      recentOrdersForStatsResult,
-      totalOrdersResult,
-      totalPaidRevenueResult,
+      ordersResult,
       totalUsersResult,
       newUsersTodayResult,
       newUsersThisMonthResult,
@@ -41,29 +72,12 @@ export async function GET(request: NextRequest) {
       recentReviewsResult,
       recentUsersResult,
       topProductsResult,
-      // Status-specific order counts
-      pendingOrdersResult,
-      confirmedOrdersResult,
-      processingOrdersResult,
-      shippedOrdersResult,
-      deliveredOrdersResult,
-      cancelledOrdersResult,
     ] = await Promise.all([
-      // Orders from last 6 months only (for charts)
+      // Orders
       supabase
         .from('orders')
         .select('id, total_pence, status, payment_status, created_at')
-        .gte('created_at', sixMonthsAgo)
-        .order('created_at', { ascending: false })
-        .limit(5000),
-
-      // Total order count
-      supabase.from('orders').select('*', { count: 'exact', head: true }),
-
-      // Total paid revenue
-      supabase.from('orders')
-        .select('total_pence')
-        .eq('payment_status', 'paid'),
+        .order('created_at', { ascending: false }),
 
       // Users counts
       supabase.from('profiles').select('*', { count: 'exact', head: true }),
@@ -108,25 +122,15 @@ export async function GET(request: NextRequest) {
       supabase.from('order_items')
         .select('product_id, quantity, products:product_id (name, slug, image_url)')
         .limit(100),
-
-      // Order counts by status (using count queries instead of fetching all rows)
-      supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-      supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'confirmed'),
-      supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'processing'),
-      supabase.from('orders').select('*', { count: 'exact', head: true }).or('status.eq.out_for_delivery,status.eq.ready_for_delivery'),
-      supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'delivered'),
-      supabase.from('orders').select('*', { count: 'exact', head: true }).eq('status', 'cancelled'),
     ])
 
-    // Process orders data (only recent orders for charts, not all-time)
-    const recentOrders = recentOrdersForStatsResult.data || []
-    const paidOrders = recentOrders.filter(o => o.payment_status === 'paid')
-    const todayOrders = recentOrders.filter(o => o.created_at?.startsWith(today))
-    const thisMonthOrders = recentOrders.filter(o => o.created_at?.startsWith(thisMonth))
+    // Process orders data
+    const orders = ordersResult.data || []
+    const paidOrders = orders.filter(o => o.payment_status === 'paid')
+    const todayOrders = orders.filter(o => o.created_at?.startsWith(today))
+    const thisMonthOrders = orders.filter(o => o.created_at?.startsWith(thisMonth))
 
-    // Total revenue from all paid orders
-    const allPaidOrders = totalPaidRevenueResult.data || []
-    const totalRevenue = allPaidOrders.reduce((sum, o) => sum + (o.total_pence || 0), 0)
+    const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.total_pence || 0), 0)
     const thisMonthRevenue = paidOrders
       .filter(o => o.created_at?.startsWith(thisMonth))
       .reduce((sum, o) => sum + (o.total_pence || 0), 0)
@@ -138,14 +142,13 @@ export async function GET(request: NextRequest) {
       ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100)
       : 100
 
-    // Use count queries for order status instead of filtering all rows in memory
     const ordersByStatus = {
-      pending: pendingOrdersResult.count || 0,
-      confirmed: confirmedOrdersResult.count || 0,
-      processing: processingOrdersResult.count || 0,
-      shipped: shippedOrdersResult.count || 0,
-      delivered: deliveredOrdersResult.count || 0,
-      cancelled: cancelledOrdersResult.count || 0,
+      pending: orders.filter(o => o.status === 'pending').length,
+      confirmed: orders.filter(o => o.status === 'confirmed').length,
+      processing: orders.filter(o => o.status === 'processing').length,
+      shipped: orders.filter(o => o.status === 'out_for_delivery' || o.status === 'ready_for_delivery').length,
+      delivered: orders.filter(o => o.status === 'delivered').length,
+      cancelled: orders.filter(o => o.status === 'cancelled').length,
     }
 
     // Process products data
@@ -190,13 +193,12 @@ export async function GET(request: NextRequest) {
     const productSales = new Map()
     topProductsResult.data?.forEach(item => {
       const id = item.product_id
-      const productInfo = item.products as { name?: string; slug?: string; image_url?: string } | null
       if (!productSales.has(id)) {
         productSales.set(id, {
           id,
-          name: productInfo?.name || 'Unknown',
-          slug: productInfo?.slug,
-          image_url: productInfo?.image_url,
+          name: (item.products as any)?.name || 'Unknown',
+          slug: (item.products as any)?.slug,
+          image_url: (item.products as any)?.image_url,
           quantity: 0,
         })
       }
@@ -223,10 +225,10 @@ export async function GET(request: NextRequest) {
         totalRevenue,
         thisMonthRevenue,
         revenueChange,
-        totalOrders: totalOrdersResult.count || 0,
+        totalOrders: orders.length,
         todayOrders: todayOrders.length,
         thisMonthOrders: thisMonthOrders.length,
-        averageOrderValue: allPaidOrders.length > 0 ? Math.round(totalRevenue / allPaidOrders.length) : 0,
+        averageOrderValue: paidOrders.length > 0 ? Math.round(totalRevenue / paidOrders.length) : 0,
       },
       orders: {
         byStatus: ordersByStatus,
@@ -303,7 +305,7 @@ export async function GET(request: NextRequest) {
       ],
     })
   } catch (error) {
-    log.error('Dashboard stats error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Dashboard stats error:', error)
     return NextResponse.json({ error: 'Failed to fetch dashboard stats' }, { status: 500 })
   }
 }

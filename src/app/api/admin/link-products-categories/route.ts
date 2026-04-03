@@ -1,9 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:link-products-categories' })
 
 export const dynamic = 'force-dynamic'
 
@@ -356,7 +353,7 @@ export async function POST() {
       details: links
     })
   } catch (error) {
-    log.error('Error linking products', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Error linking products:', error)
     return NextResponse.json({ error: 'Failed to link products' }, { status: 500 })
   }
 }

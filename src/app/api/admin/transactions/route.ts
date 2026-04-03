@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { sanitizeSearchQuery } from '@/lib/security'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:transactions' })
 
 export async function GET(request: NextRequest) {
   try {
@@ -41,10 +37,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      const sanitizedSearch = sanitizeSearchQuery(search)
-      if (sanitizedSearch) {
-        query = query.or(`order_number.ilike.%${sanitizedSearch}%,customer_name.ilike.%${sanitizedSearch}%,customer_email.ilike.%${sanitizedSearch}%,stripe_payment_intent_id.ilike.%${sanitizedSearch}%`)
-      }
+      query = query.or(`order_number.ilike.%${search}%,customer_name.ilike.%${search}%,customer_email.ilike.%${search}%,stripe_payment_intent_id.ilike.%${search}%`)
     }
 
     if (dateFrom) {
@@ -59,7 +52,7 @@ export async function GET(request: NextRequest) {
       .range(offset, offset + limit - 1)
 
     if (error) {
-      log.error('Transactions fetch error', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Transactions fetch error:', error)
       return NextResponse.json({ error: 'Failed to fetch transactions' }, { status: 500 })
     }
 
@@ -116,7 +109,7 @@ export async function GET(request: NextRequest) {
       stats,
     })
   } catch (error) {
-    log.error('Transactions error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Transactions error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

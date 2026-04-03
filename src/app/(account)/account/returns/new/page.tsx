@@ -93,9 +93,8 @@ export default function NewReturnPage() {
   function toggleItem(itemId: string, maxQty: number) {
     setSelectedItems((prev) => {
       if (prev[itemId]) {
-        const newItems = { ...prev }
-        delete newItems[itemId]
-        return newItems
+        const { [itemId]: _, ...rest } = prev
+        return rest
       }
       return { ...prev, [itemId]: maxQty }
     })
@@ -112,7 +111,7 @@ export default function NewReturnPage() {
     ? Object.entries(selectedItems).reduce((total, [itemId, qty]) => {
         const item = order.order_items.find((i) => i.id === itemId)
         if (!item) return total
-        return total + item.unit_price_pence * qty
+        return total + Math.round((item.unit_price_pence * qty))
       }, 0)
     : 0
 

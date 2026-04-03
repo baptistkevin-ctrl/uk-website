@@ -2,16 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
-import { z } from 'zod'
-import { uuidSchema, formatZodErrors } from '@/lib/validation/schemas'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:wishlist:toggle' })
-
-const wishlistToggleSchema = z.object({
-  product_id: uuidSchema,
-  wishlist_id: uuidSchema.optional(),
-})
 
 export const dynamic = 'force-dynamic'
 
@@ -47,13 +37,11 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
+  const { product_id, wishlist_id } = body
 
-  const parsed = wishlistToggleSchema.safeParse(body)
-  if (!parsed.success) {
-    return NextResponse.json({ error: 'Validation failed', details: formatZodErrors(parsed.error) }, { status: 400 })
+  if (!product_id) {
+    return NextResponse.json({ error: 'Product ID is required' }, { status: 400 })
   }
-
-  const { product_id, wishlist_id } = parsed.data
 
   const supabaseAdmin = getSupabaseAdmin()
 
@@ -83,7 +71,7 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (createError) {
-        log.error('Wishlist creation error', { error: createError instanceof Error ? createError.message : String(createError) })
+        console.error('Wishlist creation error:', createError)
         return NextResponse.json({ error: 'Failed to create wishlist' }, { status: 500 })
       }
 
@@ -107,7 +95,7 @@ export async function POST(request: NextRequest) {
       .eq('id', existingItem.id)
 
     if (error) {
-      log.error('Wishlist item removal error', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Wishlist item removal error:', error)
       return NextResponse.json({ error: 'Failed to remove from wishlist' }, { status: 500 })
     }
 
@@ -130,7 +118,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      log.error('Wishlist item addition error', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Wishlist item addition error:', error)
       return NextResponse.json({ error: 'Failed to add to wishlist' }, { status: 500 })
     }
 

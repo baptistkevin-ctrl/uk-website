@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:settings' })
 
 export const dynamic = 'force-dynamic'
 
@@ -59,7 +56,7 @@ export async function GET() {
     .order('category', { ascending: true })
 
   if (error) {
-    return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   // Transform to key-value object
@@ -102,7 +99,7 @@ export async function PUT(request: NextRequest) {
         )
 
       if (error) {
-        log.error('Error upserting ${key}', { error: error instanceof Error ? error.message : String(error) })
+        console.error(`Error upserting ${key}:`, error)
       }
     }
 
@@ -146,7 +143,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      return NextResponse.json({ error: 'Operation failed' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 201 })

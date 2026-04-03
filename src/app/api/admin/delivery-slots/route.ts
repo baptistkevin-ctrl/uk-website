@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:delivery-slots' })
 
 export const dynamic = 'force-dynamic'
 
@@ -35,8 +32,7 @@ export async function GET(request: NextRequest) {
   const { data, error } = await query
 
   if (error) {
-    log.error('Error fetching delivery slots', { error: error instanceof Error ? error.message : String(error) })
-    return NextResponse.json({ error: 'Failed to fetch delivery slots' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   return NextResponse.json(data)
@@ -81,8 +77,7 @@ export async function POST(request: NextRequest) {
           { status: 409 }
         )
       }
-      log.error('Error creating delivery slot', { error: error instanceof Error ? error.message : String(error) })
-      return NextResponse.json({ error: 'Failed to create delivery slot' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 201 })
@@ -120,8 +115,7 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      log.error('Error updating delivery slot', { error: error instanceof Error ? error.message : String(error) })
-      return NextResponse.json({ error: 'Failed to update delivery slot' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data)
@@ -163,8 +157,7 @@ export async function DELETE(request: NextRequest) {
     .eq('id', id)
 
   if (error) {
-    log.error('Error deleting delivery slot', { error: error instanceof Error ? error.message : String(error) })
-    return NextResponse.json({ error: 'Failed to delete delivery slot' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })

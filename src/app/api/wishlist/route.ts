@@ -2,16 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { createServerClient } from '@supabase/ssr'
-import { z } from 'zod'
-import { formatZodErrors } from '@/lib/validation/schemas'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:wishlist' })
-
-const createWishlistSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100, 'Name too long').optional(),
-  is_public: z.boolean().optional(),
-})
 
 export const dynamic = 'force-dynamic'
 
@@ -75,7 +65,7 @@ export async function GET(request: NextRequest) {
     .order('created_at', { ascending: false })
 
   if (error) {
-    log.error('Wishlist fetch error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Wishlist fetch error:', error)
     return NextResponse.json({ error: 'Failed to fetch wishlists' }, { status: 500 })
   }
 
@@ -110,7 +100,7 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (createError) {
-      log.error('Wishlist creation error', { error: createError instanceof Error ? createError.message : String(createError) })
+      console.error('Wishlist creation error:', createError)
       return NextResponse.json({ error: 'Failed to create wishlist' }, { status: 500 })
     }
 
@@ -130,13 +120,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json()
-
-  const parsed = createWishlistSchema.safeParse(body)
-  if (!parsed.success) {
-    return NextResponse.json({ error: 'Validation failed', details: formatZodErrors(parsed.error) }, { status: 400 })
-  }
-
-  const { name, is_public } = parsed.data
+  const { name, is_public } = body
 
   const supabaseAdmin = getSupabaseAdmin()
 
@@ -151,7 +135,7 @@ export async function POST(request: NextRequest) {
     .single()
 
   if (error) {
-    log.error('Wishlist creation error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Wishlist creation error:', error)
     return NextResponse.json({ error: 'Failed to create wishlist' }, { status: 500 })
   }
 

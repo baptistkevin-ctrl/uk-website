@@ -61,9 +61,9 @@ function LoginFormContent() {
       setError(null)
       const { user } = await signIn(data.email, data.password)
 
-      // Check user role to determine redirect (validate to prevent open redirect)
+      // Check user role to determine redirect
       const redirectParam = searchParams.get('redirectTo')
-      if (redirectParam && redirectParam.startsWith('/') && !redirectParam.startsWith('//')) {
+      if (redirectParam) {
         window.location.href = redirectParam
         return
       }

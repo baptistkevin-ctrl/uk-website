@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:invoices' })
 
 export const dynamic = 'force-dynamic'
 
@@ -58,7 +55,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ invoice })
   } catch (error) {
-    log.error('Get invoice error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get invoice error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

@@ -1,21 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { z } from 'zod'
-import { emailSchema, formatZodErrors } from '@/lib/validation/schemas'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:newsletter' })
-
-const newsletterPostSchema = z.object({
-  email: emailSchema,
-  first_name: z.string().max(100).optional(),
-  source: z.string().max(50).optional(),
-  preferences: z.object({
-    promotions: z.boolean().optional(),
-    new_products: z.boolean().optional(),
-    weekly_digest: z.boolean().optional(),
-  }).optional(),
-})
 
 export const dynamic = 'force-dynamic'
 
@@ -23,13 +7,17 @@ export const dynamic = 'force-dynamic'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
+    const { email, first_name, source, preferences } = body
 
-    const parsed = newsletterPostSchema.safeParse(body)
-    if (!parsed.success) {
-      return NextResponse.json({ error: 'Validation failed', details: formatZodErrors(parsed.error) }, { status: 400 })
+    if (!email) {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    const { email, first_name, source, preferences } = parsed.data
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
+    }
 
     const supabase = await createClient()
 
@@ -48,7 +36,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      log.error('Error subscribing', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error subscribing:', error)
       return NextResponse.json({ error: 'Failed to subscribe' }, { status: 500 })
     }
 
@@ -59,7 +47,7 @@ export async function POST(request: NextRequest) {
       message: result?.message || 'Subscribed successfully'
     })
   } catch (error) {
-    log.error('Newsletter subscribe error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Newsletter subscribe error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -84,7 +72,7 @@ export async function DELETE(request: NextRequest) {
       })
 
     if (error) {
-      log.error('Error unsubscribing', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error unsubscribing:', error)
       return NextResponse.json({ error: 'Failed to unsubscribe' }, { status: 500 })
     }
 
@@ -95,7 +83,7 @@ export async function DELETE(request: NextRequest) {
       message: result?.message || 'Unsubscribed successfully'
     })
   } catch (error) {
-    log.error('Newsletter unsubscribe error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Newsletter unsubscribe error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -138,7 +126,7 @@ export async function GET(request: NextRequest) {
       subscribed_at: subscriber.created_at
     })
   } catch (error) {
-    log.error('Newsletter status error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Newsletter status error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -174,13 +162,13 @@ export async function PUT(request: NextRequest) {
       .eq('email', profile.email)
 
     if (error) {
-      log.error('Error updating preferences', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error updating preferences:', error)
       return NextResponse.json({ error: 'Failed to update preferences' }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    log.error('Newsletter update error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Newsletter update error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

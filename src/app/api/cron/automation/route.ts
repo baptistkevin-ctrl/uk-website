@@ -16,9 +16,6 @@ import {
   processBackInStockAlerts,
   checkLowStockAndAlert
 } from '@/lib/stock/stock-alert-processor'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:cron:automation' })
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 300 // 5 minutes max
@@ -29,7 +26,7 @@ function verifyCronSecret(request: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET
 
   if (!cronSecret) {
-    log.error('CRON_SECRET is not set. Cron routes are disabled.')
+    console.error('CRON_SECRET is not set. Cron routes are disabled.')
     return false
   }
 

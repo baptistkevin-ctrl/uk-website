@@ -19,15 +19,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/hooks/use-cart'
 import { formatPrice } from '@/lib/utils/format'
-import { DEFAULT_DELIVERY_FEE_PENCE, FREE_DELIVERY_THRESHOLD_PENCE } from '@/lib/constants'
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, subtotal, itemCount, clearCart } = useCart()
 
-  const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD_PENCE ? 0 : DEFAULT_DELIVERY_FEE_PENCE
+  const deliveryFee = subtotal >= 5000 ? 0 : 399 // Free delivery over £50
   const total = subtotal + deliveryFee
-  const amountUntilFreeDelivery = FREE_DELIVERY_THRESHOLD_PENCE - subtotal
-  const freeDeliveryProgress = Math.min((subtotal / FREE_DELIVERY_THRESHOLD_PENCE) * 100, 100)
+  const amountUntilFreeDelivery = 5000 - subtotal
+  const freeDeliveryProgress = Math.min((subtotal / 5000) * 100, 100)
 
   if (items.length === 0) {
     return (

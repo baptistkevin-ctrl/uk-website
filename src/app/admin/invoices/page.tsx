@@ -274,14 +274,14 @@ export default function AdminInvoicesPage() {
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <Link
-                          href={`/admin/invoices/${invoice.id}`}
+                          href={`/account/invoices/${invoice.id}`}
                           className="p-1.5 text-gray-600 hover:bg-gray-100 rounded"
                           title="View invoice"
                         >
                           <Eye className="h-4 w-4" />
                         </Link>
                         <Link
-                          href={`/admin/invoices/${invoice.id}`}
+                          href={`/account/invoices/${invoice.id}`}
                           className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded"
                           title="Download PDF"
                         >

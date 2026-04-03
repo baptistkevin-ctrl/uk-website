@@ -3,9 +3,6 @@ import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAuth } from '@/lib/auth/verify'
 import { logFileUpload, sanitizeFilename } from '@/lib/security'
 import crypto from 'crypto'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:upload' })
 
 export const dynamic = 'force-dynamic'
 
@@ -74,8 +71,7 @@ export async function POST(request: NextRequest) {
     })
 
   if (error) {
-    log.error('Error uploading file', { error: error instanceof Error ? error.message : String(error) })
-    return NextResponse.json({ error: 'Failed to upload file' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
   const {

@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:import-export' })
 
 export const dynamic = 'force-dynamic'
 
@@ -52,13 +49,13 @@ export async function GET(request: NextRequest) {
     const { data: jobs, error } = await query
 
     if (error) {
-      log.error('Error fetching jobs', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching jobs:', error)
       return NextResponse.json({ error: 'Failed to fetch jobs' }, { status: 500 })
     }
 
     return NextResponse.json({ jobs })
   } catch (error) {
-    log.error('Get jobs error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get jobs error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -106,7 +103,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (jobError) {
-      log.error('Error creating job', { error: jobError instanceof Error ? jobError.message : String(jobError) })
+      console.error('Error creating job:', jobError)
       return NextResponse.json({ error: 'Failed to create job' }, { status: 500 })
     }
 
@@ -208,7 +205,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ job })
   } catch (error) {
-    log.error('Create job error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Create job error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

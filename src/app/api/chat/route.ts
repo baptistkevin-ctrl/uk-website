@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:chat' })
 
 export const dynamic = 'force-dynamic'
 
@@ -103,7 +100,7 @@ export async function GET(request: NextRequest) {
       conversation: conversations?.[0] || null
     })
   } catch (error) {
-    log.error('Chat API error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Chat API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -150,7 +147,7 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      log.error('Error starting conversation', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error starting conversation:', error)
 
       // Fallback: direct insert
       const { data: conversation, error: insertError } = await supabase
@@ -206,7 +203,7 @@ export async function POST(request: NextRequest) {
       message_id: result?.message_id
     })
   } catch (error) {
-    log.error('Start chat error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Start chat error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -234,7 +231,7 @@ export async function PUT(request: NextRequest) {
         })
 
       if (error) {
-        log.error('Error closing conversation', { error: error instanceof Error ? error.message : String(error) })
+        console.error('Error closing conversation:', error)
         return NextResponse.json({ error: 'Failed to close conversation' }, { status: 500 })
       }
 
@@ -259,7 +256,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
   } catch (error) {
-    log.error('Update chat error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Update chat error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

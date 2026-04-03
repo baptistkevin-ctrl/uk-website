@@ -1,12 +1,6 @@
-import { NextRequest } from 'next/server'
-import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { requireAdmin } from '@/lib/auth/verify'
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 import { userAudit } from '@/lib/security'
-import { apiSuccess, apiCatchAll, handleApiError } from '@/lib/utils/api-error'
-import { fail } from '@/lib/utils/result'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'admin:users:id' })
 
 export const dynamic = 'force-dynamic'
 
@@ -16,8 +10,23 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const auth = await requireAdmin(request)
-    if (!auth.success) return auth.error!
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const admin = getSupabaseAdmin()
 
@@ -29,8 +38,7 @@ export async function GET(
       .single()
 
     if (error || !userProfile) {
-      log.warn('User not found', { targetUserId: id })
-      return handleApiError(fail('User not found', 'NOT_FOUND'))
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
     // Get user orders
@@ -62,9 +70,7 @@ export async function GET(
       .select('*', { count: 'exact', head: true })
       .eq('user_id', id)
 
-    log.info('User detail fetched', { targetUserId: id, adminId: auth.user!.id })
-
-    return apiSuccess({
+    return NextResponse.json({
       ...userProfile,
       orders,
       order_count: orderCount || 0,
@@ -73,7 +79,8 @@ export async function GET(
       review_count: reviewCount || 0,
     })
   } catch (error) {
-    return apiCatchAll(error, 'admin:users:get')
+    console.error('Error fetching user:', error)
+    return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 })
   }
 }
 
@@ -83,16 +90,30 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
-    const auth = await requireAdmin(request)
-    if (!auth.success) return auth.error!
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     const body = await request.json()
     const { role, is_banned, full_name, phone } = body
 
     // Prevent admin from modifying themselves to non-admin
-    if (id === auth.user!.id && role !== 'admin' && role !== 'super_admin') {
-      log.warn('Admin tried to remove own admin role', { adminId: auth.user!.id })
-      return handleApiError(fail('Cannot remove your own admin role', 'BAD_REQUEST'))
+    if (id === user.id && role !== 'admin' && role !== 'super_admin') {
+      return NextResponse.json({ error: 'Cannot remove your own admin role' }, { status: 400 })
     }
 
     const updateData: Record<string, unknown> = {
@@ -102,22 +123,22 @@ export async function PUT(
     if (role !== undefined) {
       // Validate role
       if (!['customer', 'vendor', 'admin', 'super_admin'].includes(role)) {
-        log.warn('Invalid role assignment attempted', { role, adminId: auth.user!.id })
-        return handleApiError(fail('Invalid role', 'BAD_REQUEST'))
+        return NextResponse.json({ error: 'Invalid role' }, { status: 400 })
       }
       // Only super_admin can assign super_admin role
-      if (role === 'super_admin' && auth.profile!.role !== 'super_admin') {
-        log.warn('Non-super-admin tried to assign super_admin role', { adminId: auth.user!.id })
-        return handleApiError(fail('Only super admins can assign the super_admin role', 'FORBIDDEN'))
+      if (role === 'super_admin' && profile?.role !== 'super_admin') {
+        return NextResponse.json(
+          { error: 'Only super admins can assign the super_admin role' },
+          { status: 403 }
+        )
       }
       updateData.role = role
     }
 
     if (is_banned !== undefined) {
       // Prevent admin from banning themselves
-      if (id === auth.user!.id && is_banned) {
-        log.warn('Admin tried to ban themselves', { adminId: auth.user!.id })
-        return handleApiError(fail('Cannot ban yourself', 'BAD_REQUEST'))
+      if (id === user.id && is_banned) {
+        return NextResponse.json({ error: 'Cannot ban yourself' }, { status: 400 })
       }
       updateData.is_banned = is_banned
     }
@@ -134,8 +155,7 @@ export async function PUT(
       .single()
 
     if (error) {
-      log.error('Failed to update user', { targetUserId: id, error: error.message })
-      return apiCatchAll(error, 'admin:users:update')
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     // Audit log for role changes and bans
@@ -143,25 +163,21 @@ export async function PUT(
       try {
         await userAudit.logUpdate(
           request,
-          { id: auth.user!.id, email: auth.user!.email || '', role: auth.profile!.role || 'admin' },
+          { id: user.id, email: user.email || '', role: profile?.role || 'admin' },
           id,
           `user:${id}`,
           { role: body.role, is_banned: body.is_banned },
           updateData
         )
       } catch (auditError) {
-        log.error('Audit logging failed', {
-          targetUserId: id,
-          error: auditError instanceof Error ? auditError.message : String(auditError),
-        })
+        console.error('Audit logging failed:', auditError)
       }
     }
 
-    log.info('User updated', { targetUserId: id, adminId: auth.user!.id, fields: Object.keys(updateData) })
-
-    return apiSuccess(updatedUser)
+    return NextResponse.json(updatedUser)
   } catch (error) {
-    return apiCatchAll(error, 'admin:users:update')
+    console.error('Error updating user:', error)
+    return NextResponse.json({ error: 'Failed to update user' }, { status: 500 })
   }
 }
 
@@ -171,13 +187,27 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    const auth = await requireAdmin(request)
-    if (!auth.success) return auth.error!
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Check if admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     // Prevent admin from deleting themselves
-    if (id === auth.user!.id) {
-      log.warn('Admin tried to delete own account', { adminId: auth.user!.id })
-      return handleApiError(fail('Cannot delete your own account', 'BAD_REQUEST'))
+    if (id === user.id) {
+      return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 })
     }
 
     const admin = getSupabaseAdmin()
@@ -203,15 +233,12 @@ export async function DELETE(
         .eq('id', id)
 
       if (error) {
-        log.error('Failed to anonymize user', { targetUserId: id, error: error.message })
-        return apiCatchAll(error, 'admin:users:delete')
+        return NextResponse.json({ error: error.message }, { status: 500 })
       }
 
-      log.info('User anonymized (has orders)', { targetUserId: id, adminId: auth.user!.id })
-
-      return apiSuccess({
+      return NextResponse.json({
         message: 'User has orders and cannot be fully deleted. Account has been anonymized and banned.',
-        anonymized: true,
+        anonymized: true
       })
     }
 
@@ -222,14 +249,12 @@ export async function DELETE(
       .eq('id', id)
 
     if (error) {
-      log.error('Failed to delete user', { targetUserId: id, error: error.message })
-      return apiCatchAll(error, 'admin:users:delete')
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    log.info('User deleted', { targetUserId: id, adminId: auth.user!.id })
-
-    return apiSuccess({ message: 'User deleted successfully' })
+    return NextResponse.json({ message: 'User deleted successfully' })
   } catch (error) {
-    return apiCatchAll(error, 'admin:users:delete')
+    console.error('Error deleting user:', error)
+    return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 })
   }
 }

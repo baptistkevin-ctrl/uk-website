@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:admin:questions' })
 
 export const dynamic = 'force-dynamic'
 
@@ -41,13 +38,13 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false })
 
     if (error) {
-      log.error('Error fetching questions', { error: error instanceof Error ? error.message : String(error) })
+      console.error('Error fetching questions:', error)
       return NextResponse.json({ error: 'Failed to fetch questions' }, { status: 500 })
     }
 
     return NextResponse.json({ questions: questions || [] })
   } catch (error) {
-    log.error('Get questions error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Get questions error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

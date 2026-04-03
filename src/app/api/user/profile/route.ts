@@ -1,8 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:user:profile' })
 
 export const dynamic = 'force-dynamic'
 
@@ -24,8 +21,7 @@ export async function GET() {
       .single()
 
     if (error) {
-      log.error('Error fetching profile', { error: error instanceof Error ? error.message : String(error) })
-      return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(profile)
@@ -59,8 +55,7 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error) {
-      log.error('Error updating profile', { error: error instanceof Error ? error.message : String(error) })
-      return NextResponse.json({ error: 'Failed to update profile' }, { status: 500 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(profile)

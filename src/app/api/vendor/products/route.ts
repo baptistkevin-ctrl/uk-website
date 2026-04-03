@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { cacheInvalidateTag } from '@/lib/cache'
-import { logger } from '@/lib/utils/logger'
-
-const log = logger.child({ context: 'api:vendor:products' })
 
 export const dynamic = 'force-dynamic'
 
@@ -56,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ products })
   } catch (error) {
-    log.error('Vendor products error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Vendor products error:', error)
     return NextResponse.json({ error: 'Failed to get products' }, { status: 500 })
   }
 }
@@ -159,7 +156,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (productError) {
-      log.error('Product creation error', { error: productError instanceof Error ? productError.message : String(productError) })
+      console.error('Product creation error:', productError)
       return NextResponse.json({ error: `Failed to create product: ${productError.message}` }, { status: 500 })
     }
 
@@ -176,7 +173,7 @@ export async function POST(request: NextRequest) {
     await cacheInvalidateTag('products')
     return NextResponse.json({ product }, { status: 201 })
   } catch (error) {
-    log.error('Create product error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Create product error:', error)
     return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
   }
 }
@@ -222,61 +219,27 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
-    // Whitelist of fields vendors can update
-    const VENDOR_ALLOWED_FIELDS = new Set([
-      'name', 'description', 'short_description', 'price_pence', 'price',
-      'compare_at_price_pence', 'compare_at_price', 'image_url', 'images',
-      'sku', 'barcode', 'stock_quantity', 'low_stock_threshold',
-      'unit', 'unit_value', 'brand', 'is_active',
-      'is_organic', 'is_vegan', 'is_vegetarian', 'is_gluten_free',
-      'category_id',
-    ])
-
-    // Only allow whitelisted fields
-    const sanitizedUpdates: Record<string, unknown> = {}
-    for (const key of Object.keys(updates)) {
-      if (VENDOR_ALLOWED_FIELDS.has(key)) {
-        sanitizedUpdates[key] = updates[key]
-      }
-    }
-
     // Price fields should already be in pence from the client
     // Rename to match database column names if client sends different keys
-    if (sanitizedUpdates.price !== undefined) {
-      sanitizedUpdates.price_pence = sanitizedUpdates.price
-      delete sanitizedUpdates.price
+    if (updates.price !== undefined) {
+      updates.price_pence = updates.price
+      delete updates.price
     }
-    if (sanitizedUpdates.compare_at_price !== undefined) {
-      sanitizedUpdates.compare_at_price_pence = sanitizedUpdates.compare_at_price
-      delete sanitizedUpdates.compare_at_price
+    if (updates.compare_at_price !== undefined) {
+      updates.compare_at_price_pence = updates.compare_at_price
+      delete updates.compare_at_price
     }
-
-    // Extract category_id before updating products (it's in a join table)
-    const categoryId = sanitizedUpdates.category_id
-    delete sanitizedUpdates.category_id
 
     // Update product
     const { data: product, error: updateError } = await supabaseAdmin
       .from('products')
       .update({
-        ...sanitizedUpdates,
+        ...updates,
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
       .select()
       .single()
-
-    // Update category link if provided
-    if (categoryId && product) {
-      await supabaseAdmin
-        .from('product_categories')
-        .delete()
-        .eq('product_id', id)
-
-      await supabaseAdmin
-        .from('product_categories')
-        .insert({ product_id: id, category_id: categoryId })
-    }
 
     if (updateError) {
       return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
@@ -285,7 +248,7 @@ export async function PUT(request: NextRequest) {
     await cacheInvalidateTag('products')
     return NextResponse.json({ product })
   } catch (error) {
-    log.error('Update product error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Update product error:', error)
     return NextResponse.json({ error: 'Failed to update product' }, { status: 500 })
   }
 }
@@ -347,7 +310,7 @@ export async function DELETE(request: NextRequest) {
     await cacheInvalidateTag('products')
     return NextResponse.json({ success: true })
   } catch (error) {
-    log.error('Delete product error', { error: error instanceof Error ? error.message : String(error) })
+    console.error('Delete product error:', error)
     return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 })
   }
 }

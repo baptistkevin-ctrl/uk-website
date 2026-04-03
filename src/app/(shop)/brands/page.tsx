@@ -30,7 +30,7 @@ export default function BrandsPage() {
       }
       setLoading(false)
     }
-    void fetchBrands()
+    fetchBrands()
   }, [])
 
   const filteredBrands = brands.filter(brand =>
