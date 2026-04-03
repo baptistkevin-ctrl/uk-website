@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,7 +19,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -30,9 +31,9 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     }
 
     const body = await request.json()
-    const { question, answer, category, keywords, is_active, order_index } = body
+    const { question, answer, category, keywords, is_active, sort_order } = body
 
-    const { data: faq, error } = await supabase
+    const { data: faq, error } = await supabaseAdmin
       .from('chatbot_faqs')
       .update({
         question,
@@ -40,7 +41,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         category,
         keywords,
         is_active,
-        order_index,
+        sort_order,
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
@@ -71,7 +72,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -83,7 +85,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const body = await request.json()
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('chatbot_faqs')
       .update(body)
       .eq('id', id)
@@ -112,7 +114,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -122,7 +125,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('chatbot_faqs')
       .delete()
       .eq('id', id)

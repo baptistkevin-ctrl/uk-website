@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,7 +19,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -31,7 +32,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const body = await request.json()
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('chatbot_intents')
       .update(body)
       .eq('id', id)
@@ -60,7 +61,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -71,17 +73,17 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     // Delete associated training phrases and responses first
-    await supabase
+    await supabaseAdmin
       .from('chatbot_training_phrases')
       .delete()
       .eq('intent_id', id)
 
-    await supabase
+    await supabaseAdmin
       .from('chatbot_responses')
       .delete()
       .eq('intent_id', id)
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from('chatbot_intents')
       .delete()
       .eq('id', id)

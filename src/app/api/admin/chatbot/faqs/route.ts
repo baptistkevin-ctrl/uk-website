@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -24,25 +25,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const { data: faqs, error } = await supabase
+    const { data: faqs, error } = await supabaseAdmin
       .from('chatbot_faqs')
       .select('*')
       .order('category')
       .order('sort_order')
 
     if (error) {
-      // Table may not exist yet
-      if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
-        return NextResponse.json({ faqs: [] })
-      }
       console.error('Error fetching FAQs:', error)
-      return NextResponse.json({ error: 'Failed to fetch FAQs' }, { status: 500 })
+      return NextResponse.json({ faqs: [] })
     }
 
     return NextResponse.json({ faqs: faqs || [] })
   } catch (error) {
     console.error('Get FAQs error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ faqs: [] })
   }
 }
 
@@ -57,7 +54,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -74,7 +72,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Question and answer are required' }, { status: 400 })
     }
 
-    const { data: faq, error } = await supabase
+    const { data: faq, error } = await supabaseAdmin
       .from('chatbot_faqs')
       .insert({
         question,

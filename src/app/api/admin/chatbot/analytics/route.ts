@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -25,24 +26,24 @@ export async function GET(request: NextRequest) {
     }
 
     // Get total conversations
-    const { count: totalConversations } = await supabase
+    const { count: totalConversations } = await supabaseAdmin
       .from('chatbot_conversations')
       .select('*', { count: 'exact', head: true })
 
     // Get bot handled (where handoff_requested is false)
-    const { count: botHandled } = await supabase
+    const { count: botHandled } = await supabaseAdmin
       .from('chatbot_conversations')
       .select('*', { count: 'exact', head: true })
       .eq('handoff_requested', false)
 
     // Get handoff requested
-    const { count: handoffRequested } = await supabase
+    const { count: handoffRequested } = await supabaseAdmin
       .from('chatbot_conversations')
       .select('*', { count: 'exact', head: true })
       .eq('handoff_requested', true)
 
     // Get intent distribution from chat_messages metadata
-    const { data: intentMessages } = await supabase
+    const { data: intentMessages } = await supabaseAdmin
       .from('chat_messages')
       .select('metadata')
       .eq('sender_type', 'bot')

@@ -57,11 +57,8 @@ export async function GET(request: NextRequest) {
         .single()
 
       if (error) {
-        // Table may not exist yet
-        if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
-          return NextResponse.json({ conversation: null })
-        }
-        return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
+        console.error('Conversation lookup error:', error)
+        return NextResponse.json({ conversation: null })
       }
 
       // Mark messages as read
@@ -100,7 +97,8 @@ export async function GET(request: NextRequest) {
 
     const { data: conversations, error } = await query
 
-    if (error && (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist'))) {
+    if (error) {
+      console.error('Chat query error:', error)
       return NextResponse.json({ conversation: null })
     }
 

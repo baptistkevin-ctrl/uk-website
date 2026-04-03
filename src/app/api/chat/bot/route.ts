@@ -323,18 +323,22 @@ export async function GET(request: NextRequest) {
     // Get conversation context if exists
     let conversationContext = null
     if (conversationId || sessionId) {
-      const query = supabase
-        .from('chatbot_conversations')
-        .select('*')
+      try {
+        const query = supabase
+          .from('chatbot_conversations')
+          .select('*')
 
-      if (conversationId) {
-        query.eq('conversation_id', conversationId)
-      } else if (sessionId) {
-        query.eq('session_id', sessionId)
+        if (conversationId) {
+          query.eq('conversation_id', conversationId)
+        } else if (sessionId) {
+          query.eq('session_id', sessionId)
+        }
+
+        const { data } = await query.maybeSingle()
+        conversationContext = data
+      } catch {
+        // Table may not exist or no matching row
       }
-
-      const { data } = await query.single()
-      conversationContext = data
     }
 
     // Get suggested FAQs

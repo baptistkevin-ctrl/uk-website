@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -24,8 +25,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Get intents with training phrases
-    const { data: intents, error } = await supabase
+    // Get intents with training phrases (use admin to bypass RLS)
+    const { data: intents, error } = await supabaseAdmin
       .from('chatbot_intents')
       .select(`
         *,
@@ -35,12 +36,8 @@ export async function GET(request: NextRequest) {
       .order('name')
 
     if (error) {
-      // Table may not exist yet
-      if (error.code === '42P01' || error.message?.includes('relation') || error.message?.includes('does not exist')) {
-        return NextResponse.json({ intents: [] })
-      }
       console.error('Error fetching intents:', error)
-      return NextResponse.json({ error: 'Failed to fetch intents' }, { status: 500 })
+      return NextResponse.json({ intents: [] })
     }
 
     // Flatten responses to main intent
@@ -48,7 +45,7 @@ export async function GET(request: NextRequest) {
       const response = intent.responses?.[0] || {}
       return {
         id: intent.id,
-        intent_name: intent.intent_name,
+        intent_name: intent.name,
         description: intent.description,
         response_text: response.response_text || '',
         response_type: response.response_type || 'text',
@@ -61,7 +58,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ intents: formattedIntents })
   } catch (error) {
     console.error('Get intents error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ intents: [] })
   }
 }
 
@@ -76,7 +73,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -90,7 +88,7 @@ export async function POST(request: NextRequest) {
     const { intent_name, description, response_text, response_type, quick_replies, training_phrases } = body
 
     // Create intent
-    const { data: intent, error: intentError } = await supabase
+    const { data: intent, error: intentError } = await supabaseAdmin
       .from('chatbot_intents')
       .insert({
         name: intent_name,
@@ -107,7 +105,7 @@ export async function POST(request: NextRequest) {
 
     // Create response
     if (response_text) {
-      await supabase
+      await supabaseAdmin
         .from('chatbot_responses')
         .insert({
           intent_id: intent.id,
@@ -119,7 +117,7 @@ export async function POST(request: NextRequest) {
 
     // Create training phrases
     if (training_phrases && training_phrases.length > 0) {
-      await supabase
+      await supabaseAdmin
         .from('chatbot_training_phrases')
         .insert(training_phrases.map((phrase: string) => ({
           intent_id: intent.id,
