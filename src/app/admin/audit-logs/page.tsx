@@ -89,6 +89,7 @@ const entityIcons: Record<string, typeof Package> = {
 export default function AuditLogsPage() {
   const [logs, setLogs] = useState<AuditLog[]>([])
   const [loading, setLoading] = useState(true)
+  const [accessDenied, setAccessDenied] = useState(false)
   const [search, setSearch] = useState('')
   const [actionFilter, setActionFilter] = useState<string>('all')
   const [entityFilter, setEntityFilter] = useState<string>('all')
@@ -112,6 +113,11 @@ export default function AuditLogsPage() {
 
       const response = await fetch(`/api/admin/audit-logs?${params}`)
       const data = await response.json()
+
+      if (response.status === 403) {
+        setAccessDenied(true)
+        return
+      }
 
       if (response.ok) {
         setLogs(data.logs || [])
@@ -179,6 +185,18 @@ export default function AuditLogsPage() {
   const getEntityIcon = (entityType: string) => {
     const Icon = entityIcons[entityType] || FileText
     return <Icon className="h-4 w-4" />
+  }
+
+  if (accessDenied) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <div className="p-4 bg-red-100 rounded-full mb-4">
+          <History className="h-8 w-8 text-red-500" />
+        </div>
+        <h2 className="text-xl font-bold text-slate-900 mb-2">Access Denied</h2>
+        <p className="text-slate-600">Activity logs are restricted to Super Admins only.</p>
+      </div>
+    )
   }
 
   return (

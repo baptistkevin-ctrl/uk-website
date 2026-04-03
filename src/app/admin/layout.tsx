@@ -59,7 +59,6 @@ const sidebarLinks = [
   { href: '/admin/team', label: 'Team', icon: UserCog },
   { href: '/admin/email-templates', label: 'Email Templates', icon: Mail },
   { href: '/admin/import-export', label: 'Import/Export', icon: Upload },
-  { href: '/admin/audit-logs', label: 'Activity Logs', icon: History },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ]
 
@@ -219,19 +218,34 @@ export default function AdminLayout({
               {pathname === '/admin/support' && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
             </Link>
             {userRole === 'super_admin' && (
-              <Link
-                href="/admin/super-admin-support"
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
-                  pathname === '/admin/super-admin-support'
-                    ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
-                    : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
-                }`}
-              >
-                <Shield className={`w-5 h-5 shrink-0 ${pathname === '/admin/super-admin-support' ? 'text-white' : 'text-amber-400 group-hover:text-amber-300'}`} />
-                <span>Super Admin Portal</span>
-                {pathname === '/admin/super-admin-support' && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
-              </Link>
+              <>
+                <Link
+                  href="/admin/audit-logs"
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
+                    pathname === '/admin/audit-logs'
+                      ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                      : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                  }`}
+                >
+                  <History className={`w-5 h-5 shrink-0 ${pathname === '/admin/audit-logs' ? 'text-white' : 'text-amber-400 group-hover:text-amber-300'}`} />
+                  <span>Activity Logs</span>
+                  {pathname === '/admin/audit-logs' && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
+                </Link>
+                <Link
+                  href="/admin/super-admin-support"
+                  onClick={() => setSidebarOpen(false)}
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
+                    pathname === '/admin/super-admin-support'
+                      ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
+                      : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                  }`}
+                >
+                  <Shield className={`w-5 h-5 shrink-0 ${pathname === '/admin/super-admin-support' ? 'text-white' : 'text-amber-400 group-hover:text-amber-300'}`} />
+                  <span>Super Admin Portal</span>
+                  {pathname === '/admin/super-admin-support' && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
+                </Link>
+              </>
             )}
           </div>
         </nav>
