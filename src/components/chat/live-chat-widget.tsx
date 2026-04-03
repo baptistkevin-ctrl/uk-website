@@ -408,7 +408,54 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
 
   // Send message
   const sendMessage = async () => {
-    if (!newMessage.trim() || !conversation || sending) return
+    if (!newMessage.trim() || sending) return
+
+    // If no conversation exists, create one first
+    if (!conversation) {
+      setLoading(true)
+      try {
+        const isVendorChat = chatMode === 'vendor' && vendorId
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: getSessionId(),
+            guest_name: name || undefined,
+            guest_email: email || undefined,
+            subject: subject || undefined,
+            initial_message: newMessage.trim(),
+            channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
+            vendor_id: isVendorChat ? vendorId : undefined,
+            metadata: { page: window.location.href }
+          })
+        })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.conversation_id) {
+            const conv: Conversation = {
+              id: data.conversation_id,
+              status: 'waiting',
+              assigned_agent_id: null,
+              department: 'general',
+              channel_type: isVendorChat ? 'customer_vendor' : 'customer_admin',
+              vendor_id: isVendorChat ? vendorId! : null,
+              subject: null,
+              rating: null,
+              created_at: new Date().toISOString()
+            }
+            setConversation(conv)
+            setNewMessage('')
+            // Fetch messages
+            fetchMessages(data.conversation_id)
+          }
+        }
+      } catch (error) {
+        console.error('Failed to create conversation:', error)
+      } finally {
+        setLoading(false)
+      }
+      return
+    }
 
     const messageContent = newMessage.trim()
     setNewMessage('')
@@ -468,6 +515,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
           }, botResponse?.typingDelay || botSettings.typingDelay || 1000)
         }
       } else {
+        console.error('Failed to send message, status:', res.status)
         // Remove optimistic message on failure
         setMessages(prev => prev.filter(m => m.id !== optimisticMessage.id))
       }
@@ -818,7 +866,23 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
           )}
 
           {/* Messages */}
-          {!showStartForm && !showRatingForm && (
+          {!showStartForm && !showRatingForm && !conversation && (
+            <div className="flex-1 flex flex-col items-center justify-center p-4 text-center">
+              <p className="text-sm text-gray-500 mb-3">Something went wrong loading the conversation.</p>
+              <button
+                onClick={() => {
+                  setShowStartForm(true)
+                  setMessages([])
+                  setIsBotActive(true)
+                  setQuickReplies([])
+                }}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+              >
+                Start New Chat
+              </button>
+            </div>
+          )}
+          {!showStartForm && !showRatingForm && conversation && (
             <>
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {messages.map((message) => (
@@ -937,7 +1001,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                   />
                   <button
                     onClick={sendMessage}
-                    disabled={!newMessage.trim() || sending || !conversation}
+                    disabled={!newMessage.trim() || sending}
                     className="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {sending ? (
