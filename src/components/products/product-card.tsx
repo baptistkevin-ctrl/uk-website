@@ -112,15 +112,20 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    if (!canAddMore) return
     setIsAdding(true)
     addItem(product)
     setTimeout(() => setIsAdding(false), 300)
   }
 
+  const maxStock = product.track_inventory && product.stock_quantity !== undefined && product.stock_quantity !== null && !product.allow_backorder
+    ? product.stock_quantity : Infinity
+  const canAddMore = quantityInCart < maxStock
+
   const handleIncrement = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    addItem(product)
+    if (canAddMore) addItem(product)
   }
 
   const handleDecrement = (e: React.MouseEvent) => {
@@ -139,6 +144,8 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
     : 0
 
   const isOutOfStock = product.track_inventory && product.stock_quantity === 0 && !product.allow_backorder
+  const isLowStock = product.track_inventory && product.stock_quantity !== undefined && product.stock_quantity !== null
+    && product.stock_quantity > 0 && product.stock_quantity <= (product.low_stock_threshold ?? 5)
 
   const rating = product.avg_rating ?? (3.8 + (generateFromId(product.id, 12) / 10))
   const hasFreeShipping = product.price_pence >= 1500
@@ -223,6 +230,18 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
             </div>
           )}
 
+          {/* Low Stock Badge */}
+          {isLowStock && !isOutOfStock && (
+            <div className="absolute bottom-2 left-2 right-2">
+              <span className="inline-flex items-center gap-1 bg-amber-100 border border-amber-300 text-amber-800 text-[10px] font-semibold px-2 py-0.5 rounded-sm">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                Only {product.stock_quantity} left
+              </span>
+            </div>
+          )}
+
           {/* Wishlist & Watchlist Buttons */}
           <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
             <WishlistButton productId={product.id} isLoggedIn={isLoggedIn} size="sm" />
@@ -291,7 +310,8 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
                     </span>
                     <button
                       onClick={handleIncrement}
-                      className="w-7 h-7 flex items-center justify-center text-green-600 hover:bg-green-50 transition-colors"
+                      disabled={!canAddMore}
+                      className={`w-7 h-7 flex items-center justify-center transition-colors ${canAddMore ? 'text-green-600 hover:bg-green-50' : 'text-gray-300 cursor-not-allowed'}`}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>

@@ -14,6 +14,9 @@ export interface CartProduct {
   unit?: string | null
   unit_value?: number | null
   stock_quantity?: number
+  track_inventory?: boolean
+  allow_backorder?: boolean
+  low_stock_threshold?: number
   vendor_id?: string | null
 }
 

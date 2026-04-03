@@ -13,6 +13,7 @@ import {
   Shield,
   Clock,
   Tag,
+  AlertTriangle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -166,9 +167,20 @@ export default function CartPage() {
                           <p className="text-sm text-gray-500 mt-1">
                             {formatPrice(item.product.price_pence)} each
                           </p>
+                          {item.product.track_inventory && item.product.stock_quantity !== undefined && item.product.stock_quantity !== null && item.product.stock_quantity > 0 && item.product.stock_quantity <= (item.product.low_stock_threshold ?? 5) && (
+                            <p className="flex items-center gap-1 text-xs text-amber-600 font-medium mt-1">
+                              <AlertTriangle className="h-3 w-3" />
+                              Only {item.product.stock_quantity} left in stock
+                            </p>
+                          )}
 
                           {/* Quantity controls */}
                           <div className="flex items-center gap-4 mt-4">
+                            {(() => {
+                              const maxQty = item.product.track_inventory && item.product.stock_quantity !== undefined && item.product.stock_quantity !== null && !item.product.allow_backorder
+                                ? item.product.stock_quantity : Infinity
+                              const atMax = item.quantity >= maxQty
+                              return (
                             <div className="flex items-center border rounded-xl overflow-hidden">
                               <button
                                 onClick={() =>
@@ -182,14 +194,17 @@ export default function CartPage() {
                                 {item.quantity}
                               </span>
                               <button
-                                onClick={() =>
-                                  updateQuantity(item.product.id, item.quantity + 1)
-                                }
-                                className="p-2.5 hover:bg-gray-100 transition-colors"
+                                onClick={() => {
+                                  if (!atMax) updateQuantity(item.product.id, item.quantity + 1)
+                                }}
+                                disabled={atMax}
+                                className={`p-2.5 transition-colors ${atMax ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100'}`}
                               >
                                 <Plus className="h-4 w-4" />
                               </button>
                             </div>
+                              )
+                            })()}
                             <button
                               onClick={() => removeItem(item.product.id)}
                               className="p-2 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"

@@ -132,6 +132,11 @@ export function CartSheet() {
                             </Badge>
                           )}
                         </div>
+                        {item.product.track_inventory && item.product.stock_quantity !== undefined && item.product.stock_quantity !== null && item.product.stock_quantity > 0 && item.product.stock_quantity <= (item.product.low_stock_threshold ?? 5) && (
+                          <p className="text-[11px] text-amber-600 font-medium mt-0.5">
+                            Only {item.product.stock_quantity} left in stock
+                          </p>
+                        )}
                         <div className="flex items-center justify-between mt-2">
                           <div className="flex items-center border rounded-lg bg-white overflow-hidden">
                             <button
