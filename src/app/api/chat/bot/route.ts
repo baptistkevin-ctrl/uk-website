@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 import { chat as geminiChat } from '@/lib/ai/gemini'
 
 export const dynamic = 'force-dynamic'
@@ -17,7 +17,7 @@ interface BotResponse {
 // Process message with the chatbot (Gemini AI powered)
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const supabaseAdmin = getSupabaseAdmin()
     const body = await request.json()
     const {
       message,
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Get chatbot settings
-    const { data: settings } = await supabase
+    const { data: settings } = await supabaseAdmin
       .from('chatbot_settings')
       .select('setting_key, setting_value')
 
@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       // Get conversation history from database if available
       let conversationHistory = history
       if (conversation_id && (!history || history.length === 0)) {
-        const { data: messages } = await supabase
+        const { data: messages } = await supabaseAdmin
           .from('chat_messages')
           .select('sender_type, content')
           .eq('conversation_id', conversation_id)
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
 
       if (shouldHandoffImmediately) {
         if (conversation_id) {
-          await supabase
+          await supabaseAdmin
             .from('chatbot_conversations')
             .upsert({
               conversation_id,
@@ -152,16 +152,16 @@ export async function POST(request: NextRequest) {
       }
 
       // Try to match intent using the database function
-      const { data: intentMatch, error: matchError } = await supabase
+      const { data: intentMatch, error: matchError } = await supabaseAdmin
         .rpc('match_chatbot_intent', { p_message: message })
 
       if (matchError || !intentMatch || intentMatch.length === 0) {
-        const { data: faqResults } = await supabase
+        const { data: faqResults } = await supabaseAdmin
           .rpc('search_chatbot_faqs', { p_query: message, p_limit: 3 })
 
         if (faqResults && faqResults.length > 0 && faqResults[0].relevance >= 0.5) {
           const topFaq = faqResults[0]
-          await supabase
+          await supabaseAdmin
             .from('chatbot_faqs')
             .update({ view_count: topFaq.view_count + 1 })
             .eq('id', topFaq.id)
@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
 
     // Store/update conversation context
     if (conversation_id || session_id) {
-      await supabase
+      await supabaseAdmin
         .from('chatbot_conversations')
         .upsert({
           conversation_id: conversation_id || null,
@@ -250,7 +250,7 @@ export async function POST(request: NextRequest) {
 
     // Save bot message to chat_messages if conversation exists
     if (conversation_id) {
-      await supabase
+      await supabaseAdmin
         .from('chat_messages')
         .insert({
           conversation_id,
@@ -276,7 +276,7 @@ export async function POST(request: NextRequest) {
           })
 
         // Update conversation status
-        await supabase
+        await supabaseAdmin
           .from('chat_conversations')
           .update({
             status: 'waiting',
@@ -305,13 +305,13 @@ export async function POST(request: NextRequest) {
 // Get chatbot status and settings
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const supabaseAdmin = getSupabaseAdmin()
     const { searchParams } = new URL(request.url)
     const conversationId = searchParams.get('conversation_id')
     const sessionId = searchParams.get('session_id')
 
     // Get settings
-    const { data: settings } = await supabase
+    const { data: settings } = await supabaseAdmin
       .from('chatbot_settings')
       .select('setting_key, setting_value')
 
@@ -324,7 +324,7 @@ export async function GET(request: NextRequest) {
     let conversationContext = null
     if (conversationId || sessionId) {
       try {
-        const query = supabase
+        const query = supabaseAdmin
           .from('chatbot_conversations')
           .select('*')
 
@@ -342,7 +342,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get suggested FAQs
-    const { data: faqs } = await supabase
+    const { data: faqs } = await supabaseAdmin
       .from('chatbot_faqs')
       .select('id, question, category')
       .eq('is_active', true)

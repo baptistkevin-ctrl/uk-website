@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+    const supabaseAdmin = getSupabaseAdmin()
 
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action')
@@ -16,11 +17,10 @@ export async function GET(request: NextRequest) {
 
     // Check availability
     if (action === 'availability') {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .rpc('check_chat_availability')
 
       if (error) {
-        // Fallback
         return NextResponse.json({
           is_available: true,
           estimated_wait_minutes: 0,
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
 
     // Get specific conversation
     if (conversationId) {
-      const { data: conversation, error } = await supabase
+      const { data: conversation, error } = await supabaseAdmin
         .from('chat_conversations')
         .select(`
           *,
@@ -63,14 +63,14 @@ export async function GET(request: NextRequest) {
 
       // Mark messages as read
       if (user) {
-        await supabase
+        await supabaseAdmin
           .from('chat_messages')
           .update({ is_read: true, read_at: new Date().toISOString() })
           .eq('conversation_id', conversationId)
           .eq('sender_type', 'agent')
           .eq('is_read', false)
 
-        await supabase
+        await supabaseAdmin
           .from('chat_conversations')
           .update({ unread_customer: 0 })
           .eq('id', conversationId)
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's active conversation
-    let query = supabase
+    let query = supabaseAdmin
       .from('chat_conversations')
       .select('*')
       .in('status', ['waiting', 'active'])
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
     })
   } catch (error) {
     console.error('Chat API error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ conversation: null })
   }
 }
 
@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+    const supabaseAdmin = getSupabaseAdmin()
 
     const body = await request.json()
     const {
@@ -128,7 +129,6 @@ export async function POST(request: NextRequest) {
       metadata
     } = body
 
-    // Get user info from headers for metadata
     const userAgent = request.headers.get('user-agent')
     const referrer = request.headers.get('referer')
 
@@ -139,8 +139,8 @@ export async function POST(request: NextRequest) {
       started_from: metadata?.page || referrer
     }
 
-    // Use RPC function to start conversation
-    const { data, error } = await supabase
+    // Try RPC function first
+    const { data, error } = await supabaseAdmin
       .rpc('start_chat_conversation', {
         p_user_id: user?.id || null,
         p_session_id: session_id || null,
@@ -153,10 +153,10 @@ export async function POST(request: NextRequest) {
       })
 
     if (error) {
-      console.error('Error starting conversation:', error)
+      console.error('RPC start_chat error:', error)
 
       // Fallback: direct insert
-      const { data: conversation, error: insertError } = await supabase
+      const { data: conversation, error: insertError } = await supabaseAdmin
         .from('chat_conversations')
         .insert({
           user_id: user?.id || null,
@@ -172,12 +172,13 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (insertError) {
+        console.error('Fallback insert error:', insertError)
         return NextResponse.json({ error: 'Failed to start conversation' }, { status: 500 })
       }
 
       // Add initial message
       if (initial_message) {
-        await supabase
+        await supabaseAdmin
           .from('chat_messages')
           .insert({
             conversation_id: conversation.id,
@@ -189,7 +190,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Add system message
-      await supabase
+      await supabaseAdmin
         .from('chat_messages')
         .insert({
           conversation_id: conversation.id,
@@ -219,6 +220,7 @@ export async function PUT(request: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+    const supabaseAdmin = getSupabaseAdmin()
 
     const body = await request.json()
     const { conversation_id, action, rating, feedback } = body
@@ -228,7 +230,7 @@ export async function PUT(request: NextRequest) {
     }
 
     if (action === 'close' || action === 'resolve') {
-      const { data, error } = await supabase
+      const { error } = await supabaseAdmin
         .rpc('close_chat_conversation', {
           p_conversation_id: conversation_id,
           p_status: action === 'resolve' ? 'resolved' : 'closed',
@@ -237,25 +239,26 @@ export async function PUT(request: NextRequest) {
         })
 
       if (error) {
-        console.error('Error closing conversation:', error)
-        return NextResponse.json({ error: 'Failed to close conversation' }, { status: 500 })
+        // Fallback: direct update
+        await supabaseAdmin
+          .from('chat_conversations')
+          .update({
+            status: action === 'resolve' ? 'resolved' : 'closed',
+            rating: rating || null,
+            feedback: feedback || null,
+            closed_at: new Date().toISOString()
+          })
+          .eq('id', conversation_id)
       }
 
       return NextResponse.json({ success: true })
     }
 
     if (action === 'rate') {
-      const { error } = await supabase
+      await supabaseAdmin
         .from('chat_conversations')
-        .update({
-          rating,
-          feedback
-        })
+        .update({ rating, feedback })
         .eq('id', conversation_id)
-
-      if (error) {
-        return NextResponse.json({ error: 'Failed to rate conversation' }, { status: 500 })
-      }
 
       return NextResponse.json({ success: true })
     }

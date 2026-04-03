@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +14,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role')
       .eq('id', user.id)
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Conversation ID required' }, { status: 400 })
     }
 
-    let query = supabase
+    let query = supabaseAdmin
       .from('chat_messages')
       .select('*')
       .eq('conversation_id', conversationId)
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Mark messages as read by agent
-    await supabase
+    await supabaseAdmin
       .from('chat_messages')
       .update({ is_read: true, read_at: new Date().toISOString() })
       .eq('conversation_id', conversationId)
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
       .neq('sender_type', 'agent')
 
     // Reset unread count for agent
-    await supabase
+    await supabaseAdmin
       .from('chat_conversations')
       .update({ unread_agent: 0 })
       .eq('id', conversationId)
@@ -85,7 +86,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { data: profile } = await supabase
+    const supabaseAdmin = getSupabaseAdmin()
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('role, full_name')
       .eq('id', user.id)
@@ -103,7 +105,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert message
-    const { data: message, error: insertError } = await supabase
+    const { data: message, error: insertError } = await supabaseAdmin
       .from('chat_messages')
       .insert({
         conversation_id,
@@ -122,7 +124,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update conversation
-    await supabase
+    await supabaseAdmin
       .from('chat_conversations')
       .update({
         last_message_at: new Date().toISOString(),
