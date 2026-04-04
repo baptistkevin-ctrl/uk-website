@@ -48,15 +48,25 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     `)
     .eq('order_id', order.id)
 
-  // Group items by vendor for AliExpress-style chat per seller
-  const vendorMap = new Map<string, { id: string; business_name: string; slug: string; logo_url: string | null }>()
+  // Group items by vendor for AliExpress-style display
+  interface VendorInfo { id: string; business_name: string; slug: string; logo_url: string | null }
+  const vendorItemsMap = new Map<string, { vendor: VendorInfo; items: typeof orderItems }>()
+  const noVendorItems: typeof orderItems = []
+
   orderItems?.forEach((item) => {
     const vendor = item.product?.vendor
-    if (vendor?.id && !vendorMap.has(vendor.id)) {
-      vendorMap.set(vendor.id, vendor)
+    if (vendor?.id) {
+      if (!vendorItemsMap.has(vendor.id)) {
+        vendorItemsMap.set(vendor.id, { vendor, items: [] })
+      }
+      vendorItemsMap.get(vendor.id)!.items!.push(item)
+    } else {
+      noVendorItems.push(item)
     }
   })
-  const orderVendors = Array.from(vendorMap.values())
+
+  const vendorGroups = Array.from(vendorItemsMap.values())
+  const orderVendors = vendorGroups.map((g) => g.vendor)
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -169,51 +179,124 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Order Items */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Order Items</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {orderItems?.map((item) => (
-                  <div key={item.id} className="flex gap-4 py-4 border-b last:border-0">
-                    <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
-                      {item.product?.image_url ? (
-                        <img
-                          src={item.product.image_url}
-                          alt={item.product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <Package className="h-8 w-8 text-gray-400" />
-                      )}
+        {/* Order Items — AliExpress style grouped by vendor */}
+        <div className="lg:col-span-2 space-y-4">
+          {vendorGroups.map(({ vendor, items }) => (
+            <Card key={vendor.id} className="overflow-hidden">
+              {/* Store Header */}
+              <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b">
+                <div className="flex items-center gap-3">
+                  {vendor.logo_url ? (
+                    <img
+                      src={vendor.logo_url}
+                      alt={vendor.business_name}
+                      className="w-8 h-8 rounded-full object-cover ring-2 ring-white"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center ring-2 ring-white">
+                      <Store className="h-4 w-4 text-emerald-600" />
                     </div>
-                    <div className="flex-1">
-                      <Link
-                        href={`/products/${item.product?.slug}`}
-                        className="font-medium text-gray-900 hover:text-green-700"
-                      >
-                        {item.product?.name || item.product_name}
-                      </Link>
-                      {item.product?.vendor?.business_name && (
-                        <p className="text-xs text-emerald-600 flex items-center gap-1 mt-0.5">
-                          <Store className="h-3 w-3" />
-                          {item.product.vendor.business_name}
-                        </p>
-                      )}
-                      <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">{formatPrice(item.unit_price_pence * item.quantity)}</p>
-                      <p className="text-sm text-gray-500">{formatPrice(item.unit_price_pence)} each</p>
-                    </div>
+                  )}
+                  <div>
+                    <Link
+                      href={`/store/${vendor.slug}`}
+                      className="font-semibold text-sm text-gray-900 hover:text-emerald-700"
+                    >
+                      {vendor.business_name}
+                    </Link>
                   </div>
-                ))}
+                </div>
+                <OrderChatButton
+                  vendorId={vendor.id}
+                  vendorName={vendor.business_name}
+                  orderId={order.id}
+                  orderNumber={order.order_number}
+                />
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Items from this vendor */}
+              <CardContent className="p-0">
+                <div className="divide-y">
+                  {items?.map((item) => (
+                    <div key={item.id} className="flex gap-4 px-4 py-3">
+                      <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {item.product?.image_url ? (
+                          <img
+                            src={item.product.image_url}
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Package className="h-8 w-8 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <Link
+                          href={`/products/${item.product?.slug}`}
+                          className="font-medium text-sm text-gray-900 hover:text-green-700 line-clamp-2"
+                        >
+                          {item.product?.name || item.product_name}
+                        </Link>
+                        <p className="text-sm text-gray-500 mt-0.5">Qty: {item.quantity}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-sm">{formatPrice(item.unit_price_pence * item.quantity)}</p>
+                        {item.quantity > 1 && (
+                          <p className="text-xs text-gray-500">{formatPrice(item.unit_price_pence)} each</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Items without a vendor */}
+          {noVendorItems.length > 0 && (
+            <Card>
+              <CardHeader className="py-3 px-4 bg-gray-50 border-b">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Package className="h-4 w-4 text-gray-500" />
+                  FreshMart Store
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="divide-y">
+                  {noVendorItems.map((item) => (
+                    <div key={item.id} className="flex gap-4 px-4 py-3">
+                      <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                        {item.product?.image_url ? (
+                          <img
+                            src={item.product.image_url}
+                            alt={item.product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <Package className="h-8 w-8 text-gray-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <Link
+                          href={`/products/${item.product?.slug}`}
+                          className="font-medium text-sm text-gray-900 hover:text-green-700 line-clamp-2"
+                        >
+                          {item.product?.name || item.product_name}
+                        </Link>
+                        <p className="text-sm text-gray-500 mt-0.5">Qty: {item.quantity}</p>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-semibold text-sm">{formatPrice(item.unit_price_pence * item.quantity)}</p>
+                        {item.quantity > 1 && (
+                          <p className="text-xs text-gray-500">{formatPrice(item.unit_price_pence)} each</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Order Summary */}
@@ -297,49 +380,6 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
               </div>
             </CardContent>
           </Card>
-
-          {/* Chat with Seller — AliExpress style */}
-          {orderVendors.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Store className="h-5 w-5" />
-                  Chat with Seller
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {orderVendors.map((vendor) => (
-                  <div key={vendor.id} className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      {vendor.logo_url ? (
-                        <img
-                          src={vendor.logo_url}
-                          alt={vendor.business_name}
-                          className="w-8 h-8 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
-                          <Store className="h-4 w-4 text-emerald-600" />
-                        </div>
-                      )}
-                      <span className="text-sm font-medium text-gray-900 truncate">
-                        {vendor.business_name}
-                      </span>
-                    </div>
-                    <OrderChatButton
-                      vendorId={vendor.id}
-                      vendorName={vendor.business_name}
-                      orderId={order.id}
-                      orderNumber={order.order_number}
-                    />
-                  </div>
-                ))}
-                <p className="text-xs text-gray-500 pt-1">
-                  Chat directly with the seller about this order
-                </p>
-              </CardContent>
-            </Card>
-          )}
 
           {/* Return / Help */}
           <Card>
