@@ -153,8 +153,28 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  // Auto-link vendor products to ALL categories so they appear everywhere
+  if (isVendor && data) {
+    const { data: allCategories } = await supabaseAdmin
+      .from('categories')
+      .select('id')
+      .eq('is_active', true)
+
+    if (allCategories && allCategories.length > 0) {
+      const categoryLinks = allCategories.map(cat => ({
+        product_id: data.id,
+        category_id: cat.id,
+      }))
+
+      await supabaseAdmin
+        .from('product_categories')
+        .insert(categoryLinks)
+    }
+  }
+
   // Invalidate product caches after creation
   await cacheInvalidateTag('products')
+  await cacheInvalidateTag('categories')
 
   return NextResponse.json(data, { status: 201 })
 }

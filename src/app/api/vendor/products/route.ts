@@ -160,17 +160,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Failed to create product: ${productError.message}` }, { status: 500 })
     }
 
-    // Link product to category if provided
-    if (category_id && product) {
-      await supabaseAdmin
-        .from('product_categories')
-        .insert({
+    // Auto-link vendor product to ALL categories so it appears everywhere
+    if (product) {
+      const { data: allCategories } = await supabaseAdmin
+        .from('categories')
+        .select('id')
+        .eq('is_active', true)
+
+      if (allCategories && allCategories.length > 0) {
+        const categoryLinks = allCategories.map(cat => ({
           product_id: product.id,
-          category_id: category_id,
-        })
+          category_id: cat.id,
+        }))
+
+        await supabaseAdmin
+          .from('product_categories')
+          .insert(categoryLinks)
+      }
     }
 
     await cacheInvalidateTag('products')
+    await cacheInvalidateTag('categories')
     return NextResponse.json({ product }, { status: 201 })
   } catch (error) {
     console.error('Create product error:', error)
