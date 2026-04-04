@@ -39,6 +39,15 @@ export async function GET(request: NextRequest) {
           sender_name,
           content,
           created_at
+        ),
+        orders:order_id (
+          id,
+          order_number,
+          status,
+          total_pence,
+          created_at,
+          customer_name,
+          customer_email
         )
       `)
       .eq('vendor_id', vendor.id)

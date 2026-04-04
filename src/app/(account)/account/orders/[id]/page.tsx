@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, Package, MapPin, CreditCard, Truck, RotateCcw } from 'lucide-react'
+import { ArrowLeft, Package, MapPin, CreditCard, Truck, RotateCcw, Store } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { formatPrice, formatDate } from '@/lib/utils/format'
+import { OrderChatButton } from '@/components/chat/order-chat-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,14 +39,24 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     notFound()
   }
 
-  // Fetch order items with product details
+  // Fetch order items with product + vendor details
   const { data: orderItems } = await supabase
     .from('order_items')
     .select(`
       *,
-      product:products(name, slug, image_url)
+      product:products(name, slug, image_url, vendor_id, vendor:vendors(id, business_name, slug, logo_url))
     `)
     .eq('order_id', order.id)
+
+  // Group items by vendor for AliExpress-style chat per seller
+  const vendorMap = new Map<string, { id: string; business_name: string; slug: string; logo_url: string | null }>()
+  orderItems?.forEach((item) => {
+    const vendor = item.product?.vendor
+    if (vendor?.id && !vendorMap.has(vendor.id)) {
+      vendorMap.set(vendor.id, vendor)
+    }
+  })
+  const orderVendors = Array.from(vendorMap.values())
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -280,6 +291,49 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
               </div>
             </CardContent>
           </Card>
+
+          {/* Chat with Seller — AliExpress style */}
+          {orderVendors.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Store className="h-5 w-5" />
+                  Chat with Seller
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {orderVendors.map((vendor) => (
+                  <div key={vendor.id} className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      {vendor.logo_url ? (
+                        <img
+                          src={vendor.logo_url}
+                          alt={vendor.business_name}
+                          className="w-8 h-8 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
+                          <Store className="h-4 w-4 text-emerald-600" />
+                        </div>
+                      )}
+                      <span className="text-sm font-medium text-gray-900 truncate">
+                        {vendor.business_name}
+                      </span>
+                    </div>
+                    <OrderChatButton
+                      vendorId={vendor.id}
+                      vendorName={vendor.business_name}
+                      orderId={order.id}
+                      orderNumber={order.order_number}
+                    />
+                  </div>
+                ))}
+                <p className="text-xs text-gray-500 pt-1">
+                  Chat directly with the seller about this order
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Return / Help */}
           <Card>

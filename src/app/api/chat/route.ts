@@ -15,6 +15,8 @@ export async function GET(request: NextRequest) {
     const conversationId = searchParams.get('conversation_id')
     const sessionId = searchParams.get('session_id')
     const channelType = searchParams.get('channel_type')
+    const orderId = searchParams.get('order_id')
+    const vendorIdParam = searchParams.get('vendor_id')
 
     // Check availability
     if (action === 'availability') {
@@ -99,6 +101,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ conversation })
     }
 
+    // Find existing conversation for a specific order + vendor
+    if (orderId && vendorIdParam && user) {
+      const { data: orderConv } = await supabaseAdmin
+        .from('chat_conversations')
+        .select('*, vendors (business_name, logo_url)')
+        .eq('order_id', orderId)
+        .eq('vendor_id', vendorIdParam)
+        .eq('user_id', user.id)
+        .in('status', ['waiting', 'active'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single()
+
+      return NextResponse.json({ conversation: orderConv || null })
+    }
+
     const listAll = searchParams.get('list')
 
     // Return ALL conversations for this user/session
@@ -180,7 +198,9 @@ export async function POST(request: NextRequest) {
       initial_message,
       metadata,
       channel_type = 'customer_admin',
-      vendor_id = null
+      vendor_id = null,
+      order_id = null,
+      order_number = null
     } = body
 
     const userAgent = request.headers.get('user-agent')
@@ -190,7 +210,8 @@ export async function POST(request: NextRequest) {
       ...metadata,
       user_agent: userAgent,
       referrer,
-      started_from: metadata?.page || referrer
+      started_from: metadata?.page || referrer,
+      ...(order_id ? { order_id, order_number } : {})
     }
 
     // Try RPC function first
@@ -224,7 +245,9 @@ export async function POST(request: NextRequest) {
           metadata: fullMetadata,
           status: 'waiting',
           channel_type,
-          vendor_id
+          vendor_id,
+          order_id: order_id || null,
+          order_number: order_number || null
         })
         .select()
         .single()

@@ -16,9 +16,21 @@ import {
   UserCheck,
   Store,
   ShieldCheck,
-  ArrowLeft
+  ArrowLeft,
+  Package,
+  ShoppingBag,
 } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
+
+interface OrderInfo {
+  id: string
+  order_number: string
+  status: string
+  total_pence: number
+  created_at: string
+  customer_name: string | null
+  customer_email: string | null
+}
 
 interface Conversation {
   id: string
@@ -37,6 +49,9 @@ interface Conversation {
   created_at: string
   last_message_at: string | null
   chat_messages?: Message[]
+  order_id?: string | null
+  order_number?: string | null
+  orders?: OrderInfo | null
 }
 
 interface Message {
@@ -429,11 +444,17 @@ export default function VendorLiveChatPage() {
                         </div>
                         <div>
                           <p className="font-medium text-gray-900 text-sm">
-                            {conv.guest_name || 'Customer'}
+                            {conv.guest_name || conv.orders?.customer_name || 'Customer'}
                           </p>
                           <p className="text-xs text-gray-500">
                             {conv.subject || 'No subject'}
                           </p>
+                          {conv.order_number && (
+                            <span className="inline-flex items-center gap-1 mt-0.5 px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-medium rounded">
+                              <Package className="h-2.5 w-2.5" />
+                              {conv.order_number}
+                            </span>
+                          )}
                         </div>
                       </div>
                       {conv.unread_agent > 0 && (
@@ -509,6 +530,49 @@ export default function VendorLiveChatPage() {
                   )}
                 </div>
               </div>
+
+              {/* Order Context Banner — AliExpress style */}
+              {selectedConversation.order_number && (
+                <div className="border-b bg-blue-50 px-4 py-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <ShoppingBag className="h-4 w-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-blue-900">
+                          Order {selectedConversation.order_number}
+                        </p>
+                        {selectedConversation.orders && (
+                          <div className="flex items-center gap-2 text-xs text-blue-700">
+                            <span className="capitalize">
+                              {selectedConversation.orders.status?.replace(/_/g, ' ')}
+                            </span>
+                            <span>&middot;</span>
+                            <span>
+                              {'\u00A3'}{(selectedConversation.orders.total_pence / 100).toFixed(2)}
+                            </span>
+                            {selectedConversation.orders.customer_name && (
+                              <>
+                                <span>&middot;</span>
+                                <span>{selectedConversation.orders.customer_name}</span>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {selectedConversation.orders?.id && (
+                      <a
+                        href={`/vendor/orders?highlight=${selectedConversation.orders.id}`}
+                        className="text-xs text-blue-600 hover:text-blue-800 font-medium underline"
+                      >
+                        View Order
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* AI History Panel */}
               {aiMessages.length > 0 && (selectedConversation.status === 'waiting' || selectedConversation.status === 'active') && channelTab === 'customer_vendor' && (

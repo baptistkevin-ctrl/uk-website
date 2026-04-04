@@ -69,6 +69,8 @@ interface Conversation {
   last_message_at?: string
   unread_customer?: number
   vendors?: { business_name: string; logo_url: string | null }
+  order_id?: string | null
+  order_number?: string | null
 }
 
 interface LiveChatWidgetProps {
@@ -648,6 +650,95 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     return () => globalThis.removeEventListener('open-vendor-chat', handleOpenVendorChat)
   }, [])
 
+  // Listen for order-specific chat button clicks (AliExpress-style)
+  useEffect(() => {
+    const handleOpenOrderChat = async (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      if (!detail?.vendorId || !detail?.orderId) return
+
+      setIsOpen(true)
+      setActiveTab('sellers')
+
+      // Check if there's already an active conversation for this order + vendor
+      try {
+        const res = await fetch(
+          `/api/chat?order_id=${detail.orderId}&vendor_id=${detail.vendorId}`
+        )
+        if (res.ok) {
+          const data = await res.json()
+          if (data.conversation) {
+            // Resume existing order chat
+            const conv: Conversation = {
+              id: data.conversation.id,
+              status: data.conversation.status,
+              assigned_agent_id: data.conversation.assigned_agent_id,
+              department: data.conversation.department,
+              channel_type: 'customer_vendor',
+              vendor_id: detail.vendorId,
+              subject: data.conversation.subject,
+              rating: data.conversation.rating,
+              created_at: data.conversation.created_at,
+              vendors: data.conversation.vendors,
+            }
+            openConversation(conv)
+            return
+          }
+        }
+      } catch (err) {
+        console.error('Failed to check existing order chat:', err)
+      }
+
+      // No existing chat — create a new one for this order
+      try {
+        const sessionId = getSessionId()
+        const createRes = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: sessionId,
+            subject: `Order ${detail.orderNumber}`,
+            department: 'orders',
+            initial_message: `Hi, I have a question about my order ${detail.orderNumber}.`,
+            channel_type: 'customer_vendor',
+            vendor_id: detail.vendorId,
+            order_id: detail.orderId,
+            order_number: detail.orderNumber,
+            metadata: { page: globalThis.location?.href, order_id: detail.orderId, order_number: detail.orderNumber },
+          }),
+        })
+
+        if (createRes.ok) {
+          const createData = await createRes.json()
+          if (createData.conversation_id) {
+            const conv: Conversation = {
+              id: createData.conversation_id,
+              status: 'waiting',
+              assigned_agent_id: null,
+              department: 'orders',
+              channel_type: 'customer_vendor',
+              vendor_id: detail.vendorId,
+              subject: `Order ${detail.orderNumber}`,
+              rating: null,
+              created_at: new Date().toISOString(),
+              last_message: `Hi, I have a question about my order ${detail.orderNumber}.`,
+              last_message_at: new Date().toISOString(),
+            }
+            openConversation(conv)
+            fetchConversations()
+          }
+        } else {
+          showError('Failed to start order chat.')
+        }
+      } catch (err) {
+        console.error('Failed to create order chat:', err)
+        showError('Failed to start order chat. Please try again.')
+      }
+    }
+
+    globalThis.addEventListener('open-order-chat', handleOpenOrderChat)
+    return () => globalThis.removeEventListener('open-order-chat', handleOpenOrderChat)
+  }, [vendorId, botSettings])
+
   // Initial load
   useEffect(() => {
     if (isOpen && !initialLoadDoneRef.current) {
@@ -695,7 +786,10 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
 
   const getChatSubtitle = () => {
     if (!activeConversation) return ''
-    if (activeConversation.channel_type === 'customer_vendor') return 'Seller Chat'
+    if (activeConversation.channel_type === 'customer_vendor') {
+      if (activeConversation.order_number) return `Order ${activeConversation.order_number}`
+      return 'Seller Chat'
+    }
     if (isBotActive) return 'AI Assistant'
     if (activeConversation.status === 'active') return 'Agent connected'
     return 'Waiting for agent...'
