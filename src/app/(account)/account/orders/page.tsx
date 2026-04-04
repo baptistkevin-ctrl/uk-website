@@ -1,10 +1,11 @@
 import Link from 'next/link'
-import { Package, ArrowRight } from 'lucide-react'
+import { Package, ArrowRight, Store, MessageCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { formatPrice, formatDate } from '@/lib/utils/format'
+import { OrderChatButton } from '@/components/chat/order-chat-button'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,6 +25,33 @@ export default async function OrdersPage() {
     .select('*')
     .eq('user_id', user!.id)
     .order('created_at', { ascending: false })
+
+  // Fetch order items with vendor info for all orders
+  const orderIds = orders?.map((o) => o.id) || []
+  const { data: allOrderItems } = orderIds.length > 0
+    ? await supabase
+        .from('order_items')
+        .select('order_id, product:products(vendor_id, vendor:vendors(id, business_name, logo_url))')
+        .in('order_id', orderIds)
+    : { data: [] }
+
+  // Build a map: orderId → unique vendors
+  const orderVendorsMap = new Map<string, { id: string; business_name: string; logo_url: string | null }[]>()
+  allOrderItems?.forEach((item: Record<string, unknown>) => {
+    const product = item.product as Record<string, unknown> | null
+    const vendorRaw = product?.vendor
+    // Supabase may return nested FK as object or array
+    const vendor = Array.isArray(vendorRaw) ? vendorRaw[0] : vendorRaw
+    if (!vendor?.id) return
+    const orderId = item.order_id as string
+    if (!orderVendorsMap.has(orderId)) {
+      orderVendorsMap.set(orderId, [])
+    }
+    const vendors = orderVendorsMap.get(orderId)!
+    if (!vendors.some((v) => v.id === vendor.id)) {
+      vendors.push({ id: vendor.id, business_name: vendor.business_name, logo_url: vendor.logo_url })
+    }
+  })
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -53,31 +81,26 @@ export default async function OrdersPage() {
 
       {orders && orders.length > 0 ? (
         <div className="space-y-4">
-          {orders.map((order) => (
-            <Card key={order.id}>
-              <CardContent className="p-6">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 bg-gray-100 rounded-full">
-                      <Package className="h-6 w-6 text-gray-600" />
+          {orders.map((order) => {
+            const vendors = orderVendorsMap.get(order.id) || []
+            return (
+              <Card key={order.id} className="overflow-hidden">
+                {/* Order Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3 bg-gray-50 border-b">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-white rounded-lg border">
+                      <Package className="h-5 w-5 text-gray-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{order.order_number}</p>
-                      <p className="text-sm text-gray-500">{formatDate(order.created_at)}</p>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge variant={getStatusColor(order.status) as 'default'}>
-                          {order.status.replace(/_/g, ' ')}
-                        </Badge>
-                        {order.delivery_date && (
-                          <span className="text-sm text-gray-500">
-                            Delivery: {formatDate(order.delivery_date)}
-                          </span>
-                        )}
-                      </div>
+                      <p className="font-semibold text-gray-900 text-sm">{order.order_number}</p>
+                      <p className="text-xs text-gray-500">{formatDate(order.created_at)}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <p className="text-lg font-semibold">{formatPrice(order.total_pence)}</p>
+                  <div className="flex items-center gap-3">
+                    <Badge variant={getStatusColor(order.status) as 'default'}>
+                      {order.status.replace(/_/g, ' ')}
+                    </Badge>
+                    <p className="text-base font-bold">{formatPrice(order.total_pence)}</p>
                     <Button variant="outline" size="sm" asChild>
                       <Link href={`/account/orders/${order.id}`}>
                         View Details
@@ -86,9 +109,48 @@ export default async function OrdersPage() {
                     </Button>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                {/* Vendor Stores — AliExpress style contact per seller */}
+                {vendors.length > 0 && (
+                  <CardContent className="p-0 divide-y">
+                    {vendors.map((vendor) => (
+                      <div key={vendor.id} className="flex items-center justify-between px-5 py-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {vendor.logo_url ? (
+                            <img
+                              src={vendor.logo_url}
+                              alt={vendor.business_name}
+                              className="w-8 h-8 rounded-full object-cover ring-1 ring-gray-200"
+                            />
+                          ) : (
+                            <div className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center ring-1 ring-emerald-200">
+                              <Store className="h-4 w-4 text-emerald-600" />
+                            </div>
+                          )}
+                          <span className="text-sm font-medium text-gray-900 truncate">
+                            {vendor.business_name}
+                          </span>
+                        </div>
+                        <OrderChatButton
+                          vendorId={vendor.id}
+                          vendorName={vendor.business_name}
+                          orderId={order.id}
+                          orderNumber={order.order_number}
+                        />
+                      </div>
+                    ))}
+                  </CardContent>
+                )}
+
+                {/* Delivery info */}
+                {order.delivery_date && (
+                  <div className="px-5 py-2 bg-gray-50 border-t text-xs text-gray-500">
+                    Delivery: {formatDate(order.delivery_date)}
+                  </div>
+                )}
+              </Card>
+            )
+          })}
         </div>
       ) : (
         <Card>
