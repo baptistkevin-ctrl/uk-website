@@ -197,6 +197,12 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                       >
                         {item.product?.name || item.product_name}
                       </Link>
+                      {item.product?.vendor?.business_name && (
+                        <p className="text-xs text-emerald-600 flex items-center gap-1 mt-0.5">
+                          <Store className="h-3 w-3" />
+                          {item.product.vendor.business_name}
+                        </p>
+                      )}
                       <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                     </div>
                     <div className="text-right">
