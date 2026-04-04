@@ -92,27 +92,28 @@ export default async function HomePage() {
   const heroSlidesEnabled = settings?.value !== 'false' && settings?.value !== false
 
   // Fetch hero slides only if enabled
-  let heroSlides = null
+  let safeHeroSlides: any[] = []
   if (heroSlidesEnabled) {
-    const { data } = await supabase
+    const { data, error: heroError } = await supabase
       .from('hero_slides')
       .select('*')
       .eq('is_active', true)
       .order('display_order', { ascending: true })
-    heroSlides = data
+    safeHeroSlides = heroError ? [] : data || []
   }
 
   // Fetch categories from database
-  const { data: dbCategories } = await supabase
+  const { data: dbCategories, error: categoriesError } = await supabase
     .from('categories')
     .select('*')
     .eq('is_active', true)
     .is('parent_id', null) // Only top-level categories
     .order('display_order', { ascending: true })
     .limit(6)
+  const safeCategories = categoriesError ? [] : dbCategories || []
 
   // Fetch active flash deals
-  const { data: flashDeals } = await supabase
+  const { data: flashDeals, error: flashDealsError } = await supabase
     .from('flash_deals')
     .select(`
       *,
@@ -133,20 +134,22 @@ export default async function HomePage() {
     .lte('starts_at', new Date().toISOString())
     .order('ends_at', { ascending: true })
     .limit(4)
+  const safeFlashDeals = flashDealsError ? [] : flashDeals || []
 
   // Fetch ALL products for Amazon/AliExpress style display - NO LIMIT
-  const { data: allProducts } = await supabase
+  const { data: allProducts, error: productsError } = await supabase
     .from('products')
     .select('*, vendor:vendors(id, business_name, slug, is_verified)')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
+  const safeAllProducts = productsError ? [] : allProducts || []
 
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-orange-50/50 via-white to-orange-50/30">
       <Header />
       <main className="flex-1">
         {/* Hero Section - Zilly Style */}
-        <HeroSlider slides={heroSlides || []} />
+        <HeroSlider slides={safeHeroSlides || []} />
 
         {/* Stats Section - desktop only */}
         <section className="hidden lg:block py-4 bg-gradient-to-r from-orange-50/60 via-amber-50/40 to-orange-50/60 relative z-10">
@@ -230,8 +233,8 @@ export default async function HomePage() {
             {/* Mobile: Horizontal scroll circular icons (AliExpress style) */}
             <div className="lg:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
               <div className="flex gap-4 pb-2">
-                {dbCategories && dbCategories.length > 0 ? (
-                  dbCategories.map((category, index) => (
+                {safeCategories && safeCategories.length > 0 ? (
+                  safeCategories.map((category, index) => (
                     <Link
                       key={category.slug}
                       href={`/categories/${category.slug}`}
@@ -265,8 +268,8 @@ export default async function HomePage() {
 
             {/* Desktop: Original grid layout */}
             <div className="hidden lg:grid grid-cols-6 gap-4">
-              {dbCategories && dbCategories.length > 0 ? (
-                dbCategories.map((category, index) => (
+              {safeCategories && safeCategories.length > 0 ? (
+                safeCategories.map((category, index) => (
                   <Link
                     key={category.slug}
                     href={`/categories/${category.slug}`}
@@ -312,7 +315,7 @@ export default async function HomePage() {
         </section>
 
         {/* Flash Deals Section */}
-        {flashDeals && flashDeals.length > 0 && (
+        {safeFlashDeals && safeFlashDeals.length > 0 && (
           <section className="py-4 lg:py-10 bg-gradient-to-r from-orange-50 via-red-50 to-pink-50">
             <div className="container mx-auto px-4">
               <div className="flex items-center justify-between mb-3 lg:mb-6">
@@ -340,7 +343,7 @@ export default async function HomePage() {
               {/* Mobile: Horizontal scroll deals */}
               <div className="lg:hidden overflow-x-auto scrollbar-hide -mx-4 px-4">
                 <div className="flex gap-3 pb-2">
-                  {flashDeals.map((deal) => (
+                  {safeFlashDeals.map((deal) => (
                     <div key={deal.id} className="shrink-0 w-[260px]">
                       <DealCard deal={deal} />
                     </div>
@@ -350,7 +353,7 @@ export default async function HomePage() {
 
               {/* Desktop: Grid layout */}
               <div className="hidden lg:grid grid-cols-4 gap-6">
-                {flashDeals.map((deal) => (
+                {safeFlashDeals.map((deal) => (
                   <DealCard key={deal.id} deal={deal} />
                 ))}
               </div>
@@ -359,7 +362,7 @@ export default async function HomePage() {
         )}
 
         {/* All Products Section - Full Length AliExpress Style */}
-        {allProducts && allProducts.length > 0 && (
+        {safeAllProducts && safeAllProducts.length > 0 && (
           <section className="py-4 lg:py-10 bg-gradient-to-b from-orange-50/30 via-amber-50/40 to-orange-50/50">
             <div className="container mx-auto px-4">
               <div className="flex items-center justify-between mb-3 lg:mb-6">
@@ -369,7 +372,7 @@ export default async function HomePage() {
                       <Sparkles className="h-3 w-3" />
                       ALL PRODUCTS
                     </div>
-                    <span className="text-xs lg:text-sm text-gray-500">{allProducts.length} items</span>
+                    <span className="text-xs lg:text-sm text-gray-500">{safeAllProducts.length} items</span>
                   </div>
                   <h2 className="text-lg lg:text-3xl font-bold text-gray-900">
                     Explore All Products
@@ -380,7 +383,7 @@ export default async function HomePage() {
 
               {/* Full Width Product Grid - AliExpress Style */}
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 lg:gap-4">
-                {allProducts.map((product) => (
+                {safeAllProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>

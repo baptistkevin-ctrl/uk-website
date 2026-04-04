@@ -8,19 +8,19 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About */}
           <div>
-            <h3 className="text-xl font-bold text-white mb-4">FreshMart</h3>
+            <h3 className="text-xl font-bold text-white mb-4">FreshGrocery</h3>
             <p className="text-sm mb-4">
               Your trusted online grocery store delivering fresh produce and quality
               products across the UK. We bring the supermarket to your doorstep.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="hover:text-green-400 transition-colors">
+              <a href="#" className="hover:text-green-400 transition-colors" aria-label="Facebook">
                 <Facebook className="h-5 w-5" />
               </a>
-              <a href="#" className="hover:text-green-400 transition-colors">
+              <a href="#" className="hover:text-green-400 transition-colors" aria-label="Twitter">
                 <Twitter className="h-5 w-5" />
               </a>
-              <a href="#" className="hover:text-green-400 transition-colors">
+              <a href="#" className="hover:text-green-400 transition-colors" aria-label="Instagram">
                 <Instagram className="h-5 w-5" />
               </a>
             </div>
@@ -105,8 +105,8 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-green-400 shrink-0" />
-                <a href="mailto:hello@freshmart.co.uk" className="hover:text-green-400 transition-colors">
-                  hello@freshmart.co.uk
+                <a href="mailto:info@freshgrocery.com" className="hover:text-green-400 transition-colors">
+                  info@freshgrocery.com
                 </a>
               </li>
             </ul>
@@ -117,7 +117,7 @@ export function Footer() {
         <div className="border-t border-gray-800 mt-8 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm">
-              © {new Date().getFullYear()} FreshMart. All rights reserved.
+              © {new Date().getFullYear()} FreshGrocery. All rights reserved.
             </p>
             <div className="flex gap-6 text-sm">
               <Link href="/privacy" className="hover:text-green-400 transition-colors">

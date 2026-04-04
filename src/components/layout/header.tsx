@@ -178,7 +178,7 @@ export function Header() {
 
   return (
     <header className={cn(
-      "bg-gradient-to-r from-orange-50 via-white to-orange-50 w-full z-50 transition-shadow duration-200",
+      "bg-gradient-to-r from-orange-50 via-white to-orange-50 w-full z-40 transition-shadow duration-200",
       isScrolled ? "sticky top-0 shadow-md" : "shadow-sm"
     )}>
       {/* Top bar - desktop only info strip */}
@@ -282,7 +282,7 @@ export function Header() {
 
               {/* Wishlist */}
               <Link href="/account/wishlist">
-                <button className="flex flex-col items-center justify-center px-3 py-1 hover:bg-gray-50 rounded-lg transition-colors relative min-w-[56px]">
+                <button className="flex flex-col items-center justify-center px-3 py-1 hover:bg-gray-50 rounded-lg transition-colors relative min-w-[56px]" aria-label="Wishlist">
                   <Heart className="h-6 w-6 text-gray-700" strokeWidth={1.5} />
                   <span className="text-[10px] text-gray-600 mt-0.5 leading-tight">Favourites</span>
                   {wishlistCount > 0 && (
@@ -297,6 +297,7 @@ export function Header() {
               <button
                 onClick={openCart}
                 className="flex flex-col items-center justify-center px-3 py-1 hover:bg-gray-50 rounded-lg transition-colors relative min-w-[56px]"
+                aria-label="Shopping cart"
               >
                 <ShoppingCart className="h-6 w-6 text-gray-700" strokeWidth={1.5} />
                 <span className="text-[10px] text-gray-600 mt-0.5 leading-tight">

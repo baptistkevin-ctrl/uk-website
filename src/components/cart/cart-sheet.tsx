@@ -143,6 +143,7 @@ export function CartSheet() {
                               onClick={() =>
                                 updateQuantity(item.product.id, item.quantity - 1)
                               }
+                              aria-label="Decrease quantity"
                               className="p-1.5 hover:bg-gray-100 transition-colors"
                             >
                               <Minus className="h-3 w-3" />
@@ -154,6 +155,7 @@ export function CartSheet() {
                               onClick={() =>
                                 updateQuantity(item.product.id, item.quantity + 1)
                               }
+                              aria-label="Increase quantity"
                               className="p-1.5 hover:bg-gray-100 transition-colors"
                             >
                               <Plus className="h-3 w-3" />
@@ -161,6 +163,7 @@ export function CartSheet() {
                           </div>
                           <button
                             onClick={() => removeItem(item.product.id)}
+                            aria-label="Remove item"
                             className="p-1.5 rounded-lg hover:bg-red-100 text-red-500 transition-colors"
                           >
                             <Trash2 className="h-4 w-4" />

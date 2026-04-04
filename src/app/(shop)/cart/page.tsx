@@ -186,6 +186,7 @@ export default function CartPage() {
                                 onClick={() =>
                                   updateQuantity(item.product.id, item.quantity - 1)
                                 }
+                                aria-label="Decrease quantity"
                                 className="p-2.5 hover:bg-gray-100 transition-colors"
                               >
                                 <Minus className="h-4 w-4" />
@@ -198,6 +199,7 @@ export default function CartPage() {
                                   if (!atMax) updateQuantity(item.product.id, item.quantity + 1)
                                 }}
                                 disabled={atMax}
+                                aria-label="Increase quantity"
                                 className={`p-2.5 transition-colors ${atMax ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100'}`}
                               >
                                 <Plus className="h-4 w-4" />
@@ -207,6 +209,7 @@ export default function CartPage() {
                             })()}
                             <button
                               onClick={() => removeItem(item.product.id)}
+                              aria-label="Remove item"
                               className="p-2 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
                             >
                               <Trash2 className="h-4 w-4" />

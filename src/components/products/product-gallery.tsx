@@ -184,6 +184,7 @@ export function ProductGallery({
                 : undefined
             }
             priority={currentIndex === 0}
+            sizes="(max-width: 768px) 100vw, 50vw"
           />
         </div>
 
@@ -376,7 +377,7 @@ export function ProductGallery({
               alt={`${productName} - Image ${currentIndex + 1}`}
               fill
               className="object-contain"
-              sizes="90vw"
+              sizes="(max-width: 768px) 100vw, 90vw"
             />
           </div>
 

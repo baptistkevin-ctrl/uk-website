@@ -39,12 +39,12 @@ import { DeliverySlotPicker } from '@/components/delivery/delivery-slot-picker'
 const checkoutSchema = z.object({
   email: z.string().email('Please enter a valid email'),
   fullName: z.string().min(2, 'Name is required'),
-  phone: z.string().min(10, 'Please enter a valid phone number'),
+  phone: z.string().regex(/^(\+44|0)\d{9,10}$/, 'Please enter a valid UK phone number'),
   addressLine1: z.string().min(5, 'Address is required'),
   addressLine2: z.string().optional(),
   city: z.string().min(2, 'City is required'),
   county: z.string().optional(),
-  postcode: z.string().min(5, 'Please enter a valid postcode'),
+  postcode: z.string().regex(/^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i, 'Please enter a valid UK postcode'),
   deliveryInstructions: z.string().optional(),
 })
 

@@ -64,6 +64,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
         <button
           onClick={decrementQuantity}
           disabled={quantity <= 1 || isAdding}
+          aria-label="Decrease quantity"
           className="p-4 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <Minus className="h-5 w-5 text-gray-600" />
@@ -74,6 +75,7 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
         <button
           onClick={incrementQuantity}
           disabled={isAdding}
+          aria-label="Increase quantity"
           className="p-4 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <Plus className="h-5 w-5 text-gray-600" />

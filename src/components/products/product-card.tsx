@@ -299,6 +299,7 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
                   <div className="flex items-center gap-0 border border-green-500 rounded-full overflow-hidden">
                     <button
                       onClick={handleDecrement}
+                      aria-label="Decrease quantity"
                       className="w-7 h-7 flex items-center justify-center text-green-600 hover:bg-green-50 transition-colors"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -311,6 +312,7 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
                     <button
                       onClick={handleIncrement}
                       disabled={!canAddMore}
+                      aria-label="Increase quantity"
                       className={`w-7 h-7 flex items-center justify-center transition-colors ${canAddMore ? 'text-green-600 hover:bg-green-50' : 'text-gray-300 cursor-not-allowed'}`}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
