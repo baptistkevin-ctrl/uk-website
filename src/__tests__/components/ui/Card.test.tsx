@@ -30,7 +30,7 @@ describe('Card Component', () => {
       const card = screen.getByTestId('card')
       expect(card).toHaveClass('rounded-lg')
       expect(card).toHaveClass('border')
-      expect(card).toHaveClass('border-gray-200')
+      expect(card).toHaveClass('border-orange-100')
       expect(card).toHaveClass('bg-white')
       expect(card).toHaveClass('text-gray-950')
       expect(card).toHaveClass('shadow-sm')

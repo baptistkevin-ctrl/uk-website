@@ -224,8 +224,11 @@ describe('useAuth Hook', () => {
 
       // Mock window.location
       const originalLocation = window.location
-      delete (window as any).location
-      window.location = { ...originalLocation, href: '' } as Location
+      Object.defineProperty(window, 'location', {
+        value: { ...originalLocation, href: '' },
+        writable: true,
+        configurable: true,
+      })
 
       const { result } = renderHook(() => useAuth())
 
@@ -239,7 +242,11 @@ describe('useAuth Hook', () => {
       expect(window.location.href).toBe('/')
 
       // Restore window.location
-      window.location = originalLocation
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        writable: true,
+        configurable: true,
+      })
     })
 
     it('throws error on failed sign out', async () => {

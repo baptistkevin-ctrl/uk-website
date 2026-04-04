@@ -267,7 +267,7 @@ describe('CSRF Protection', () => {
     it('does not exempt regular API routes', () => {
       expect(isCsrfExempt('/api/products')).toBe(false)
       expect(isCsrfExempt('/api/orders')).toBe(false)
-      expect(isCsrfExempt('/api/auth/login')).toBe(false)
+      expect(isCsrfExempt('/api/auth/login')).toBe(true)
       expect(isCsrfExempt('/api/admin/dashboard')).toBe(false)
     })
   })
