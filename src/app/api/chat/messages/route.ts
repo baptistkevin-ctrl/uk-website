@@ -154,17 +154,26 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id)
         .single()
 
+      // Check if this user is the conversation owner (the customer who started the chat)
+      const isConversationOwner = conversation.user_id === user.id
+
       if (profile?.role === 'vendor') {
         if (conversation.channel_type === 'customer_vendor') {
-          // Vendor replying to customer — sender is 'vendor'
-          senderType = 'vendor'
-          // Get vendor business name
-          const { data: vendor } = await supabaseAdmin
-            .from('vendors')
-            .select('business_name')
-            .eq('user_id', user.id)
-            .single()
-          senderName = vendor?.business_name || profile.full_name || 'Vendor'
+          if (isConversationOwner) {
+            // This vendor is the CUSTOMER in this conversation (they placed the order)
+            senderType = 'customer'
+            senderName = profile.full_name || 'Customer'
+          } else {
+            // Vendor replying to customer — sender is 'vendor'
+            senderType = 'vendor'
+            // Get vendor business name
+            const { data: vendor } = await supabaseAdmin
+              .from('vendors')
+              .select('business_name')
+              .eq('user_id', user.id)
+              .single()
+            senderName = vendor?.business_name || profile.full_name || 'Vendor'
+          }
         } else if (conversation.channel_type === 'vendor_admin') {
           // Vendor chatting with admin — vendor is the 'customer' side
           senderType = 'customer'
