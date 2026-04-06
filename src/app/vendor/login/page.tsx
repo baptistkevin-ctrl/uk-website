@@ -45,7 +45,7 @@ const registerSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirm_password: z.string(),
   business_name: z.string().min(2, 'Business name is required'),
-  business_type: z.string().default('sole_trader'),
+  business_type: z.string(),
   description: z.string().optional(),
   phone: z.string().optional(),
   website_url: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
