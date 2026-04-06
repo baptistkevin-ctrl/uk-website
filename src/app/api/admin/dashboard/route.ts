@@ -137,41 +137,41 @@ export async function GET(request: NextRequest) {
     ])
 
     // Process orders data
-    const orders = ordersResult.data || []
-    const paidOrders = orders.filter(o => o.payment_status === 'paid')
-    const todayOrders = orders.filter(o => o.created_at?.startsWith(today))
-    const thisMonthOrders = orders.filter(o => o.created_at?.startsWith(thisMonth))
+    const orders: any[] = ordersResult.data || []
+    const paidOrders = orders.filter((o: any) => o.payment_status === 'paid')
+    const todayOrders = orders.filter((o: any) => o.created_at?.startsWith(today))
+    const thisMonthOrders = orders.filter((o: any) => o.created_at?.startsWith(thisMonth))
 
-    const totalRevenue = paidOrders.reduce((sum, o) => sum + (o.total_pence || 0), 0)
+    const totalRevenue = paidOrders.reduce((sum: number, o: any) => sum + (o.total_pence || 0), 0)
     const thisMonthRevenue = paidOrders
-      .filter(o => o.created_at?.startsWith(thisMonth))
-      .reduce((sum, o) => sum + (o.total_pence || 0), 0)
+      .filter((o: any) => o.created_at?.startsWith(thisMonth))
+      .reduce((sum: number, o: any) => sum + (o.total_pence || 0), 0)
     const lastMonthRevenue = paidOrders
-      .filter(o => o.created_at?.startsWith(lastMonth))
-      .reduce((sum, o) => sum + (o.total_pence || 0), 0)
+      .filter((o: any) => o.created_at?.startsWith(lastMonth))
+      .reduce((sum: number, o: any) => sum + (o.total_pence || 0), 0)
 
     const revenueChange = lastMonthRevenue > 0
       ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100)
       : 100
 
     const ordersByStatus = {
-      pending: orders.filter(o => o.status === 'pending').length,
-      confirmed: orders.filter(o => o.status === 'confirmed').length,
-      processing: orders.filter(o => o.status === 'processing').length,
-      shipped: orders.filter(o => o.status === 'out_for_delivery' || o.status === 'ready_for_delivery').length,
-      delivered: orders.filter(o => o.status === 'delivered').length,
-      cancelled: orders.filter(o => o.status === 'cancelled').length,
+      pending: orders.filter((o: any) => o.status === 'pending').length,
+      confirmed: orders.filter((o: any) => o.status === 'confirmed').length,
+      processing: orders.filter((o: any) => o.status === 'processing').length,
+      shipped: orders.filter((o: any) => o.status === 'out_for_delivery' || o.status === 'ready_for_delivery').length,
+      delivered: orders.filter((o: any) => o.status === 'delivered').length,
+      cancelled: orders.filter((o: any) => o.status === 'cancelled').length,
     }
 
     // Process products data
-    const products = productsResult.data || []
+    const products: any[] = productsResult.data || []
     const totalProducts = products.length
-    const activeProducts = products.filter(p => p.is_active && p.approval_status === 'approved').length
-    const lowStockProducts = products.filter(p =>
+    const activeProducts = products.filter((p: any) => p.is_active && p.approval_status === 'approved').length
+    const lowStockProducts = products.filter((p: any) =>
       p.stock_quantity <= (p.low_stock_threshold || 5) && p.is_active
     ).length
-    const outOfStockProducts = products.filter(p => p.stock_quantity <= 0 && p.is_active).length
-    const pendingApproval = products.filter(p => p.approval_status === 'pending').length
+    const outOfStockProducts = products.filter((p: any) => p.stock_quantity <= 0 && p.is_active).length
+    const pendingApproval = products.filter((p: any) => p.approval_status === 'pending').length
 
     // Sales by day (last 7 days)
     const salesByDay = []
@@ -179,12 +179,12 @@ export async function GET(request: NextRequest) {
       const date = new Date(now)
       date.setDate(date.getDate() - i)
       const dateStr = date.toISOString().split('T')[0]
-      const dayOrders = paidOrders.filter(o => o.created_at?.startsWith(dateStr))
+      const dayOrders = paidOrders.filter((o: any) => o.created_at?.startsWith(dateStr))
       salesByDay.push({
         date: dateStr,
         day: date.toLocaleDateString('en-GB', { weekday: 'short' }),
         orders: dayOrders.length,
-        revenue: dayOrders.reduce((sum, o) => sum + (o.total_pence || 0), 0),
+        revenue: dayOrders.reduce((sum: number, o: any) => sum + (o.total_pence || 0), 0),
       })
     }
 
@@ -193,17 +193,17 @@ export async function GET(request: NextRequest) {
     for (let i = 5; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
       const monthStr = date.toISOString().slice(0, 7)
-      const monthOrders = paidOrders.filter(o => o.created_at?.startsWith(monthStr))
+      const monthOrders = paidOrders.filter((o: any) => o.created_at?.startsWith(monthStr))
       salesByMonth.push({
         month: date.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }),
         orders: monthOrders.length,
-        revenue: monthOrders.reduce((sum, o) => sum + (o.total_pence || 0), 0),
+        revenue: monthOrders.reduce((sum: number, o: any) => sum + (o.total_pence || 0), 0),
       })
     }
 
     // Process top products
     const productSales = new Map()
-    topProductsResult.data?.forEach(item => {
+    topProductsResult.data?.forEach((item: any) => {
       const id = item.product_id
       if (!productSales.has(id)) {
         productSales.set(id, {
