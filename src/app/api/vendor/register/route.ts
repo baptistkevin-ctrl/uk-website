@@ -66,12 +66,11 @@ export async function POST(request: NextRequest) {
 
       userId = authData.user.id
 
-      // Create profile
+      // Create profile (role defaults to 'user' in DB, updated to 'vendor' upon approval)
       const { error: profileError } = await supabaseAdmin.from('profiles').insert({
         id: userId,
         email,
         full_name,
-        role: 'customer', // Will be updated to 'vendor' upon approval
         phone: phone || null,
       })
 
