@@ -47,7 +47,7 @@ export function useAuth() {
         data: {
           full_name: fullName,
         },
-        emailRedirectTo: `${window.location.origin}/auth/verify-email`,
+        emailRedirectTo: `${window.location.origin}/verify-email`,
       },
     })
     if (error) throw error
@@ -62,7 +62,7 @@ export function useAuth() {
 
   const resetPassword = async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/reset-password`,
+      redirectTo: `${window.location.origin}/reset-password`,
     })
     if (error) throw error
   }
