@@ -47,6 +47,7 @@ export function useAuth() {
         data: {
           full_name: fullName,
         },
+        emailRedirectTo: `${window.location.origin}/auth/verify-email`,
       },
     })
     if (error) throw error

@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Filter,
   X,
+  Navigation,
 } from 'lucide-react'
 
 interface Vendor {
@@ -31,6 +32,7 @@ interface Vendor {
   is_verified: boolean
   created_at: string
   product_count: number
+  distance_km: number | null
 }
 
 interface StoreResponse {
@@ -62,6 +64,11 @@ function StoresPageContent() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '')
   const [showFilters, setShowFilters] = useState(false)
 
+  // Geolocation state
+  const [userLat, setUserLat] = useState<number | null>(null)
+  const [userLng, setUserLng] = useState<number | null>(null)
+  const [geoStatus, setGeoStatus] = useState<'idle' | 'loading' | 'granted' | 'denied' | 'unavailable'>('idle')
+
   // Current filter values
   const currentPage = parseInt(searchParams.get('page') || '1')
   const currentSort = searchParams.get('sort') || 'popular'
@@ -69,14 +76,54 @@ function StoresPageContent() {
   const currentVerified = searchParams.get('verified') === 'true'
   const currentSearch = searchParams.get('search') || ''
 
+  // Request geolocation on mount
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setGeoStatus('unavailable')
+      return
+    }
+    // Try to get location silently
+    setGeoStatus('loading')
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLat(pos.coords.latitude)
+        setUserLng(pos.coords.longitude)
+        setGeoStatus('granted')
+      },
+      () => {
+        setGeoStatus('denied')
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
+    )
+  }, [])
+
+  const requestLocation = () => {
+    if (!navigator.geolocation) return
+    setGeoStatus('loading')
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLat(pos.coords.latitude)
+        setUserLng(pos.coords.longitude)
+        setGeoStatus('granted')
+      },
+      () => setGeoStatus('denied'),
+      { enableHighAccuracy: true, timeout: 15000 }
+    )
+  }
+
   useEffect(() => {
     fetchStores()
-  }, [searchParams.toString()])
+  }, [searchParams.toString(), userLat, userLng])
 
   const fetchStores = async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams(searchParams.toString())
+      // Append geo coords if available
+      if (userLat !== null && userLng !== null) {
+        params.set('lat', String(userLat))
+        params.set('lng', String(userLng))
+      }
       const res = await fetch(`/api/stores?${params.toString()}`)
       const data: StoreResponse = await res.json()
       setStores(data.stores)
@@ -115,6 +162,7 @@ function StoresPageContent() {
 
   const sortOptions = [
     { value: 'popular', label: 'Most Popular' },
+    { value: 'nearest', label: 'Nearest First' },
     { value: 'rating', label: 'Highest Rated' },
     { value: 'newest', label: 'Newest' },
     { value: 'name', label: 'A-Z' },
@@ -161,6 +209,40 @@ function StoresPageContent() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Location Banner */}
+        {geoStatus === 'denied' && (
+          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <Navigation className="w-5 h-5 text-amber-600 flex-shrink-0" />
+              <p className="text-sm text-amber-800">
+                Enable location to see nearest stores and distances. Your location is only used to sort stores.
+              </p>
+            </div>
+            <button
+              onClick={requestLocation}
+              className="px-4 py-1.5 bg-amber-600 text-white text-sm rounded-lg font-medium hover:bg-amber-700 transition-colors flex-shrink-0"
+            >
+              Enable
+            </button>
+          </div>
+        )}
+        {geoStatus === 'granted' && currentSort !== 'nearest' && (
+          <div className="mb-6 bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <MapPin className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              <p className="text-sm text-emerald-800">
+                Location detected! Sort by &quot;Nearest First&quot; to see stores closest to you.
+              </p>
+            </div>
+            <button
+              onClick={() => updateParams({ sort: 'nearest' })}
+              className="px-4 py-1.5 bg-emerald-600 text-white text-sm rounded-lg font-medium hover:bg-emerald-700 transition-colors flex-shrink-0"
+            >
+              Sort by Nearest
+            </button>
+          </div>
+        )}
+
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
@@ -214,7 +296,13 @@ function StoresPageContent() {
               <ArrowUpDown className="w-4 h-4 text-slate-400" />
               <select
                 value={currentSort}
-                onChange={(e) => updateParams({ sort: e.target.value })}
+                onChange={(e) => {
+                  if (e.target.value === 'nearest' && userLat === null) {
+                    requestLocation()
+                    return
+                  }
+                  updateParams({ sort: e.target.value })
+                }}
                 className="px-4 py-2 border border-slate-200 rounded-lg text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               >
                 {sortOptions.map((option) => (
@@ -426,12 +514,17 @@ function StoresPageContent() {
                         <Package className="w-4 h-4" />
                         <span>{store.product_count} products</span>
                       </div>
-                      {store.city && (
+                      {store.distance_km !== null && store.distance_km !== undefined ? (
+                        <div className="flex items-center gap-1 text-emerald-600 font-medium">
+                          <Navigation className="w-4 h-4" />
+                          <span>{store.distance_km} km</span>
+                        </div>
+                      ) : store.city ? (
                         <div className="flex items-center gap-1 text-slate-600">
                           <MapPin className="w-4 h-4" />
                           <span className="truncate">{store.city}</span>
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 </Link>
