@@ -56,13 +56,14 @@ export async function GET(request: NextRequest) {
 
   try {
     // Safe query helper - returns empty result if table doesn't exist
-    const safeQuery = async <T>(query: Promise<{ data: T | null; error: any; count?: number | null }>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const safeQuery = async (query: PromiseLike<any>): Promise<{ data: any; error: any; count: number }> => {
       try {
         const result = await query
-        if (result.error) return { data: null as T | null, error: result.error, count: 0 }
-        return result
+        if (result.error) return { data: null, error: result.error, count: 0 }
+        return { data: result.data, error: null, count: result.count ?? 0 }
       } catch {
-        return { data: null as T | null, error: null, count: 0 }
+        return { data: null, error: null, count: 0 }
       }
     }
 
