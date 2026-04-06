@@ -55,6 +55,17 @@ export async function GET(request: NextRequest) {
   const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 7)
 
   try {
+    // Safe query helper - returns empty result if table doesn't exist
+    const safeQuery = async <T>(query: Promise<{ data: T | null; error: any; count?: number | null }>) => {
+      try {
+        const result = await query
+        if (result.error) return { data: null as T | null, error: result.error, count: 0 }
+        return result
+      } catch {
+        return { data: null as T | null, error: null, count: 0 }
+      }
+    }
+
     // Run ALL queries in parallel for maximum speed
     const [
       ordersResult,
@@ -74,54 +85,54 @@ export async function GET(request: NextRequest) {
       topProductsResult,
     ] = await Promise.all([
       // Orders
-      supabase
+      safeQuery(supabase
         .from('orders')
         .select('id, total_pence, status, payment_status, created_at')
-        .order('created_at', { ascending: false }),
+        .order('created_at', { ascending: false })),
 
       // Users counts
-      supabase.from('profiles').select('*', { count: 'exact', head: true }),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', today),
-      supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', `${thisMonth}-01`),
+      safeQuery(supabase.from('profiles').select('*', { count: 'exact', head: true })),
+      safeQuery(supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', today)),
+      safeQuery(supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', `${thisMonth}-01`)),
 
       // Products
-      supabase.from('products').select('id, stock_quantity, low_stock_threshold, is_active, approval_status'),
+      safeQuery(supabase.from('products').select('id, stock_quantity, low_stock_threshold, is_active, approval_status')),
 
       // Vendors
-      supabase.from('vendors').select('*', { count: 'exact', head: true }),
-      supabase.from('vendor_applications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+      safeQuery(supabase.from('vendors').select('*', { count: 'exact', head: true })),
+      safeQuery(supabase.from('vendor_applications').select('*', { count: 'exact', head: true }).eq('status', 'pending')),
 
       // Reviews
-      supabase.from('product_reviews').select('*', { count: 'exact', head: true }),
-      supabase.from('product_reviews').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+      safeQuery(supabase.from('product_reviews').select('*', { count: 'exact', head: true })),
+      safeQuery(supabase.from('product_reviews').select('*', { count: 'exact', head: true }).eq('status', 'pending')),
 
       // Marketing
-      supabase.from('coupons').select('*', { count: 'exact', head: true }).eq('is_active', true),
-      supabase.from('flash_deals').select('*', { count: 'exact', head: true })
+      safeQuery(supabase.from('coupons').select('*', { count: 'exact', head: true }).eq('is_active', true)),
+      safeQuery(supabase.from('flash_deals').select('*', { count: 'exact', head: true })
         .eq('is_active', true)
         .lte('starts_at', now.toISOString())
-        .gte('ends_at', now.toISOString()),
+        .gte('ends_at', now.toISOString())),
 
       // Recent activity
-      supabase.from('orders')
+      safeQuery(supabase.from('orders')
         .select('id, order_number, customer_name, customer_email, total_pence, status, created_at')
         .order('created_at', { ascending: false })
-        .limit(10),
+        .limit(10)),
 
-      supabase.from('product_reviews')
+      safeQuery(supabase.from('product_reviews')
         .select(`id, rating, title, status, created_at, profiles:user_id (full_name, email), products:product_id (name, slug)`)
         .order('created_at', { ascending: false })
-        .limit(5),
+        .limit(5)),
 
-      supabase.from('profiles')
+      safeQuery(supabase.from('profiles')
         .select('id, full_name, email, created_at')
         .order('created_at', { ascending: false })
-        .limit(5),
+        .limit(5)),
 
       // Top products
-      supabase.from('order_items')
+      safeQuery(supabase.from('order_items')
         .select('product_id, quantity, products:product_id (name, slug, image_url)')
-        .limit(100),
+        .limit(100)),
     ])
 
     // Process orders data
