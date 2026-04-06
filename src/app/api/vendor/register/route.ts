@@ -4,18 +4,16 @@ import { getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
-// Submit vendor application
+// Submit vendor application (for already logged-in users OR new registration)
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Please sign in to register as a vendor' }, { status: 401 })
-    }
-
     const body = await request.json()
     const {
+      // New registration fields (optional - only for new signups)
+      email,
+      password,
+      full_name,
+      // Vendor application fields
       business_name,
       business_type,
       description,
@@ -30,17 +28,103 @@ export async function POST(request: NextRequest) {
     }
 
     const supabaseAdmin = getSupabaseAdmin()
+    let userId: string
 
-    // Check if user already has an application
+    // Check if this is a new registration (email + password provided)
+    if (email && password) {
+      // Validate required fields for new registration
+      if (!full_name) {
+        return NextResponse.json({ error: 'Full name is required' }, { status: 400 })
+      }
+      if (password.length < 8) {
+        return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
+      }
+
+      // Create the user account via Supabase Admin
+      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: false,
+        user_metadata: {
+          full_name,
+        },
+      })
+
+      if (authError) {
+        if (authError.message.includes('already been registered') || authError.message.includes('already exists')) {
+          return NextResponse.json({
+            error: 'An account with this email already exists. Please use the login tab instead.'
+          }, { status: 400 })
+        }
+        console.error('Auth creation error:', authError)
+        return NextResponse.json({ error: authError.message }, { status: 400 })
+      }
+
+      if (!authData.user) {
+        return NextResponse.json({ error: 'Failed to create account' }, { status: 500 })
+      }
+
+      userId = authData.user.id
+
+      // Create profile
+      const { error: profileError } = await supabaseAdmin.from('profiles').insert({
+        id: userId,
+        email,
+        full_name,
+        role: 'customer', // Will be updated to 'vendor' upon approval
+        phone: phone || null,
+      })
+
+      if (profileError) {
+        console.error('Profile creation error:', profileError)
+        // Clean up the auth user if profile creation fails
+        await supabaseAdmin.auth.admin.deleteUser(userId)
+        return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
+      }
+
+      // Send verification email
+      const { error: emailError } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'signup',
+        email,
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.vercel.app'}/verify-email`,
+        },
+      })
+
+      if (emailError) {
+        console.error('Verification email error:', emailError)
+        // Non-critical - don't block registration
+      }
+
+      // Award signup loyalty bonus
+      try {
+        const { awardPoints } = await import('@/lib/automation/loyalty-points')
+        await awardPoints(userId, 'signup', 100, undefined, undefined, 'Welcome bonus - new vendor account')
+      } catch {
+        // Non-critical
+      }
+    } else {
+      // Existing logged-in user applying as vendor
+      const supabase = await createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (!user) {
+        return NextResponse.json({ error: 'Please sign in or provide registration details' }, { status: 401 })
+      }
+
+      userId = user.id
+    }
+
+    // Check if user already has a vendor application
     const { data: existingApp } = await supabaseAdmin
       .from('vendor_applications')
       .select('id, status')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (existingApp) {
       return NextResponse.json({
-        error: `You already have a ${existingApp.status} application`,
+        error: `You already have a ${existingApp.status} vendor application`,
         applicationId: existingApp.id
       }, { status: 400 })
     }
@@ -49,7 +133,7 @@ export async function POST(request: NextRequest) {
     const { data: existingVendor } = await supabaseAdmin
       .from('vendors')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (existingVendor) {
@@ -59,11 +143,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Create application
+    // Create vendor application
     const { data: application, error: appError } = await supabaseAdmin
       .from('vendor_applications')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         business_name,
         business_type: business_type || 'sole_trader',
         description,
@@ -81,9 +165,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to submit application' }, { status: 500 })
     }
 
+    const isNewRegistration = !!(email && password)
+
     return NextResponse.json({
       success: true,
-      message: 'Application submitted successfully. We will review it shortly.',
+      isNewRegistration,
+      message: isNewRegistration
+        ? 'Account created and vendor application submitted! Please check your email to verify your account.'
+        : 'Vendor application submitted successfully. We will review it shortly.',
       application
     }, { status: 201 })
   } catch (error) {
@@ -92,7 +181,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Get user's application status
+// Get user's vendor/application status
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient()

@@ -17,7 +17,14 @@ import {
   TrendingUp,
   Package,
   CreditCard,
-  BarChart3
+  BarChart3,
+  User,
+  Building2,
+  Briefcase,
+  Phone,
+  Globe,
+  CheckCircle,
+  AlertCircle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -25,12 +32,30 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/hooks/use-auth'
 
+// ── Schemas ──
+
 const loginSchema = z.object({
   email: z.string().email('Please enter a valid email'),
   password: z.string().min(1, 'Password is required'),
 })
 
+const registerSchema = z.object({
+  full_name: z.string().min(2, 'Full name is required'),
+  email: z.string().email('Please enter a valid email'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirm_password: z.string(),
+  business_name: z.string().min(2, 'Business name is required'),
+  business_type: z.string().default('sole_trader'),
+  description: z.string().optional(),
+  phone: z.string().optional(),
+  website_url: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
+}).refine((data) => data.password === data.confirm_password, {
+  message: 'Passwords do not match',
+  path: ['confirm_password'],
+})
+
 type LoginForm = z.infer<typeof loginSchema>
+type RegisterForm = z.infer<typeof registerSchema>
 
 const vendorBenefits = [
   { icon: Package, title: 'Product Management', description: 'Easily manage your product listings' },
@@ -39,7 +64,15 @@ const vendorBenefits = [
   { icon: BarChart3, title: 'Growth Tools', description: 'Tools to help grow your business' },
 ]
 
-export default function VendorLoginPage() {
+const productCategories = [
+  'Fruits & Vegetables', 'Meat & Poultry', 'Fish & Seafood', 'Dairy & Eggs',
+  'Bakery', 'Frozen Foods', 'Pantry', 'Drinks', 'Snacks & Sweets',
+  'Health & Beauty', 'Household', 'Other'
+]
+
+// ── Login Tab ──
+
+function VendorLoginTab() {
   const router = useRouter()
   const { signIn } = useAuth()
   const [showPassword, setShowPassword] = useState(false)
@@ -65,8 +98,17 @@ export default function VendorLoginPage() {
       if (vendorData.isVendor) {
         router.push('/vendor/dashboard')
         router.refresh()
+      } else if (vendorData.application) {
+        const status = vendorData.application.status
+        if (status === 'pending') {
+          setError('Your vendor application is still under review. We will notify you once it\'s approved.')
+        } else if (status === 'rejected') {
+          setError('Your vendor application was not approved. Please contact support for more information.')
+        } else if (status === 'approved') {
+          router.push('/vendor/onboarding')
+        }
       } else {
-        setError('This account is not registered as a vendor. Please apply to become a vendor first.')
+        setError('This account is not registered as a vendor. Please use the Register tab to apply.')
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to sign in'
@@ -75,10 +117,395 @@ export default function VendorLoginPage() {
   }
 
   return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="login-email" className="text-gray-700 font-medium">Email Address</Label>
+        <div className="relative">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <Mail className="h-5 w-5" />
+          </div>
+          <Input
+            id="login-email"
+            type="email"
+            placeholder="vendor@example.com"
+            className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+            {...register('email')}
+          />
+        </div>
+        {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="login-password" className="text-gray-700 font-medium">Password</Label>
+          <Link href="/forgot-password" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+            Forgot password?
+          </Link>
+        </div>
+        <div className="relative">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <Lock className="h-5 w-5" />
+          </div>
+          <Input
+            id="login-password"
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Enter your password"
+            className="pl-10 pr-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+            {...register('password')}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
+        </div>
+        {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+      </div>
+
+      <Button
+        type="submit"
+        className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shadow-lg shadow-purple-500/25"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <>
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            Signing in...
+          </>
+        ) : (
+          <>
+            Sign In to Vendor Portal
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </>
+        )}
+      </Button>
+    </form>
+  )
+}
+
+// ── Register Tab ──
+
+function VendorRegisterTab() {
+  const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      business_type: 'sole_trader',
+    },
+  })
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    )
+  }
+
+  const onSubmit = async (data: RegisterForm) => {
+    try {
+      setError(null)
+
+      const res = await fetch('/api/vendor/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: data.email,
+          password: data.password,
+          full_name: data.full_name,
+          business_name: data.business_name,
+          business_type: data.business_type,
+          description: data.description,
+          phone: data.phone,
+          website_url: data.website_url || undefined,
+          product_categories: selectedCategories,
+        }),
+      })
+
+      const result = await res.json()
+
+      if (!res.ok) {
+        setError(result.error || 'Failed to register')
+        return
+      }
+
+      setSuccess(true)
+    } catch (err: unknown) {
+      setError('Something went wrong. Please try again.')
+    }
+  }
+
+  if (success) {
+    return (
+      <div className="text-center py-6">
+        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="h-8 w-8 text-emerald-600" />
+        </div>
+        <h3 className="text-xl font-bold text-gray-900 mb-2">Application Submitted!</h3>
+        <p className="text-gray-600 mb-2">
+          Please check your email to verify your account.
+        </p>
+        <p className="text-gray-500 text-sm mb-6">
+          Our team will review your vendor application and notify you once it's approved. This usually takes 1-2 business days.
+        </p>
+        <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl text-sm text-purple-700">
+          <strong>What happens next?</strong>
+          <ol className="mt-2 text-left space-y-1 list-decimal list-inside">
+            <li>Verify your email address</li>
+            <li>We review your vendor application</li>
+            <li>Once approved, sign in to set up your store</li>
+            <li>Connect your payment account and start selling</li>
+          </ol>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {error && (
+        <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+          {error}
+        </div>
+      )}
+
+      {/* ── Account Details ── */}
+      <div className="pb-4 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Account Details</h3>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="reg-name" className="text-gray-700 font-medium">Full Name *</Label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <User className="h-5 w-5" />
+              </div>
+              <Input
+                id="reg-name"
+                placeholder="John Smith"
+                className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                {...register('full_name')}
+              />
+            </div>
+            {errors.full_name && <p className="text-sm text-red-500">{errors.full_name.message}</p>}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="reg-email" className="text-gray-700 font-medium">Email Address *</Label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <Mail className="h-5 w-5" />
+              </div>
+              <Input
+                id="reg-email"
+                type="email"
+                placeholder="vendor@example.com"
+                className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                {...register('email')}
+              />
+            </div>
+            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="reg-password" className="text-gray-700 font-medium">Password *</Label>
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <Input
+                  id="reg-password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Min 8 characters"
+                  className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                  {...register('password')}
+                />
+              </div>
+              {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reg-confirm" className="text-gray-700 font-medium">Confirm Password *</Label>
+              <div className="relative">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <Input
+                  id="reg-confirm"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Confirm password"
+                  className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                  {...register('confirm_password')}
+                />
+              </div>
+              {errors.confirm_password && <p className="text-sm text-red-500">{errors.confirm_password.message}</p>}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="text-xs text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? 'Hide' : 'Show'} passwords
+          </button>
+        </div>
+      </div>
+
+      {/* ── Business Details ── */}
+      <div className="pb-4 border-b border-gray-100">
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Business Details</h3>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="reg-business" className="text-gray-700 font-medium">Business Name *</Label>
+            <div className="relative">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <Building2 className="h-5 w-5" />
+              </div>
+              <Input
+                id="reg-business"
+                placeholder="Your business or store name"
+                className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                {...register('business_name')}
+              />
+            </div>
+            {errors.business_name && <p className="text-sm text-red-500">{errors.business_name.message}</p>}
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="reg-type" className="text-gray-700 font-medium">
+                <Briefcase className="h-4 w-4 inline mr-1" />
+                Business Type
+              </Label>
+              <select
+                id="reg-type"
+                className="w-full h-12 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                {...register('business_type')}
+              >
+                <option value="sole_trader">Sole Trader</option>
+                <option value="limited_company">Limited Company</option>
+                <option value="partnership">Partnership</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="reg-phone" className="text-gray-700 font-medium">
+                <Phone className="h-4 w-4 inline mr-1" />
+                Phone Number
+              </Label>
+              <Input
+                id="reg-phone"
+                type="tel"
+                placeholder="+44 7XXX XXXXXX"
+                className="h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                {...register('phone')}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="reg-desc" className="text-gray-700 font-medium">About Your Business</Label>
+            <textarea
+              id="reg-desc"
+              placeholder="What products do you sell? What makes your business unique?"
+              rows={3}
+              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+              {...register('description')}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="reg-website" className="text-gray-700 font-medium">
+              <Globe className="h-4 w-4 inline mr-1" />
+              Website (optional)
+            </Label>
+            <Input
+              id="reg-website"
+              type="url"
+              placeholder="https://yourwebsite.com"
+              className="h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+              {...register('website_url')}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Product Categories ── */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">What will you sell?</h3>
+        <div className="flex flex-wrap gap-2">
+          {productCategories.map((category) => (
+            <button
+              key={category}
+              type="button"
+              onClick={() => toggleCategory(category)}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                selectedCategories.includes(category)
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <Button
+        type="submit"
+        className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shadow-lg shadow-purple-500/25"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? (
+          <>
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            Creating Account...
+          </>
+        ) : (
+          <>
+            Create Account & Apply as Vendor
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </>
+        )}
+      </Button>
+
+      <p className="text-xs text-gray-500 text-center">
+        By registering, you agree to our seller terms and conditions.
+      </p>
+    </form>
+  )
+}
+
+// ── Main Page ──
+
+export default function VendorLoginPage() {
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login')
+
+  return (
     <div className="min-h-screen flex">
       {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 bg-white">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-lg">
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-3 group">
@@ -91,110 +518,34 @@ export default function VendorLoginPage() {
             </Link>
           </div>
 
-          {/* Welcome Text */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Vendor Login</h1>
-            <p className="text-gray-500">Sign in to manage your store and products</p>
+          {/* Tabs */}
+          <div className="flex mb-6 bg-gray-100 rounded-xl p-1">
+            <button
+              onClick={() => setActiveTab('login')}
+              className={`flex-1 py-3 text-sm font-semibold rounded-lg transition-all ${
+                activeTab === 'login'
+                  ? 'bg-white text-purple-700 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => setActiveTab('register')}
+              className={`flex-1 py-3 text-sm font-semibold rounded-lg transition-all ${
+                activeTab === 'register'
+                  ? 'bg-white text-purple-700 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Register as Vendor
+            </button>
           </div>
 
-          {/* Form */}
+          {/* Tab Content */}
           <Card className="border-slate-200 shadow-xl shadow-slate-200/50">
             <CardContent className="p-6 sm:p-8">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                {error && (
-                  <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-red-500 text-xs font-bold">!</span>
-                    </div>
-                    {error}
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-gray-700 font-medium">
-                    Email Address
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                      <Mail className="h-5 w-5" />
-                    </div>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="vendor@example.com"
-                      className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
-                      {...register('email')}
-                    />
-                  </div>
-                  {errors.email && (
-                    <p className="text-sm text-red-500">{errors.email.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-gray-700 font-medium">
-                      Password
-                    </Label>
-                    <Link
-                      href="/forgot-password"
-                      className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                      <Lock className="h-5 w-5" />
-                    </div>
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      className="pl-10 pr-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
-                      {...register('password')}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <p className="text-sm text-red-500">{errors.password.message}</p>
-                  )}
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shadow-lg shadow-purple-500/25"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    <>
-                      Sign In to Vendor Portal
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </>
-                  )}
-                </Button>
-              </form>
-
-              <div className="mt-6 text-center">
-                <span className="text-gray-500">Not a vendor yet? </span>
-                <Link
-                  href="/sell"
-                  className="text-purple-600 hover:text-purple-700 font-semibold transition-colors"
-                >
-                  Apply to sell
-                </Link>
-              </div>
+              {activeTab === 'login' ? <VendorLoginTab /> : <VendorRegisterTab />}
             </CardContent>
           </Card>
 
@@ -226,10 +577,12 @@ export default function VendorLoginPage() {
         <div className="relative z-10 flex items-center justify-center w-full px-12">
           <div className="max-w-md">
             <h2 className="text-3xl font-bold text-white mb-4">
-              Grow Your Business
+              {activeTab === 'login' ? 'Welcome Back, Vendor' : 'Start Selling Today'}
             </h2>
             <p className="text-purple-100 text-lg mb-8">
-              Access your vendor dashboard to manage products, track orders, and grow your sales.
+              {activeTab === 'login'
+                ? 'Access your vendor dashboard to manage products, track orders, and grow your sales.'
+                : 'Create your vendor account and apply in one step. No separate registration needed.'}
             </p>
 
             <div className="space-y-4">

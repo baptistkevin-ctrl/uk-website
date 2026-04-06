@@ -118,7 +118,7 @@ export default function SellPage() {
     e.preventDefault()
 
     if (!user) {
-      router.push('/login?redirect=/sell')
+      router.push('/vendor/login')
       return
     }
 
@@ -248,7 +248,7 @@ export default function SellPage() {
                 size="lg"
                 onClick={() => {
                   if (!user) {
-                    router.push('/login?redirect=/sell')
+                    router.push('/vendor/login')
                   } else {
                     setShowForm(true)
                   }
@@ -457,7 +457,7 @@ export default function SellPage() {
               size="lg"
               onClick={() => {
                 if (!user) {
-                  router.push('/login?redirect=/sell')
+                  router.push('/vendor/login')
                 } else {
                   setShowForm(true)
                   setTimeout(() => {
