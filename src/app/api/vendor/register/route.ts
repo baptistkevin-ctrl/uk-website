@@ -82,13 +82,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
       }
 
-      // Send verification email
-      const { error: emailError } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'signup',
-        email,
-        options: {
-          redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.vercel.app'}/verify-email`,
-        },
+      // Send verification email via invite (triggers email confirmation)
+      const { error: emailError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.vercel.app'}/verify-email`,
       })
 
       if (emailError) {
