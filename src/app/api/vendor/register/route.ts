@@ -66,19 +66,10 @@ export async function POST(request: NextRequest) {
 
       userId = authData.user.id
 
-      // Create profile (role defaults to 'user' in DB, updated to 'vendor' upon approval)
-      const { error: profileError } = await supabaseAdmin.from('profiles').insert({
-        id: userId,
-        email,
-        full_name,
-        phone: phone || null,
-      })
-
-      if (profileError) {
-        console.error('Profile creation error:', profileError)
-        // Clean up the auth user if profile creation fails
-        await supabaseAdmin.auth.admin.deleteUser(userId)
-        return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })
+      // Profile is auto-created by DB trigger (handle_new_user) on auth.users INSERT.
+      // Update phone if provided since the trigger doesn't set it.
+      if (phone) {
+        await supabaseAdmin.from('profiles').update({ phone }).eq('id', userId)
       }
 
       // Send verification email via invite (triggers email confirmation)

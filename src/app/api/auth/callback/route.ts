@@ -40,19 +40,20 @@ export async function GET(request: NextRequest) {
           .single()
 
         if (!profile) {
-          // Create profile for new social login user
+          // Profile should be auto-created by DB trigger (handle_new_user).
+          // If missing (race condition), create it as fallback.
           const { createClient } = await import('@supabase/supabase-js')
           const admin = createClient(
             process.env.NEXT_PUBLIC_SUPABASE_URL!,
             process.env.SUPABASE_SERVICE_ROLE_KEY!
           )
 
-          await admin.from('profiles').insert({
+          await admin.from('profiles').upsert({
             id: user.id,
             email: user.email,
             full_name: user.user_metadata?.full_name || user.user_metadata?.name || '',
             avatar_url: user.user_metadata?.avatar_url || null,
-          })
+          }, { onConflict: 'id' })
 
           // Award signup loyalty bonus for new users
           try {
