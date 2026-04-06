@@ -22,13 +22,16 @@ function VerifyEmailPageContent() {
       // Check if this is a callback from email verification
       const token_hash = searchParams.get('token_hash')
       const type = searchParams.get('type')
+      const code = searchParams.get('code')
 
-      if (token_hash && type === 'email') {
+      // Handle token_hash verification (supports email, signup, and invite types)
+      if (token_hash && type) {
         setStatus('verifying')
         try {
+          const otpType = type === 'invite' ? 'invite' : type === 'signup' ? 'signup' : 'email'
           const { error } = await supabase.auth.verifyOtp({
             token_hash,
-            type: 'email',
+            type: otpType,
           })
 
           if (error) {
@@ -36,7 +39,6 @@ function VerifyEmailPageContent() {
             setError(error.message)
           } else {
             setStatus('success')
-            // Redirect to home after 3 seconds
             setTimeout(() => {
               router.push('/')
             }, 3000)
@@ -45,16 +47,54 @@ function VerifyEmailPageContent() {
           setStatus('error')
           setError('Verification failed. Please try again.')
         }
-      } else {
-        // Show pending state - user needs to check email
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-          setEmail(user.email || null)
-          if (user.email_confirmed_at) {
+        return
+      }
+
+      // Handle code exchange (PKCE flow)
+      if (code) {
+        setStatus('verifying')
+        try {
+          const { error } = await supabase.auth.exchangeCodeForSession(code)
+          if (error) {
+            setStatus('error')
+            setError(error.message)
+          } else {
             setStatus('success')
+            setTimeout(() => {
+              router.push('/')
+            }, 3000)
           }
+        } catch (err) {
+          setStatus('error')
+          setError('Verification failed. Please try again.')
+        }
+        return
+      }
+
+      // Handle hash fragment (implicit flow - #access_token=...)
+      // Supabase client auto-detects hash fragments via onAuthStateChange
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          setStatus('success')
+          setTimeout(() => {
+            router.push('/')
+          }, 3000)
+        }
+      })
+
+      // Check if user is already verified
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        setEmail(user.email || null)
+        if (user.email_confirmed_at) {
+          setStatus('success')
         }
       }
+
+      // Cleanup subscription after a timeout if nothing happens
+      setTimeout(() => {
+        subscription.unsubscribe()
+      }, 10000)
     }
 
     checkVerification()
