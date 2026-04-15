@@ -1,13 +1,11 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { Leaf, TrendingDown, TrendingUp, TreePine, Award } from 'lucide-react'
+import { Leaf, TrendingDown, TrendingUp, TreePine, Award, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import { CarbonRatingBadge, type CarbonRating } from '@/components/carbon/CarbonRatingBadge'
-
-// --- Mock data (replace with real API data) ---
 
 const UK_AVERAGE_MONTHLY_KG = 83
 
@@ -19,15 +17,6 @@ function getRatingForKg(kg: number): CarbonRating {
   return 'E'
 }
 
-const MONTH_LABELS = [
-  'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct',
-  'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr',
-]
-
-const MONTHLY_DATA = [
-  42, 55, 38, 61, 47, 52, 44, 58, 39, 48, 36, 41,
-]
-
 const ratingBarColors: Record<CarbonRating, string> = {
   A: 'bg-(--color-success)',
   B: 'bg-green-400',
@@ -36,7 +25,7 @@ const ratingBarColors: Record<CarbonRating, string> = {
   E: 'bg-(--color-error)',
 }
 
-const TIPS = [
+const DEFAULT_TIPS = [
   {
     title: 'Switch from beef to chicken',
     description:
@@ -55,18 +44,65 @@ const TIPS = [
 ]
 
 export default function CarbonImpactPage() {
-  const currentMonth = MONTHLY_DATA[MONTHLY_DATA.length - 1]
-  const previousMonth = MONTHLY_DATA[MONTHLY_DATA.length - 2]
-  const yearTotal = useMemo(
-    () => MONTHLY_DATA.reduce((sum, v) => sum + v, 0),
-    []
-  )
+  const [apiData, setApiData] = useState<{
+    monthlyTotals: { month: string; co2Kg: number }[]
+    totalCo2Kg: number
+    monthlyAverage: number
+    yearlyEstimate: number
+    percentVsAverage: number
+    rating: CarbonRating
+    suggestions: { tip: string; potentialSavingKg: number }[]
+    orderCount: number
+  } | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch('/api/carbon/impact')
+        if (res.ok) {
+          setApiData(await res.json())
+        }
+      } catch {
+        // Silently fail
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  const MONTH_LABELS_MAP: Record<string, string> = {
+    '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
+    '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
+    '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec',
+  }
+
+  const MONTHLY_DATA = useMemo(() => {
+    if (!apiData?.monthlyTotals?.length) return []
+    return apiData.monthlyTotals.map(m => Math.round(m.co2Kg))
+  }, [apiData])
+
+  const MONTH_LABELS = useMemo(() => {
+    if (!apiData?.monthlyTotals?.length) return []
+    return apiData.monthlyTotals.map(m => MONTH_LABELS_MAP[m.month.slice(5, 7)] || m.month.slice(5, 7))
+  }, [apiData])
+
+  const currentMonth = MONTHLY_DATA.length > 0 ? MONTHLY_DATA[MONTHLY_DATA.length - 1] : 0
+  const previousMonth = MONTHLY_DATA.length > 1 ? MONTHLY_DATA[MONTHLY_DATA.length - 2] : 0
+  const yearTotal = MONTHLY_DATA.reduce((sum, v) => sum + v, 0)
   const monthTrend = currentMonth - previousMonth
-  const treesNeeded = +(yearTotal / 21).toFixed(1) // ~21kg CO2 absorbed per tree/year
-  const maxBar = Math.max(...MONTHLY_DATA, UK_AVERAGE_MONTHLY_KG)
-  const belowAverageMonths = MONTHLY_DATA.filter(
-    (v) => v < UK_AVERAGE_MONTHLY_KG
-  ).length
+  const treesNeeded = +(yearTotal / 21).toFixed(1)
+  const maxBar = Math.max(...MONTHLY_DATA, UK_AVERAGE_MONTHLY_KG, 1)
+  const belowAverageMonths = MONTHLY_DATA.filter(v => v < UK_AVERAGE_MONTHLY_KG).length
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
@@ -198,7 +234,10 @@ export default function CarbonImpactPage() {
         </h2>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
-          {TIPS.map((tip, i) => (
+          {(apiData?.suggestions?.length
+            ? apiData.suggestions.map(s => ({ title: s.tip.split('.')[0], description: s.tip }))
+            : DEFAULT_TIPS
+          ).map((tip, i) => (
             <div
               key={i}
               className="rounded-xl border border-(--color-border) bg-(--color-surface) p-4 shadow-sm hover:shadow-md transition-shadow"

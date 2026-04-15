@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Plus, Pencil, Trash2, MapPin, Star } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -48,20 +49,24 @@ export default function AddressesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this address?')) return
 
-    await supabase.from('addresses').delete().eq('id', id)
-    fetchAddresses()
+    const { error } = await supabase.from('addresses').delete().eq('id', id)
+    if (error) {
+      toast.error('Failed to delete address')
+    } else {
+      toast.success('Address deleted')
+      fetchAddresses()
+    }
   }
 
   const handleSetDefault = async (id: string) => {
-    // Remove default from all addresses
     await supabase
       .from('addresses')
       .update({ is_default: false })
       .eq('user_id', user!.id)
 
-    // Set new default
     await supabase.from('addresses').update({ is_default: true }).eq('id', id)
 
+    toast.success('Default address updated')
     fetchAddresses()
   }
 
@@ -92,6 +97,7 @@ export default function AddressesPage() {
       })
     }
 
+    toast.success(editingAddress ? 'Address updated' : 'Address added')
     setIsOpen(false)
     setEditingAddress(null)
     fetchAddresses()

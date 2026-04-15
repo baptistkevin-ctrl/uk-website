@@ -14,6 +14,7 @@ import {
   LogOut,
   Key
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -73,8 +74,10 @@ export default function SecurityPage() {
 
       if (error) {
         setPasswordError(error.message)
+        toast.error(error.message)
       } else {
         setPasswordSuccess(true)
+        toast.success('Password changed successfully')
         setPasswordForm({
           currentPassword: '',
           newPassword: '',

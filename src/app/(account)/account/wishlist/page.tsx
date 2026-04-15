@@ -7,6 +7,7 @@ import {
   Heart, ShoppingBag, Loader2, Trash2, Plus, Share2, Globe,
   Lock, MoreVertical, Pencil, Copy, Check, ShoppingCart, ExternalLink
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 import { Badge } from '@/components/ui/badge'
 import { useCart } from '@/hooks/use-cart'
 

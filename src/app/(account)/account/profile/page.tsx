@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { User, Mail, Phone, Save, Loader2, CheckCircle, Camera } from 'lucide-react'
+import { User, Mail, Phone, Save, Loader2, CheckCircle, Camera, Upload } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +23,8 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const [avatarUploading, setAvatarUploading] = useState(false)
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -67,15 +70,49 @@ export default function ProfilePage() {
         const data = await res.json()
         setProfile(data)
         setSuccess(true)
+        toast.success('Profile updated successfully')
         setTimeout(() => setSuccess(false), 3000)
       } else {
         const data = await res.json()
         setError(data.error || 'Failed to update profile')
+        toast.error(data.error || 'Failed to update profile')
       }
     } catch (err) {
       setError('An unexpected error occurred')
+      toast.error('An unexpected error occurred')
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setAvatarUploading(true)
+    try {
+      const formDataUpload = new FormData()
+      formDataUpload.append('file', file)
+
+      const uploadRes = await fetch('/api/upload', {
+        method: 'POST',
+        body: formDataUpload,
+      })
+
+      if (uploadRes.ok) {
+        const { url } = await uploadRes.json()
+        const supabase = createClient()
+        await supabase.from('profiles').update({ avatar_url: url }).eq('id', profile!.id)
+        setProfile(prev => prev ? { ...prev, avatar_url: url } : prev)
+        toast.success('Profile photo updated')
+      } else {
+        toast.error('Failed to upload photo')
+      }
+    } catch {
+      toast.error('Failed to upload photo')
+    } finally {
+      setAvatarUploading(false)
+      e.target.value = ''
     }
   }
 
@@ -123,20 +160,38 @@ export default function ProfilePage() {
             {/* Avatar Section */}
             <div className="flex items-center gap-6">
               <div className="relative">
-                <div className="w-20 h-20 bg-(--brand-primary-light) rounded-full flex items-center justify-center">
-                  <User className="h-10 w-10 text-(--brand-primary)" />
-                </div>
-                <button
-                  type="button"
-                  aria-label="Change profile photo"
-                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-(--color-surface) border border-(--color-border) rounded-full flex items-center justify-center shadow-sm hover:bg-background transition-colors"
+                {(profile as Record<string, unknown>)?.avatar_url ? (
+                  <img
+                    src={(profile as Record<string, unknown>).avatar_url as string}
+                    alt="Profile"
+                    className="w-20 h-20 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-20 h-20 bg-(--brand-primary-light) rounded-full flex items-center justify-center">
+                    <User className="h-10 w-10 text-(--brand-primary)" />
+                  </div>
+                )}
+                <label
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-(--color-surface) border border-(--color-border) rounded-full flex items-center justify-center shadow-sm hover:bg-background transition-colors cursor-pointer"
                 >
-                  <Camera className="h-4 w-4 text-(--color-text-secondary)" />
-                </button>
+                  {avatarUploading ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-(--brand-primary)" />
+                  ) : (
+                    <Camera className="h-4 w-4 text-(--color-text-secondary)" />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleAvatarUpload}
+                    className="hidden"
+                    disabled={avatarUploading}
+                  />
+                </label>
               </div>
               <div>
                 <p className="font-medium text-foreground">{formData.full_name || 'Your Name'}</p>
                 <p className="text-sm text-(--color-text-muted)">{profile?.email}</p>
+                <p className="text-xs text-(--color-text-disabled) mt-0.5">Click the camera icon to upload a photo</p>
               </div>
             </div>
 

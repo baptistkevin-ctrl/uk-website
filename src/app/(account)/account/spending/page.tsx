@@ -83,71 +83,10 @@ interface SpendingData {
   yearReview: YearReview | null
 }
 
-// ---------------------------------------------------------------------------
-// Mock data
-// ---------------------------------------------------------------------------
-
 const CATEGORY_COLORS = [
   '#1B6B3A', '#E8861A', '#3B82F6', '#8B5CF6',
   '#EC4899', '#14B8A6', '#F59E0B', '#6366F1',
 ]
-
-const MOCK_DATA: SpendingData = {
-  totalSpent: 487692,
-  averageOrder: 5840,
-  totalSaved: 14230,
-  totalOrders: 84,
-  monthlySpending: [
-    { month: '2025-05', label: 'May', amount: 32400 },
-    { month: '2025-06', label: 'Jun', amount: 41200 },
-    { month: '2025-07', label: 'Jul', amount: 38700 },
-    { month: '2025-08', label: 'Aug', amount: 45100 },
-    { month: '2025-09', label: 'Sep', amount: 36800 },
-    { month: '2025-10', label: 'Oct', amount: 42300 },
-    { month: '2025-11', label: 'Nov', amount: 51200 },
-    { month: '2025-12', label: 'Dec', amount: 62400 },
-    { month: '2026-01', label: 'Jan', amount: 39600 },
-    { month: '2026-02', label: 'Feb', amount: 35800 },
-    { month: '2026-03', label: 'Mar', amount: 41500 },
-    { month: '2026-04', label: 'Apr', amount: 20692 },
-  ],
-  categories: [
-    { name: 'Fresh Produce', amount: 121900, percentage: 25, color: CATEGORY_COLORS[0], topProduct: 'Organic Bananas' },
-    { name: 'Dairy & Eggs', amount: 87800, percentage: 18, color: CATEGORY_COLORS[1], topProduct: 'Free Range Eggs 12pk' },
-    { name: 'Meat & Fish', amount: 78000, percentage: 16, color: CATEGORY_COLORS[2], topProduct: 'British Chicken Breast 500g' },
-    { name: 'Bakery', amount: 53500, percentage: 11, color: CATEGORY_COLORS[3], topProduct: 'Sourdough Loaf' },
-    { name: 'Drinks', amount: 48800, percentage: 10, color: CATEGORY_COLORS[4], topProduct: 'Oat Milk 1L' },
-    { name: 'Frozen', amount: 39000, percentage: 8, color: CATEGORY_COLORS[5], topProduct: 'Garden Peas 1kg' },
-    { name: 'Snacks', amount: 34200, percentage: 7, color: CATEGORY_COLORS[6], topProduct: 'Kettle Chips Sea Salt' },
-    { name: 'Household', amount: 24492, percentage: 5, color: CATEGORY_COLORS[7], topProduct: 'Fairy Washing Up Liquid' },
-  ],
-  topProducts: [
-    { id: '1', name: 'Organic Bananas', image: '/images/products/bananas.jpg', purchaseCount: 42, totalSpent: 5460 },
-    { id: '2', name: 'Semi-Skimmed Milk 2L', image: '/images/products/milk.jpg', purchaseCount: 38, totalSpent: 6080 },
-    { id: '3', name: 'Free Range Eggs 12pk', image: '/images/products/eggs.jpg', purchaseCount: 35, totalSpent: 10500 },
-    { id: '4', name: 'Sourdough Loaf', image: '/images/products/bread.jpg', purchaseCount: 31, totalSpent: 8060 },
-    { id: '5', name: 'British Chicken Breast 500g', image: '/images/products/chicken.jpg', purchaseCount: 28, totalSpent: 14000 },
-    { id: '6', name: 'Oat Milk 1L', image: '/images/products/oatmilk.jpg', purchaseCount: 26, totalSpent: 4420 },
-    { id: '7', name: 'Avocados Pack of 2', image: '/images/products/avocado.jpg', purchaseCount: 24, totalSpent: 3600 },
-    { id: '8', name: 'Cherry Tomatoes 300g', image: '/images/products/tomatoes.jpg', purchaseCount: 22, totalSpent: 3080 },
-    { id: '9', name: 'Greek Yoghurt 500g', image: '/images/products/yoghurt.jpg', purchaseCount: 20, totalSpent: 3400 },
-    { id: '10', name: 'Kettle Chips Sea Salt 150g', image: '/images/products/crisps.jpg', purchaseCount: 18, totalSpent: 3240 },
-  ],
-  budget: 45000,
-  currentMonthSpend: 20692,
-  busiestDay: 'Saturday',
-  avgItemsPerOrder: 14,
-  mostExpensiveOrder: 12460,
-  yearReview: {
-    year: 2026,
-    totalSpent: 487692,
-    totalOrders: 84,
-    totalItems: 1176,
-    totalSaved: 14230,
-    favouriteCategory: 'Fresh Produce',
-    mostBoughtProduct: 'Organic Bananas',
-  },
-}
 
 type Period = '3M' | '6M' | '12M' | 'All'
 
@@ -168,17 +107,50 @@ export default function SpendingPage() {
 
     async function fetchData() {
       try {
-        const res = await fetch('/api/analytics/spending', {
+        const months = period === '3M' ? 3 : period === '6M' ? 6 : period === 'All' ? 60 : 12
+        const res = await fetch(`/api/analytics/spending?period=${months}`, {
           signal: controller.signal,
         })
         if (res.ok) {
           const json = await res.json()
-          setData(json)
+          // Map API response to SpendingData interface
+          const mapped: SpendingData = {
+            totalSpent: json.summary?.totalSpent || 0,
+            averageOrder: json.summary?.avgOrderValue || 0,
+            totalSaved: json.summary?.totalSaved || 0,
+            totalOrders: json.summary?.totalOrders || 0,
+            monthlySpending: (json.monthly || []).map((m: { month: string; monthLabel: string; spent: number }) => ({
+              month: m.month,
+              label: m.monthLabel,
+              amount: m.spent,
+            })),
+            categories: (json.categoryBreakdown || []).map((c: { categoryName: string; totalSpent: number; percentage: number; topProduct: string }, i: number) => ({
+              name: c.categoryName,
+              amount: c.totalSpent,
+              percentage: c.percentage,
+              color: CATEGORY_COLORS[i % CATEGORY_COLORS.length],
+              topProduct: c.topProduct,
+            })),
+            topProducts: (json.topProducts || []).map((p: { productName: string; productImage: string | null; purchaseCount: number; totalSpent: number }, i: number) => ({
+              id: String(i),
+              name: p.productName,
+              image: p.productImage || '',
+              purchaseCount: p.purchaseCount,
+              totalSpent: p.totalSpent,
+            })),
+            budget: json.budget?.monthlyBudget || null,
+            currentMonthSpend: json.budget?.currentMonthSpent || 0,
+            busiestDay: json.trends?.busiestDay || 'Monday',
+            avgItemsPerOrder: json.trends?.avgItemsPerOrder || 0,
+            mostExpensiveOrder: json.trends?.mostExpensiveOrder || 0,
+            yearReview: null,
+          }
+          setData(mapped)
         } else {
-          setData(MOCK_DATA)
+          setData(null)
         }
       } catch {
-        setData(MOCK_DATA)
+        setData(null)
       } finally {
         setLoading(false)
       }
@@ -186,7 +158,7 @@ export default function SpendingPage() {
 
     fetchData()
     return () => controller.abort()
-  }, [])
+  }, [period])
 
   if (loading) return <SpendingSkeleton />
   if (!data) return <EmptyState />
