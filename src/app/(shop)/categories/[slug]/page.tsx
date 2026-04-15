@@ -8,6 +8,7 @@ import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import { CategoryHeroBanner } from '@/components/product/CategoryHeroBanner'
 import { SubcategoryPills } from '@/components/product/SubcategoryPills'
 import { CategoryFilters, ActiveFilterTags } from '@/components/product/CategoryFilters'
+import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema'
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
 
@@ -36,9 +37,31 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
     }
   }
 
+  const title = `${category.name} | UK Grocery Store`
+  const description = category.description || `Shop ${category.name} online at UK Grocery Store. Fresh groceries delivered across the UK.`
+  const categoryUrl = `https://uk-grocery-store.com/categories/${slug}`
+
   return {
-    title: `${category.name} | Fresh Groceries`,
-    description: category.description || `Shop ${category.name} at Fresh Groceries`,
+    title,
+    description,
+    alternates: {
+      canonical: categoryUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: categoryUrl,
+      siteName: 'UK Grocery Store',
+      images: category.image_url ? [{ url: category.image_url, width: 1200, height: 630, alt: category.name }] : undefined,
+      locale: 'en_GB',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: category.image_url ? [category.image_url] : undefined,
+    },
   }
 }
 
@@ -215,6 +238,15 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
           </div>
         </div>
       </Container>
+
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', href: '/' },
+          { name: 'Categories', href: '/categories' },
+          ...(parentCategory ? [{ name: parentCategory.name, href: `/categories/${parentCategory.slug}` }] : []),
+          { name: category.name, href: `/categories/${category.slug}` },
+        ]}
+      />
     </div>
   )
 }

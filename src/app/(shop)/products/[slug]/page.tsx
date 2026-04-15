@@ -33,6 +33,7 @@ import { ProductGallery } from '@/components/products/product-gallery'
 import { StockAlertButton } from '@/components/products/stock-alert-button'
 import { ProductQA } from '@/components/products/product-qa'
 import { ProductSchema } from '@/components/seo/ProductSchema'
+import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema'
 import type { Metadata } from 'next'
 
 // ISR: revalidate product pages every 2 minutes (price/stock can change)
@@ -60,9 +61,39 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
     }
   }
 
+  const title = product.meta_title || `${product.name} | UK Grocery Store`
+  const description = product.meta_description || product.short_description || product.description || `Buy ${product.name} online at UK Grocery Store. Fresh groceries delivered to your door.`
+  const productUrl = `https://uk-grocery-store.com/products/${slug}`
+  const imageUrl = product.image_url || 'https://uk-grocery-store.com/og-default.jpg'
+
   return {
-    title: product.meta_title || `${product.name} | Fresh Groceries`,
-    description: product.meta_description || product.short_description || product.description,
+    title,
+    description,
+    alternates: {
+      canonical: productUrl,
+    },
+    openGraph: {
+      title,
+      description,
+      url: productUrl,
+      siteName: 'UK Grocery Store',
+      images: [
+        {
+          url: imageUrl,
+          width: 800,
+          height: 800,
+          alt: product.name,
+        },
+      ],
+      locale: 'en_GB',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [imageUrl],
+    },
   }
 }
 
@@ -539,6 +570,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
           rating: product.avg_rating || undefined,
           reviewCount: product.review_count || undefined,
         }}
+      />
+      <BreadcrumbSchema
+        items={[
+          { name: 'Home', href: '/' },
+          { name: 'Products', href: '/products' },
+          { name: product.name, href: `/products/${product.slug}` },
+        ]}
       />
     </div>
   )

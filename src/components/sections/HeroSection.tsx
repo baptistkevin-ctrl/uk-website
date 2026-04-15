@@ -155,6 +155,7 @@ export function HeroSection() {
             priority={i === 0}
             quality={85}
             sizes="100vw"
+            {...(i === 0 ? { placeholder: 'blur' as const, blurDataURL: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAoHBwgHBgoICAgLCgoLDhgQDg0NDh0VFhEYIx8lJCIfIiEmKzcvJik0KSEiMEExNDk7Pj4+JS5ESUM8SDc9Pjv/2wBDAQoLCw4NDhwQEBw7KCIoOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozv/wAARCAAIAAoDASIAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAABv/EAB8QAAICAgIDAQAAAAAAAAAAAAECAAMEBREhBhIxQf/EABUBAQEAAAAAAAAAAAAAAAAAAAAB/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8Ank+VY2Nh1V0UpZcx9mLEkAD4B+yIgf/2Q==' } : {})}
             className={cn(
               "object-cover",
               i === current ? "animate-[kenburns_8s_ease-in-out_forwards]" : ""
