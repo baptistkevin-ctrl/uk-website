@@ -11,6 +11,7 @@ import {
   RotateCcw,
   AlertTriangle,
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent } from '@/components/ui/card'
@@ -95,9 +96,11 @@ export default function VendorReturnsPage() {
         const data = await res.json()
         throw new Error(data.error || 'Failed to update return')
       }
+      toast.success(`Return ${newStatus} successfully`)
       await fetchReturns()
     } catch (err) {
       console.error('Failed to update return:', err)
+      toast.error(err instanceof Error ? err.message : 'Failed to update return')
       setError(err instanceof Error ? err.message : 'Failed to update return')
     } finally {
       setUpdatingId(null)

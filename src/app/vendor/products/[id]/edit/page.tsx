@@ -158,6 +158,7 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
       })
 
       if (res.ok) {
+        toast.success('Product updated successfully!')
         router.push('/vendor/products')
       } else {
         const data = await res.json()

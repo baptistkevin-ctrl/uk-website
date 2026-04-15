@@ -22,6 +22,7 @@ import {
   Cog,
   ArrowRight
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { formatPrice } from '@/lib/utils/format'
@@ -98,9 +99,13 @@ export default function VendorOrdersPage() {
         if (selectedOrder?.id === orderId) {
           setSelectedOrder({ ...selectedOrder, status: newStatus })
         }
+        toast.success(`Order marked as ${newStatus}`)
+      } else {
+        toast.error('Failed to update order status')
       }
     } catch (error) {
       console.error('Update status error:', error)
+      toast.error('Failed to update order status')
     } finally {
       setUpdatingStatus(null)
     }

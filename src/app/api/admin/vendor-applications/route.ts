@@ -133,7 +133,7 @@ export async function PUT(request: NextRequest) {
         const { sendVendorApprovedEmail } = await import('@/lib/email/send-email')
         const vendorEmail = application.user?.email
         const vendorName = application.user?.full_name || application.business_name
-        const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.vercel.app'}/vendor/dashboard`
+        const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/vendor/dashboard`
         if (vendorEmail) {
           await sendVendorApprovedEmail(vendorEmail, vendorName, application.business_name, dashboardUrl)
         }

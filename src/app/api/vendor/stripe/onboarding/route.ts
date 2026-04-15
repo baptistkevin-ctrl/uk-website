@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
         business_type: 'individual',
         business_profile: {
           name: vendor.business_name,
-          url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.vercel.app'}/store/${vendor.slug}`,
+          url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/store/${vendor.slug}`,
         },
         metadata: {
           vendor_id: vendor.id,
@@ -111,8 +111,8 @@ export async function POST(request: NextRequest) {
     step = 'create_link'
     const accountLink = await stripe.accountLinks.create({
       account: stripeAccountId,
-      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.vercel.app'}/vendor/onboarding?refresh=true`,
-      return_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.vercel.app'}/vendor/onboarding?success=true`,
+      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/vendor/onboarding?refresh=true`,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/vendor/onboarding?success=true`,
       type: 'account_onboarding',
     })
 

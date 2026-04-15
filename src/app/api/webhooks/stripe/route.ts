@@ -504,6 +504,24 @@ async function processVendorPayments(
       continue
     }
 
+    // Notify vendor of new order via email
+    try {
+      const { sendEmail } = await import('@/lib/email/send-email')
+      if (vendor.email) {
+        await sendEmail({
+          to: vendor.email,
+          subject: `New Order Received - ${breakdown.amount ? `£${(breakdown.amount / 100).toFixed(2)}` : 'New Sale'}`,
+          html: `<h2>You have a new order!</h2>
+            <p>A customer has placed an order that includes your products.</p>
+            <p><strong>Order Total:</strong> £${(breakdown.amount / 100).toFixed(2)}</p>
+            <p><strong>Your Earnings:</strong> £${(breakdown.net / 100).toFixed(2)}</p>
+            <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/vendor/orders">View Order in Dashboard</a></p>`,
+        })
+      }
+    } catch {
+      // Non-critical
+    }
+
     // If vendor has a Stripe Connect account, initiate transfer
     if (vendor.stripe_account_id && breakdown.net > 0) {
       try {

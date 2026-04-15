@@ -94,6 +94,7 @@ export default function NewVendorProductPage() {
       })
 
       if (res.ok) {
+        toast.success('Product created successfully!')
         router.push('/vendor/products')
       } else {
         const data = await res.json()

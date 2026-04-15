@@ -160,23 +160,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Failed to create product: ${productError.message}` }, { status: 500 })
     }
 
-    // Auto-link vendor product to ALL categories so it appears everywhere
-    if (product) {
-      const { data: allCategories } = await supabaseAdmin
-        .from('categories')
-        .select('id')
-        .eq('is_active', true)
-
-      if (allCategories && allCategories.length > 0) {
-        const categoryLinks = allCategories.map(cat => ({
-          product_id: product.id,
-          category_id: cat.id,
-        }))
-
-        await supabaseAdmin
-          .from('product_categories')
-          .insert(categoryLinks)
-      }
+    // Link product to the selected category
+    if (product && category_id) {
+      await supabaseAdmin
+        .from('product_categories')
+        .insert({ product_id: product.id, category_id })
     }
 
     await cacheInvalidateTag('products')

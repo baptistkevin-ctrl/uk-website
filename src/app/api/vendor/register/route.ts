@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
 
       // Send verification email via invite (triggers email confirmation)
       const { error: emailError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.vercel.app'}/verify-email`,
+        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/verify-email`,
       })
 
       if (emailError) {
