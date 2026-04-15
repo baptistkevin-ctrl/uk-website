@@ -52,6 +52,7 @@ const sidebarSections: SidebarSection[] = [
     title: 'Overview',
     items: [
       { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/admin/finance', label: 'Finance', icon: CreditCard },
       { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     ],
   },

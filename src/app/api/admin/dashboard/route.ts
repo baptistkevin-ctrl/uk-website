@@ -84,6 +84,10 @@ export async function GET(request: NextRequest) {
       recentReviewsResult,
       recentUsersResult,
       topProductsResult,
+      vendorOrdersResult,
+      vendorHealthResult,
+      pendingReturnsResult,
+      openTicketsResult,
     ] = await Promise.all([
       // Orders
       safeQuery(supabase
@@ -134,6 +138,21 @@ export async function GET(request: NextRequest) {
       safeQuery(supabase.from('order_items')
         .select('product_id, quantity, products:product_id (name, slug, image_url)')
         .limit(100)),
+
+      // Vendor orders (for financial data)
+      safeQuery(supabase.from('vendor_orders')
+        .select('total_amount, commission_amount, vendor_amount, status, created_at')
+        .order('created_at', { ascending: false })),
+
+      // Vendor Stripe health
+      safeQuery(supabase.from('vendors')
+        .select('id, business_name, stripe_onboarding_complete, stripe_charges_enabled, stripe_payouts_enabled, status, created_at')),
+
+      // Pending returns
+      safeQuery(supabase.from('returns').select('*', { count: 'exact', head: true }).eq('status', 'pending')),
+
+      // Open support tickets
+      safeQuery(supabase.from('support_tickets').select('*', { count: 'exact', head: true }).eq('status', 'open')),
     ])
 
     // Process orders data
@@ -232,6 +251,29 @@ export async function GET(request: NextRequest) {
     const activeCoupons = activeCouponsResult.count || 0
     const activeDeals = activeDealsResult.count || 0
 
+    // Process financial data
+    const vendorOrders: any[] = vendorOrdersResult.data || []
+    const todayVendorOrders = vendorOrders.filter((vo: any) => vo.created_at?.startsWith(today))
+    const thisMonthVendorOrders = vendorOrders.filter((vo: any) => vo.created_at?.startsWith(thisMonth))
+
+    const totalCommissionEarned = vendorOrders.reduce((sum: number, vo: any) => sum + (vo.commission_amount || 0), 0)
+    const todayCommission = todayVendorOrders.reduce((sum: number, vo: any) => sum + (vo.commission_amount || 0), 0)
+    const thisMonthCommission = thisMonthVendorOrders.reduce((sum: number, vo: any) => sum + (vo.commission_amount || 0), 0)
+    const totalVendorPayouts = vendorOrders.reduce((sum: number, vo: any) => sum + (vo.vendor_amount || 0), 0)
+    const pendingPayouts = vendorOrders.filter((vo: any) => vo.status === 'pending_payout').reduce((sum: number, vo: any) => sum + (vo.vendor_amount || 0), 0)
+    const transferredPayouts = vendorOrders.filter((vo: any) => vo.status === 'transferred').reduce((sum: number, vo: any) => sum + (vo.vendor_amount || 0), 0)
+
+    const todayRevenue = todayOrders.filter((o: any) => o.payment_status === 'paid').reduce((sum: number, o: any) => sum + (o.total_pence || 0), 0)
+
+    // Vendor Stripe health
+    const allVendors: any[] = vendorHealthResult.data || []
+    const vendorsConnected = allVendors.filter((v: any) => v.stripe_onboarding_complete).length
+    const vendorsPending = allVendors.filter((v: any) => !v.stripe_onboarding_complete && v.status === 'approved').length
+    const vendorsPayoutsEnabled = allVendors.filter((v: any) => v.stripe_payouts_enabled).length
+
+    const pendingReturns = pendingReturnsResult.count || 0
+    const openTickets = openTicketsResult.count || 0
+
     return NextResponse.json({
       overview: {
         totalRevenue,
@@ -263,6 +305,24 @@ export async function GET(request: NextRequest) {
       vendors: {
         total: totalVendors,
         pendingApplications: pendingVendorApplications,
+        stripeConnected: vendorsConnected,
+        stripePending: vendorsPending,
+        payoutsEnabled: vendorsPayoutsEnabled,
+      },
+      finance: {
+        todayRevenue,
+        todayCommission,
+        thisMonthRevenue,
+        thisMonthCommission,
+        totalCommissionEarned,
+        totalVendorPayouts,
+        pendingPayouts,
+        transferredPayouts,
+        platformProfit: totalRevenue - totalVendorPayouts,
+      },
+      support: {
+        pendingReturns,
+        openTickets,
       },
       reviews: {
         total: totalReviews,
@@ -277,6 +337,14 @@ export async function GET(request: NextRequest) {
         salesByDay,
         salesByMonth,
       },
+      // Flat counts for sidebar badges
+      pendingOrders: ordersByStatus.pending,
+      pendingApplications: pendingVendorApplications,
+      pendingReturns,
+      pendingReviews,
+      lowStockProducts,
+      openTickets,
+
       alerts: [
         ...(pendingReviews > 0 ? [{
           type: 'warning',
