@@ -15,6 +15,8 @@ import {
   CreditCard,
   Shield,
   Settings,
+  Truck,
+  TrendingUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 
@@ -27,6 +29,8 @@ const accountLinks = [
   { href: '/account/wishlist', label: 'Wishlist', icon: Heart },
   { href: '/account/rewards', label: 'Rewards', icon: Gift },
   { href: '/account/referrals', label: 'Referrals', icon: Users },
+  { href: '/account/delivery-preferences', label: 'Delivery', icon: Truck },
+  { href: '/account/spending', label: 'Spending', icon: TrendingUp },
   { href: '/account/notifications', label: 'Notifications', icon: Bell },
   { href: '/account/tickets', label: 'Tickets', icon: MessageSquare },
   { href: '/account/payments', label: 'Payments', icon: CreditCard },

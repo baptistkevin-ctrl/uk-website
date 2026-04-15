@@ -9,6 +9,7 @@ import { Separator } from '@/components/ui/separator'
 import { formatPrice, formatDate } from '@/lib/utils/format'
 import { OrderChatButton } from '@/components/chat/order-chat-button'
 import { PrintInvoiceButton } from './PrintInvoiceButton'
+import { ReorderButton } from './ReorderButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -408,6 +409,24 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                     </Link>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Reorder */}
+          {orderItems && orderItems.length > 0 && (
+            <Card>
+              <CardContent className="p-6">
+                <ReorderButton
+                  items={orderItems.map(item => ({
+                    product_id: item.product?.id || '',
+                    product_name: item.product?.name || item.product_name,
+                    product_slug: item.product?.slug || '',
+                    product_image: item.product?.image_url || null,
+                    price_pence: item.unit_price_pence,
+                    quantity: item.quantity,
+                  }))}
+                />
               </CardContent>
             </Card>
           )}

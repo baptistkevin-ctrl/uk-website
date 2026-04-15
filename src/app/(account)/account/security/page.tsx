@@ -325,15 +325,42 @@ export default function SecurityPage() {
         </CardContent>
       </Card>
 
-      {/* Login History */}
+      {/* Account Activity */}
       <Card>
         <CardHeader>
-          <h2 className="text-lg font-semibold">Recent Login Activity</h2>
+          <div className="flex items-center gap-2">
+            <Key className="h-5 w-5 text-(--color-text-secondary)" />
+            <h2 className="text-lg font-semibold">Account Activity</h2>
+          </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-(--color-text-muted)">
-            Login history tracking will be available in a future update.
-          </p>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 p-3 bg-background rounded-lg">
+              <div className="h-8 w-8 rounded-full bg-(--color-success-bg) flex items-center justify-center shrink-0">
+                <CheckCircle className="h-4 w-4 text-(--color-success)" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-foreground">Signed in</p>
+                <p className="text-xs text-(--color-text-muted)">Current session — this device</p>
+              </div>
+              <span className="text-xs text-(--color-text-muted)">Now</span>
+            </div>
+            {passwordSuccess && (
+              <div className="flex items-center gap-3 p-3 bg-background rounded-lg">
+                <div className="h-8 w-8 rounded-full bg-(--color-info-bg) flex items-center justify-center shrink-0">
+                  <Lock className="h-4 w-4 text-(--color-info)" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">Password changed</p>
+                  <p className="text-xs text-(--color-text-muted)">Password updated successfully</p>
+                </div>
+                <span className="text-xs text-(--color-text-muted)">Just now</span>
+              </div>
+            )}
+            <p className="text-xs text-(--color-text-disabled) text-center pt-2">
+              Full login history with IP addresses and device info coming soon
+            </p>
+          </div>
         </CardContent>
       </Card>
 
