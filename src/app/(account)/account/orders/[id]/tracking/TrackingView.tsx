@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import {
   ChevronRight,
@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/utils/format'
+import { toast } from '@/hooks/use-toast'
 
 /* -------------------------------------------------------------------------- */
 /*  Types                                                                     */
@@ -360,10 +361,18 @@ function TrackingSkeleton() {
 /*  TrackingView                                                              */
 /* -------------------------------------------------------------------------- */
 
+const STATUS_TOAST_MESSAGES: Record<string, { title: string; description: string; type: 'success' | 'info' }> = {
+  confirmed: { title: 'Order Confirmed!', description: 'Your payment has been verified and order confirmed.', type: 'info' },
+  processing: { title: 'Being Packed', description: 'Your items are being carefully picked and packed.', type: 'info' },
+  dispatched: { title: 'Out for Delivery!', description: 'Your driver is on the way with your order.', type: 'success' },
+  delivered: { title: 'Delivered!', description: 'Your order has been delivered. Enjoy your groceries!', type: 'success' },
+}
+
 export function TrackingView({ orderId }: { orderId: string }) {
   const [tracking, setTracking] = useState<TrackingData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const prevStatusRef = useRef<string | null>(null)
 
   const fetchTracking = useCallback(async () => {
     try {
@@ -373,6 +382,28 @@ export function TrackingView({ orderId }: { orderId: string }) {
         throw new Error(data?.error || 'Failed to load tracking information')
       }
       const data: TrackingData = await res.json()
+
+      // Detect status change and show toast notification
+      if (prevStatusRef.current && data.status !== prevStatusRef.current) {
+        const msg = STATUS_TOAST_MESSAGES[data.status]
+        if (msg) {
+          if (msg.type === 'success') {
+            toast.success(msg.title, { description: msg.description })
+          } else {
+            toast.info(msg.title, { description: msg.description })
+          }
+        }
+
+        // Browser notification if permitted
+        if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+          const notifMsg = STATUS_TOAST_MESSAGES[data.status]
+          if (notifMsg) {
+            new Notification(notifMsg.title, { body: notifMsg.description, icon: '/icons/icon.svg' })
+          }
+        }
+      }
+      prevStatusRef.current = data.status
+
       setTracking(data)
       setError(null)
     } catch (err) {
@@ -386,11 +417,17 @@ export function TrackingView({ orderId }: { orderId: string }) {
 
   useEffect(() => {
     fetchTracking()
+
+    // Request browser notification permission
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
   }, [fetchTracking])
 
-  // Poll every 10s while dispatched
+  // Poll every 10s while not delivered/cancelled
   useEffect(() => {
-    if (!tracking || tracking.status !== 'dispatched') return
+    if (!tracking) return
+    if (tracking.status === 'delivered' || tracking.status === 'cancelled') return
 
     const interval = setInterval(fetchTracking, 10_000)
     return () => clearInterval(interval)
