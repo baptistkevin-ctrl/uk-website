@@ -7,6 +7,8 @@ import { Container } from '@/components/layout/Container'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import { CategoryHeroBanner } from '@/components/product/CategoryHeroBanner'
 import { SubcategoryPills } from '@/components/product/SubcategoryPills'
+import { CategoryFilters, ActiveFilterTags } from '@/components/product/CategoryFilters'
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 
 // ISR: revalidate category product pages every 2 minutes
@@ -142,22 +144,23 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
           {/* Filter Sidebar — desktop only */}
           <aside className="hidden lg:block w-65 shrink-0">
-            <div
-              className="rounded-xl bg-(--color-surface) border border-(--color-border) p-5 sticky top-24"
-            >
-              <h3 className="text-sm font-semibold text-foreground mb-3">
-                Filters
-              </h3>
-              <p className="text-sm text-(--color-text-muted)">
-                Filters coming soon
-              </p>
-            </div>
+            <Suspense fallback={<div className="rounded-xl bg-(--color-surface) border border-(--color-border) p-5 h-80 animate-pulse" />}>
+              <CategoryFilters
+                brands={[...new Set(products.map((p: { brand?: string | null }) => p.brand).filter(Boolean) as string[])]}
+                maxPrice={Math.max(...products.map((p: { price_pence: number }) => p.price_pence), 0) / 100}
+              />
+            </Suspense>
           </aside>
 
           {/* Right Content */}
           <div className="flex-1 min-w-0">
             {products.length > 0 ? (
               <>
+                {/* Active Filter Tags */}
+                <Suspense fallback={null}>
+                  <ActiveFilterTags />
+                </Suspense>
+
                 {/* Toolbar */}
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm text-(--color-text-muted)">

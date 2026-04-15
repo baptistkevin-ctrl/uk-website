@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Search, X, Loader2, Package, Mic, MicOff } from 'lucide-react'
+import { Search, X, Loader2, Package, Mic, MicOff, TrendingUp, Clock, ArrowRight } from 'lucide-react'
 import { formatPrice } from '@/lib/utils/format'
 import { useVoiceSearch } from '@/hooks/use-voice-search'
 
@@ -23,6 +23,27 @@ interface GlobalSearchProps {
   placeholder?: string
 }
 
+const TRENDING_SEARCHES = [
+  'Organic bananas', 'Free range eggs', 'Sourdough bread',
+  'Oat milk', 'Avocados', 'Chicken breast', 'Fresh salmon',
+]
+
+function getRecentSearches(): string[] {
+  if (typeof window === 'undefined') return []
+  try {
+    return JSON.parse(localStorage.getItem('recent-searches') || '[]').slice(0, 5)
+  } catch { return [] }
+}
+
+function saveRecentSearch(term: string) {
+  if (typeof window === 'undefined') return
+  try {
+    const existing = getRecentSearches()
+    const updated = [term, ...existing.filter(s => s.toLowerCase() !== term.toLowerCase())].slice(0, 5)
+    localStorage.setItem('recent-searches', JSON.stringify(updated))
+  } catch { /* ignore */ }
+}
+
 export function GlobalSearch({ variant = 'header', placeholder = 'Search fresh produce, snacks, drinks...' }: GlobalSearchProps) {
   const router = useRouter()
   const [query, setQuery] = useState('')
@@ -30,10 +51,14 @@ export function GlobalSearch({ variant = 'header', placeholder = 'Search fresh p
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [recentSearches, setRecentSearches] = useState<string[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    setMounted(true)
+    setRecentSearches(getRecentSearches())
+  }, [])
 
   const handleVoiceResult = useCallback((transcript: string) => {
     setQuery(transcript)
@@ -104,12 +129,27 @@ export function GlobalSearch({ variant = 'header', placeholder = 'Search fresh p
     router.push(`/products/${slug}`)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault()
     if (query.trim()) {
+      saveRecentSearch(query.trim())
+      setRecentSearches(getRecentSearches())
       setIsOpen(false)
       router.push(`/products?search=${encodeURIComponent(query)}`)
     }
+  }
+
+  const handleQuickSearch = (term: string) => {
+    setQuery(term)
+    saveRecentSearch(term)
+    setRecentSearches(getRecentSearches())
+    setIsOpen(false)
+    router.push(`/products?search=${encodeURIComponent(term)}`)
+  }
+
+  const clearRecentSearches = () => {
+    if (typeof window !== 'undefined') localStorage.removeItem('recent-searches')
+    setRecentSearches([])
   }
 
   return (
@@ -171,10 +211,61 @@ export function GlobalSearch({ variant = 'header', placeholder = 'Search fresh p
         </div>
       </form>
 
-      {/* Dropdown results */}
-      {isOpen && (query.length >= 2 || results.length > 0) && (
+      {/* Dropdown */}
+      {isOpen && (
         <div className="absolute top-full left-0 right-0 mt-1.5 rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-xl) overflow-hidden z-[var(--z-dropdown)]">
-          {loading ? (
+          {/* Empty state: show trending + recent searches */}
+          {query.length < 2 && results.length === 0 && (
+            <div className="py-3">
+              {/* Recent Searches */}
+              {recentSearches.length > 0 && (
+                <div className="px-4 pb-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" /> Recent
+                    </p>
+                    <button onClick={clearRecentSearches} className="text-xs text-(--color-text-muted) hover:text-(--brand-primary) transition-colors">
+                      Clear
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {recentSearches.map((term, i) => (
+                      <button
+                        key={i}
+                        onClick={() => handleQuickSearch(term)}
+                        className="px-3 py-1.5 text-sm bg-(--color-elevated) hover:bg-(--brand-primary-light) hover:text-(--brand-primary) rounded-full transition-colors text-(--color-text-secondary)"
+                      >
+                        {term}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Trending Searches */}
+              <div className="px-4 pt-1">
+                {recentSearches.length > 0 && <div className="border-t border-(--color-border) mb-3" />}
+                <p className="text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                  <TrendingUp className="h-3.5 w-3.5" /> Trending
+                </p>
+                <div className="space-y-0.5">
+                  {TRENDING_SEARCHES.slice(0, 5).map((term, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleQuickSearch(term)}
+                      className="w-full flex items-center gap-3 px-2 py-2 hover:bg-(--color-elevated) rounded-lg transition-colors text-left"
+                    >
+                      <Search className="h-3.5 w-3.5 text-(--color-text-disabled)" />
+                      <span className="text-sm text-(--color-text-secondary)">{term}</span>
+                      <ArrowRight className="h-3 w-3 text-(--color-text-disabled) ml-auto" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {query.length >= 2 && loading ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="w-5 h-5 animate-spin text-(--brand-primary)" />
             </div>
