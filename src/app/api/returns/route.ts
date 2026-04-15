@@ -236,6 +236,41 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: itemsError.message }, { status: 500 })
   }
 
+  // Notify vendor(s) of the return request
+  try {
+    const productIds = returnItems.map(i => i.product_id)
+    const { data: products } = await supabaseAdmin
+      .from('products')
+      .select('vendor_id, name, vendors(email, business_name)')
+      .in('id', productIds)
+      .not('vendor_id', 'is', null)
+
+    if (products) {
+      const { sendEmail } = await import('@/lib/email/send-email')
+      const notifiedVendors = new Set<string>()
+
+      for (const product of products) {
+        if (!product.vendor_id || notifiedVendors.has(product.vendor_id)) continue
+        notifiedVendors.add(product.vendor_id)
+
+        const vendor = product.vendors as unknown as { email: string; business_name: string }
+        if (vendor?.email) {
+          await sendEmail({
+            to: vendor.email,
+            subject: `Return Request - Order #${order.order_number}`,
+            html: `<h2>Return Request Received</h2>
+              <p>A customer has requested a return for order <strong>#${order.order_number}</strong>.</p>
+              <p><strong>Reason:</strong> ${reason}</p>
+              <p><strong>Refund Amount:</strong> £${(totalRefund / 100).toFixed(2)}</p>
+              <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/vendor/returns">Review in Dashboard</a></p>`,
+          })
+        }
+      }
+    }
+  } catch {
+    // Non-critical
+  }
+
   return NextResponse.json({
     return: returnRequest,
     message: 'Return request submitted successfully. You will receive an email with further instructions.'

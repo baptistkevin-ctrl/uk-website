@@ -13,7 +13,8 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  AlertCircle
+  AlertCircle,
+  Download,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -123,12 +124,21 @@ export default function VendorProducts() {
           <h1 className="text-2xl font-bold text-foreground">Products</h1>
           <p className="text-(--color-text-secondary)">{products.length} total products</p>
         </div>
-        <Link href="/vendor/products/new">
-          <Button className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Product
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => window.open('/api/vendor/products/export', '_blank')}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
           </Button>
-        </Link>
+          <Link href="/vendor/products/new">
+            <Button className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Product
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

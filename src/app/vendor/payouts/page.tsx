@@ -11,7 +11,8 @@ import {
   ExternalLink,
   AlertCircle,
   Wallet,
-  ArrowUpRight
+  ArrowUpRight,
+  Download,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { formatPrice } from '@/lib/utils/format'
@@ -197,8 +198,18 @@ export default function VendorPayoutsPage() {
 
       {/* Payout History */}
       <div className="bg-(--color-surface) rounded-xl shadow-sm">
-        <div className="p-6 border-b">
+        <div className="p-6 border-b flex items-center justify-between">
           <h2 className="font-semibold text-foreground">Payout History</h2>
+          {payouts.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open('/api/vendor/payouts/export', '_blank')}
+            >
+              <Download className="h-4 w-4 mr-1.5" />
+              Export CSV
+            </Button>
+          )}
         </div>
 
         {payouts.length === 0 ? (

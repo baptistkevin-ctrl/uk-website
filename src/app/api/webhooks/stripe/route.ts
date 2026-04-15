@@ -552,6 +552,22 @@ async function processVendorPayments(
           .eq('id', vendorOrder.id)
 
         console.log(`Transfer ${transfer.id} created for vendor ${vendor.id}: ${breakdown.net}p`)
+
+        // Notify vendor of payout
+        try {
+          const { sendEmail } = await import('@/lib/email/send-email')
+          if (vendor.email) {
+            await sendEmail({
+              to: vendor.email,
+              subject: `Payout Processed - £${(breakdown.net / 100).toFixed(2)}`,
+              html: `<h2>Payment Sent!</h2>
+                <p>A payout of <strong>£${(breakdown.net / 100).toFixed(2)}</strong> has been transferred to your Stripe account.</p>
+                <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/vendor/payouts">View Payout History</a></p>`,
+            })
+          }
+        } catch {
+          // Non-critical
+        }
       } catch (transferError) {
         captureError(transferError instanceof Error ? transferError : new Error(String(transferError)), {
           context: 'webhook:stripe:transfer',

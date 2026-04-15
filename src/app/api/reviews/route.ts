@@ -195,6 +195,34 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to submit review' }, { status: 500 })
   }
 
+  // Notify vendor if this product belongs to a vendor
+  try {
+    const { data: product } = await supabaseAdmin
+      .from('products')
+      .select('vendor_id, name, vendors(email, business_name)')
+      .eq('id', product_id)
+      .single()
+
+    if (product?.vendor_id && product?.vendors) {
+      const vendor = product.vendors as unknown as { email: string; business_name: string }
+      if (vendor.email) {
+        const { sendEmail } = await import('@/lib/email/send-email')
+        const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating)
+        await sendEmail({
+          to: vendor.email,
+          subject: `New ${rating}-Star Review on ${product.name}`,
+          html: `<h2>New Review Received</h2>
+            <p>A customer left a <strong>${stars}</strong> review on <strong>${product.name}</strong>.</p>
+            ${sanitizedTitle ? `<p><strong>"${sanitizedTitle}"</strong></p>` : ''}
+            ${sanitizedContent ? `<p style="color:#666;">${sanitizedContent}</p>` : ''}
+            <p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/vendor/reviews">View in Dashboard</a></p>`,
+        })
+      }
+    }
+  } catch {
+    // Non-critical
+  }
+
   return NextResponse.json({
     review,
     message: 'Your review has been submitted and is pending approval',
