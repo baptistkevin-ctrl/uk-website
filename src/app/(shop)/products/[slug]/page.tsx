@@ -32,6 +32,7 @@ import { ProductViewTracker } from '@/components/products/product-view-tracker'
 import { ProductGallery } from '@/components/products/product-gallery'
 import { StockAlertButton } from '@/components/products/stock-alert-button'
 import { ProductQA } from '@/components/products/product-qa'
+import { ProductSchema } from '@/components/seo/ProductSchema'
 import type { Metadata } from 'next'
 
 // ISR: revalidate product pages every 2 minutes (price/stock can change)
@@ -117,6 +118,30 @@ export default async function ProductPage({ params }: ProductPageProps) {
     { key: 'gluten_free', label: 'Gluten Free', active: product.is_gluten_free, icon: Wheat, color: 'amber' },
     { key: 'organic', label: 'Organic', active: product.is_organic, icon: Sparkles, color: 'lime' },
   ].filter(d => d.active)
+
+  // Fetch related products (same vendor or random active products)
+  let relatedProducts: { id: string; name: string; slug: string; image_url: string | null; price_pence: number; compare_at_price_pence: number | null }[] = []
+  const { data: related } = await supabase
+    .from('products')
+    .select('id, name, slug, image_url, price_pence, compare_at_price_pence')
+    .eq('is_active', true)
+    .neq('id', product.id)
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  if (related) {
+    relatedProducts = related
+  }
+
+  // Delivery estimate: cutoff is 2pm for next-day delivery
+  const now = new Date()
+  const cutoffHour = 14
+  const hoursUntilCutoff = cutoffHour - now.getHours()
+  const minutesUntilCutoff = 60 - now.getMinutes()
+  const canGetNextDay = hoursUntilCutoff > 0 || (hoursUntilCutoff === 0 && minutesUntilCutoff > 0)
+  const deliveryEstimate = canGetNextDay
+    ? `Order within ${hoursUntilCutoff > 0 ? `${hoursUntilCutoff}h ${minutesUntilCutoff}m` : `${minutesUntilCutoff}m`} for next-day delivery`
+    : 'Order now for delivery in 2 days'
 
   return (
     <div className="min-h-screen bg-background">
@@ -352,6 +377,17 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
             </div>
 
+            {/* Delivery Estimate */}
+            {!isOutOfStock && (
+              <div className="mb-8 flex items-center gap-3 p-4 bg-(--brand-primary)/5 border border-(--brand-primary)/20 rounded-xl">
+                <Truck className="h-5 w-5 text-(--brand-primary) shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{deliveryEstimate}</p>
+                  <p className="text-xs text-(--color-text-muted)">Free delivery on orders over £40</p>
+                </div>
+              </div>
+            )}
+
             <Separator className="my-8" />
 
             {/* Description */}
@@ -443,6 +479,38 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <ProductQA productSlug={slug} isLoggedIn={isLoggedIn} />
         </div>
 
+        {/* Customers Also Viewed */}
+        {relatedProducts.length > 0 && (
+          <div className="mt-12">
+            <Separator className="mb-8" />
+            <h2 className="text-xl font-bold text-foreground mb-6">Customers Also Viewed</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              {relatedProducts.map((rp: { id: string; name: string; slug: string; image_url: string | null; price_pence: number; compare_at_price_pence: number | null }) => (
+                <Link key={rp.id} href={`/products/${rp.slug}`} className="group rounded-xl border border-(--color-border) bg-(--color-surface) overflow-hidden hover:shadow-md hover:border-(--brand-primary) transition-all">
+                  <div className="aspect-square bg-(--color-elevated) relative overflow-hidden">
+                    {rp.image_url ? (
+                      <Image src={rp.image_url} alt={rp.name} fill className="object-cover group-hover:scale-105 transition-transform" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Package className="h-8 w-8 text-(--color-text-disabled)" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <p className="text-sm font-medium text-foreground line-clamp-2 group-hover:text-(--brand-primary) transition-colors">{rp.name}</p>
+                    <div className="flex items-baseline gap-2 mt-1">
+                      <span className="font-bold text-foreground">{formatPrice(rp.price_pence)}</span>
+                      {rp.compare_at_price_pence && rp.compare_at_price_pence > rp.price_pence && (
+                        <span className="text-xs text-(--color-text-disabled) line-through">{formatPrice(rp.compare_at_price_pence)}</span>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Recently Viewed Products + View Tracking */}
         <ProductViewTracker product={product} />
 
@@ -457,6 +525,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </Link>
         </div>
       </div>
+
+      {/* Product Schema JSON-LD */}
+      <ProductSchema
+        product={{
+          name: product.name,
+          description: product.description || product.short_description || product.name,
+          images: [product.image_url, ...(product.images || [])].filter(Boolean) as string[],
+          brand: product.brand || undefined,
+          slug: product.slug,
+          price: product.price_pence / 100,
+          inStock: product.stock_quantity ?? 999,
+          rating: product.avg_rating || undefined,
+          reviewCount: product.review_count || undefined,
+        }}
+      />
     </div>
   )
 }

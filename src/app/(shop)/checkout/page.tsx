@@ -35,6 +35,7 @@ import { useAuth } from '@/hooks/use-auth'
 import { formatPrice } from '@/lib/utils/format'
 import { createCheckoutSession } from '@/actions/checkout'
 import { DeliverySlotPicker } from '@/components/delivery/delivery-slot-picker'
+import { CouponInput } from '@/components/checkout/CouponInput'
 
 const checkoutSchema = z.object({
   email: z.string().email('Please enter a valid email'),
@@ -64,6 +65,7 @@ export default function CheckoutPage() {
   const { user, loading: authLoading } = useAuth()
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [couponDiscount, setCouponDiscount] = useState(0)
   const [showGuestBenefits, setShowGuestBenefits] = useState(true)
 
   // Delivery slot state
@@ -700,11 +702,19 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
+                  {/* Coupon Code */}
+                  <div>
+                    <CouponInput
+                      onApply={(discount) => setCouponDiscount(discount)}
+                      subtotal={subtotal}
+                    />
+                  </div>
+
                   <Separator />
 
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span className="text-(--brand-primary)">{formatPrice(total)}</span>
+                    <span className="text-(--brand-primary)">{formatPrice(total - couponDiscount)}</span>
                   </div>
 
                   <Button

@@ -1,7 +1,9 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react'
+import Image from 'next/image'
+import { ShoppingBag, ArrowRight, ArrowLeft, Truck, Package } from 'lucide-react'
 import { Container } from '@/components/layout/Container'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
 import { CartItem } from '@/components/cart/CartItem'
@@ -13,8 +15,28 @@ import { formatPrice } from '@/lib/utils/format'
 export default function CartPage() {
   const { itemsWithSavings, removeItem, updateQuantity, subtotal, itemCount, totalSavings } = useCart()
 
-  const deliveryFee = subtotal >= 4000 ? 0 : 399
+  const FREE_DELIVERY_THRESHOLD = 4000
+  const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : 399
   const discount = totalSavings > 0 ? totalSavings : undefined
+  const amountUntilFree = FREE_DELIVERY_THRESHOLD - subtotal
+  const freeDeliveryProgress = Math.min((subtotal / FREE_DELIVERY_THRESHOLD) * 100, 100)
+  const hasFreeDelivery = subtotal >= FREE_DELIVERY_THRESHOLD
+
+  const [suggestions, setSuggestions] = useState<{ id: string; name: string; slug: string; image_url: string | null; price_pence: number }[]>([])
+
+  useEffect(() => {
+    async function fetchSuggestions() {
+      try {
+        const res = await fetch('/api/products?limit=6&sort=popular')
+        if (res.ok) {
+          const data = await res.json()
+          const products = (data.products || data || []).slice(0, 6)
+          setSuggestions(products)
+        }
+      } catch { /* ignore */ }
+    }
+    fetchSuggestions()
+  }, [])
 
   if (itemsWithSavings.length === 0) {
     return (
@@ -75,6 +97,26 @@ export default function CartPage() {
             </div>
           </div>
 
+          {/* Free Delivery Progress */}
+          <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-4 mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <Truck className="h-5 w-5 text-(--brand-primary) shrink-0" />
+              {hasFreeDelivery ? (
+                <p className="text-sm font-semibold text-(--color-success)">You've unlocked free delivery!</p>
+              ) : (
+                <p className="text-sm text-(--color-text-secondary)">
+                  Spend <span className="font-bold text-foreground">{formatPrice(amountUntilFree)}</span> more for <span className="font-semibold text-(--brand-primary)">FREE delivery</span>
+                </p>
+              )}
+            </div>
+            <div className="h-2 w-full rounded-full bg-(--color-elevated) overflow-hidden">
+              <div
+                className="h-full rounded-full bg-(--brand-primary) transition-all duration-500"
+                style={{ width: `${freeDeliveryProgress}%` }}
+              />
+            </div>
+          </div>
+
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* Cart Items */}
             <div className="lg:flex-1 space-y-3">
@@ -109,6 +151,36 @@ export default function CartPage() {
               </div>
             </div>
           </div>
+
+          {/* You Might Also Like */}
+          {suggestions.length > 0 && (
+            <div className="mt-10">
+              <h2 className="text-lg font-bold text-foreground mb-4">You Might Also Like</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                {suggestions.map((product) => (
+                  <Link
+                    key={product.id}
+                    href={`/products/${product.slug}`}
+                    className="group rounded-xl border border-(--color-border) bg-(--color-surface) overflow-hidden hover:shadow-md hover:border-(--brand-primary) transition-all"
+                  >
+                    <div className="aspect-square bg-(--color-elevated) relative overflow-hidden">
+                      {product.image_url ? (
+                        <Image src={product.image_url} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Package className="h-6 w-6 text-(--color-text-disabled)" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-2.5">
+                      <p className="text-xs font-medium text-foreground line-clamp-2 group-hover:text-(--brand-primary)">{product.name}</p>
+                      <p className="text-sm font-bold text-(--brand-primary) mt-1">{formatPrice(product.price_pence)}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </Container>
     </div>
