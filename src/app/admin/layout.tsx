@@ -32,31 +32,89 @@ import {
   Bot,
   Headphones,
   Shield,
+  Zap,
+  Ticket,
+  Star,
+  CreditCard,
+  AlertTriangle,
 } from 'lucide-react'
 import { AdminSearch } from '@/components/admin/AdminSearch'
 import { useAuth } from '@/hooks/use-auth'
 import { Spinner } from '@/components/ui/Spinner'
 
-const sidebarLinks = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/products', label: 'Products', icon: Package },
-  { href: '/admin/categories', label: 'Categories', icon: FolderTree },
-  { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-  { href: '/admin/invoices', label: 'Invoices', icon: FileText },
-  { href: '/admin/vendors', label: 'Vendors', icon: Store },
-  { href: '/admin/vendor-applications', label: 'Applications', icon: FileText },
-  { href: '/admin/live-support', label: 'Live Support', icon: Headphones },
-  { href: '/admin/chatbot', label: 'Chatbot', icon: Bot },
-  { href: '/admin/questions', label: 'Q&A', icon: MessageCircleQuestion },
-  { href: '/admin/abandoned-carts', label: 'Abandoned Carts', icon: RotateCcw },
-  { href: '/admin/hero-slides', label: 'Hero Slides', icon: ImageIcon },
-  { href: '/admin/delivery', label: 'Delivery', icon: Truck },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/admin/team', label: 'Team', icon: UserCog },
-  { href: '/admin/email-templates', label: 'Email Templates', icon: Mail },
-  { href: '/admin/import-export', label: 'Import/Export', icon: Upload },
-  { href: '/admin/settings', label: 'Settings', icon: Settings },
+interface SidebarSection {
+  title: string
+  items: { href: string; label: string; icon: typeof LayoutDashboard; badge?: string }[]
+}
+
+const sidebarSections: SidebarSection[] = [
+  {
+    title: 'Overview',
+    items: [
+      { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+    ],
+  },
+  {
+    title: 'Catalog',
+    items: [
+      { href: '/admin/products', label: 'Products', icon: Package },
+      { href: '/admin/categories', label: 'Categories', icon: FolderTree },
+      { href: '/admin/deals', label: 'Flash Deals', icon: Zap },
+      { href: '/admin/coupons', label: 'Coupons', icon: Ticket },
+      { href: '/admin/offers', label: 'Multi-Buy Offers', icon: Tag },
+      { href: '/admin/gift-cards', label: 'Gift Cards', icon: Gift },
+    ],
+  },
+  {
+    title: 'Orders & Customers',
+    items: [
+      { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+      { href: '/admin/returns', label: 'Returns', icon: RotateCcw },
+      { href: '/admin/invoices', label: 'Invoices', icon: FileText },
+      { href: '/admin/users', label: 'Customers', icon: Users },
+      { href: '/admin/reviews', label: 'Reviews', icon: Star },
+      { href: '/admin/transactions', label: 'Transactions', icon: CreditCard },
+      { href: '/admin/abandoned-carts', label: 'Abandoned Carts', icon: RotateCcw },
+    ],
+  },
+  {
+    title: 'Vendors',
+    items: [
+      { href: '/admin/vendors', label: 'Vendors', icon: Store },
+      { href: '/admin/vendor-applications', label: 'Applications', icon: FileText },
+    ],
+  },
+  {
+    title: 'Support',
+    items: [
+      { href: '/admin/live-support', label: 'Live Support', icon: Headphones },
+      { href: '/admin/chatbot', label: 'Chatbot', icon: Bot },
+      { href: '/admin/questions', label: 'Q&A', icon: MessageCircleQuestion },
+    ],
+  },
+  {
+    title: 'Operations',
+    items: [
+      { href: '/admin/delivery', label: 'Delivery Slots', icon: Truck },
+      { href: '/admin/stock-alerts', label: 'Stock Alerts', icon: AlertTriangle },
+      { href: '/admin/hero-slides', label: 'Hero Slides', icon: ImageIcon },
+      { href: '/admin/newsletter', label: 'Newsletter', icon: Mail },
+    ],
+  },
+  {
+    title: 'System',
+    items: [
+      { href: '/admin/team', label: 'Team', icon: UserCog },
+      { href: '/admin/email-templates', label: 'Email Templates', icon: Mail },
+      { href: '/admin/import-export', label: 'Import/Export', icon: Upload },
+      { href: '/admin/settings', label: 'Settings', icon: Settings },
+    ],
+  },
 ]
+
+// Flat list for backward compat
+const sidebarLinks = sidebarSections.flatMap((s) => s.items)
 
 export default function AdminLayout({
   children,
@@ -67,6 +125,7 @@ export default function AdminLayout({
   const [checkingAccess, setCheckingAccess] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
   const [userRole, setUserRole] = useState<'admin' | 'super_admin' | null>(null)
+  const [alertCounts, setAlertCounts] = useState<Record<string, number>>({})
   const pathname = usePathname()
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
@@ -98,6 +157,23 @@ export default function AdminLayout({
         if (profile?.role === 'admin' || profile?.role === 'super_admin') {
           setIsAdmin(true)
           setUserRole(profile.role as 'admin' | 'super_admin')
+
+          // Fetch alert counts for badges
+          try {
+            const dashRes = await fetch('/api/admin/dashboard')
+            if (dashRes.ok) {
+              const dashData = await dashRes.json()
+              setAlertCounts({
+                '/admin/orders': dashData.pendingOrders || 0,
+                '/admin/vendor-applications': dashData.pendingApplications || 0,
+                '/admin/returns': dashData.pendingReturns || 0,
+                '/admin/reviews': dashData.pendingReviews || 0,
+                '/admin/stock-alerts': dashData.lowStockProducts || 0,
+              })
+            }
+          } catch {
+            // Non-critical
+          }
         } else {
           // Not an admin, redirect to home
           router.push('/')
@@ -175,26 +251,40 @@ export default function AdminLayout({
           </button>
         </div>
 
-        {/* Navigation - scrollable area */}
-        <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
-          {sidebarLinks.map((link) => {
-            const active = isActive(link.href)
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 group ${
-                  active
-                    ? 'bg-(--color-surface)/15 text-white'
-                    : 'text-white/60 hover:bg-(--color-surface)/10 hover:text-white'
-                }`}
-              >
-                <link.icon className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-white/60 group-hover:text-white'}`} />
-                <span>{link.label}</span>
-              </Link>
-            )
-          })}
+        {/* Navigation - scrollable area with grouped sections */}
+        <nav className="flex-1 overflow-y-auto p-4 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+          {sidebarSections.map((section) => (
+            <div key={section.title} className="mb-4">
+              <p className="px-4 mb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/30">
+                {section.title}
+              </p>
+              <div className="space-y-0.5">
+                {section.items.map((link) => {
+                  const active = isActive(link.href)
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition-all duration-200 group ${
+                        active
+                          ? 'bg-(--color-surface)/15 text-white font-medium'
+                          : 'text-white/60 hover:bg-(--color-surface)/10 hover:text-white'
+                      }`}
+                    >
+                      <link.icon className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-white/60 group-hover:text-white'}`} />
+                      <span className="flex-1">{link.label}</span>
+                      {alertCounts[link.href] > 0 && (
+                        <span className="h-5 min-w-5 px-1 rounded-full bg-(--color-error) text-white text-[10px] font-bold flex items-center justify-center">
+                          {alertCounts[link.href] > 99 ? '99+' : alertCounts[link.href]}
+                        </span>
+                      )}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
 
           {/* Support Portal Links */}
           <div className="pt-2 mt-2 border-t border-white/10 space-y-1">
@@ -282,10 +372,14 @@ export default function AdminLayout({
 
             <div className="flex items-center gap-3">
               {/* Notifications */}
-              <button className="relative p-2.5 text-(--color-text-secondary) hover:text-foreground rounded-lg hover:bg-(--color-elevated) transition-colors">
+              <Link href="/admin/orders" className="relative p-2.5 text-(--color-text-secondary) hover:text-foreground rounded-lg hover:bg-(--color-elevated) transition-colors">
                 <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-(--color-error) rounded-full border-2 border-(--color-surface)"></span>
-              </button>
+                {Object.values(alertCounts).reduce((a, b) => a + b, 0) > 0 && (
+                  <span className="absolute top-1 right-1 h-5 min-w-5 px-1 rounded-full bg-(--color-error) text-white text-[10px] font-bold flex items-center justify-center border-2 border-(--color-surface)">
+                    {Object.values(alertCounts).reduce((a, b) => a + b, 0) > 99 ? '99+' : Object.values(alertCounts).reduce((a, b) => a + b, 0)}
+                  </span>
+                )}
+              </Link>
 
               {/* Profile */}
               <button className="flex items-center gap-3 p-2 pr-4 rounded-lg hover:bg-(--color-elevated) transition-colors">
