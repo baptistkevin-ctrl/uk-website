@@ -39,6 +39,7 @@ import {
   AlertTriangle,
 } from 'lucide-react'
 import { AdminSearch } from '@/components/admin/AdminSearch'
+import { AdminSessionTimeout } from '@/components/admin/AdminSessionTimeout'
 import { useAuth } from '@/hooks/use-auth'
 import { Spinner } from '@/components/ui/Spinner'
 
@@ -107,6 +108,7 @@ const sidebarSections: SidebarSection[] = [
     title: 'System',
     items: [
       { href: '/admin/team', label: 'Team', icon: UserCog },
+      { href: '/admin/security', label: 'Security', icon: Shield },
       { href: '/admin/email-templates', label: 'Email Templates', icon: Mail },
       { href: '/admin/import-export', label: 'Import/Export', icon: Upload },
       { href: '/admin/settings', label: 'Settings', icon: Settings },
@@ -415,6 +417,9 @@ export default function AdminLayout({
           </div>
         </main>
       </div>
+
+      {/* Session Timeout Warning */}
+      <AdminSessionTimeout />
     </div>
   )
 }
