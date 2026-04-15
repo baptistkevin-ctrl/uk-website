@@ -128,6 +128,19 @@ export async function PUT(request: NextRequest) {
         })
         .eq('id', application.user_id)
 
+      // Send vendor approval email
+      try {
+        const { sendVendorApprovedEmail } = await import('@/lib/email/send-email')
+        const vendorEmail = application.user?.email
+        const vendorName = application.user?.full_name || application.business_name
+        const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.vercel.app'}/vendor/dashboard`
+        if (vendorEmail) {
+          await sendVendorApprovedEmail(vendorEmail, vendorName, application.business_name, dashboardUrl)
+        }
+      } catch {
+        // Non-critical - don't block approval
+      }
+
       if (adminUser) {
         await vendorAudit.logCreate(
           request,

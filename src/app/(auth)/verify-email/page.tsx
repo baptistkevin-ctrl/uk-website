@@ -39,9 +39,6 @@ function VerifyEmailPageContent() {
             setError(error.message)
           } else {
             setStatus('success')
-            setTimeout(() => {
-              router.push('/')
-            }, 3000)
           }
         } catch (err) {
           setStatus('error')
@@ -60,9 +57,6 @@ function VerifyEmailPageContent() {
             setError(error.message)
           } else {
             setStatus('success')
-            setTimeout(() => {
-              router.push('/')
-            }, 3000)
           }
         } catch (err) {
           setStatus('error')
@@ -146,18 +140,46 @@ function VerifyEmailPageContent() {
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="max-w-md w-full">
           <div className="bg-(--color-surface) rounded-2xl shadow-xl p-8 text-center">
-            <div className="w-16 h-16 bg-(--brand-primary-light) rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="h-8 w-8 text-(--brand-primary)" />
+            <div className="w-20 h-20 bg-(--color-success)/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="h-10 w-10 text-(--color-success)" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">Email verified!</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2">Welcome to UK Grocery!</h1>
             <p className="text-(--color-text-secondary) mb-6">
-              Your email has been verified successfully. You can now access all features.
+              Your email has been verified. You're all set to start shopping fresh groceries delivered to your door.
             </p>
+
+            <div className="bg-background rounded-xl p-4 mb-6 text-left space-y-3 border border-(--color-border)">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-(--brand-primary)/10 flex items-center justify-center shrink-0">
+                  <span className="text-sm">🎉</span>
+                </div>
+                <p className="text-sm text-(--color-text-secondary)"><span className="font-semibold text-foreground">100 loyalty points</span> added to your account</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-(--brand-primary)/10 flex items-center justify-center shrink-0">
+                  <span className="text-sm">🚚</span>
+                </div>
+                <p className="text-sm text-(--color-text-secondary)"><span className="font-semibold text-foreground">Free delivery</span> on your first order over £40</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-(--brand-primary)/10 flex items-center justify-center shrink-0">
+                  <span className="text-sm">💰</span>
+                </div>
+                <p className="text-sm text-(--color-text-secondary)">Check out today's <span className="font-semibold text-foreground">exclusive deals</span></p>
+              </div>
+            </div>
+
             <Link
               href="/"
               className="inline-flex items-center justify-center w-full bg-(--brand-primary) text-white py-3 px-4 rounded-lg font-medium hover:bg-(--brand-primary-hover) transition-colors"
             >
-              Continue shopping
+              Start Shopping
+            </Link>
+            <Link
+              href="/deals"
+              className="inline-flex items-center justify-center w-full mt-3 bg-background text-(--color-text-secondary) py-3 px-4 rounded-lg font-medium hover:bg-(--color-border) transition-colors border border-(--color-border)"
+            >
+              View Today's Deals
             </Link>
           </div>
         </div>

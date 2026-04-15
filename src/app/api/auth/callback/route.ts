@@ -63,6 +63,15 @@ export async function GET(request: NextRequest) {
             // Non-critical - don't block registration
           }
 
+          // Send welcome email to new user
+          try {
+            const { sendWelcomeEmail } = await import('@/lib/email/send-email')
+            const name = user.user_metadata?.full_name || user.user_metadata?.name || 'there'
+            await sendWelcomeEmail(user.email!, name)
+          } catch {
+            // Non-critical
+          }
+
           // Process referral code if provided
           if (referralCode) {
             try {
