@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 import {
   CheckCircle,
   Package,
@@ -16,6 +17,8 @@ import {
   User,
   Search,
   ChevronDown,
+  Share2,
+  ArrowRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useCart } from '@/hooks/use-cart'
@@ -29,6 +32,7 @@ function CheckoutSuccessContent() {
   const [copied, setCopied] = useState(false)
   const [showSummary, setShowSummary] = useState(false)
   const [animate, setAnimate] = useState(false)
+  const [recommendations, setRecommendations] = useState<{ id: string; name: string; slug: string; image_url: string | null; price_pence: number }[]>([])
   const sessionId = searchParams.get('session_id')
 
   // Clear cart on successful checkout, but only if there are items and a valid session_id
@@ -38,9 +42,21 @@ function CheckoutSuccessContent() {
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Trigger entrance animation
+  // Trigger entrance animation + fetch recommendations
   useEffect(() => {
     const timer = setTimeout(() => setAnimate(true), 100)
+
+    async function fetchRecs() {
+      try {
+        const res = await fetch('/api/products?limit=4&sort=popular')
+        if (res.ok) {
+          const data = await res.json()
+          setRecommendations((data.products || data || []).slice(0, 4))
+        }
+      } catch { /* ignore */ }
+    }
+    fetchRecs()
+
     return () => clearTimeout(timer)
   }, [])
 
@@ -232,7 +248,7 @@ function CheckoutSuccessContent() {
       </div>
 
       {/* Quick info cards */}
-      <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+      <div className="mt-8 grid grid-cols-3 gap-2 sm:gap-3">
         {[
           { icon: Truck, label: 'Fast Delivery', sub: 'Same day available' },
           { icon: Clock, label: 'Live Updates', sub: 'Track your order' },
@@ -248,6 +264,60 @@ function CheckoutSuccessContent() {
           </div>
         ))}
       </div>
+
+      {/* Recommended Products */}
+      {recommendations.length > 0 && (
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-lg font-semibold text-foreground">You Might Also Like</h2>
+            <Link href="/products" className="text-sm text-(--brand-primary) hover:underline flex items-center gap-1">
+              Browse all <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {recommendations.map((product) => (
+              <Link
+                key={product.id}
+                href={`/products/${product.slug}`}
+                className="group rounded-xl border border-(--color-border) bg-(--color-surface) overflow-hidden hover:shadow-md hover:border-(--brand-primary) transition-all"
+              >
+                <div className="aspect-square bg-(--color-elevated) relative overflow-hidden">
+                  {product.image_url ? (
+                    <Image src={product.image_url} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Package className="h-6 w-6 text-(--color-text-disabled)" />
+                    </div>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="text-xs font-medium text-foreground line-clamp-2 group-hover:text-(--brand-primary)">{product.name}</p>
+                  <p className="text-sm font-bold text-(--brand-primary) mt-1">£{(product.price_pence / 100).toFixed(2)}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Share Order */}
+      {orderNumber && typeof navigator !== 'undefined' && navigator.share && (
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => {
+              navigator.share({
+                title: 'UK Grocery Order',
+                text: `I just ordered fresh groceries! Order #${orderNumber}`,
+                url: window.location.origin,
+              }).catch(() => {})
+            }}
+            className="inline-flex items-center gap-2 text-sm text-(--color-text-muted) hover:text-(--brand-primary) transition-colors"
+          >
+            <Share2 className="h-4 w-4" />
+            Share with friends
+          </button>
+        </div>
+      )}
     </div>
   )
 }

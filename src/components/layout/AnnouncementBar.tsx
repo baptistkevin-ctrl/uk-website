@@ -7,12 +7,24 @@ import type { LucideIcon } from "lucide-react";
 const STORAGE_KEY = "announcement-dismissed";
 const ROTATE_INTERVAL = 4000;
 
-const messages: { text: string; icon: LucideIcon; highlight: string; link: string }[] = [
+function getSeasonalMessage(): { text: string; icon: LucideIcon; highlight: string; link: string } | null {
+  const month = new Date().getMonth() // 0-11
+  if (month === 11) return { text: "Christmas delivery —", icon: Gift, highlight: "Order by Dec 22nd", link: "/delivery" }
+  if (month === 0) return { text: "New Year Sale —", icon: Zap, highlight: "Up to 30% off", link: "/deals" }
+  if (month >= 5 && month <= 7) return { text: "Summer BBQ essentials —", icon: Zap, highlight: "Shop now", link: "/categories/fresh-produce" }
+  if (month === 3) return { text: "Easter treats —", icon: Gift, highlight: "Fresh bakes & more", link: "/categories/bakery" }
+  return null
+}
+
+const baseMessages: { text: string; icon: LucideIcon; highlight: string; link: string }[] = [
   { text: "Free delivery on orders over", icon: Truck, highlight: "£40", link: "/delivery" },
   { text: "Over 500", icon: Leaf, highlight: "organic products", link: "/products?is_organic=true" },
   { text: "Same-day delivery in", icon: Zap, highlight: "London", link: "/delivery" },
   { text: "Get 10% off —", icon: Gift, highlight: "Join free today", link: "/register" },
-];
+]
+
+const seasonal = getSeasonalMessage()
+const messages = seasonal ? [seasonal, ...baseMessages] : baseMessages
 
 export function AnnouncementBar() {
   const [dismissed, setDismissed] = useState(true);

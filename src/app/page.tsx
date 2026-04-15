@@ -19,6 +19,7 @@ import { WhyChooseUs } from "@/components/sections/WhyChooseUs";
 import { AppDownloadBanner } from "@/components/sections/AppDownloadBanner";
 import { ProductShowcase } from "@/components/sections/ProductShowcase";
 import { ShopByMood } from "@/components/sections/ShopByMood";
+import { NewThisWeek } from "@/components/sections/NewThisWeek";
 import { CategoryBubbles } from "@/components/mobile/CategoryBubbles";
 import { BuyAgainBar } from "@/components/mobile/BuyAgainBar";
 import { RecentlyViewedBar } from "@/components/mobile/RecentlyViewedBar";
@@ -183,6 +184,27 @@ export default async function HomePage() {
     isOrganic: p.is_organic ?? false,
   }));
 
+  // Fetch NEW products (last 7 days)
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+
+  const { data: newProducts } = await supabase
+    .from("products")
+    .select("id, name, slug, image_url, price_pence, created_at")
+    .eq("is_active", true)
+    .gte("created_at", sevenDaysAgo.toISOString())
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  const newItems = (newProducts ?? []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    imageUrl: p.image_url ?? "",
+    pricePence: p.price_pence,
+    daysAgo: Math.floor((Date.now() - new Date(p.created_at).getTime()) / 86400000),
+  }));
+
   // Fetch ALL PRODUCTS for a full grid section
   const { data: allProducts } = await supabase
     .from("products")
@@ -229,6 +251,9 @@ export default async function HomePage() {
 
         {/* Section 5: Deal of the Day */}
         <DealOfTheDay deal={deal} />
+
+        {/* New This Week */}
+        {newItems.length > 0 && <NewThisWeek products={newItems} />}
 
         {/* Section 6: Best Sellers Carousel */}
         {bestSellerProducts.length > 0 && (
