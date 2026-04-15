@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { toast } from '@/hooks/use-toast'
 import Link from 'next/link'
 import {
   Package,
@@ -113,10 +114,10 @@ export default function VendorDashboard() {
       if (data.url && (data.url.startsWith('https://connect.stripe.com') || data.url.startsWith('https://dashboard.stripe.com'))) {
         window.location.href = data.url
       } else {
-        alert(data.error || 'Failed to start onboarding')
+        toast.error(data.error || 'Failed to start onboarding')
       }
     } catch (error) {
-      alert('Failed to connect to Stripe')
+      toast.error('Failed to connect to Stripe')
     } finally {
       setStripeLoading(false)
     }
@@ -132,10 +133,10 @@ export default function VendorDashboard() {
       if (data.url && (data.url.startsWith('https://connect.stripe.com') || data.url.startsWith('https://dashboard.stripe.com'))) {
         window.open(data.url, '_blank')
       } else {
-        alert(data.error || 'Failed to open dashboard')
+        toast.error(data.error || 'Failed to open dashboard')
       }
     } catch (error) {
-      alert('Failed to open Stripe dashboard')
+      toast.error('Failed to open Stripe dashboard')
     } finally {
       setStripeLoading(false)
     }

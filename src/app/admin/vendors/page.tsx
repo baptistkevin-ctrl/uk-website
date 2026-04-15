@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { formatPrice } from '@/lib/utils/format'
+import { toast } from '@/hooks/use-toast'
 
 interface Vendor {
   id: string
@@ -87,7 +88,7 @@ export default function AdminVendorsPage() {
   const updateCommissionRate = async (id: string) => {
     const rate = parseFloat(editCommission)
     if (isNaN(rate) || rate < 0 || rate > 100) {
-      alert('Invalid commission rate')
+      toast.warning('Invalid commission rate')
       return
     }
 

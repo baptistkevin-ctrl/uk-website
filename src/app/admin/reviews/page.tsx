@@ -23,6 +23,7 @@ import {
   ExternalLink,
   AlertCircle,
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 
 interface Review {
   id: string
@@ -124,11 +125,11 @@ export default function AdminReviewsPage() {
         setAdminNotes('')
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to moderate review')
+        toast.error(data.error || 'Failed to moderate review')
       }
     } catch (error) {
       console.error('Error moderating review:', error)
-      alert('Failed to moderate review')
+      toast.error('Failed to moderate review')
     }
     setModerating(null)
   }
@@ -146,7 +147,7 @@ export default function AdminReviewsPage() {
         setSelectedReview(null)
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to delete review')
+        toast.error(data.error || 'Failed to delete review')
       }
     } catch (error) {
       console.error('Error deleting review:', error)

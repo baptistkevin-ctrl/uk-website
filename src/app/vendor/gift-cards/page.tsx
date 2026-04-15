@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { toast } from '@/hooks/use-toast'
 import { formatDistanceToNow, format } from 'date-fns'
 import { formatPrice } from '@/lib/utils/format'
 import {
@@ -80,11 +81,11 @@ export default function VendorGiftCardsPage() {
   const handleCreate = async () => {
     const value = parseFloat(formData.value_pounds)
     if (!value || value < 1) {
-      alert('Minimum gift card value is £1.00')
+      toast.warning('Minimum gift card value is £1.00')
       return
     }
     if (value > 500) {
-      alert('Maximum gift card value is £500.00')
+      toast.warning('Maximum gift card value is £500.00')
       return
     }
 
@@ -102,11 +103,11 @@ export default function VendorGiftCardsPage() {
         fetchGiftCards()
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to create gift card')
+        toast.error(data.error || 'Failed to create gift card')
       }
     } catch (error) {
       console.error('Error creating gift card:', error)
-      alert('Failed to create gift card')
+      toast.error('Failed to create gift card')
     }
     setSaving(false)
   }

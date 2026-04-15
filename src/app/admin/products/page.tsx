@@ -33,6 +33,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 import { formatPrice } from '@/lib/utils/format'
+import { toast } from '@/hooks/use-toast'
 import * as XLSX from 'xlsx'
 
 interface Product {
@@ -174,7 +175,7 @@ export default function AdminProductsPage() {
     setSelectedProducts(new Set())
     setBulkDeleting(false)
 
-    alert(`Deleted ${successCount} product(s)${errorCount > 0 ? `, ${errorCount} failed` : ''}`)
+    toast.info(`Deleted ${successCount} product(s)${errorCount > 0 ? `, ${errorCount} failed` : ''}`)
   }
 
   // Export products to Excel
@@ -237,7 +238,7 @@ export default function AdminProductsPage() {
       XLSX.writeFile(wb, filename)
     } catch (error) {
       console.error('Export error:', error)
-      alert('Failed to export products')
+      toast.error('Failed to export products')
     }
     setExporting(false)
   }
@@ -268,7 +269,7 @@ export default function AdminProductsPage() {
           const jsonData = XLSX.utils.sheet_to_json(worksheet)
 
           if (jsonData.length === 0) {
-            alert('No data found in the Excel file')
+            toast.warning('No data found in the Excel file')
             setImporting(false)
             return
           }
@@ -361,7 +362,7 @@ export default function AdminProductsPage() {
           } else if (errors.length > 10) {
             message += `\n\nFirst 10 errors:\n${errors.slice(0, 10).join('\n')}`
           }
-          alert(message)
+          toast.info(message)
 
           // Refresh products list
           const res = await fetch('/api/products?includeInactive=true')
@@ -371,20 +372,20 @@ export default function AdminProductsPage() {
           }
         } catch (err) {
           console.error('Import processing error:', err)
-          alert('Failed to process Excel file: ' + err)
+          toast.error('Failed to process Excel file: ' + err)
         }
         setImporting(false)
       }
 
       reader.onerror = () => {
-        alert('Failed to read file')
+        toast.error('Failed to read file')
         setImporting(false)
       }
 
       reader.readAsBinaryString(file)
     } catch (error) {
       console.error('Import error:', error)
-      alert('Failed to import products')
+      toast.error('Failed to import products')
       setImporting(false)
     }
 
@@ -509,7 +510,7 @@ export default function AdminProductsPage() {
       }
     } catch (error) {
       console.error('Bulk upload error:', error)
-      alert('Bulk upload failed')
+      toast.error('Bulk upload failed')
     }
 
     setBulkUploading(false)

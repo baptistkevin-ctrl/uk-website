@@ -17,6 +17,7 @@ import {
   Calendar,
 } from 'lucide-react'
 import { formatPrice } from '@/lib/utils/format'
+import { toast } from '@/hooks/use-toast'
 
 interface Product {
   id: string
@@ -144,15 +145,15 @@ export default function OffersPage() {
 
   const handleSave = async () => {
     if (offerType === 'product' && !formData.product_id) {
-      alert('Please select a product')
+      toast.warning('Please select a product')
       return
     }
     if (offerType === 'category' && !formData.category_id) {
-      alert('Please select a category')
+      toast.warning('Please select a category')
       return
     }
     if (formData.quantity < 2) {
-      alert('Quantity must be at least 2')
+      toast.warning('Quantity must be at least 2')
       return
     }
 
@@ -161,7 +162,7 @@ export default function OffersPage() {
     const pricePence = Math.round(pricePounds * 100)
 
     if (pricePence <= 0) {
-      alert('Offer price must be greater than £0.00')
+      toast.warning('Offer price must be greater than £0.00')
       return
     }
 
@@ -191,11 +192,11 @@ export default function OffersPage() {
         fetchOffers()
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to save offer')
+        toast.error(data.error || 'Failed to save offer')
       }
     } catch (error) {
       console.error('Error saving offer:', error)
-      alert('Failed to save offer')
+      toast.error('Failed to save offer')
     }
     setSaving(false)
   }

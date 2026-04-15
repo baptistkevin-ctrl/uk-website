@@ -22,6 +22,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { toast } from '@/hooks/use-toast'
 
 interface Category {
   id: string
@@ -189,7 +190,7 @@ export default function AdminCategoriesPage() {
       fetchCategories()
     } catch (error) {
       console.error('Save error:', error)
-      alert('Failed to save category')
+      toast.error('Failed to save category')
     } finally {
       setSaving(false)
     }
@@ -219,7 +220,7 @@ export default function AdminCategoriesPage() {
       fetchCategories()
     } catch (error) {
       console.error('Delete error:', error)
-      alert('Failed to delete category')
+      toast.error('Failed to delete category')
     } finally {
       setDeleting(null)
     }
@@ -285,7 +286,7 @@ export default function AdminCategoriesPage() {
     setBulkDeleting(false)
     fetchCategories()
 
-    alert(`Deleted ${successCount} category(ies)${errorCount > 0 ? `, ${errorCount} failed` : ''}`)
+    toast.info(`Deleted ${successCount} category(ies)${errorCount > 0 ? `, ${errorCount} failed` : ''}`)
   }
 
   // Toggle active status
@@ -317,13 +318,13 @@ export default function AdminCategoriesPage() {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
+      toast.warning('Please select an image file')
       return
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image must be less than 5MB')
+      toast.warning('Image must be less than 5MB')
       return
     }
 
@@ -345,7 +346,7 @@ export default function AdminCategoriesPage() {
       setFormData(prev => ({ ...prev, image_url: url }))
     } catch (error) {
       console.error('Upload error:', error)
-      alert('Failed to upload image. Please try again.')
+      toast.error('Failed to upload image. Please try again.')
     } finally {
       setUploading(false)
       // Reset file input

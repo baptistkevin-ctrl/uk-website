@@ -16,6 +16,7 @@ import {
   Lock,
 } from 'lucide-react'
 import { formatPrice } from '@/lib/utils/format'
+import { toast } from '@/hooks/use-toast'
 
 interface LoyaltyData {
   account: {
@@ -110,14 +111,14 @@ export default function RewardsPage() {
       const result = await res.json()
 
       if (result.success) {
-        alert('Points redeemed successfully! Your reward has been applied.')
+        toast.success('Points redeemed successfully! Your reward has been applied.')
         fetchData()
       } else {
-        alert(result.error || 'Failed to redeem points')
+        toast.error(result.error || 'Failed to redeem points')
       }
     } catch (error) {
       console.error('Error redeeming points:', error)
-      alert('Failed to redeem points')
+      toast.error('Failed to redeem points')
     } finally {
       setRedeeming(null)
     }

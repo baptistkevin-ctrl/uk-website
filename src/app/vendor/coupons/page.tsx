@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { toast } from '@/hooks/use-toast'
 import {
   Plus,
   Pencil,
@@ -128,10 +129,10 @@ export default function VendorCouponsPage() {
         fetchCoupons()
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to save coupon')
+        toast.error(data.error || 'Failed to save coupon')
       }
     } catch (error) {
-      alert('Failed to save coupon')
+      toast.error('Failed to save coupon')
     }
     setSaving(false)
   }

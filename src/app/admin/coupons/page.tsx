@@ -23,6 +23,7 @@ import {
   ShoppingCart,
 } from 'lucide-react'
 import { formatPrice } from '@/lib/utils/format'
+import { toast } from '@/hooks/use-toast'
 
 interface Coupon {
   id: string
@@ -156,11 +157,11 @@ export default function CouponsPage() {
 
   const handleSave = async () => {
     if (!formData.code.trim()) {
-      alert('Please enter a coupon code')
+      toast.warning('Please enter a coupon code')
       return
     }
     if (!formData.discount_value && formData.discount_type !== 'free_shipping') {
-      alert('Please enter a discount value')
+      toast.warning('Please enter a discount value')
       return
     }
 
@@ -203,11 +204,11 @@ export default function CouponsPage() {
         fetchCoupons()
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to save coupon')
+        toast.error(data.error || 'Failed to save coupon')
       }
     } catch (error) {
       console.error('Error saving coupon:', error)
-      alert('Failed to save coupon')
+      toast.error('Failed to save coupon')
     }
     setSaving(false)
   }
@@ -222,11 +223,11 @@ export default function CouponsPage() {
       const data = await res.json()
       if (res.ok) {
         if (data.deactivated) {
-          alert(data.message)
+          toast.info(data.message)
         }
         fetchCoupons()
       } else {
-        alert(data.error || 'Failed to delete coupon')
+        toast.error(data.error || 'Failed to delete coupon')
       }
     } catch (error) {
       console.error('Error deleting coupon:', error)

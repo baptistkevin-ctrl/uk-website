@@ -26,6 +26,7 @@ import {
   AlertCircle,
 } from 'lucide-react'
 import { formatPrice } from '@/lib/utils/format'
+import { toast } from '@/hooks/use-toast'
 
 interface Product {
   id: string
@@ -151,19 +152,19 @@ export default function AdminDealsPage() {
 
   const handleSave = async () => {
     if (!formData.title.trim()) {
-      alert('Please enter a deal title')
+      toast.warning('Please enter a deal title')
       return
     }
     if (!formData.product_id) {
-      alert('Please select a product')
+      toast.warning('Please select a product')
       return
     }
     if (!formData.deal_price_pounds) {
-      alert('Please enter a deal price')
+      toast.warning('Please enter a deal price')
       return
     }
     if (!formData.starts_at || !formData.ends_at) {
-      alert('Please set start and end dates')
+      toast.warning('Please set start and end dates')
       return
     }
 
@@ -192,11 +193,11 @@ export default function AdminDealsPage() {
         fetchDeals()
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to save deal')
+        toast.error(data.error || 'Failed to save deal')
       }
     } catch (error) {
       console.error('Error saving deal:', error)
-      alert('Failed to save deal')
+      toast.error('Failed to save deal')
     }
     setSaving(false)
   }
@@ -212,7 +213,7 @@ export default function AdminDealsPage() {
         setDeals(deals.filter(d => d.id !== id))
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to delete deal')
+        toast.error(data.error || 'Failed to delete deal')
       }
     } catch (error) {
       console.error('Error deleting deal:', error)

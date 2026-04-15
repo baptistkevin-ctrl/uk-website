@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { toast } from '@/hooks/use-toast'
 import Image from 'next/image'
 import {
   Plus,
@@ -93,7 +94,7 @@ export default function VendorDealsPage() {
 
   const handleSave = async () => {
     if (!formData.title || !formData.product_id || !formData.deal_price_pounds || !formData.starts_at || !formData.ends_at) {
-      alert('Please fill in all required fields')
+      toast.warning('Please fill in all required fields')
       return
     }
 
@@ -122,10 +123,10 @@ export default function VendorDealsPage() {
         fetchDeals()
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to save deal')
+        toast.error(data.error || 'Failed to save deal')
       }
     } catch (error) {
-      alert('Failed to save deal')
+      toast.error('Failed to save deal')
     }
     setSaving(false)
   }

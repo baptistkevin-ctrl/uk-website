@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { toast } from '@/hooks/use-toast'
 import Image from 'next/image'
 import {
   Plus,
@@ -102,11 +103,11 @@ export default function VendorOffersPage() {
 
   const handleSave = async () => {
     if (!formData.product_id) {
-      alert('Please select a product')
+      toast.warning('Please select a product')
       return
     }
     if (formData.quantity < 2) {
-      alert('Quantity must be at least 2')
+      toast.warning('Quantity must be at least 2')
       return
     }
 
@@ -114,7 +115,7 @@ export default function VendorOffersPage() {
     const pricePence = Math.round(pricePounds * 100)
 
     if (pricePence <= 0) {
-      alert('Offer price must be greater than £0.00')
+      toast.warning('Offer price must be greater than £0.00')
       return
     }
 
@@ -143,11 +144,11 @@ export default function VendorOffersPage() {
         fetchOffers()
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to save offer')
+        toast.error(data.error || 'Failed to save offer')
       }
     } catch (error) {
       console.error('Error saving offer:', error)
-      alert('Failed to save offer')
+      toast.error('Failed to save offer')
     }
     setSaving(false)
   }

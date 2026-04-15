@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, use } from 'react'
+import { toast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -160,10 +161,10 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
         router.push('/vendor/products')
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to update product')
+        toast.error(data.error || 'Failed to update product')
       }
     } catch (error) {
-      alert('Failed to update product')
+      toast.error('Failed to update product')
     } finally {
       setSaving(false)
     }
@@ -183,10 +184,10 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
       if (res.ok) {
         router.push('/vendor/products')
       } else {
-        alert('Failed to delete product')
+        toast.error('Failed to delete product')
       }
     } catch (error) {
-      alert('Failed to delete product')
+      toast.error('Failed to delete product')
     } finally {
       setDeleting(false)
     }
@@ -217,10 +218,10 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
         setImages(prev => [...prev, url])
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to upload image')
+        toast.error(data.error || 'Failed to upload image')
       }
     } catch {
-      alert('Failed to upload image')
+      toast.error('Failed to upload image')
     } finally {
       setUploading(false)
       e.target.value = ''

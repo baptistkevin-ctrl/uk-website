@@ -22,6 +22,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { toast } from '@/hooks/use-toast'
 
 interface DeliverySlot {
   id: string
@@ -167,7 +168,7 @@ export default function AdminDeliveryPage() {
       fetchSlots()
     } catch (error) {
       console.error('Save error:', error)
-      alert(error instanceof Error ? error.message : 'Failed to save slot')
+      toast.error(error instanceof Error ? error.message : 'Failed to save slot')
     } finally {
       setSaving(false)
     }
@@ -192,7 +193,7 @@ export default function AdminDeliveryPage() {
       fetchSlots()
     } catch (error) {
       console.error('Delete error:', error)
-      alert(error instanceof Error ? error.message : 'Failed to delete slot')
+      toast.error(error instanceof Error ? error.message : 'Failed to delete slot')
     } finally {
       setDeleting(null)
     }

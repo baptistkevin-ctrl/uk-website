@@ -7,6 +7,7 @@ import {
   ArrowLeft, Send, Clock, CheckCircle, AlertCircle, MessageSquare,
   XCircle, Package, User, Paperclip, MoreVertical
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 
 interface TicketMessage {
   id: string
@@ -125,11 +126,11 @@ export default function TicketDetailPage() {
         setNewMessage('')
         fetchTicket()
       } else {
-        alert(data.error || 'Failed to send message')
+        toast.error(data.error || 'Failed to send message')
       }
     } catch (error) {
       console.error('Error sending message:', error)
-      alert('Failed to send message')
+      toast.error('Failed to send message')
     } finally {
       setSending(false)
     }
@@ -149,11 +150,11 @@ export default function TicketDetailPage() {
       if (data.success) {
         fetchTicket()
       } else {
-        alert(data.error || 'Failed to close ticket')
+        toast.error(data.error || 'Failed to close ticket')
       }
     } catch (error) {
       console.error('Error closing ticket:', error)
-      alert('Failed to close ticket')
+      toast.error('Failed to close ticket')
     }
   }
 

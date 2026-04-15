@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { toast } from '@/hooks/use-toast'
 
 interface Order {
   id: string
@@ -249,7 +250,7 @@ export default function AdminOrdersPage() {
     setBulkDeleting(false)
     fetchOrders()
 
-    alert(`Deleted ${successCount} order(s)${errorCount > 0 ? `, ${errorCount} failed` : ''}`)
+    toast.info(`Deleted ${successCount} order(s)${errorCount > 0 ? `, ${errorCount} failed` : ''}`)
   }
 
   // Generate page numbers for pagination

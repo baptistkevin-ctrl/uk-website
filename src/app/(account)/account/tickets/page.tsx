@@ -9,6 +9,7 @@ import {
   CreditCard, User, ShoppingBag, Settings, RefreshCw,
   HelpCircle, XCircle
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 
 interface TicketCategory {
   id: string
@@ -129,11 +130,11 @@ export default function TicketsPage() {
         setNewTicket({ category_id: '', subject: '', message: '', priority: 'normal' })
         router.push(`/account/tickets/${data.ticket_id}`)
       } else {
-        alert(data.error || 'Failed to create ticket')
+        toast.error(data.error || 'Failed to create ticket')
       }
     } catch (error) {
       console.error('Error creating ticket:', error)
-      alert('Failed to create ticket')
+      toast.error('Failed to create ticket')
     } finally {
       setSubmitting(false)
     }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { toast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -96,10 +97,10 @@ export default function NewVendorProductPage() {
         router.push('/vendor/products')
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to create product')
+        toast.error(data.error || 'Failed to create product')
       }
     } catch (error) {
-      alert('Failed to create product')
+      toast.error('Failed to create product')
     } finally {
       setLoading(false)
     }
@@ -130,10 +131,10 @@ export default function NewVendorProductPage() {
         setImages(prev => [...prev, url])
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to upload image')
+        toast.error(data.error || 'Failed to upload image')
       }
     } catch {
-      alert('Failed to upload image')
+      toast.error('Failed to upload image')
     } finally {
       setUploading(false)
       e.target.value = ''

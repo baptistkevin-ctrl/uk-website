@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, Suspense } from 'react'
+import { toast } from '@/hooks/use-toast'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -95,10 +96,10 @@ function VendorOnboardingContent() {
       if (data.url) {
         window.location.href = data.url
       } else {
-        alert(data.details || data.error || 'Failed to start onboarding')
+        toast.error(data.details || data.error || 'Failed to start onboarding')
       }
     } catch (error) {
-      alert('Failed to connect to Stripe')
+      toast.error('Failed to connect to Stripe')
     } finally {
       setStripeLoading(false)
     }

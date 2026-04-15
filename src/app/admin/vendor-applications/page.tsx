@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { toast } from '@/hooks/use-toast'
 
 interface Application {
   id: string
@@ -77,14 +78,14 @@ export default function AdminVendorApplicationsPage() {
         setApplications(prev => prev.filter(a => a.id !== id))
         setSelectedApp(null)
         setAdminNotes('')
-        alert(status === 'approved' ? 'Application approved and vendor account created!' : 'Application rejected')
+        toast.success(status === 'approved' ? 'Application approved and vendor account created!' : 'Application rejected')
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to process application')
+        toast.error(data.error || 'Failed to process application')
       }
     } catch (error) {
       console.error('Review error:', error)
-      alert('Failed to process application')
+      toast.error('Failed to process application')
     } finally {
       setProcessing(false)
     }

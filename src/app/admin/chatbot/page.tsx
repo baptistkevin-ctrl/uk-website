@@ -24,6 +24,7 @@ import {
   HelpCircle,
   Zap
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 
 interface Intent {
   id: string
@@ -149,11 +150,11 @@ export default function AdminChatbotPage() {
         body: JSON.stringify(settings)
       })
       if (res.ok) {
-        alert('Settings saved successfully!')
+        toast.success('Settings saved successfully!')
       }
     } catch (error) {
       console.error('Failed to save settings:', error)
-      alert('Failed to save settings')
+      toast.error('Failed to save settings')
     } finally {
       setSaving(false)
     }

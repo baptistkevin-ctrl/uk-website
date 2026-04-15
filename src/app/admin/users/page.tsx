@@ -27,6 +27,7 @@ import {
   Crown,
 } from 'lucide-react'
 import { formatPrice } from '@/lib/utils/format'
+import { toast } from '@/hooks/use-toast'
 
 interface UserProfile {
   id: string
@@ -172,11 +173,11 @@ export default function UsersPage() {
         fetchUsers()
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to update user')
+        toast.error(data.error || 'Failed to update user')
       }
     } catch (error) {
       console.error('Error updating user:', error)
-      alert('Failed to update user')
+      toast.error('Failed to update user')
     }
     setSaving(false)
   }
@@ -197,7 +198,7 @@ export default function UsersPage() {
         ))
       } else {
         const data = await res.json()
-        alert(data.error || `Failed to ${action} user`)
+        toast.error(data.error || `Failed to ${action} user`)
       }
     } catch (error) {
       console.error('Error toggling ban:', error)
@@ -215,11 +216,11 @@ export default function UsersPage() {
       const data = await res.json()
       if (res.ok) {
         if (data.anonymized) {
-          alert(data.message)
+          toast.info(data.message)
         }
         fetchUsers()
       } else {
-        alert(data.error || 'Failed to delete user')
+        toast.error(data.error || 'Failed to delete user')
       }
     } catch (error) {
       console.error('Error deleting user:', error)

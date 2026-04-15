@@ -15,6 +15,7 @@ import {
   Save,
   ExternalLink,
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 
 interface HeroSlide {
   id: string
@@ -88,7 +89,7 @@ export default function HeroSlidesPage() {
 
   const handleSave = async () => {
     if (!formData.title || !formData.image_url) {
-      alert('Title and image URL are required')
+      toast.warning('Title and image URL are required')
       return
     }
 
@@ -110,11 +111,11 @@ export default function HeroSlidesPage() {
         fetchSlides()
       } else {
         const data = await res.json()
-        alert(data.error || 'Failed to save slide')
+        toast.error(data.error || 'Failed to save slide')
       }
     } catch (error) {
       console.error('Error saving slide:', error)
-      alert('Failed to save slide')
+      toast.error('Failed to save slide')
     }
     setSaving(false)
   }

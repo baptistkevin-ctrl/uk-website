@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/use-auth'
+import { toast } from '@/hooks/use-toast'
 
 const benefits = [
   { icon: Users, title: 'Reach Thousands', desc: 'Access our growing customer base across the UK', stat: '50K+', statLabel: 'Active Shoppers' },
@@ -56,6 +57,7 @@ export default function SellPage() {
   const { user } = useAuth()
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const [checking, setChecking] = useState(true)
   const [existingStatus, setExistingStatus] = useState<{
     isVendor: boolean
@@ -100,13 +102,13 @@ export default function SellPage() {
       })
       const data = await res.json()
       if (res.ok) {
-        alert('Application submitted successfully! We will review it shortly.')
-        router.push('/account')
+        setSubmitted(true)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       } else {
-        alert(data.error || 'Failed to submit application')
+        toast.error(data.error || 'Failed to submit application')
       }
     } catch {
-      alert('Something went wrong. Please try again.')
+      toast.error('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -131,6 +133,59 @@ export default function SellPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
+      </div>
+    )
+  }
+
+  // Application submitted successfully
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center py-20 px-4">
+        <div className="max-w-lg w-full bg-(--color-surface) rounded-2xl p-10 shadow-lg text-center border border-(--color-border)">
+          <div className="w-20 h-20 bg-(--color-success)/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="h-10 w-10 text-(--color-success)" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground mb-2">
+            Application Submitted!
+          </h1>
+          <p className="text-(--color-text-muted) mb-8 leading-relaxed">
+            Thank you for applying to sell on UK Grocery. Our team will review your application
+            and get back to you within <span className="font-semibold text-foreground">1-2 business days</span>.
+          </p>
+          <div className="bg-background rounded-xl p-5 mb-8 border border-(--color-border) text-left space-y-3">
+            <h3 className="font-semibold text-foreground text-sm">What happens next?</h3>
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-(--brand-primary)/10 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-(--brand-primary)">1</span>
+              </div>
+              <p className="text-sm text-(--color-text-muted)">We review your business details and product categories</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-(--brand-primary)/10 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-(--brand-primary)">2</span>
+              </div>
+              <p className="text-sm text-(--color-text-muted)">You'll receive an email with your approval status</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-(--brand-primary)/10 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-xs font-bold text-(--brand-primary)">3</span>
+              </div>
+              <p className="text-sm text-(--color-text-muted)">Once approved, set up your store and start selling</p>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link href="/" className="flex-1">
+              <Button variant="outline" size="lg" className="w-full">
+                Back to Home
+              </Button>
+            </Link>
+            <Link href="/account" className="flex-1">
+              <Button size="lg" className="w-full">
+                My Account <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
     )
   }
