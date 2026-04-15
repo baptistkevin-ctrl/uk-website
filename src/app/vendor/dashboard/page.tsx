@@ -14,7 +14,12 @@ import {
   ExternalLink,
   Loader2,
   CheckCircle,
-  Clock
+  Clock,
+  Star,
+  AlertTriangle,
+  BarChart3,
+  MessageSquare,
+  Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -28,6 +33,13 @@ interface VendorStats {
   pendingOrders: number
   totalRevenue: number
   pendingPayout: number
+  todayOrderCount: number
+  todayRevenue: number
+  weekOrderCount: number
+  weekRevenue: number
+  lowStockCount: number
+  pendingReviews: number
+  averageRating: number
 }
 
 interface RecentOrder {
@@ -154,11 +166,84 @@ export default function VendorDashboard() {
 
   return (
     <div className="p-6 lg:p-8">
-      {/* Header */}
+      {/* Header + Today's Performance */}
       <div className="mb-8">
-        <h1 className="font-display text-2xl font-semibold text-foreground">Dashboard</h1>
-        <p className="text-(--color-text-secondary) mt-1">Welcome back, {vendor?.business_name}</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="font-display text-2xl font-semibold text-foreground">Dashboard</h1>
+            <p className="text-(--color-text-secondary) mt-1">Welcome back, {vendor?.business_name}</p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-(--color-text-muted)">
+            <Clock className="h-4 w-4" />
+            {new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          </div>
+        </div>
+
+        {/* Today's Performance Banner */}
+        <div className="bg-linear-to-r from-(--brand-dark) to-(--brand-dark)/90 rounded-2xl p-6 text-white">
+          <div className="flex items-center gap-2 mb-4">
+            <Zap className="h-5 w-5 text-(--brand-amber)" />
+            <h2 className="font-semibold text-lg">Today's Performance</h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+            <div>
+              <p className="text-3xl font-bold font-mono">{stats?.todayOrderCount || 0}</p>
+              <p className="text-white/60 text-sm mt-1">Orders Today</p>
+            </div>
+            <div>
+              <p className="text-3xl font-bold font-mono">{formatPrice(stats?.todayRevenue || 0)}</p>
+              <p className="text-white/60 text-sm mt-1">Revenue Today</p>
+            </div>
+            <div>
+              <p className="text-3xl font-bold font-mono">{stats?.weekOrderCount || 0}</p>
+              <p className="text-white/60 text-sm mt-1">This Week</p>
+            </div>
+            <div>
+              <p className="text-3xl font-bold font-mono">{formatPrice(stats?.weekRevenue || 0)}</p>
+              <p className="text-white/60 text-sm mt-1">Week Revenue</p>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Attention Required Alerts */}
+      {((stats?.pendingOrders || 0) > 0 || (stats?.lowStockCount || 0) > 0 || (stats?.pendingReviews || 0) > 0) && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+          {(stats?.pendingOrders || 0) > 0 && (
+            <Link href="/vendor/orders?status=pending" className="flex items-center gap-3 p-4 bg-(--color-warning-bg) border border-(--color-warning)/20 rounded-xl hover:border-(--color-warning)/40 transition-colors">
+              <div className="h-10 w-10 rounded-lg bg-(--color-warning)/15 flex items-center justify-center shrink-0">
+                <ShoppingCart className="h-5 w-5 text-(--color-warning)" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground text-sm">{stats?.pendingOrders} pending orders</p>
+                <p className="text-xs text-(--color-text-muted)">Requires action</p>
+              </div>
+            </Link>
+          )}
+          {(stats?.lowStockCount || 0) > 0 && (
+            <Link href="/vendor/stock-alerts" className="flex items-center gap-3 p-4 bg-(--color-error)/5 border border-(--color-error)/20 rounded-xl hover:border-(--color-error)/40 transition-colors">
+              <div className="h-10 w-10 rounded-lg bg-(--color-error)/15 flex items-center justify-center shrink-0">
+                <AlertTriangle className="h-5 w-5 text-(--color-error)" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground text-sm">{stats?.lowStockCount} low stock</p>
+                <p className="text-xs text-(--color-text-muted)">Products need restocking</p>
+              </div>
+            </Link>
+          )}
+          {(stats?.pendingReviews || 0) > 0 && (
+            <Link href="/vendor/reviews" className="flex items-center gap-3 p-4 bg-(--color-info)/5 border border-(--color-info)/20 rounded-xl hover:border-(--color-info)/40 transition-colors">
+              <div className="h-10 w-10 rounded-lg bg-(--color-info)/15 flex items-center justify-center shrink-0">
+                <MessageSquare className="h-5 w-5 text-(--color-info)" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground text-sm">{stats?.pendingReviews} new reviews</p>
+                <p className="text-xs text-(--color-text-muted)">Awaiting response</p>
+              </div>
+            </Link>
+          )}
+        </div>
+      )}
 
       {/* Stripe Setup Alert */}
       {needsStripeSetup && (
@@ -379,15 +464,68 @@ export default function VendorDashboard() {
         </div>
       </div>
 
-      {/* Tips */}
-      <div className="bg-(--brand-dark) rounded-xl p-6">
-        <h2 className="font-display font-semibold text-white mb-3">Tips to Increase Sales</h2>
-        <ul className="space-y-2 text-white/70 text-sm">
-          <li>Add high-quality images to your products</li>
-          <li>Keep your inventory up to date</li>
-          <li>Respond to orders quickly for better ratings</li>
-          <li>Offer competitive pricing within your category</li>
-        </ul>
+      {/* Store Performance + Tips */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Store Performance */}
+        <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-sm">
+          <div className="flex items-center gap-3 mb-4">
+            <BarChart3 className="h-5 w-5 text-(--brand-primary)" />
+            <h2 className="font-display text-lg font-semibold text-foreground">Store Performance</h2>
+          </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-(--color-text-muted)">Average Rating</span>
+              <div className="flex items-center gap-1.5">
+                <Star className="h-4 w-4 fill-(--brand-amber) text-(--brand-amber)" />
+                <span className="font-semibold text-foreground">{stats?.averageRating || 'N/A'}</span>
+                <span className="text-xs text-(--color-text-muted)">/ 5</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-(--color-text-muted)">Active Products</span>
+              <span className="font-semibold text-foreground">{stats?.activeProducts || 0} / {stats?.totalProducts || 0}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-(--color-text-muted)">Commission Rate</span>
+              <span className="font-semibold text-foreground">{vendor?.commission_rate || 12.5}%</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-(--color-text-muted)">Pending Payout</span>
+              <span className="font-semibold text-(--brand-primary)">{formatPrice(stats?.pendingPayout || 0)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Tips */}
+        <div className="bg-(--brand-dark) rounded-xl p-6">
+          <h2 className="font-display font-semibold text-white mb-4">Grow Your Sales</h2>
+          <div className="space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-xs text-white font-bold">1</span>
+              </div>
+              <p className="text-white/70 text-sm">Add 3+ high-quality images per product to increase conversions by 30%</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-xs text-white font-bold">2</span>
+              </div>
+              <p className="text-white/70 text-sm">Create multi-buy offers to boost average order value</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-xs text-white font-bold">3</span>
+              </div>
+              <p className="text-white/70 text-sm">Process orders within 24 hours for higher seller ratings</p>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-xs text-white font-bold">4</span>
+              </div>
+              <p className="text-white/70 text-sm">Use flash deals to clear slow-moving inventory fast</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

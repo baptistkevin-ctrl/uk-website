@@ -16,6 +16,7 @@ import {
   AlertCircle,
   Download,
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { formatPrice } from '@/lib/utils/format'
@@ -39,6 +40,8 @@ export default function VendorProducts() {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [bulkLoading, setBulkLoading] = useState(false)
 
   useEffect(() => {
     fetchProducts()
@@ -104,6 +107,42 @@ export default function VendorProducts() {
     }
   }
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === filteredProducts.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(filteredProducts.map(p => p.id)))
+    }
+  }
+
+  const bulkToggleActive = async (activate: boolean) => {
+    setBulkLoading(true)
+    let count = 0
+    for (const id of selectedIds) {
+      const res = await fetch('/api/vendor/products', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, is_active: activate }),
+      })
+      if (res.ok) count++
+    }
+    setProducts(prev =>
+      prev.map(p => selectedIds.has(p.id) ? { ...p, is_active: activate } : p)
+    )
+    setSelectedIds(new Set())
+    setBulkLoading(false)
+    toast.success(`${count} products ${activate ? 'enabled' : 'disabled'}`)
+  }
+
   const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase())
   )
@@ -166,12 +205,38 @@ export default function VendorProducts() {
         </div>
       </div>
 
+      {/* Bulk Actions Bar */}
+      {selectedIds.size > 0 && (
+        <div className="bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-xl p-4 mb-4 flex items-center justify-between">
+          <p className="text-sm font-medium text-foreground">{selectedIds.size} product{selectedIds.size > 1 ? 's' : ''} selected</p>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => bulkToggleActive(true)} disabled={bulkLoading}>
+              <Eye className="h-4 w-4 mr-1.5" /> Enable
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => bulkToggleActive(false)} disabled={bulkLoading}>
+              <EyeOff className="h-4 w-4 mr-1.5" /> Disable
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setSelectedIds(new Set())}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Products Table */}
       {filteredProducts.length > 0 ? (
         <div className="bg-(--color-surface) rounded-xl shadow-sm overflow-hidden">
           <table className="w-full">
             <thead className="bg-background border-b">
               <tr>
+                <th className="px-3 py-3 text-left">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.size === filteredProducts.length && filteredProducts.length > 0}
+                    onChange={toggleSelectAll}
+                    className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded"
+                  />
+                </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wider">
                   Product
                 </th>
@@ -195,6 +260,14 @@ export default function VendorProducts() {
             <tbody className="divide-y divide-(--color-border)">
               {filteredProducts.map((product) => (
                 <tr key={product.id} className="hover:bg-background">
+                  <td className="px-3 py-4">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(product.id)}
+                      onChange={() => toggleSelect(product.id)}
+                      className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded"
+                    />
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 bg-(--color-elevated) rounded-lg overflow-hidden shrink-0">

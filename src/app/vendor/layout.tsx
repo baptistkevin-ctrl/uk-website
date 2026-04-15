@@ -22,6 +22,7 @@ import {
   Gift,
   Zap,
   BellRing,
+  Bell,
   RotateCcw,
   MessageCircle,
 } from 'lucide-react'
@@ -56,6 +57,7 @@ export default function VendorLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [vendorData, setVendorData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [alertCount, setAlertCount] = useState(0)
 
   useEffect(() => {
     // Skip auth check for vendor login page
@@ -86,6 +88,17 @@ export default function VendorLayout({
         }
 
         setVendorData(data.vendor)
+
+        // Fetch alert count for notification badge
+        try {
+          const statsRes = await fetch('/api/vendor/stats')
+          if (statsRes.ok) {
+            const stats = await statsRes.json()
+            setAlertCount((stats.pendingOrders || 0) + (stats.lowStockCount || 0) + (stats.pendingReviews || 0))
+          }
+        } catch {
+          // Non-critical
+        }
       } catch (error) {
         console.error('Vendor check error:', error)
         router.push('/sell')
@@ -125,7 +138,14 @@ export default function VendorLayout({
           <Store className="h-5 w-5 text-(--brand-primary)" />
           <span className="font-display text-lg font-semibold text-(--brand-dark)">Vendor Portal</span>
         </Link>
-        <div className="w-10" />
+        <Link href="/vendor/dashboard" className="relative p-2 rounded-lg hover:bg-(--color-elevated) transition-colors">
+          <Bell className="h-5 w-5 text-foreground" />
+          {alertCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 h-5 w-5 rounded-full bg-(--color-error) text-white text-[10px] font-bold flex items-center justify-center">
+              {alertCount > 9 ? '9+' : alertCount}
+            </span>
+          )}
+        </Link>
       </div>
 
       {/* Sidebar */}
@@ -137,15 +157,25 @@ export default function VendorLayout({
         <div className="h-full flex flex-col">
           {/* Logo section */}
           <div className="p-5 border-b border-white/10 hidden lg:block">
-            <Link href="/vendor/dashboard" className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-(--color-surface)/15 backdrop-blur-sm flex items-center justify-center">
-                <Store className="h-4.5 w-4.5 text-white" />
-              </div>
-              <div>
-                <span className="font-display text-base font-semibold text-white block">Vendor Portal</span>
-                <span className="text-xs text-white/50">{vendorData?.business_name}</span>
-              </div>
-            </Link>
+            <div className="flex items-center justify-between">
+              <Link href="/vendor/dashboard" className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-(--color-surface)/15 backdrop-blur-sm flex items-center justify-center">
+                  <Store className="h-4.5 w-4.5 text-white" />
+                </div>
+                <div>
+                  <span className="font-display text-base font-semibold text-white block">Vendor Portal</span>
+                  <span className="text-xs text-white/50">{vendorData?.business_name}</span>
+                </div>
+              </Link>
+              {alertCount > 0 && (
+                <Link href="/vendor/dashboard" className="relative p-2">
+                  <Bell className="h-5 w-5 text-white/60 hover:text-white transition-colors" />
+                  <span className="absolute -top-0.5 -right-0.5 h-4.5 w-4.5 rounded-full bg-(--color-error) text-white text-[10px] font-bold flex items-center justify-center">
+                    {alertCount > 9 ? '9+' : alertCount}
+                  </span>
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* Navigation */}
