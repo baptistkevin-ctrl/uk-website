@@ -175,7 +175,7 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
 
   return (
     <SwipeToAdd onAdd={handleSwipeAdd} disabled={isOutOfStock || !canAddMore}>
-    <Card className="group relative overflow-hidden border border-(--color-border) hover:border-(--color-border) hover:shadow-md transition-all duration-200 bg-(--color-surface) rounded-lg">
+    <Card className="group relative overflow-hidden border border-(--color-border) hover:border-(--brand-primary)/30 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ease-out bg-(--color-surface) rounded-lg">
       <Link
         href={`/products/${product.slug}`}
         className="block"
@@ -192,7 +192,7 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
             src={product.image_url}
             alt={product.name}
             fill
-            className="object-cover group-hover:scale-102 transition-transform duration-300"
+            className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
           />
 

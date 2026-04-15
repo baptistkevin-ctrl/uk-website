@@ -7,6 +7,7 @@ import { QuickReorder } from "@/components/mobile/QuickReorder";
 import { PullToRefreshIndicator } from "@/components/mobile/PullToRefresh";
 import { PWAInstallPrompt } from "@/components/mobile/PWAInstallPrompt";
 import { ToastContainer } from "@/components/ui/ToastContainer";
+import { ScrollToTop } from "@/components/ui/ScrollToTop";
 
 const ProgressBar = dynamic(
   () => import("@/components/ui/ProgressBar").then((m) => m.ProgressBar),
@@ -29,6 +30,7 @@ export function ClientShell() {
       <PullToRefreshIndicator />
       <PWAInstallPrompt />
       <ToastContainer />
+      <ScrollToTop />
     </>
   );
 }
