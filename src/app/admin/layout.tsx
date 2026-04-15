@@ -75,6 +75,7 @@ const sidebarSections: SidebarSection[] = [
       { href: '/admin/returns', label: 'Returns', icon: RotateCcw },
       { href: '/admin/invoices', label: 'Invoices', icon: FileText },
       { href: '/admin/users', label: 'Customers', icon: Users },
+      { href: '/admin/customers', label: 'Segments', icon: Users },
       { href: '/admin/reviews', label: 'Reviews', icon: Star },
       { href: '/admin/transactions', label: 'Transactions', icon: CreditCard },
       { href: '/admin/abandoned-carts', label: 'Abandoned Carts', icon: RotateCcw },

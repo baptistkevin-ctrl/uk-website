@@ -223,6 +223,32 @@ export default function AdminOrdersPage() {
   // Check if all on current page are selected
   const isAllPageSelected = orders.length > 0 && orders.every(o => selectedOrders.has(o.id))
 
+  // Bulk status update
+  const [bulkUpdating, setBulkUpdating] = useState(false)
+
+  const handleBulkStatusUpdate = async (newStatus: string) => {
+    if (selectedOrders.size === 0) return
+
+    setBulkUpdating(true)
+    let successCount = 0
+
+    for (const id of selectedOrders) {
+      try {
+        const res = await fetch(`/api/admin/orders/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus }),
+        })
+        if (res.ok) successCount++
+      } catch { /* continue */ }
+    }
+
+    setSelectedOrders(new Set())
+    setBulkUpdating(false)
+    fetchOrders()
+    toast.success(`${successCount} orders updated to "${newStatus.replace(/_/g, ' ')}"`)
+  }
+
   // Bulk delete selected orders
   const handleBulkDelete = async () => {
     if (selectedOrders.size === 0) return
@@ -386,24 +412,53 @@ export default function AdminOrdersPage() {
 
       {/* Bulk Action Bar */}
       {selectedOrders.size > 0 && (
-        <div className="bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-xl p-4 flex items-center justify-between flex-wrap gap-3">
           <span className="text-sm text-(--brand-primary)">
             <span className="font-semibold">{selectedOrders.size}</span> order(s) selected
           </span>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={handleBulkDelete}
-            disabled={bulkDeleting}
-            className="gap-2"
-          >
-            {bulkDeleting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Trash2 className="h-4 w-4" />
-            )}
-            Delete Selected
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Batch Status Update */}
+            <select
+              onChange={(e) => {
+                if (e.target.value) handleBulkStatusUpdate(e.target.value)
+                e.target.value = ''
+              }}
+              disabled={bulkUpdating}
+              className="h-9 px-3 text-sm rounded-lg border border-(--color-border) bg-(--color-surface) text-foreground focus:border-(--brand-primary) outline-none"
+              defaultValue=""
+            >
+              <option value="" disabled>Update status to...</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="processing">Processing</option>
+              <option value="ready_for_delivery">Ready for Delivery</option>
+              <option value="out_for_delivery">Out for Delivery</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleBulkDelete}
+              disabled={bulkDeleting}
+              className="gap-2"
+            >
+              {bulkDeleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+              Delete
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSelectedOrders(new Set())}
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
       )}
 
