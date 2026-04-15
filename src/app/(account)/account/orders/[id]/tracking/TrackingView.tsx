@@ -43,6 +43,7 @@ interface EtaInfo {
   minutes: number
   distance: string
   trafficLevel: string
+  window?: string
 }
 
 interface OrderItem {
@@ -547,15 +548,20 @@ export function TrackingView({ orderId }: { orderId: string }) {
             {isDispatched && tracking.eta ? (
               <p className="text-(--color-text-secondary) mt-1">
                 Arriving in ~{tracking.eta.minutes} minutes
+                {tracking.eta.distance && ` · ${tracking.eta.distance} away`}
+              </p>
+            ) : isDelivered ? (
+              <p className="text-(--color-text-secondary) mt-1">
+                Delivered on {formatTimestamp(tracking.delivered_at)}
+              </p>
+            ) : tracking.eta?.window ? (
+              <p className="text-(--color-text-secondary) mt-1">
+                {tracking.eta.window}
               </p>
             ) : tracking.delivery_slot ? (
               <p className="text-(--color-text-secondary) mt-1">
                 Estimated delivery: {tracking.delivery_slot.date},{' '}
                 {tracking.delivery_slot.from} - {tracking.delivery_slot.to}
-              </p>
-            ) : isDelivered ? (
-              <p className="text-(--color-text-secondary) mt-1">
-                Delivered on {formatTimestamp(tracking.delivered_at)}
               </p>
             ) : null}
             {isDispatched && (
@@ -728,6 +734,25 @@ export function TrackingView({ orderId }: { orderId: string }) {
             )
           })}
         </div>
+      </div>
+
+      {/* Contact Support */}
+      <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-(--color-info-bg) flex items-center justify-center shrink-0">
+            <AlertCircle className="h-5 w-5 text-(--color-info)" />
+          </div>
+          <div>
+            <p className="font-medium text-foreground text-sm">Need help with this order?</p>
+            <p className="text-xs text-(--color-text-muted)">Our support team is ready to assist</p>
+          </div>
+        </div>
+        <Link
+          href={`/account/tickets?subject=Order%20%23${tracking.order_number}&order=${tracking.id}`}
+          className="shrink-0 px-4 py-2 rounded-lg bg-(--brand-primary) text-white text-sm font-medium hover:bg-(--brand-primary-hover) transition-colors"
+        >
+          Contact Support
+        </Link>
       </div>
 
       {/* Order Summary (collapsible) */}

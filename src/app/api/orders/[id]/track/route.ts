@@ -154,7 +154,30 @@ export async function GET(request: NextRequest, context: RouteContext) {
         }
       : null;
 
-    const eta = isDispatched ? simulateETA() : null;
+    // ETA refinement — narrows as order progresses
+    let eta = null;
+    if (isDispatched) {
+      eta = simulateETA();
+    } else {
+      // Provide estimated delivery window for non-dispatched orders
+      const statusKey = typedOrder.status as string;
+      const etaWindows: Record<string, { min: number; max: number; label: string }> = {
+        pending: { min: 60, max: 120, label: 'Estimated delivery in 1-2 hours' },
+        confirmed: { min: 45, max: 90, label: 'Estimated delivery in 45-90 minutes' },
+        processing: { min: 20, max: 45, label: 'Estimated delivery in 20-45 minutes' },
+      };
+      const window = etaWindows[statusKey];
+      if (window) {
+        const avgMinutes = Math.round((window.min + window.max) / 2);
+        eta = {
+          minutes: avgMinutes,
+          arrivalTime: new Date(Date.now() + avgMinutes * 60 * 1000).toISOString(),
+          distance: '',
+          trafficLevel: 'low' as const,
+          window: window.label,
+        };
+      }
+    }
 
     const response = {
       order: {

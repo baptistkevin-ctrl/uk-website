@@ -249,6 +249,50 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Send email notification to customer on status change
+    try {
+      if (updatedOrder?.order_id) {
+        const { data: orderData } = await supabaseAdmin
+          .from('orders')
+          .select('customer_name, customer_email, order_number')
+          .eq('id', updatedOrder.order_id)
+          .single()
+
+        if (orderData?.customer_email) {
+          const { sendEmail } = await import('@/lib/email/send-email')
+          const statusMessages: Record<string, { subject: string; body: string }> = {
+            confirmed: {
+              subject: `Order #${orderData.order_number} Confirmed`,
+              body: `<h2>Order Confirmed!</h2><p>Hi ${orderData.customer_name || 'there'},</p><p>Your order <strong>#${orderData.order_number}</strong> has been confirmed and payment verified.</p><p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/account/orders/${updatedOrder.order_id}/tracking">Track Your Order</a></p>`,
+            },
+            processing: {
+              subject: `Order #${orderData.order_number} is Being Packed`,
+              body: `<h2>Your Order is Being Packed!</h2><p>Hi ${orderData.customer_name || 'there'},</p><p>Great news! Your items are being carefully picked and packed.</p><p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/account/orders/${updatedOrder.order_id}/tracking">Track Your Order</a></p>`,
+            },
+            shipped: {
+              subject: `Order #${orderData.order_number} is Out for Delivery!`,
+              body: `<h2>Your Driver is On the Way!</h2><p>Hi ${orderData.customer_name || 'there'},</p><p>Your order is out for delivery. Track your driver in real-time!</p><p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/account/orders/${updatedOrder.order_id}/tracking">Track Live</a></p>`,
+            },
+            delivered: {
+              subject: `Order #${orderData.order_number} Delivered!`,
+              body: `<h2>Your Order Has Been Delivered!</h2><p>Hi ${orderData.customer_name || 'there'},</p><p>Your order has been delivered. We hope you enjoy your groceries!</p><p><a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/account/orders/${updatedOrder.order_id}">View Order</a></p>`,
+            },
+          }
+
+          const msg = statusMessages[status]
+          if (msg) {
+            await sendEmail({
+              to: orderData.customer_email,
+              subject: msg.subject,
+              html: msg.body,
+            })
+          }
+        }
+      }
+    } catch {
+      // Non-critical
+    }
+
     return NextResponse.json(updatedOrder)
   } catch (error) {
     console.error('Update order error:', error)
