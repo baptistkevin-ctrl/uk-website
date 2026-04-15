@@ -73,6 +73,7 @@ interface TrackingData {
   driver_location: DriverLocation | null
   eta: EtaInfo | null
   delivery_slot: { date: string; from: string; to: string } | null
+  delivery_photo_url: string | null
 }
 
 /* -------------------------------------------------------------------------- */
@@ -615,6 +616,27 @@ export function TrackingView({ orderId }: { orderId: string }) {
           >
             <Phone className="h-4.5 w-4.5" />
           </a>
+        </div>
+      )}
+
+      {/* Delivery Photo Proof */}
+      {isDelivered && tracking.delivery_photo_url && (
+        <div className="rounded-2xl border border-(--color-success)/20 bg-(--color-success)/5 p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Check className="h-5 w-5 text-(--color-success)" />
+            <h2 className="text-lg font-semibold text-foreground">Delivery Proof</h2>
+          </div>
+          <div className="rounded-xl overflow-hidden border border-(--color-border) bg-(--color-surface)">
+            <img
+              src={tracking.delivery_photo_url}
+              alt="Delivery proof photo"
+              className="w-full max-h-80 object-cover"
+            />
+          </div>
+          <p className="text-xs text-(--color-text-muted) mt-3 flex items-center gap-1.5">
+            <Clock className="h-3 w-3" />
+            Photo taken at delivery on {formatTimestamp(tracking.delivered_at)}
+          </p>
         </div>
       )}
 

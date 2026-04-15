@@ -41,6 +41,7 @@ interface OrderRow {
   delivery_slot_date: string | null;
   delivery_slot_from: string | null;
   delivery_slot_to: string | null;
+  delivery_photo_url: string | null;
   user_id: string;
   order_items: OrderItem[];
 }
@@ -105,6 +106,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
         delivery_slot_date,
         delivery_slot_from,
         delivery_slot_to,
+        delivery_photo_url,
         user_id,
         order_items (
           id,
@@ -171,6 +173,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
           postcode: typedOrder.delivery_postcode,
         },
         deliverySlot,
+        deliveryPhotoUrl: typedOrder.delivery_photo_url,
       },
       timeline,
       driver,
