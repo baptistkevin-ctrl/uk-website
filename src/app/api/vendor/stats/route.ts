@@ -121,6 +121,30 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Platform benchmarks (averages across all vendors)
+    const { data: allVendorOrders } = await supabaseAdmin
+      .from('vendor_orders')
+      .select('vendor_id, vendor_amount')
+      .not('status', 'eq', 'cancelled')
+
+    let platformAvgRevenue = 0
+    let platformAvgOrders = 0
+    if (allVendorOrders && allVendorOrders.length > 0) {
+      const vendorGroups = new Map<string, { revenue: number; orders: number }>()
+      for (const vo of allVendorOrders) {
+        const existing = vendorGroups.get(vo.vendor_id) || { revenue: 0, orders: 0 }
+        existing.revenue += vo.vendor_amount || 0
+        existing.orders++
+        vendorGroups.set(vo.vendor_id, existing)
+      }
+      const vendorCount = vendorGroups.size
+      if (vendorCount > 0) {
+        const totals = Array.from(vendorGroups.values())
+        platformAvgRevenue = Math.round(totals.reduce((s, v) => s + v.revenue, 0) / vendorCount)
+        platformAvgOrders = Math.round(totals.reduce((s, v) => s + v.orders, 0) / vendorCount)
+      }
+    }
+
     return NextResponse.json({
       totalProducts: totalProducts || 0,
       activeProducts: activeProducts || 0,
@@ -135,6 +159,14 @@ export async function GET(request: NextRequest) {
       lowStockCount: lowStockCount || 0,
       pendingReviews,
       averageRating: Math.round(averageRating * 10) / 10,
+      benchmarks: {
+        platformAvgRevenue,
+        platformAvgOrders,
+        yourRevenue: totalRevenue,
+        yourOrders: totalOrders,
+        revenueVsPlatform: platformAvgRevenue > 0 ? Math.round(((totalRevenue - platformAvgRevenue) / platformAvgRevenue) * 100) : 0,
+        ordersVsPlatform: platformAvgOrders > 0 ? Math.round(((totalOrders - platformAvgOrders) / platformAvgOrders) * 100) : 0,
+      },
     })
   } catch (error) {
     console.error('Vendor stats error:', error)

@@ -23,6 +23,7 @@ import {
   Zap,
   BellRing,
   Bell,
+  Users,
   RotateCcw,
   MessageCircle,
 } from 'lucide-react'
@@ -41,6 +42,7 @@ const vendorNavItems = [
   { href: '/vendor/deals', label: 'Flash Deals', icon: Zap },
   { href: '/vendor/stock-alerts', label: 'Stock Alerts', icon: BellRing },
   { href: '/vendor/live-chat', label: 'Live Chat', icon: MessageCircle },
+  { href: '/vendor/customers', label: 'Customers', icon: Users },
   { href: '/vendor/analytics', label: 'Analytics', icon: BarChart3 },
   { href: '/vendor/payouts', label: 'Payouts', icon: CreditCard },
   { href: '/vendor/settings', label: 'Settings', icon: Settings },

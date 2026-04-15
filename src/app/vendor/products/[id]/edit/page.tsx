@@ -16,7 +16,8 @@ import {
   Tag,
   Info,
   Trash2,
-  Upload
+  Upload,
+  Search,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -78,6 +79,7 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
     is_gluten_free: false,
     is_vegan: false,
     is_vegetarian: false,
+    meta_description: '',
   })
 
   useEffect(() => {
@@ -118,6 +120,7 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
           is_gluten_free: product.is_gluten_free || false,
           is_vegan: product.is_vegan || false,
           is_vegetarian: product.is_vegetarian || false,
+          meta_description: product.meta_description || '',
         })
         setImages(product.images || (product.image_url ? [product.image_url] : []))
       }
@@ -154,6 +157,7 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
           is_gluten_free: formData.is_gluten_free,
           is_vegan: formData.is_vegan,
           is_vegetarian: formData.is_vegetarian,
+          meta_description: formData.meta_description || null,
         })
       })
 
@@ -569,6 +573,52 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
                     <span className="text-foreground">{label}</span>
                   </label>
                 ))}
+              </div>
+            </div>
+
+            {/* SEO */}
+            <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-(--color-info-bg) rounded-lg">
+                  <Search className="h-5 w-5 text-(--color-info)" />
+                </div>
+                <h2 className="font-semibold text-foreground">SEO</h2>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-1">Meta Description</label>
+                  <textarea
+                    value={formData.meta_description}
+                    onChange={(e) => updateField('meta_description', e.target.value)}
+                    rows={3}
+                    maxLength={160}
+                    className="w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) text-sm"
+                    placeholder="Brief description for search engines (max 160 chars)"
+                  />
+                  <p className="text-xs text-(--color-text-muted) mt-1">{formData.meta_description.length}/160 characters</p>
+                </div>
+
+                {/* SEO Score */}
+                <div className="bg-background rounded-lg p-3">
+                  <p className="text-xs font-medium text-(--color-text-muted) mb-2">SEO Score</p>
+                  <div className="space-y-1.5">
+                    {[
+                      { label: 'Product name', ok: formData.name.length >= 10 },
+                      { label: 'Description', ok: formData.description.length >= 50 },
+                      { label: 'Meta description', ok: formData.meta_description.length >= 50 },
+                      { label: 'Product image', ok: images.length > 0 },
+                      { label: 'Price set', ok: parseFloat(formData.price) > 0 },
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-center gap-2 text-xs">
+                        <span className={item.ok ? 'text-(--color-success)' : 'text-(--color-text-disabled)'}>
+                          {item.ok ? '✓' : '○'}
+                        </span>
+                        <span className={item.ok ? 'text-foreground' : 'text-(--color-text-muted)'}>{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
