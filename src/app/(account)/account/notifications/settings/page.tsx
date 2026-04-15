@@ -15,6 +15,7 @@ import {
   Save,
   ArrowLeft
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 
 interface NotificationPreferences {
   email_order_updates: boolean
@@ -96,13 +97,16 @@ export default function NotificationSettingsPage() {
 
       if (res.ok) {
         setSuccess(true)
+        toast.success('Notification preferences saved!')
         setTimeout(() => setSuccess(false), 3000)
       } else {
         const data = await res.json()
         setError(data.error || 'Failed to save preferences')
+        toast.error(data.error || 'Failed to save preferences')
       }
     } catch (err) {
       setError('Failed to save preferences')
+      toast.error('Failed to save preferences')
     } finally {
       setSaving(false)
     }

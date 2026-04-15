@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, Package, MapPin, CreditCard, Truck, RotateCcw, Store } from 'lucide-react'
+import { ArrowLeft, Package, MapPin, CreditCard, Truck, RotateCcw, Store, Printer, Download, Star } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { formatPrice, formatDate } from '@/lib/utils/format'
 import { OrderChatButton } from '@/components/chat/order-chat-button'
+import { PrintInvoiceButton } from './PrintInvoiceButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -106,16 +107,19 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href="/account/orders">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Order {order.order_number}</h1>
-          <p className="text-(--color-text-muted)">Placed on {formatDate(order.created_at)}</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/account/orders">
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Order {order.order_number}</h1>
+            <p className="text-(--color-text-muted)">Placed on {formatDate(order.created_at)}</p>
+          </div>
         </div>
+        <PrintInvoiceButton />
       </div>
 
       {/* Order Status */}
@@ -380,6 +384,33 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
               </div>
             </CardContent>
           </Card>
+
+          {/* Review Prompt */}
+          {order.status === 'delivered' && orderItems && orderItems.length > 0 && (
+            <Card className="border-(--brand-amber)/30 bg-(--brand-amber)/5">
+              <CardContent className="p-6">
+                <div className="text-center mb-4">
+                  <Star className="h-8 w-8 text-(--brand-amber) mx-auto mb-2" />
+                  <h3 className="font-semibold text-foreground">How was your order?</h3>
+                  <p className="text-sm text-(--color-text-muted) mt-1">Help other shoppers by reviewing your products</p>
+                </div>
+                <div className="space-y-2">
+                  {orderItems.slice(0, 3).map((item) => (
+                    <Link
+                      key={item.id}
+                      href={`/products/${item.product?.slug}?review=1`}
+                      className="flex items-center gap-3 p-3 bg-(--color-surface) rounded-lg border border-(--color-border) hover:border-(--brand-primary) transition-colors"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{item.product?.name || item.product_name}</p>
+                      </div>
+                      <span className="text-xs text-(--brand-primary) font-medium shrink-0">Write Review</span>
+                    </Link>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Return / Help */}
           <Card>

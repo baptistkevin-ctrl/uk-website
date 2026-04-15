@@ -336,6 +336,83 @@ export default function SecurityPage() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Data & Privacy (GDPR) */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Shield className="h-5 w-5 text-(--color-text-secondary)" />
+            <h2 className="text-lg font-semibold">Data & Privacy</h2>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-background rounded-lg border border-(--color-border)">
+            <div>
+              <p className="font-medium text-foreground">Export Your Data</p>
+              <p className="text-sm text-(--color-text-muted)">
+                Download a copy of all your personal data including orders, addresses, and preferences
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={async () => {
+                toast.info('Preparing your data export...')
+                try {
+                  const supabase = createClient()
+                  const { data: { user: u } } = await supabase.auth.getUser()
+                  if (!u) return
+
+                  const [profileData, ordersData, addressesData] = await Promise.all([
+                    supabase.from('profiles').select('*').eq('id', u.id).single(),
+                    supabase.from('orders').select('*').eq('user_id', u.id),
+                    supabase.from('addresses').select('*').eq('user_id', u.id),
+                  ])
+
+                  const exportData = {
+                    exportDate: new Date().toISOString(),
+                    profile: profileData.data,
+                    orders: ordersData.data,
+                    addresses: addressesData.data,
+                  }
+
+                  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = `my-data-${new Date().toISOString().split('T')[0]}.json`
+                  a.click()
+                  URL.revokeObjectURL(url)
+                  toast.success('Data exported successfully')
+                } catch {
+                  toast.error('Failed to export data')
+                }
+              }}
+            >
+              Download Data
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between p-4 bg-(--color-error)/5 rounded-lg border border-(--color-error)/20">
+            <div>
+              <p className="font-medium text-(--color-error)">Delete Account</p>
+              <p className="text-sm text-(--color-text-muted)">
+                Permanently delete your account and all associated data. This action cannot be undone.
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              className="text-(--color-error) border-(--color-error)/20 hover:bg-(--color-error-bg)"
+              onClick={() => {
+                if (confirm('Are you absolutely sure? This will permanently delete your account, all orders, addresses, and personal data. This CANNOT be undone.')) {
+                  toast.info('Please contact support@ukgrocerystore.com to process your account deletion request.')
+                }
+              }}
+            >
+              Delete Account
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
