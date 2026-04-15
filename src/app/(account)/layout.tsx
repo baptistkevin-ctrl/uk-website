@@ -1,41 +1,40 @@
-import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-import { Header } from '@/components/layout/header'
-import { Footer } from '@/components/layout/footer'
-import { AccountSidebar } from '@/components/layout/account-sidebar'
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
+import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
+import { AccountSidebar } from "@/components/layout/account-sidebar";
 
 export default async function AccountLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login?redirectTo=/account')
+    redirect("/login?redirectTo=/account");
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
+      <AnnouncementBar />
       <Header />
-      <main className="flex-1 bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Sidebar */}
-            <aside className="lg:w-64 shrink-0">
+      <main className="flex-1 pb-20 lg:pb-0">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-8 lg:flex-row">
+            <aside className="shrink-0 lg:w-64">
               <AccountSidebar />
             </aside>
-
-            {/* Content */}
             <div className="flex-1">{children}</div>
           </div>
         </div>
       </main>
       <Footer />
     </div>
-  )
+  );
 }

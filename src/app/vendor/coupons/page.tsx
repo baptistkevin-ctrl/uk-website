@@ -198,7 +198,7 @@ export default function VendorCouponsPage() {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -208,12 +208,12 @@ export default function VendorCouponsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Coupons</h1>
-          <p className="text-gray-600">Create discount codes for your store</p>
+          <h1 className="text-2xl font-bold text-foreground">Coupons</h1>
+          <p className="text-(--color-text-secondary)">Create discount codes for your store</p>
         </div>
         <Button
           onClick={() => { resetForm(); setShowModal(true) }}
-          className="bg-emerald-600 hover:bg-emerald-700"
+          className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
         >
           <Plus className="h-4 w-4 mr-2" />
           Create Coupon
@@ -222,11 +222,11 @@ export default function VendorCouponsPage() {
 
       {/* Coupons List */}
       {coupons.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-gray-100">
-          <Ticket className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No coupons yet</h3>
-          <p className="text-gray-500 mb-4">Create your first coupon to attract more customers</p>
-          <Button onClick={() => { resetForm(); setShowModal(true) }} className="bg-emerald-600 hover:bg-emerald-700">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm p-12 text-center border border-(--color-border)">
+          <Ticket className="h-12 w-12 mx-auto text-(--color-text-disabled) mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">No coupons yet</h3>
+          <p className="text-(--color-text-muted) mb-4">Create your first coupon to attract more customers</p>
+          <Button onClick={() => { resetForm(); setShowModal(true) }} className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
             <Plus className="h-4 w-4 mr-2" /> Create Coupon
           </Button>
         </div>
@@ -235,15 +235,15 @@ export default function VendorCouponsPage() {
           {coupons.map(coupon => {
             const isExpired = coupon.expires_at && new Date(coupon.expires_at) < new Date()
             return (
-              <div key={coupon.id} className={`bg-white rounded-xl shadow-sm p-5 border ${
-                !coupon.is_active || isExpired ? 'border-gray-200 opacity-60' : 'border-gray-100'
+              <div key={coupon.id} className={`bg-(--color-surface) rounded-xl shadow-sm p-5 border ${
+                !coupon.is_active || isExpired ? 'border-(--color-border) opacity-60' : 'border-(--color-border)'
               }`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      coupon.discount_type === 'percentage' ? 'bg-blue-100 text-blue-600' :
-                      coupon.discount_type === 'fixed_amount' ? 'bg-emerald-100 text-emerald-600' :
-                      'bg-purple-100 text-purple-600'
+                      coupon.discount_type === 'percentage' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                      coupon.discount_type === 'fixed_amount' ? 'bg-(--brand-primary-light) text-(--brand-primary)' :
+                      'bg-(--color-info-bg) text-(--color-info)'
                     }`}>
                       {discountIcon(coupon.discount_type)}
                     </div>
@@ -251,42 +251,42 @@ export default function VendorCouponsPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => copyCode(coupon.code)}
-                          className="font-mono font-bold text-lg text-gray-900 hover:text-emerald-600 flex items-center gap-1"
+                          className="font-mono font-bold text-lg text-foreground hover:text-(--brand-primary) flex items-center gap-1"
                         >
                           {coupon.code}
                           {copiedCode === coupon.code ? (
-                            <Check className="h-4 w-4 text-emerald-500" />
+                            <Check className="h-4 w-4 text-(--brand-primary)" />
                           ) : (
-                            <Copy className="h-3.5 w-3.5 text-gray-400" />
+                            <Copy className="h-3.5 w-3.5 text-(--color-text-disabled)" />
                           )}
                         </button>
                         {!coupon.is_active && (
-                          <span className="px-2 py-0.5 bg-gray-100 text-gray-500 text-xs rounded-full">Inactive</span>
+                          <span className="px-2 py-0.5 bg-(--color-elevated) text-(--color-text-muted) text-xs rounded-full">Inactive</span>
                         )}
                         {isExpired && (
-                          <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded-full">Expired</span>
+                          <span className="px-2 py-0.5 bg-(--color-error-bg) text-(--color-error) text-xs rounded-full">Expired</span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500">{discountLabel(coupon)}</p>
-                      {coupon.description && <p className="text-xs text-gray-400 mt-0.5">{coupon.description}</p>}
+                      <p className="text-sm text-(--color-text-muted)">{discountLabel(coupon)}</p>
+                      {coupon.description && <p className="text-xs text-(--color-text-disabled) mt-0.5">{coupon.description}</p>}
                     </div>
                   </div>
 
                   <div className="flex items-center gap-3">
                     <div className="text-right text-sm">
-                      <p className="text-gray-500">Used {coupon.usage_count}{coupon.usage_limit ? `/${coupon.usage_limit}` : ''} times</p>
+                      <p className="text-(--color-text-muted)">Used {coupon.usage_count}{coupon.usage_limit ? `/${coupon.usage_limit}` : ''} times</p>
                       {coupon.min_order_pence > 0 && (
-                        <p className="text-xs text-gray-400">Min order: {formatPrice(coupon.min_order_pence)}</p>
+                        <p className="text-xs text-(--color-text-disabled)">Min order: {formatPrice(coupon.min_order_pence)}</p>
                       )}
                     </div>
-                    <button onClick={() => toggleActive(coupon)} className="p-2 hover:bg-gray-100 rounded-lg" title={coupon.is_active ? 'Deactivate' : 'Activate'}>
-                      {coupon.is_active ? <Eye className="h-4 w-4 text-emerald-500" /> : <EyeOff className="h-4 w-4 text-gray-400" />}
+                    <button onClick={() => toggleActive(coupon)} className="p-2 hover:bg-(--color-elevated) rounded-lg" title={coupon.is_active ? 'Deactivate' : 'Activate'}>
+                      {coupon.is_active ? <Eye className="h-4 w-4 text-(--brand-primary)" /> : <EyeOff className="h-4 w-4 text-(--color-text-disabled)" />}
                     </button>
-                    <button onClick={() => openEdit(coupon)} className="p-2 hover:bg-gray-100 rounded-lg">
-                      <Pencil className="h-4 w-4 text-gray-500" />
+                    <button onClick={() => openEdit(coupon)} className="p-2 hover:bg-(--color-elevated) rounded-lg">
+                      <Pencil className="h-4 w-4 text-(--color-text-muted)" />
                     </button>
-                    <button onClick={() => handleDelete(coupon.id)} className="p-2 hover:bg-red-50 rounded-lg">
-                      <Trash2 className="h-4 w-4 text-red-500" />
+                    <button onClick={() => handleDelete(coupon.id)} className="p-2 hover:bg-(--color-error-bg) rounded-lg">
+                      <Trash2 className="h-4 w-4 text-(--color-error)" />
                     </button>
                   </div>
                 </div>
@@ -299,12 +299,12 @@ export default function VendorCouponsPage() {
       {/* Create/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-(--color-surface) rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-foreground">
                 {editingCoupon ? 'Edit Coupon' : 'Create Coupon'}
               </h2>
-              <button onClick={() => { setShowModal(false); resetForm() }} className="p-2 hover:bg-gray-100 rounded-lg">
+              <button onClick={() => { setShowModal(false); resetForm() }} className="p-2 hover:bg-(--color-elevated) rounded-lg">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -312,7 +312,7 @@ export default function VendorCouponsPage() {
             <div className="p-6 space-y-4">
               {/* Code */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Coupon Code</label>
                 <div className="flex gap-2">
                   <Input
                     value={formData.code}
@@ -326,7 +326,7 @@ export default function VendorCouponsPage() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Description</label>
                 <Input
                   value={formData.description}
                   onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
@@ -336,7 +336,7 @@ export default function VendorCouponsPage() {
 
               {/* Discount Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Discount Type</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Discount Type</label>
                 <div className="grid grid-cols-3 gap-2">
                   {(['percentage', 'fixed_amount', 'free_shipping'] as const).map(type => (
                     <button
@@ -344,8 +344,8 @@ export default function VendorCouponsPage() {
                       onClick={() => setFormData(prev => ({ ...prev, discount_type: type }))}
                       className={`p-3 rounded-xl border text-sm font-medium text-center transition-colors ${
                         formData.discount_type === type
-                          ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                          : 'border-gray-200 hover:bg-gray-50'
+                          ? 'border-(--brand-primary) bg-(--brand-primary-light) text-(--brand-primary)'
+                          : 'border-(--color-border) hover:bg-background'
                       }`}
                     >
                       {type === 'percentage' ? '% Off' : type === 'fixed_amount' ? '£ Off' : 'Free Ship'}
@@ -357,7 +357,7 @@ export default function VendorCouponsPage() {
               {/* Discount Value */}
               {formData.discount_type !== 'free_shipping' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Discount Value {formData.discount_type === 'percentage' ? '(%)' : '(£)'}
                   </label>
                   <Input
@@ -372,7 +372,7 @@ export default function VendorCouponsPage() {
               {/* Min Order & Max Discount */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Min Order (£)</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Min Order (£)</label>
                   <Input
                     type="number"
                     value={formData.min_order_pounds}
@@ -381,7 +381,7 @@ export default function VendorCouponsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Max Discount (£)</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Max Discount (£)</label>
                   <Input
                     type="number"
                     value={formData.max_discount_pounds}
@@ -394,7 +394,7 @@ export default function VendorCouponsPage() {
               {/* Usage Limits */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Total Usage Limit</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Total Usage Limit</label>
                   <Input
                     type="number"
                     value={formData.usage_limit}
@@ -403,7 +403,7 @@ export default function VendorCouponsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Per User Limit</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Per User Limit</label>
                   <Input
                     type="number"
                     value={formData.per_user_limit}
@@ -416,7 +416,7 @@ export default function VendorCouponsPage() {
               {/* Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Starts At</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Starts At</label>
                   <Input
                     type="datetime-local"
                     value={formData.starts_at}
@@ -424,7 +424,7 @@ export default function VendorCouponsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Expires At</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Expires At</label>
                   <Input
                     type="datetime-local"
                     value={formData.expires_at}
@@ -439,7 +439,7 @@ export default function VendorCouponsPage() {
                 Cancel
               </Button>
               <Button
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                className="flex-1 bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
                 onClick={handleSave}
                 disabled={saving || !formData.code}
               >

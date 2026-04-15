@@ -3,26 +3,11 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
-import {
-  Search,
-  Filter,
-  X,
-  ChevronDown,
-  Grid,
-  List,
-  Loader2,
-  SlidersHorizontal,
-  Star,
-  ShoppingBag
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent } from '@/components/ui/card'
-import { formatPrice } from '@/lib/utils/format'
-import { AddToCartButton } from '@/components/products/add-to-cart-button'
-import { WishlistButton } from '@/components/wishlist'
+import { Search, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Container } from '@/components/layout/Container'
+import { Breadcrumb } from '@/components/ui/Breadcrumb'
+import { Spinner } from '@/components/ui/Spinner'
+import { ProductCard } from '@/components/products/product-card'
 import { useAuth } from '@/hooks/use-auth'
 
 interface Product {
@@ -73,6 +58,15 @@ interface SearchResult {
   query: string
 }
 
+const SUGGESTED_CATEGORIES = [
+  { label: 'Fruits & Vegetables', slug: 'fruits-vegetables' },
+  { label: 'Dairy & Eggs', slug: 'dairy-eggs' },
+  { label: 'Bakery', slug: 'bakery' },
+  { label: 'Meat & Poultry', slug: 'meat-poultry' },
+  { label: 'Beverages', slug: 'beverages' },
+  { label: 'Snacks', slug: 'snacks' },
+]
+
 function SearchPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -80,10 +74,7 @@ function SearchPageContent() {
 
   const [results, setResults] = useState<SearchResult | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [showFilters, setShowFilters] = useState(false)
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
-  // Get current filters from URL
   const query = searchParams.get('q') || ''
   const page = parseInt(searchParams.get('page') || '1')
   const sort = searchParams.get('sort') || 'relevance'
@@ -97,9 +88,6 @@ function SearchPageContent() {
   const vegetarian = searchParams.get('vegetarian') === 'true'
   const glutenFree = searchParams.get('glutenFree') === 'true'
 
-  const [searchInput, setSearchInput] = useState(query)
-
-  // Fetch search results
   const fetchResults = useCallback(async () => {
     setIsLoading(true)
     try {
@@ -131,7 +119,6 @@ function SearchPageContent() {
     fetchResults()
   }, [fetchResults])
 
-  // Update URL with new params
   const updateFilters = (newParams: Record<string, string | boolean | null>) => {
     const params = new URLSearchParams(searchParams.toString())
 
@@ -143,7 +130,6 @@ function SearchPageContent() {
       }
     })
 
-    // Reset to page 1 when filters change
     if (!('page' in newParams)) {
       params.set('page', '1')
     }
@@ -151,410 +137,180 @@ function SearchPageContent() {
     router.push(`/search?${params.toString()}`)
   }
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    updateFilters({ q: searchInput })
-  }
-
   const clearAllFilters = () => {
     router.push(`/search${query ? `?q=${query}` : ''}`)
   }
 
-  const activeFiltersCount = [category, minPrice, maxPrice, inStock, onSale, organic, vegan, vegetarian, glutenFree]
-    .filter(Boolean).length
+  const activeFilters: Array<{ key: string; label: string }> = []
+  if (category) {
+    const catName = results?.facets.categories.find(c => c.slug === category)?.name || category
+    activeFilters.push({ key: 'category', label: catName })
+  }
+  if (onSale) activeFilters.push({ key: 'onSale', label: 'On Sale' })
+  if (inStock) activeFilters.push({ key: 'inStock', label: 'In Stock' })
+  if (organic) activeFilters.push({ key: 'organic', label: 'Organic' })
+  if (vegan) activeFilters.push({ key: 'vegan', label: 'Vegan' })
+  if (vegetarian) activeFilters.push({ key: 'vegetarian', label: 'Vegetarian' })
+  if (glutenFree) activeFilters.push({ key: 'glutenFree', label: 'Gluten Free' })
+  if (minPrice) activeFilters.push({ key: 'minPrice', label: `Min: £${(parseInt(minPrice) / 100).toFixed(2)}` })
+  if (maxPrice) activeFilters.push({ key: 'maxPrice', label: `Max: £${(parseInt(maxPrice) / 100).toFixed(2)}` })
+
+  const removeFilter = (key: string) => {
+    if (key === 'category') return updateFilters({ category: null })
+    if (key === 'minPrice') return updateFilters({ minPrice: null })
+    if (key === 'maxPrice') return updateFilters({ maxPrice: null })
+    return updateFilters({ [key]: false })
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Search Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <form onSubmit={handleSearch} className="flex gap-3">
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <Input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search for groceries..."
-                className="pl-12 h-12 text-lg"
-              />
-            </div>
-            <Button type="submit" className="h-12 px-8 bg-emerald-600 hover:bg-emerald-700">
-              Search
-            </Button>
-          </form>
-        </div>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Container size="xl" className="py-6 lg:py-8">
+        {/* Breadcrumb */}
+        <Breadcrumb
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Search Results' },
+          ]}
+          className="mb-6"
+        />
 
-      <div className="container mx-auto px-4 py-6">
-        {/* Results Header */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Query Header + Sort */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            {query && (
-              <h1 className="text-2xl font-bold text-gray-900">
-                Results for "{query}"
+            {query ? (
+              <h1 className="font-display text-xl lg:text-2xl font-bold text-foreground">
+                Results for &ldquo;{query}&rdquo;
+              </h1>
+            ) : (
+              <h1 className="font-display text-xl lg:text-2xl font-bold text-foreground">
+                All Products
               </h1>
             )}
-            <p className="text-gray-500">
-              {results?.total || 0} products found
+            <p className="text-sm text-(--color-text-muted) mt-1">
+              {results?.total ?? 0} {results?.total === 1 ? 'product' : 'products'} found
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* View Mode Toggle */}
-            <div className="hidden md:flex items-center gap-1 bg-white border rounded-lg p-1">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded ${viewMode === 'grid' ? 'bg-emerald-100 text-emerald-600' : 'text-gray-400'}`}
-              >
-                <Grid className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded ${viewMode === 'list' ? 'bg-emerald-100 text-emerald-600' : 'text-gray-400'}`}
-              >
-                <List className="h-4 w-4" />
-              </button>
-            </div>
-
-            {/* Sort */}
-            <select
-              value={sort}
-              onChange={(e) => updateFilters({ sort: e.target.value })}
-              className="h-10 px-3 border rounded-lg bg-white text-sm"
-            >
-              <option value="relevance">Relevance</option>
-              <option value="price_asc">Price: Low to High</option>
-              <option value="price_desc">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-              <option value="newest">Newest</option>
-              <option value="popular">Most Popular</option>
-            </select>
-
-            {/* Filter Button (Mobile) */}
-            <Button
-              variant="outline"
-              onClick={() => setShowFilters(!showFilters)}
-              className="md:hidden"
-            >
-              <SlidersHorizontal className="h-4 w-4 mr-2" />
-              Filters
-              {activeFiltersCount > 0 && (
-                <Badge className="ml-2 bg-emerald-600">{activeFiltersCount}</Badge>
-              )}
-            </Button>
-          </div>
+          <select
+            value={sort}
+            onChange={(e) => updateFilters({ sort: e.target.value })}
+            className="h-10 px-3 rounded-lg border border-(--color-border) bg-(--color-surface) text-sm text-foreground transition-colors duration-(--duration-fast) ease-(--ease-premium) focus:outline-none focus:ring-2 focus:ring-(--brand-primary)/30 focus:border-(--brand-primary) w-fit"
+          >
+            <option value="relevance">Relevance</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="rating">Highest Rated</option>
+            <option value="newest">Newest</option>
+            <option value="popular">Most Popular</option>
+          </select>
         </div>
 
-        <div className="flex gap-6">
-          {/* Filters Sidebar */}
-          <div className={`${showFilters ? 'fixed inset-0 z-50 bg-white md:relative md:inset-auto md:z-auto' : 'hidden'} md:block w-full md:w-64 flex-shrink-0`}>
-            <div className="p-4 md:p-0">
-              <div className="flex items-center justify-between mb-4 md:hidden">
-                <h2 className="text-lg font-semibold">Filters</h2>
-                <button onClick={() => setShowFilters(false)}>
-                  <X className="h-6 w-6" />
+        {/* Active Filters Bar */}
+        {activeFilters.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mt-4">
+            {activeFilters.map((filter) => (
+              <button
+                key={filter.key}
+                onClick={() => removeFilter(filter.key)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-(--color-surface) border border-(--color-border) text-xs font-medium text-(--color-text-secondary) transition-all duration-(--duration-fast) ease-(--ease-premium) hover:border-(--brand-primary) hover:text-(--brand-primary) group"
+              >
+                {filter.label}
+                <X size={12} className="opacity-50 group-hover:opacity-100 transition-opacity" />
+              </button>
+            ))}
+            <button
+              onClick={clearAllFilters}
+              className="text-xs font-medium text-(--brand-primary) hover:underline px-2 py-1.5"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
+
+        {/* Content Area */}
+        {isLoading ? (
+          <div className="flex items-center justify-center py-24">
+            <Spinner size="lg" />
+          </div>
+        ) : results?.products.length === 0 ? (
+          /* Empty State */
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Search
+              size={64}
+              strokeWidth={1}
+              className="text-(--color-text-muted) mb-6"
+            />
+            <h2 className="font-display text-xl font-semibold text-foreground mb-2">
+              No results for &ldquo;{query}&rdquo;
+            </h2>
+            <p className="text-sm text-(--color-text-muted) mb-8 max-w-md">
+              Try a different search term or browse our categories
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {SUGGESTED_CATEGORIES.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/categories/${cat.slug}`}
+                  className="px-4 py-2.5 rounded-full bg-(--color-surface) border border-(--color-border) text-sm font-medium text-(--color-text-secondary) transition-all duration-(--duration-fast) ease-(--ease-premium) hover:border-(--brand-primary) hover:text-(--brand-primary) hover:shadow-(--shadow-sm)"
+                >
+                  {cat.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Product Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 lg:gap-4 mt-6">
+              {results?.products.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  isLoggedIn={!!user}
+                />
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {results && results.totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-10">
+                <button
+                  onClick={() => updateFilters({ page: (page - 1).toString() })}
+                  disabled={page === 1}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-sm font-medium text-(--color-text-secondary) transition-all duration-(--duration-fast) ease-(--ease-premium) hover:border-(--brand-primary) hover:text-(--brand-primary) disabled:opacity-40 disabled:pointer-events-none min-h-11"
+                >
+                  <ChevronLeft size={16} />
+                  Previous
+                </button>
+                <span className="text-sm text-(--color-text-muted) px-3">
+                  Page {page} of {results.totalPages}
+                </span>
+                <button
+                  onClick={() => updateFilters({ page: (page + 1).toString() })}
+                  disabled={page === results.totalPages}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg border border-(--color-border) bg-(--color-surface) text-sm font-medium text-(--color-text-secondary) transition-all duration-(--duration-fast) ease-(--ease-premium) hover:border-(--brand-primary) hover:text-(--brand-primary) disabled:opacity-40 disabled:pointer-events-none min-h-11"
+                >
+                  Next
+                  <ChevronRight size={16} />
                 </button>
               </div>
-
-              <div className="space-y-6">
-                {/* Active Filters */}
-                {activeFiltersCount > 0 && (
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-700">Active Filters</span>
-                      <button
-                        onClick={clearAllFilters}
-                        className="text-sm text-emerald-600 hover:text-emerald-700"
-                      >
-                        Clear All
-                      </button>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {category && (
-                        <Badge variant="secondary" className="gap-1">
-                          {category}
-                          <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilters({ category: null })} />
-                        </Badge>
-                      )}
-                      {onSale && (
-                        <Badge variant="secondary" className="gap-1">
-                          On Sale
-                          <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilters({ onSale: false })} />
-                        </Badge>
-                      )}
-                      {organic && (
-                        <Badge variant="secondary" className="gap-1">
-                          Organic
-                          <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilters({ organic: false })} />
-                        </Badge>
-                      )}
-                      {vegan && (
-                        <Badge variant="secondary" className="gap-1">
-                          Vegan
-                          <X className="h-3 w-3 cursor-pointer" onClick={() => updateFilters({ vegan: false })} />
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Categories */}
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Categories</h3>
-                  <div className="space-y-2">
-                    {results?.facets.categories.slice(0, 10).map((cat) => (
-                      <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
-                        <input
-                          type="radio"
-                          name="category"
-                          checked={category === cat.slug}
-                          onChange={() => updateFilters({ category: cat.slug })}
-                          className="text-emerald-600 focus:ring-emerald-500"
-                        />
-                        <span className="text-sm text-gray-700">{cat.name}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Price Range */}
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Price Range</h3>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      placeholder="Min"
-                      value={minPrice ? (parseInt(minPrice) / 100).toString() : ''}
-                      onChange={(e) => updateFilters({ minPrice: e.target.value ? (parseFloat(e.target.value) * 100).toString() : null })}
-                      className="w-20"
-                    />
-                    <span className="text-gray-400">-</span>
-                    <Input
-                      type="number"
-                      placeholder="Max"
-                      value={maxPrice ? (parseInt(maxPrice) / 100).toString() : ''}
-                      onChange={(e) => updateFilters({ maxPrice: e.target.value ? (parseFloat(e.target.value) * 100).toString() : null })}
-                      className="w-20"
-                    />
-                  </div>
-                </div>
-
-                {/* Dietary */}
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Dietary</h3>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={organic}
-                        onChange={(e) => updateFilters({ organic: e.target.checked })}
-                        className="text-emerald-600 focus:ring-emerald-500 rounded"
-                      />
-                      <span className="text-sm text-gray-700">Organic</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={vegan}
-                        onChange={(e) => updateFilters({ vegan: e.target.checked })}
-                        className="text-emerald-600 focus:ring-emerald-500 rounded"
-                      />
-                      <span className="text-sm text-gray-700">Vegan</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={vegetarian}
-                        onChange={(e) => updateFilters({ vegetarian: e.target.checked })}
-                        className="text-emerald-600 focus:ring-emerald-500 rounded"
-                      />
-                      <span className="text-sm text-gray-700">Vegetarian</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={glutenFree}
-                        onChange={(e) => updateFilters({ glutenFree: e.target.checked })}
-                        className="text-emerald-600 focus:ring-emerald-500 rounded"
-                      />
-                      <span className="text-sm text-gray-700">Gluten Free</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Availability */}
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3">Availability</h3>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={inStock}
-                        onChange={(e) => updateFilters({ inStock: e.target.checked })}
-                        className="text-emerald-600 focus:ring-emerald-500 rounded"
-                      />
-                      <span className="text-sm text-gray-700">In Stock Only</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={onSale}
-                        onChange={(e) => updateFilters({ onSale: e.target.checked })}
-                        className="text-emerald-600 focus:ring-emerald-500 rounded"
-                      />
-                      <span className="text-sm text-gray-700">On Sale</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              {/* Apply Button (Mobile) */}
-              <div className="mt-6 md:hidden">
-                <Button
-                  onClick={() => setShowFilters(false)}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700"
-                >
-                  Apply Filters
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Results */}
-          <div className="flex-1">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-              </div>
-            ) : results?.products.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <ShoppingBag className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No products found</h3>
-                  <p className="text-gray-500 mb-4">
-                    Try adjusting your search or filters
-                  </p>
-                  <Button variant="outline" onClick={clearAllFilters}>
-                    Clear Filters
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-                {/* Product Grid */}
-                <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1'}`}>
-                  {results?.products.map((product) => (
-                    <Card key={product.id} className="group overflow-hidden hover:shadow-lg transition-shadow">
-                      <Link href={`/products/${product.slug}`}>
-                        <div className={`relative ${viewMode === 'list' ? 'flex' : ''}`}>
-                          <div className={`relative ${viewMode === 'list' ? 'w-40 h-40' : 'aspect-square'} bg-gray-100`}>
-                            {product.image_url ? (
-                              <Image
-                                src={product.image_url}
-                                alt={product.name}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <ShoppingBag className="h-12 w-12 text-gray-300" />
-                              </div>
-                            )}
-                            {product.compare_at_price_pence && product.compare_at_price_pence > product.price_pence && (
-                              <Badge className="absolute top-2 left-2 bg-red-500">
-                                Sale
-                              </Badge>
-                            )}
-                          </div>
-
-                          <CardContent className={`p-4 ${viewMode === 'list' ? 'flex-1' : ''}`}>
-                            {product.brand && (
-                              <p className="text-xs text-emerald-600 font-medium mb-1">{product.brand}</p>
-                            )}
-                            <h3 className="font-medium text-gray-900 line-clamp-2 mb-2 group-hover:text-emerald-600">
-                              {product.name}
-                            </h3>
-
-                            {product.avg_rating > 0 && (
-                              <div className="flex items-center gap-1 mb-2">
-                                <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                                <span className="text-sm text-gray-600">
-                                  {product.avg_rating.toFixed(1)} ({product.review_count})
-                                </span>
-                              </div>
-                            )}
-
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg font-bold text-gray-900">
-                                {formatPrice(product.price_pence)}
-                              </span>
-                              {product.compare_at_price_pence && product.compare_at_price_pence > product.price_pence && (
-                                <span className="text-sm text-gray-400 line-through">
-                                  {formatPrice(product.compare_at_price_pence)}
-                                </span>
-                              )}
-                            </div>
-
-                            {product.unit && product.unit !== 'each' && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                {product.unit_value} {product.unit}
-                              </p>
-                            )}
-                          </CardContent>
-                        </div>
-                      </Link>
-                      <div className="px-4 pb-4">
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1">
-                            <AddToCartButton product={product} size="sm" />
-                          </div>
-                          <WishlistButton productId={product.id} isLoggedIn={!!user} />
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-
-                {/* Pagination */}
-                {results && results.totalPages > 1 && (
-                  <div className="flex items-center justify-center gap-2 mt-8">
-                    <Button
-                      variant="outline"
-                      onClick={() => updateFilters({ page: (page - 1).toString() })}
-                      disabled={page === 1}
-                    >
-                      Previous
-                    </Button>
-                    <span className="text-sm text-gray-600">
-                      Page {page} of {results.totalPages}
-                    </span>
-                    <Button
-                      variant="outline"
-                      onClick={() => updateFilters({ page: (page + 1).toString() })}
-                      disabled={page === results.totalPages}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                )}
-              </>
             )}
-          </div>
-        </div>
-      </div>
+          </>
+        )}
+      </Container>
     </div>
   )
 }
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen bg-background">
+          <Spinner size="lg" />
+        </div>
+      }
+    >
       <SearchPageContent />
     </Suspense>
   )

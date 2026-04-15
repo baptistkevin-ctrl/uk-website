@@ -51,18 +51,18 @@ interface SupportTicket {
 }
 
 const statusColors: Record<string, { bg: string; text: string; icon: React.ComponentType<{ className?: string }> }> = {
-  'open': { bg: 'bg-blue-100', text: 'text-blue-700', icon: AlertCircle },
-  'in_progress': { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: Clock },
-  'awaiting_customer': { bg: 'bg-purple-100', text: 'text-purple-700', icon: MessageSquare },
-  'resolved': { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle },
-  'closed': { bg: 'bg-gray-100', text: 'text-gray-700', icon: XCircle },
+  'open': { bg: 'bg-(--color-info-bg)', text: 'text-(--color-info)', icon: AlertCircle },
+  'in_progress': { bg: 'bg-yellow-100', text: 'text-(--color-warning)', icon: Clock },
+  'awaiting_customer': { bg: 'bg-purple-100', text: 'text-(--color-info)', icon: MessageSquare },
+  'resolved': { bg: 'bg-(--brand-primary-light)', text: 'text-(--brand-primary)', icon: CheckCircle },
+  'closed': { bg: 'bg-(--color-elevated)', text: 'text-(--color-text-secondary)', icon: XCircle },
 }
 
 const priorityColors: Record<string, string> = {
-  'low': 'bg-gray-100 text-gray-600',
-  'normal': 'bg-blue-100 text-blue-600',
-  'high': 'bg-orange-100 text-orange-600',
-  'urgent': 'bg-red-100 text-red-600',
+  'low': 'bg-(--color-elevated) text-(--color-text-secondary)',
+  'normal': 'bg-(--color-info-bg) text-(--color-info)',
+  'high': 'bg-(--brand-amber-soft) text-(--brand-amber)',
+  'urgent': 'bg-(--color-error-bg) text-(--color-error)',
 }
 
 export default function TicketDetailPage() {
@@ -173,8 +173,8 @@ export default function TicketDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[400px] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+      <div className="min-h-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-(--brand-primary)"></div>
       </div>
     )
   }
@@ -182,8 +182,8 @@ export default function TicketDetailPage() {
   if (!ticket) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">Ticket not found</p>
-        <Link href="/account/tickets" className="text-green-600 hover:underline mt-2 inline-block">
+        <p className="text-(--color-text-muted)">Ticket not found</p>
+        <Link href="/account/tickets" className="text-(--brand-primary) hover:underline mt-2 inline-block">
           Back to tickets
         </Link>
       </div>
@@ -199,7 +199,7 @@ export default function TicketDetailPage() {
       <div className="mb-6">
         <Link
           href="/account/tickets"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+          className="inline-flex items-center gap-2 text-(--color-text-secondary) hover:text-foreground mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Tickets
@@ -207,7 +207,7 @@ export default function TicketDetailPage() {
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-mono text-gray-400">
+              <span className="text-sm font-mono text-(--color-text-disabled)">
                 {ticket.ticket_number}
               </span>
               <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${statusColors[ticket.status]?.bg} ${statusColors[ticket.status]?.text}`}>
@@ -218,8 +218,8 @@ export default function TicketDetailPage() {
                 {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
               </span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">{ticket.subject}</h1>
-            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-foreground">{ticket.subject}</h1>
+            <div className="flex items-center gap-4 mt-2 text-sm text-(--color-text-muted)">
               {ticket.category && (
                 <span>Category: {ticket.category.name}</span>
               )}
@@ -230,15 +230,15 @@ export default function TicketDetailPage() {
             <div className="relative">
               <button
                 onClick={() => setShowActions(!showActions)}
-                className="p-2 hover:bg-gray-100 rounded-lg"
+                className="p-2 hover:bg-(--color-elevated) rounded-lg"
               >
-                <MoreVertical className="h-5 w-5 text-gray-500" />
+                <MoreVertical className="h-5 w-5 text-(--color-text-muted)" />
               </button>
               {showActions && (
-                <div className="absolute right-0 mt-1 w-48 bg-white rounded-lg shadow-lg border py-1 z-10">
+                <div className="absolute right-0 mt-1 w-48 bg-(--color-surface) rounded-lg shadow-lg border py-1 z-10">
                   <button
                     onClick={handleCloseTicket}
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                    className="w-full px-4 py-2 text-left text-sm text-(--color-text-secondary) hover:bg-background"
                   >
                     Close Ticket
                   </button>
@@ -251,21 +251,21 @@ export default function TicketDetailPage() {
 
       {/* Order Info */}
       {ticket.order && (
-        <div className="bg-blue-50 rounded-xl p-4 mb-6 flex items-center justify-between">
+        <div className="bg-(--color-info-bg) rounded-xl p-4 mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Package className="h-5 w-5 text-blue-600" />
+            <Package className="h-5 w-5 text-(--color-info)" />
             <div>
-              <p className="text-sm font-medium text-blue-900">
+              <p className="text-sm font-medium text-(--color-info)">
                 Related Order: {ticket.order.order_number}
               </p>
-              <p className="text-xs text-blue-700">
+              <p className="text-xs text-(--color-info)">
                 £{(ticket.order.total_pence / 100).toFixed(2)} - {ticket.order.status}
               </p>
             </div>
           </div>
           <Link
             href={`/account/orders/${ticket.order.id}`}
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-(--color-info) hover:underline"
           >
             View Order
           </Link>
@@ -273,19 +273,19 @@ export default function TicketDetailPage() {
       )}
 
       {/* Messages */}
-      <div className="bg-white rounded-xl border mb-4">
+      <div className="bg-(--color-surface) rounded-xl border mb-4">
         <div className="p-4 border-b">
-          <h2 className="font-medium text-gray-900">Conversation</h2>
+          <h2 className="font-medium text-foreground">Conversation</h2>
         </div>
-        <div className="p-4 space-y-4 max-h-[500px] overflow-y-auto">
+        <div className="p-4 space-y-4 max-h-125 overflow-y-auto">
           {messages.map((msg) => {
             if (msg.sender_type === 'system') {
               return (
                 <div key={msg.id} className="text-center">
-                  <span className="inline-block px-3 py-1 bg-gray-100 text-gray-500 text-sm rounded-full">
+                  <span className="inline-block px-3 py-1 bg-(--color-elevated) text-(--color-text-muted) text-sm rounded-full">
                     {msg.message}
                   </span>
-                  <p className="text-xs text-gray-400 mt-1">{formatDate(msg.created_at)}</p>
+                  <p className="text-xs text-(--color-text-disabled) mt-1">{formatDate(msg.created_at)}</p>
                 </div>
               )
             }
@@ -296,8 +296,8 @@ export default function TicketDetailPage() {
                 key={msg.id}
                 className={`flex gap-3 ${isCustomer ? 'flex-row-reverse' : ''}`}
               >
-                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-                  isCustomer ? 'bg-green-100' : 'bg-blue-100'
+                <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                  isCustomer ? 'bg-(--brand-primary-light)' : 'bg-(--color-info-bg)'
                 }`}>
                   {msg.sender?.avatar_url ? (
                     <img
@@ -306,22 +306,22 @@ export default function TicketDetailPage() {
                       className="w-10 h-10 rounded-full"
                     />
                   ) : (
-                    <User className={`h-5 w-5 ${isCustomer ? 'text-green-600' : 'text-blue-600'}`} />
+                    <User className={`h-5 w-5 ${isCustomer ? 'text-(--brand-primary)' : 'text-(--color-info)'}`} />
                   )}
                 </div>
                 <div className={`max-w-[70%] ${isCustomer ? 'text-right' : ''}`}>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-foreground">
                       {msg.sender?.full_name || (isCustomer ? 'You' : 'Support Agent')}
                     </span>
                     {!isCustomer && (msg.sender?.role === 'admin' || msg.sender?.role === 'super_admin') && (
-                      <span className="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-xs rounded">
+                      <span className="px-1.5 py-0.5 bg-(--color-info-bg) text-(--color-info) text-xs rounded">
                         Support
                       </span>
                     )}
                   </div>
                   <div className={`rounded-2xl px-4 py-3 ${
-                    isCustomer ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-800'
+                    isCustomer ? 'bg-(--brand-primary) text-white' : 'bg-(--color-elevated) text-foreground'
                   }`}>
                     <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
                   </div>
@@ -333,7 +333,7 @@ export default function TicketDetailPage() {
                           href={att.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
+                          className="inline-flex items-center gap-1 text-sm text-(--color-info) hover:underline"
                         >
                           <Paperclip className="h-4 w-4" />
                           {att.name}
@@ -341,7 +341,7 @@ export default function TicketDetailPage() {
                       ))}
                     </div>
                   )}
-                  <p className={`text-xs text-gray-400 mt-1 ${isCustomer ? 'text-right' : ''}`}>
+                  <p className={`text-xs text-(--color-text-disabled) mt-1 ${isCustomer ? 'text-right' : ''}`}>
                     {formatDate(msg.created_at)}
                   </p>
                 </div>
@@ -354,24 +354,24 @@ export default function TicketDetailPage() {
 
       {/* Reply Form */}
       {isOpen ? (
-        <form onSubmit={handleSendMessage} className="bg-white rounded-xl border p-4">
+        <form onSubmit={handleSendMessage} className="bg-(--color-surface) rounded-xl border p-4">
           <div className="flex gap-3">
             <textarea
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type your message..."
               rows={3}
-              className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+              className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary) resize-none"
             />
           </div>
           <div className="flex justify-between items-center mt-3">
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-(--color-text-disabled)">
               Our support team typically responds within 24 hours
             </p>
             <button
               type="submit"
               disabled={!newMessage.trim() || sending}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2.5 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover) disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send className="h-4 w-4" />
               {sending ? 'Sending...' : 'Send'}
@@ -379,8 +379,8 @@ export default function TicketDetailPage() {
           </div>
         </form>
       ) : (
-        <div className="bg-gray-50 rounded-xl border p-4 text-center">
-          <p className="text-gray-500">
+        <div className="bg-background rounded-xl border p-4 text-center">
+          <p className="text-(--color-text-muted)">
             This ticket is {ticket.status}.
             {ticket.status === 'resolved' && ' If you need further assistance, please create a new ticket.'}
           </p>
@@ -389,9 +389,9 @@ export default function TicketDetailPage() {
 
       {/* Assigned Agent */}
       {ticket.assigned && (
-        <div className="mt-6 bg-white rounded-xl border p-4">
+        <div className="mt-6 bg-(--color-surface) rounded-xl border p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-(--color-info-bg) flex items-center justify-center">
               {ticket.assigned.avatar_url ? (
                 <img
                   src={ticket.assigned.avatar_url}
@@ -399,12 +399,12 @@ export default function TicketDetailPage() {
                   className="w-10 h-10 rounded-full"
                 />
               ) : (
-                <User className="h-5 w-5 text-blue-600" />
+                <User className="h-5 w-5 text-(--color-info)" />
               )}
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-900">{ticket.assigned.full_name}</p>
-              <p className="text-xs text-gray-500">Assigned Support Agent</p>
+              <p className="text-sm font-medium text-foreground">{ticket.assigned.full_name}</p>
+              <p className="text-xs text-(--color-text-muted)">Assigned Support Agent</p>
             </div>
           </div>
         </div>

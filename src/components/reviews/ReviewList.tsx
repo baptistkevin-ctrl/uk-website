@@ -127,14 +127,14 @@ export function ReviewList({
     <div className={cn('', className)}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+        <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
           <MessageSquare className="h-5 w-5" />
           Customer Reviews
         </h2>
         {isLoggedIn && !showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors"
+            className="bg-(--brand-primary) text-white px-4 py-2.5 rounded-lg font-medium hover:bg-(--brand-primary-hover) transition-colors"
           >
             Write a Review
           </button>
@@ -143,14 +143,14 @@ export function ReviewList({
 
       {/* Success Message */}
       {successMessage && (
-        <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg">
+        <div className="mb-6 p-4 bg-(--brand-primary-light) text-(--brand-primary) rounded-lg">
           {successMessage}
         </div>
       )}
 
       {/* Review Form */}
       {showForm && (
-        <div className="mb-8 p-6 bg-gray-50 rounded-lg">
+        <div className="mb-8 p-6 bg-background rounded-lg">
           <ReviewForm
             productId={productId}
             onSubmit={handleSubmitReview}
@@ -161,7 +161,7 @@ export function ReviewList({
 
       {/* Summary */}
       {reviewCount > 0 && (
-        <div className="mb-8 p-6 bg-gray-50 rounded-lg">
+        <div className="mb-8 p-6 bg-background rounded-lg">
           <ReviewSummary
             avgRating={avgRating}
             reviewCount={reviewCount}
@@ -174,13 +174,13 @@ export function ReviewList({
       {reviews.length > 0 && (
         <div className="flex items-center gap-4 mb-4">
           <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-gray-500" />
-            <span className="text-sm text-gray-600">Sort by:</span>
+            <Filter className="h-4 w-4 text-(--color-text-muted)" />
+            <span className="text-sm text-(--color-text-secondary)">Sort by:</span>
           </div>
           <select
             value={sortBy}
             onChange={(e) => handleSortChange(e.target.value)}
-            className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+            className="text-sm border border-(--color-border) rounded-lg px-3 py-1.5 focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
           >
             <option value="recent">Most Recent</option>
             <option value="helpful">Most Helpful</option>
@@ -193,19 +193,19 @@ export function ReviewList({
       {/* Reviews List */}
       {isLoading && reviews.length === 0 ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-green-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
         </div>
       ) : reviews.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <MessageSquare className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-          <h3 className="font-medium text-gray-900 mb-1">No reviews yet</h3>
-          <p className="text-gray-500 text-sm">
+        <div className="text-center py-12 bg-background rounded-lg">
+          <MessageSquare className="h-12 w-12 text-(--color-text-disabled) mx-auto mb-3" />
+          <h3 className="font-medium text-foreground mb-1">No reviews yet</h3>
+          <p className="text-(--color-text-muted) text-sm">
             Be the first to review this product!
           </p>
           {isLoggedIn && !showForm && (
             <button
               onClick={() => setShowForm(true)}
-              className="mt-4 text-green-600 hover:text-green-700 font-medium"
+              className="mt-4 text-(--brand-primary) hover:text-(--brand-primary-hover) font-medium"
             >
               Write a Review
             </button>
@@ -230,7 +230,7 @@ export function ReviewList({
           <button
             onClick={handleLoadMore}
             disabled={isLoading}
-            className="inline-flex items-center gap-2 px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-6 py-2 border border-(--color-border) rounded-lg text-(--color-text-secondary) hover:bg-background disabled:opacity-50"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -244,9 +244,9 @@ export function ReviewList({
 
       {/* Login prompt for non-logged in users */}
       {!isLoggedIn && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg text-center">
-          <p className="text-gray-600">
-            <a href="/login" className="text-green-600 hover:text-green-700 font-medium">
+        <div className="mt-6 p-4 bg-background rounded-lg text-center">
+          <p className="text-(--color-text-secondary)">
+            <a href="/login" className="text-(--brand-primary) hover:text-(--brand-primary-hover) font-medium">
               Sign in
             </a>{' '}
             to write a review or vote on reviews

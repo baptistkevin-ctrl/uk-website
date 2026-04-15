@@ -45,17 +45,17 @@ export default function PaymentsPage() {
 
   const getBrandColor = (brand: string) => {
     const colors: { [key: string]: string } = {
-      visa: 'bg-blue-50 border-blue-200',
-      mastercard: 'bg-orange-50 border-orange-200',
-      amex: 'bg-indigo-50 border-indigo-200',
+      visa: 'bg-(--color-info-bg) border-(--color-border)',
+      mastercard: 'bg-(--color-warning-bg) border-(--color-border)',
+      amex: 'bg-(--color-info-bg) border-(--color-border)',
     }
-    return colors[brand.toLowerCase()] || 'bg-gray-50 border-gray-200'
+    return colors[brand.toLowerCase()] || 'bg-background border-(--color-border)'
   }
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -65,13 +65,13 @@ export default function PaymentsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <CreditCard className="h-6 w-6 text-emerald-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <CreditCard className="h-6 w-6 text-(--brand-primary)" />
             Payment Methods
           </h1>
-          <p className="text-gray-500 mt-1">Manage your saved payment methods</p>
+          <p className="text-(--color-text-muted) mt-1">Manage your saved payment methods</p>
         </div>
-        <Button className="bg-emerald-600 hover:bg-emerald-700">
+        <Button className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
           <Plus className="h-4 w-4 mr-2" />
           Add New Card
         </Button>
@@ -79,7 +79,7 @@ export default function PaymentsPage() {
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+        <div className="flex items-center gap-2 p-4 bg-(--color-error-bg) border border-(--color-error-border) rounded-lg text-(--color-error)">
           <AlertCircle className="h-5 w-5" />
           {error}
         </div>
@@ -93,22 +93,22 @@ export default function PaymentsPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-8 bg-white rounded flex items-center justify-center shadow-sm">
-                      <CreditCard className="h-6 w-6 text-gray-400" />
+                    <div className="w-12 h-8 bg-(--color-surface) rounded flex items-center justify-center shadow-sm">
+                      <CreditCard className="h-6 w-6 text-(--color-text-muted)" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-foreground">
                           {method.brand} •••• {method.last4}
                         </p>
                         {method.is_default && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-(--brand-primary-light) text-(--brand-primary) text-xs font-medium rounded-full">
                             <Star className="h-3 w-3" />
                             Default
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-(--color-text-muted)">
                         Expires {method.exp_month.toString().padStart(2, '0')}/{method.exp_year}
                       </p>
                     </div>
@@ -122,7 +122,7 @@ export default function PaymentsPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-red-600 border-red-200 hover:bg-red-50"
+                      className="text-(--color-error) border-(--color-error-border) hover:bg-(--color-error-bg)"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -136,14 +136,14 @@ export default function PaymentsPage() {
         <Card>
           <CardContent className="py-12">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CreditCard className="h-8 w-8 text-gray-400" />
+              <div className="w-16 h-16 bg-background rounded-full flex items-center justify-center mx-auto mb-4">
+                <CreditCard className="h-8 w-8 text-(--color-text-muted)" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No payment methods</h3>
-              <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+              <h3 className="text-lg font-semibold text-foreground mb-2">No payment methods</h3>
+              <p className="text-(--color-text-muted) mb-6 max-w-sm mx-auto">
                 Add a payment method to make checkout faster and easier.
               </p>
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Button className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Payment Method
               </Button>
@@ -153,15 +153,15 @@ export default function PaymentsPage() {
       )}
 
       {/* Security Info */}
-      <Card className="bg-gradient-to-r from-slate-50 to-gray-50 border-slate-200">
+      <Card className="bg-background border-(--color-border)">
         <CardContent className="py-6">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <Shield className="h-6 w-6 text-slate-600" />
+            <div className="w-12 h-12 bg-(--color-border) rounded-full flex items-center justify-center shrink-0">
+              <Shield className="h-6 w-6 text-(--color-text-secondary)" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900">Your payment info is secure</h3>
-              <p className="text-sm text-gray-600 mt-1">
+              <h3 className="font-semibold text-foreground">Your payment info is secure</h3>
+              <p className="text-sm text-(--color-text-secondary) mt-1">
                 We use industry-standard encryption to protect your payment information. Your card
                 details are securely stored by our payment processor, Stripe, and are never stored
                 on our servers.
@@ -178,20 +178,20 @@ export default function PaymentsPage() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
-            <div className="px-4 py-2 bg-white border rounded-lg">
-              <span className="text-sm font-medium text-blue-600">VISA</span>
+            <div className="px-4 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg">
+              <span className="text-sm font-medium text-(--color-info)">VISA</span>
             </div>
-            <div className="px-4 py-2 bg-white border rounded-lg">
-              <span className="text-sm font-medium text-orange-600">Mastercard</span>
+            <div className="px-4 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg">
+              <span className="text-sm font-medium text-(--brand-amber)">Mastercard</span>
             </div>
-            <div className="px-4 py-2 bg-white border rounded-lg">
-              <span className="text-sm font-medium text-indigo-600">AMEX</span>
+            <div className="px-4 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg">
+              <span className="text-sm font-medium text-(--color-info)">AMEX</span>
             </div>
-            <div className="px-4 py-2 bg-white border rounded-lg">
-              <span className="text-sm font-medium text-purple-600">Apple Pay</span>
+            <div className="px-4 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg">
+              <span className="text-sm font-medium text-(--color-info)">Apple Pay</span>
             </div>
-            <div className="px-4 py-2 bg-white border rounded-lg">
-              <span className="text-sm font-medium text-green-600">Google Pay</span>
+            <div className="px-4 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg">
+              <span className="text-sm font-medium text-(--brand-primary)">Google Pay</span>
             </div>
           </div>
         </CardContent>

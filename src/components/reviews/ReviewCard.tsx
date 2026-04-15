@@ -65,18 +65,18 @@ export function ReviewCard({
   const displayImages = showAllImages ? review.images : review.images.slice(0, 3)
 
   return (
-    <div className={cn('border-b border-gray-200 py-4', className)}>
+    <div className={cn('border-b border-(--color-border) py-4', className)}>
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-            <User className="h-5 w-5 text-gray-400" />
+          <div className="w-10 h-10 rounded-full bg-(--color-elevated) flex items-center justify-center shrink-0">
+            <User className="h-5 w-5 text-(--color-text-disabled)" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-medium text-gray-900">{displayName}</span>
+              <span className="font-medium text-foreground">{displayName}</span>
               {review.is_verified_purchase && (
-                <span className="inline-flex items-center gap-1 text-xs text-green-700 bg-green-50 px-2 py-0.5 rounded-full">
+                <span className="inline-flex items-center gap-1 text-xs text-(--brand-primary) bg-(--brand-primary-light) px-2 py-0.5 rounded-full">
                   <CheckCircle className="h-3 w-3" />
                   Verified Purchase
                 </span>
@@ -84,7 +84,7 @@ export function ReviewCard({
             </div>
             <div className="flex items-center gap-2 mt-1">
               <StarRating rating={review.rating} size="sm" />
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-(--color-text-muted)">
                 {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
               </span>
             </div>
@@ -94,12 +94,12 @@ export function ReviewCard({
 
       {/* Review Title */}
       {review.title && (
-        <h4 className="font-semibold text-gray-900 mt-3">{review.title}</h4>
+        <h4 className="font-semibold text-foreground mt-3">{review.title}</h4>
       )}
 
       {/* Review Content */}
       {review.content && (
-        <p className="text-gray-700 mt-2 whitespace-pre-wrap">{review.content}</p>
+        <p className="text-(--color-text-secondary) mt-2 whitespace-pre-wrap">{review.content}</p>
       )}
 
       {/* Review Images */}
@@ -119,7 +119,7 @@ export function ReviewCard({
             {!showAllImages && review.images.length > 3 && (
               <button
                 onClick={() => setShowAllImages(true)}
-                className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-colors"
+                className="w-20 h-20 rounded-lg bg-(--color-elevated) flex items-center justify-center text-(--color-text-secondary) hover:bg-background transition-colors"
               >
                 +{review.images.length - 3}
               </button>
@@ -130,7 +130,7 @@ export function ReviewCard({
 
       {/* Helpful Votes */}
       <div className="flex items-center gap-4 mt-4">
-        <span className="text-sm text-gray-500">Was this review helpful?</span>
+        <span className="text-sm text-(--color-text-muted)">Was this review helpful?</span>
         <div className="flex items-center gap-3">
           <button
             onClick={() => handleVote(true)}
@@ -138,8 +138,8 @@ export function ReviewCard({
             className={cn(
               'inline-flex items-center gap-1.5 text-sm px-3 py-1 rounded-full transition-colors',
               isLoggedIn
-                ? 'text-gray-600 hover:bg-gray-100 hover:text-green-600'
-                : 'text-gray-400 cursor-not-allowed'
+                ? 'text-(--color-text-secondary) hover:bg-(--color-elevated) hover:text-(--brand-primary)'
+                : 'text-(--color-text-disabled) cursor-not-allowed'
             )}
           >
             <ThumbsUp className="h-4 w-4" />
@@ -151,8 +151,8 @@ export function ReviewCard({
             className={cn(
               'inline-flex items-center gap-1.5 text-sm px-3 py-1 rounded-full transition-colors',
               isLoggedIn
-                ? 'text-gray-600 hover:bg-gray-100 hover:text-red-600'
-                : 'text-gray-400 cursor-not-allowed'
+                ? 'text-(--color-text-secondary) hover:bg-(--color-elevated) hover:text-(--color-error)'
+                : 'text-(--color-text-disabled) cursor-not-allowed'
             )}
           >
             <ThumbsDown className="h-4 w-4" />

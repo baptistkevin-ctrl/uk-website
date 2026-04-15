@@ -40,7 +40,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
   items_received: { label: 'Items Received', color: 'bg-indigo-100 text-indigo-800', icon: Package },
   inspecting: { label: 'Inspecting', color: 'bg-purple-100 text-purple-800', icon: Eye },
   refund_processing: { label: 'Processing Refund', color: 'bg-cyan-100 text-cyan-800', icon: RotateCcw },
-  refunded: { label: 'Refunded', color: 'bg-green-100 text-green-800', icon: CheckCircle },
+  refunded: { label: 'Refunded', color: 'bg-(--brand-primary-light) text-(--brand-primary)', icon: CheckCircle },
 }
 
 export default function AdminReturnsPage() {
@@ -94,8 +94,8 @@ export default function AdminReturnsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-green-500" />
+      <div className="flex items-center justify-center min-h-100">
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -110,53 +110,53 @@ export default function AdminReturnsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Returns Management</h1>
-        <p className="text-gray-500">Process and manage customer return requests</p>
+        <h1 className="text-2xl font-bold text-foreground">Returns Management</h1>
+        <p className="text-(--color-text-muted)">Process and manage customer return requests</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-              <Clock className="h-5 w-5 text-amber-600" />
+            <div className="w-10 h-10 bg-(--brand-amber-soft) rounded-lg flex items-center justify-center">
+              <Clock className="h-5 w-5 text-(--brand-amber)" />
             </div>
             <div>
               <p className="text-2xl font-bold">{counts.pending}</p>
-              <p className="text-xs text-gray-500">Pending</p>
+              <p className="text-xs text-(--color-text-muted)">Pending</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <CheckCircle className="h-5 w-5 text-blue-600" />
+            <div className="w-10 h-10 bg-(--color-info-bg) rounded-lg flex items-center justify-center">
+              <CheckCircle className="h-5 w-5 text-(--color-info)" />
             </div>
             <div>
               <p className="text-2xl font-bold">{counts.approved}</p>
-              <p className="text-xs text-gray-500">Approved</p>
+              <p className="text-xs text-(--color-text-muted)">Approved</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-              <RotateCcw className="h-5 w-5 text-green-600" />
+            <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center">
+              <RotateCcw className="h-5 w-5 text-(--brand-primary)" />
             </div>
             <div>
               <p className="text-2xl font-bold">{counts.refunded}</p>
-              <p className="text-xs text-gray-500">Refunded</p>
+              <p className="text-xs text-(--color-text-muted)">Refunded</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              <Package className="h-5 w-5 text-gray-600" />
+            <div className="w-10 h-10 bg-(--color-elevated) rounded-lg flex items-center justify-center">
+              <Package className="h-5 w-5 text-(--color-text-secondary)" />
             </div>
             <div>
               <p className="text-2xl font-bold">{counts.all}</p>
-              <p className="text-xs text-gray-500">Total</p>
+              <p className="text-xs text-(--color-text-muted)">Total</p>
             </div>
           </CardContent>
         </Card>
@@ -165,7 +165,7 @@ export default function AdminReturnsPage() {
       {/* Filters */}
       <div className="flex gap-4 items-center">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
           <Input
             placeholder="Search by order number..."
             value={searchQuery}
@@ -192,8 +192,8 @@ export default function AdminReturnsPage() {
       <div className="space-y-3">
         {returns.length === 0 ? (
           <Card>
-            <CardContent className="p-8 text-center text-gray-500">
-              <RotateCcw className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+            <CardContent className="p-8 text-center text-(--color-text-muted)">
+              <RotateCcw className="h-12 w-12 mx-auto mb-3 text-(--color-text-disabled)" />
               <p>No return requests found</p>
             </CardContent>
           </Card>
@@ -216,18 +216,18 @@ export default function AdminReturnsPage() {
                           {config.label}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-(--color-text-muted)">
                         {returnReq.orders?.customer_name} ({returnReq.orders?.customer_email})
                       </p>
                       <p className="text-sm">
-                        <span className="text-gray-500">Reason:</span>{' '}
+                        <span className="text-(--color-text-muted)">Reason:</span>{' '}
                         {returnReq.reason.replace(/_/g, ' ')}
                         {returnReq.reason_detail && ` - ${returnReq.reason_detail}`}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-(--color-text-muted)">
                         Refund: {formatPrice(returnReq.refund_amount_pence)} via {returnReq.refund_method?.replace(/_/g, ' ')}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-(--color-text-disabled)">
                         Submitted {new Date(returnReq.created_at).toLocaleDateString()}
                       </p>
                     </div>

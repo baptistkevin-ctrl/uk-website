@@ -81,19 +81,19 @@ async function StoreProducts({
     console.error('Error fetching store products:', error)
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">Error loading products. Please try again.</p>
+        <p className="text-(--color-text-muted)">Error loading products. Please try again.</p>
       </div>
     )
   }
 
   if (!products || products.length === 0) {
     return (
-      <div className="text-center py-16 bg-gray-50 rounded-xl">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Package className="h-8 w-8 text-gray-400" />
+      <div className="text-center py-16 bg-background rounded-xl">
+        <div className="w-16 h-16 bg-(--color-elevated) rounded-full flex items-center justify-center mx-auto mb-4">
+          <Package className="h-8 w-8 text-(--color-text-disabled)" />
         </div>
-        <h3 className="font-semibold text-gray-900 mb-2">No products yet</h3>
-        <p className="text-gray-500 text-sm">This store hasn&apos;t added any products yet.</p>
+        <h3 className="font-semibold text-foreground mb-2">No products yet</h3>
+        <p className="text-(--color-text-muted) text-sm">This store hasn&apos;t added any products yet.</p>
       </div>
     )
   }
@@ -111,7 +111,7 @@ function ProductsSkeleton() {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
       {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="rounded-xl border bg-white overflow-hidden">
+        <div key={i} className="rounded-xl border bg-(--color-surface) overflow-hidden">
           <Skeleton className="aspect-square" />
           <div className="p-4 space-y-3">
             <Skeleton className="h-4 w-3/4" />
@@ -177,12 +177,12 @@ export default async function StorePage({ params, searchParams }: StorePageProps
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Store Banner */}
       <StoreBanner vendor={vendorWithCount} />
 
       {/* Chat with Store Button */}
-      <div className="container mx-auto px-4 pt-4">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-4">
         <VendorChatButton
           vendorId={vendor.id}
           vendorName={vendor.business_name}
@@ -190,19 +190,19 @@ export default async function StorePage({ params, searchParams }: StorePageProps
       </div>
 
       {/* Products Section */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Products</h2>
-            <p className="text-sm text-gray-500">
+            <h2 className="text-xl font-bold text-foreground">Products</h2>
+            <p className="text-sm text-(--color-text-muted)">
               {productCount} products available
             </p>
           </div>
 
           {/* Sort */}
           <div className="flex items-center gap-2">
-            <ArrowUpDown className="h-4 w-4 text-gray-500" />
+            <ArrowUpDown className="h-4 w-4 text-(--color-text-muted)" />
             <SortSelect
               options={sortOptions}
               currentSort={search.sort || 'newest'}

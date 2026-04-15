@@ -422,7 +422,7 @@ export default function AdminCategoriesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -432,22 +432,22 @@ export default function AdminCategoriesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <FolderTree className="h-7 w-7 text-emerald-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <FolderTree className="h-7 w-7 text-(--brand-primary)" />
             Categories
           </h1>
-          <p className="text-gray-500 mt-1">Manage product categories and subcategories</p>
+          <p className="text-(--color-text-muted) mt-1">Manage product categories and subcategories</p>
         </div>
-        <Button onClick={handleAddNew} className="bg-emerald-600 hover:bg-emerald-700">
+        <Button onClick={handleAddNew} className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
           <Plus className="h-4 w-4 mr-2" />
           Add Category
         </Button>
       </div>
 
       {/* Search */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
           <Input
             type="text"
             placeholder="Search categories..."
@@ -460,17 +460,17 @@ export default function AdminCategoriesPage() {
 
       {/* Bulk Actions Bar */}
       {selectedCategories.size > 0 && (
-        <div className="bg-slate-900 rounded-xl p-4 shadow-lg flex items-center justify-between">
+        <div className="bg-(--brand-dark) rounded-xl p-4 shadow-lg flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-white">
-              <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-bold">
+              <div className="w-8 h-8 bg-(--brand-primary) rounded-lg flex items-center justify-center font-bold">
                 {selectedCategories.size}
               </div>
               <span className="font-medium">category(ies) selected</span>
             </div>
             <button
               onClick={() => setSelectedCategories(new Set())}
-              className="text-slate-400 hover:text-white text-sm font-medium transition-colors"
+              className="text-(--color-text-disabled) hover:text-white text-sm font-medium transition-colors"
             >
               Clear selection
             </button>
@@ -479,7 +479,7 @@ export default function AdminCategoriesPage() {
             <button
               onClick={handleBulkDelete}
               disabled={bulkDeleting}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-(--color-error) text-white rounded-xl font-medium hover:bg-(--color-error) transition-colors disabled:opacity-50"
             >
               {bulkDeleting ? (
                 <>
@@ -498,59 +498,59 @@ export default function AdminCategoriesPage() {
       )}
 
       {/* Categories Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-background border-b border-(--color-border)">
               <tr>
                 <th className="w-12 px-4 py-3">
                   <input
                     type="checkbox"
                     checked={isAllPageSelected}
                     onChange={toggleSelectAll}
-                    className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer"
+                    className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary) cursor-pointer"
                   />
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                   Order
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                   Category
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                   Slug
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                   Parent
                 </th>
-                <th className="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="text-center px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                   Status
                 </th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th className="text-right px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-(--color-border)">
               {paginatedCategories.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-12 text-center text-(--color-text-muted)">
                     {searchQuery ? 'No categories found matching your search' : 'No categories yet. Add your first category!'}
                   </td>
                 </tr>
               ) : (
                 paginatedCategories.map((category) => (
-                  <tr key={category.id} className={`hover:bg-gray-50 transition-colors ${selectedCategories.has(category.id) ? 'bg-emerald-50' : ''}`}>
+                  <tr key={category.id} className={`hover:bg-background transition-colors ${selectedCategories.has(category.id) ? 'bg-(--brand-primary-light)' : ''}`}>
                     <td className="px-4 py-4">
                       <input
                         type="checkbox"
                         checked={selectedCategories.has(category.id)}
                         onChange={() => toggleCategorySelection(category.id)}
-                        className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 cursor-pointer"
+                        className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary) cursor-pointer"
                       />
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-gray-400">
+                      <div className="flex items-center gap-2 text-(--color-text-disabled)">
                         <GripVertical className="h-4 w-4" />
                         <span className="text-sm font-medium">{category.display_order}</span>
                       </div>
@@ -561,37 +561,37 @@ export default function AdminCategoriesPage() {
                           <img
                             src={category.image_url}
                             alt={category.name}
-                            className="w-10 h-10 rounded-lg object-cover border border-gray-200"
+                            className="w-10 h-10 rounded-lg object-cover border border-(--color-border)"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                            <ImageIcon className="h-5 w-5 text-gray-400" />
+                          <div className="w-10 h-10 rounded-lg bg-(--color-elevated) flex items-center justify-center">
+                            <ImageIcon className="h-5 w-5 text-(--color-text-disabled)" />
                           </div>
                         )}
                         <div>
-                          <p className="font-medium text-gray-900">
+                          <p className="font-medium text-foreground">
                             {category.emoji && <span className="mr-2">{category.emoji}</span>}
                             {category.name}
                           </p>
                           {category.description && (
-                            <p className="text-sm text-gray-500 truncate max-w-xs">{category.description}</p>
+                            <p className="text-sm text-(--color-text-muted) truncate max-w-xs">{category.description}</p>
                           )}
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <code className="text-sm bg-gray-100 px-2 py-1 rounded text-gray-600">
+                      <code className="text-sm bg-(--color-elevated) px-2 py-1 rounded text-(--color-text-secondary)">
                         {category.slug}
                       </code>
                     </td>
                     <td className="px-6 py-4">
                       {category.parent ? (
-                        <span className="inline-flex items-center gap-1 text-sm text-gray-600">
+                        <span className="inline-flex items-center gap-1 text-sm text-(--color-text-secondary)">
                           <ChevronRight className="h-3 w-3" />
                           {category.parent.name}
                         </span>
                       ) : (
-                        <span className="text-sm text-gray-400">—</span>
+                        <span className="text-sm text-(--color-text-disabled)">—</span>
                       )}
                     </td>
                     <td className="px-6 py-4 text-center">
@@ -600,12 +600,12 @@ export default function AdminCategoriesPage() {
                         className="inline-flex items-center"
                       >
                         {category.is_active ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-(--brand-primary-light) text-(--brand-primary)">
                             <ToggleRight className="h-3.5 w-3.5" />
                             Active
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-(--color-elevated) text-(--color-text-secondary)">
                             <ToggleLeft className="h-3.5 w-3.5" />
                             Inactive
                           </span>
@@ -616,14 +616,14 @@ export default function AdminCategoriesPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleEdit(category)}
-                          className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                          className="p-2 text-(--color-text-disabled) hover:text-(--brand-primary) hover:bg-(--brand-primary-light) rounded-lg transition-colors"
                         >
                           <Pencil className="h-4 w-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(category.id)}
                           disabled={deleting === category.id}
-                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                          className="p-2 text-(--color-text-disabled) hover:text-(--color-error) hover:bg-(--color-error-bg) rounded-lg transition-colors disabled:opacity-50"
                         >
                           {deleting === category.id ? (
                             <Loader2 className="h-4 w-4 animate-spin" />
@@ -643,13 +643,13 @@ export default function AdminCategoriesPage() {
 
       {/* Pagination */}
       {filteredCategories.length > 0 && totalPages > 1 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             {/* Showing info */}
-            <div className="text-sm text-gray-600">
-              Showing <span className="font-semibold text-gray-900">{startIndex + 1}</span> to{' '}
-              <span className="font-semibold text-gray-900">{Math.min(endIndex, filteredCategories.length)}</span> of{' '}
-              <span className="font-semibold text-gray-900">{filteredCategories.length}</span> categories
+            <div className="text-sm text-(--color-text-secondary)">
+              Showing <span className="font-semibold text-foreground">{startIndex + 1}</span> to{' '}
+              <span className="font-semibold text-foreground">{Math.min(endIndex, filteredCategories.length)}</span> of{' '}
+              <span className="font-semibold text-foreground">{filteredCategories.length}</span> categories
             </div>
 
             {/* Page navigation */}
@@ -658,7 +658,7 @@ export default function AdminCategoriesPage() {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:hover:bg-gray-100"
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border) disabled:hover:bg-(--color-elevated)"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Previous
@@ -673,10 +673,10 @@ export default function AdminCategoriesPage() {
                     disabled={page === '...'}
                     className={`min-w-[40px] h-10 px-3 text-sm font-medium rounded-lg transition-colors ${
                       page === currentPage
-                        ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+                        ? 'bg-(--brand-primary) text-white shadow-lg shadow-(--shadow-green)'
                         : page === '...'
-                        ? 'bg-transparent text-gray-400 cursor-default'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-transparent text-(--color-text-disabled) cursor-default'
+                        : 'bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border)'
                     }`}
                   >
                     {page}
@@ -685,7 +685,7 @@ export default function AdminCategoriesPage() {
               </div>
 
               {/* Mobile page indicator */}
-              <div className="sm:hidden text-sm font-medium text-gray-600">
+              <div className="sm:hidden text-sm font-medium text-(--color-text-secondary)">
                 Page {currentPage} of {totalPages}
               </div>
 
@@ -693,7 +693,7 @@ export default function AdminCategoriesPage() {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:hover:bg-gray-100"
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border) disabled:hover:bg-(--color-elevated)"
               >
                 Next
                 <ChevronRight className="w-4 h-4" />
@@ -705,25 +705,25 @@ export default function AdminCategoriesPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Total Categories</p>
-          <p className="text-2xl font-bold text-gray-900">{categories.length}</p>
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
+          <p className="text-sm text-(--color-text-muted)">Total Categories</p>
+          <p className="text-2xl font-bold text-foreground">{categories.length}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Active</p>
-          <p className="text-2xl font-bold text-emerald-600">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
+          <p className="text-sm text-(--color-text-muted)">Active</p>
+          <p className="text-2xl font-bold text-(--brand-primary)">
             {categories.filter(c => c.is_active).length}
           </p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Parent Categories</p>
-          <p className="text-2xl font-bold text-gray-900">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
+          <p className="text-sm text-(--color-text-muted)">Parent Categories</p>
+          <p className="text-2xl font-bold text-foreground">
             {categories.filter(c => !c.parent_id).length}
           </p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Subcategories</p>
-          <p className="text-2xl font-bold text-gray-900">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
+          <p className="text-sm text-(--color-text-muted)">Subcategories</p>
+          <p className="text-2xl font-bold text-foreground">
             {categories.filter(c => c.parent_id).length}
           </p>
         </div>
@@ -733,14 +733,14 @@ export default function AdminCategoriesPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">
+          <div className="relative bg-(--color-surface) rounded-2xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-(--color-border)">
+              <h2 className="text-xl font-bold text-foreground">
                 {editingCategory ? 'Edit Category' : 'Add New Category'}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-(--color-text-disabled) hover:text-(--color-text-secondary) hover:bg-(--color-elevated) rounded-lg transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -785,7 +785,7 @@ export default function AdminCategoriesPage() {
                   required
                   className="mt-1"
                 />
-                <p className="text-xs text-gray-500 mt-1">URL-friendly identifier (auto-generated from name)</p>
+                <p className="text-xs text-(--color-text-muted) mt-1">URL-friendly identifier (auto-generated from name)</p>
               </div>
 
               <div>
@@ -797,7 +797,7 @@ export default function AdminCategoriesPage() {
                   onChange={handleInputChange}
                   placeholder="Brief description of this category..."
                   rows={3}
-                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+                  className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary) text-sm"
                 />
               </div>
 
@@ -810,10 +810,10 @@ export default function AdminCategoriesPage() {
                   <button
                     type="button"
                     onClick={() => setImageMode('upload')}
-                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       imageMode === 'upload'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-(--brand-primary) text-white'
+                        : 'bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border)'
                     }`}
                   >
                     <Upload className="h-4 w-4" />
@@ -822,10 +822,10 @@ export default function AdminCategoriesPage() {
                   <button
                     type="button"
                     onClick={() => setImageMode('url')}
-                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       imageMode === 'url'
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-(--brand-primary) text-white'
+                        : 'bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border)'
                     }`}
                   >
                     <LinkIcon className="h-4 w-4" />
@@ -835,7 +835,7 @@ export default function AdminCategoriesPage() {
 
                 {/* Image Preview */}
                 {formData.image_url && (
-                  <div className="relative mb-3 rounded-xl overflow-hidden border border-gray-200">
+                  <div className="relative mb-3 rounded-xl overflow-hidden border border-(--color-border)">
                     <img
                       src={formData.image_url}
                       alt="Category preview"
@@ -844,7 +844,7 @@ export default function AdminCategoriesPage() {
                     <button
                       type="button"
                       onClick={handleRemoveImage}
-                      className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                      className="absolute top-2 right-2 p-1.5 bg-(--color-error) text-white rounded-lg hover:bg-(--color-error) transition-colors"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -863,20 +863,20 @@ export default function AdminCategoriesPage() {
                     />
                     <label
                       htmlFor="category-image-upload"
-                      className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition-colors ${
+                      className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-(--color-border) rounded-xl cursor-pointer hover:border-(--brand-primary) hover:bg-(--brand-primary-light) transition-colors ${
                         uploading ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                     >
                       {uploading ? (
                         <>
-                          <Loader2 className="h-8 w-8 text-emerald-600 animate-spin mb-2" />
-                          <span className="text-sm text-gray-500">Uploading...</span>
+                          <Loader2 className="h-8 w-8 text-(--brand-primary) animate-spin mb-2" />
+                          <span className="text-sm text-(--color-text-muted)">Uploading...</span>
                         </>
                       ) : (
                         <>
-                          <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                          <span className="text-sm text-gray-500">Click to upload image</span>
-                          <span className="text-xs text-gray-400 mt-1">PNG, JPG up to 5MB</span>
+                          <Upload className="h-8 w-8 text-(--color-text-disabled) mb-2" />
+                          <span className="text-sm text-(--color-text-muted)">Click to upload image</span>
+                          <span className="text-xs text-(--color-text-disabled) mt-1">PNG, JPG up to 5MB</span>
                         </>
                       )}
                     </label>
@@ -899,7 +899,7 @@ export default function AdminCategoriesPage() {
                   name="parent_id"
                   value={formData.parent_id}
                   onChange={handleInputChange}
-                  className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm"
+                  className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary) text-sm"
                 >
                   <option value="">None (Top Level)</option>
                   {getParentOptions().filter(c => !c.parent_id).map(cat => (
@@ -919,7 +919,7 @@ export default function AdminCategoriesPage() {
                   min={0}
                   className="mt-1"
                 />
-                <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
+                <p className="text-xs text-(--color-text-muted) mt-1">Lower numbers appear first</p>
               </div>
 
               <div className="flex items-center gap-3">
@@ -929,14 +929,14 @@ export default function AdminCategoriesPage() {
                   type="checkbox"
                   checked={formData.is_active}
                   onChange={handleInputChange}
-                  className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-(--color-border) text-(--brand-primary) focus:ring-(--brand-primary)"
                 />
                 <Label htmlFor="is_active" className="cursor-pointer">
                   Active (visible on storefront)
                 </Label>
               </div>
 
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <div className="flex gap-3 pt-4 border-t border-(--color-border)">
                 <Button
                   type="button"
                   variant="outline"
@@ -948,7 +948,7 @@ export default function AdminCategoriesPage() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  className="flex-1 bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
                 >
                   {saving ? (
                     <>

@@ -74,10 +74,10 @@ const statusIcons: Record<string, typeof Clock> = {
 }
 
 const statusColors: Record<string, string> = {
-  pending: 'bg-slate-100 text-slate-700',
-  processing: 'bg-blue-100 text-blue-700',
-  completed: 'bg-emerald-100 text-emerald-700',
-  failed: 'bg-red-100 text-red-700',
+  pending: 'bg-(--color-elevated) text-foreground',
+  processing: 'bg-(--color-info-bg) text-(--color-info)',
+  completed: 'bg-(--brand-primary-light) text-(--brand-primary)',
+  failed: 'bg-(--color-error-bg) text-(--color-error)',
 }
 
 export default function ImportExportPage() {
@@ -157,28 +157,28 @@ export default function ImportExportPage() {
       title: 'Products',
       description: 'Export all products with details',
       icon: Package,
-      color: 'bg-blue-100 text-blue-700',
+      color: 'bg-(--color-info-bg) text-(--color-info)',
     },
     {
       entity: 'orders',
       title: 'Orders',
       description: 'Export order history',
       icon: ShoppingCart,
-      color: 'bg-emerald-100 text-emerald-700',
+      color: 'bg-(--brand-primary-light) text-(--brand-primary)',
     },
     {
       entity: 'customers',
       title: 'Customers',
       description: 'Export customer list',
       icon: Users,
-      color: 'bg-purple-100 text-purple-700',
+      color: 'bg-(--color-info-bg) text-(--color-info)',
     },
     {
       entity: 'categories',
       title: 'Categories',
       description: 'Export category structure',
       icon: FolderTree,
-      color: 'bg-amber-100 text-amber-700',
+      color: 'bg-(--brand-amber-soft) text-(--brand-amber)',
     },
   ]
 
@@ -187,13 +187,13 @@ export default function ImportExportPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-            <div className="p-2 bg-cyan-100 rounded-lg">
-              <Upload className="h-6 w-6 text-cyan-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
+            <div className="p-2 bg-(--color-info-bg) rounded-lg">
+              <Upload className="h-6 w-6 text-(--color-info)" />
             </div>
             Import / Export
           </h1>
-          <p className="text-slate-600 mt-1">
+          <p className="text-(--color-text-secondary) mt-1">
             Import and export data in bulk
           </p>
         </div>
@@ -234,14 +234,14 @@ export default function ImportExportPage() {
                 {exportOptions.map((option) => (
                   <div
                     key={option.entity}
-                    className="flex items-center gap-4 p-4 border rounded-lg hover:bg-slate-50 transition-colors"
+                    className="flex items-center gap-4 p-4 border rounded-lg hover:bg-background transition-colors"
                   >
                     <div className={`p-3 rounded-lg ${option.color}`}>
                       <option.icon className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-medium text-slate-900">{option.title}</h3>
-                      <p className="text-sm text-slate-500">{option.description}</p>
+                      <h3 className="font-medium text-foreground">{option.title}</h3>
+                      <p className="text-sm text-(--color-text-muted)">{option.description}</p>
                     </div>
                     <Button
                       onClick={() => handleExport(option.entity)}
@@ -274,9 +274,9 @@ export default function ImportExportPage() {
             </CardHeader>
             <CardContent>
               <div className="border-2 border-dashed rounded-lg p-8 text-center">
-                <FileSpreadsheet className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-                <h3 className="font-medium text-slate-900 mb-2">Import Feature Coming Soon</h3>
-                <p className="text-sm text-slate-500 mb-4">
+                <FileSpreadsheet className="h-16 w-16 text-(--color-text-disabled) mx-auto mb-4" />
+                <h3 className="font-medium text-foreground mb-2">Import Feature Coming Soon</h3>
+                <p className="text-sm text-(--color-text-muted) mb-4">
                   Drag and drop your CSV file here, or click to browse
                 </p>
                 <Button variant="outline" disabled>
@@ -285,23 +285,23 @@ export default function ImportExportPage() {
                 </Button>
               </div>
 
-              <div className="mt-6 p-4 bg-slate-50 rounded-lg">
-                <h4 className="font-medium text-slate-900 mb-2">Import Guidelines</h4>
-                <ul className="text-sm text-slate-600 space-y-2">
+              <div className="mt-6 p-4 bg-background rounded-lg">
+                <h4 className="font-medium text-foreground mb-2">Import Guidelines</h4>
+                <ul className="text-sm text-(--color-text-secondary) space-y-2">
                   <li className="flex items-start gap-2">
-                    <ArrowRight className="h-4 w-4 mt-0.5 text-emerald-600" />
+                    <ArrowRight className="h-4 w-4 mt-0.5 text-(--brand-primary)" />
                     Use the exported CSV as a template for imports
                   </li>
                   <li className="flex items-start gap-2">
-                    <ArrowRight className="h-4 w-4 mt-0.5 text-emerald-600" />
+                    <ArrowRight className="h-4 w-4 mt-0.5 text-(--brand-primary)" />
                     Ensure all required fields are filled
                   </li>
                   <li className="flex items-start gap-2">
-                    <ArrowRight className="h-4 w-4 mt-0.5 text-emerald-600" />
+                    <ArrowRight className="h-4 w-4 mt-0.5 text-(--brand-primary)" />
                     Maximum file size: 10MB
                   </li>
                   <li className="flex items-start gap-2">
-                    <ArrowRight className="h-4 w-4 mt-0.5 text-emerald-600" />
+                    <ArrowRight className="h-4 w-4 mt-0.5 text-(--brand-primary)" />
                     Supported format: CSV (comma-separated)
                   </li>
                 </ul>
@@ -350,13 +350,13 @@ export default function ImportExportPage() {
             <CardContent>
               {loading ? (
                 <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+                  <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
                 </div>
               ) : jobs.length === 0 ? (
                 <div className="text-center py-12">
-                  <History className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-                  <p className="text-slate-600">No import/export jobs yet</p>
-                  <p className="text-sm text-slate-500 mt-1">
+                  <History className="h-16 w-16 text-(--color-text-disabled) mx-auto mb-4" />
+                  <p className="text-(--color-text-secondary)">No import/export jobs yet</p>
+                  <p className="text-sm text-(--color-text-muted) mt-1">
                     Export some data to see history here
                   </p>
                 </div>
@@ -372,20 +372,20 @@ export default function ImportExportPage() {
                     return (
                       <div
                         key={job.id}
-                        className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg"
+                        className="flex items-center gap-4 p-4 bg-background rounded-lg"
                       >
-                        <div className="p-2 bg-white rounded-lg shadow-sm">
-                          <EntityIcon className="h-5 w-5 text-slate-600" />
+                        <div className="p-2 bg-(--color-surface) rounded-lg shadow-sm">
+                          <EntityIcon className="h-5 w-5 text-(--color-text-secondary)" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
                             <Badge variant="outline" className="capitalize">
                               {job.job_type}
                             </Badge>
-                            <span className="font-medium text-slate-900 capitalize">
+                            <span className="font-medium text-foreground capitalize">
                               {job.entity_type}
                             </span>
-                            <Badge className={statusColors[job.status] || 'bg-slate-100 text-slate-700'}>
+                            <Badge className={statusColors[job.status] || 'bg-(--color-elevated) text-foreground'}>
                               <StatusIcon className={`h-3 w-3 mr-1 ${job.status === 'processing' ? 'animate-spin' : ''}`} />
                               {job.status}
                             </Badge>
@@ -393,29 +393,29 @@ export default function ImportExportPage() {
                           {job.status === 'processing' && (
                             <div className="mt-2">
                               <Progress value={progress} className="h-2" />
-                              <p className="text-xs text-slate-500 mt-1">
+                              <p className="text-xs text-(--color-text-muted) mt-1">
                                 {job.processed_rows} / {job.total_rows} rows ({progress}%)
                               </p>
                             </div>
                           )}
                           {job.status === 'completed' && (
-                            <p className="text-sm text-slate-500 mt-1">
+                            <p className="text-sm text-(--color-text-muted) mt-1">
                               {job.success_count} rows processed successfully
                               {job.error_count > 0 && ` • ${job.error_count} errors`}
                             </p>
                           )}
                           {job.status === 'failed' && job.errors && job.errors.length > 0 && (
-                            <p className="text-sm text-red-600 mt-1">
+                            <p className="text-sm text-(--color-error) mt-1">
                               {job.errors[0]?.message}
                             </p>
                           )}
                         </div>
                         <div className="text-right text-sm">
-                          <p className="text-slate-600">
+                          <p className="text-(--color-text-secondary)">
                             {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}
                           </p>
                           {job.completed_at && (
-                            <p className="text-xs text-slate-400">
+                            <p className="text-xs text-(--color-text-disabled)">
                               Completed {format(new Date(job.completed_at), 'HH:mm')}
                             </p>
                           )}
@@ -435,12 +435,12 @@ export default function ImportExportPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-emerald-600" />
+              <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+                <CheckCircle className="h-5 w-5 text-(--brand-primary)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Completed</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-sm text-(--color-text-secondary)">Completed</p>
+                <p className="text-xl font-bold text-foreground">
                   {jobs.filter(j => j.status === 'completed').length}
                 </p>
               </div>
@@ -450,12 +450,12 @@ export default function ImportExportPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Download className="h-5 w-5 text-blue-600" />
+              <div className="p-2 bg-(--color-info-bg) rounded-lg">
+                <Download className="h-5 w-5 text-(--color-info)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Exports</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-sm text-(--color-text-secondary)">Exports</p>
+                <p className="text-xl font-bold text-foreground">
                   {jobs.filter(j => j.job_type === 'export').length}
                 </p>
               </div>
@@ -465,12 +465,12 @@ export default function ImportExportPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Upload className="h-5 w-5 text-purple-600" />
+              <div className="p-2 bg-(--color-info-bg) rounded-lg">
+                <Upload className="h-5 w-5 text-(--color-info)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Imports</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-sm text-(--color-text-secondary)">Imports</p>
+                <p className="text-xl font-bold text-foreground">
                   {jobs.filter(j => j.job_type === 'import').length}
                 </p>
               </div>
@@ -480,12 +480,12 @@ export default function ImportExportPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-red-600" />
+              <div className="p-2 bg-(--color-error-bg) rounded-lg">
+                <AlertCircle className="h-5 w-5 text-(--color-error)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Failed</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-sm text-(--color-text-secondary)">Failed</p>
+                <p className="text-xl font-bold text-foreground">
                   {jobs.filter(j => j.status === 'failed').length}
                 </p>
               </div>

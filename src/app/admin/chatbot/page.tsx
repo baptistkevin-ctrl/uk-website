@@ -294,7 +294,7 @@ export default function AdminChatbotPage() {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-96">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
         </div>
       </AdminLayout>
     )
@@ -306,19 +306,19 @@ export default function AdminChatbotPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Bot className="h-7 w-7 text-emerald-600" />
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <Bot className="h-7 w-7 text-(--brand-primary)" />
               Chatbot Management
             </h1>
-            <p className="text-gray-500 mt-1">
+            <p className="text-(--color-text-muted) mt-1">
               Configure your AI chatbot, manage intents, FAQs, and settings
             </p>
           </div>
           <div className="flex items-center gap-2">
             <span className={`px-3 py-1.5 rounded-full text-sm font-medium ${
               settings.is_enabled
-                ? 'bg-emerald-100 text-emerald-700'
-                : 'bg-gray-100 text-gray-700'
+                ? 'bg-(--brand-primary-light) text-(--brand-primary)'
+                : 'bg-(--color-elevated) text-foreground'
             }`}>
               {settings.is_enabled ? 'Bot Active' : 'Bot Disabled'}
             </span>
@@ -326,7 +326,7 @@ export default function AdminChatbotPage() {
         </div>
 
         {/* Tabs */}
-        <div className="border-b border-gray-200">
+        <div className="border-b border-(--color-border)">
           <nav className="flex gap-4">
             {[
               { id: 'intents', label: 'Intents', icon: MessageSquare },
@@ -339,8 +339,8 @@ export default function AdminChatbotPage() {
                 onClick={() => setActiveTab(tab.id as typeof activeTab)}
                 className={`flex items-center gap-2 px-4 py-3 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab.id
-                    ? 'border-emerald-600 text-emerald-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    ? 'border-(--brand-primary) text-(--brand-primary)'
+                    : 'border-transparent text-(--color-text-muted) hover:text-foreground'
                 }`}
               >
                 <tab.icon className="h-4 w-4" />
@@ -351,19 +351,19 @@ export default function AdminChatbotPage() {
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm border border-(--color-border)">
           {/* Intents Tab */}
           {activeTab === 'intents' && (
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
                   <input
                     type="text"
                     placeholder="Search intents..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                   />
                 </div>
               </div>
@@ -373,7 +373,7 @@ export default function AdminChatbotPage() {
                   <div
                     key={intent.id}
                     className={`border rounded-lg overflow-hidden ${
-                      intent.is_active ? 'border-gray-200' : 'border-gray-100 bg-gray-50'
+                      intent.is_active ? 'border-(--color-border)' : 'border-(--color-border) bg-background'
                     }`}
                   >
                     <div className="p-4">
@@ -381,29 +381,29 @@ export default function AdminChatbotPage() {
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => toggleExpanded(intent.id)}
-                            className="p-1 hover:bg-gray-100 rounded"
+                            className="p-1 hover:bg-(--color-elevated) rounded"
                           >
                             {expandedIntents.has(intent.id) ? (
-                              <ChevronUp className="h-4 w-4 text-gray-500" />
+                              <ChevronUp className="h-4 w-4 text-(--color-text-muted)" />
                             ) : (
-                              <ChevronDown className="h-4 w-4 text-gray-500" />
+                              <ChevronDown className="h-4 w-4 text-(--color-text-muted)" />
                             )}
                           </button>
                           <div>
-                            <h3 className="font-medium text-gray-900">{intent.intent_name}</h3>
-                            <p className="text-sm text-gray-500">{intent.description}</p>
+                            <h3 className="font-medium text-foreground">{intent.intent_name}</h3>
+                            <p className="text-sm text-(--color-text-muted)">{intent.description}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-400">
+                          <span className="text-xs text-(--color-text-disabled)">
                             {intent.training_phrases.length} phrases
                           </span>
                           <button
                             onClick={() => toggleIntentActive(intent)}
                             className={`p-1.5 rounded-lg transition-colors ${
                               intent.is_active
-                                ? 'text-emerald-600 hover:bg-emerald-50'
-                                : 'text-gray-400 hover:bg-gray-100'
+                                ? 'text-(--brand-primary) hover:bg-(--brand-primary-light)'
+                                : 'text-(--color-text-disabled) hover:bg-(--color-elevated)'
                             }`}
                           >
                             {intent.is_active ? (
@@ -416,9 +416,9 @@ export default function AdminChatbotPage() {
                       </div>
 
                       {/* Response Preview */}
-                      <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium text-gray-700">Response:</span>{' '}
+                      <div className="mt-3 p-3 bg-background rounded-lg">
+                        <p className="text-sm text-(--color-text-secondary)">
+                          <span className="font-medium text-foreground">Response:</span>{' '}
                           {intent.response_text.length > 150
                             ? intent.response_text.substring(0, 150) + '...'
                             : intent.response_text}
@@ -428,7 +428,7 @@ export default function AdminChatbotPage() {
                             {intent.quick_replies.map((qr, idx) => (
                               <span
                                 key={idx}
-                                className="px-2 py-1 bg-white border border-gray-200 rounded-full text-xs text-gray-600"
+                                className="px-2 py-1 bg-(--color-surface) border border-(--color-border) rounded-full text-xs text-(--color-text-secondary)"
                               >
                                 {qr.text}
                               </span>
@@ -440,18 +440,18 @@ export default function AdminChatbotPage() {
 
                     {/* Expanded Training Phrases */}
                     {expandedIntents.has(intent.id) && (
-                      <div className="border-t bg-gray-50 p-4">
-                        <h4 className="text-sm font-medium text-gray-700 mb-3">Training Phrases</h4>
+                      <div className="border-t bg-background p-4">
+                        <h4 className="text-sm font-medium text-foreground mb-3">Training Phrases</h4>
                         <div className="space-y-2">
                           {intent.training_phrases.map(phrase => (
                             <div
                               key={phrase.id}
-                              className="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-100"
+                              className="flex items-center justify-between bg-(--color-surface) p-2 rounded-lg border border-(--color-border)"
                             >
-                              <span className="text-sm text-gray-600">{phrase.phrase}</span>
+                              <span className="text-sm text-(--color-text-secondary)">{phrase.phrase}</span>
                               <button
                                 onClick={() => deleteTrainingPhrase(intent.id, phrase.id)}
-                                className="p-1 text-gray-400 hover:text-red-500"
+                                className="p-1 text-(--color-text-disabled) hover:text-(--color-error)"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
@@ -465,12 +465,12 @@ export default function AdminChatbotPage() {
                                 value={newPhrase}
                                 onChange={(e) => setNewPhrase(e.target.value)}
                                 placeholder="Enter new training phrase..."
-                                className="flex-1 px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                                className="flex-1 px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
                                 autoFocus
                               />
                               <button
                                 onClick={() => addTrainingPhrase(intent.id)}
-                                className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+                                className="p-2 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover)"
                               >
                                 <Check className="h-4 w-4" />
                               </button>
@@ -479,7 +479,7 @@ export default function AdminChatbotPage() {
                                   setAddingPhraseToIntent(null)
                                   setNewPhrase('')
                                 }}
-                                className="p-2 bg-gray-200 text-gray-600 rounded-lg hover:bg-gray-300"
+                                className="p-2 bg-(--color-border) text-(--color-text-secondary) rounded-lg hover:bg-(--color-border-strong)"
                               >
                                 <X className="h-4 w-4" />
                               </button>
@@ -487,7 +487,7 @@ export default function AdminChatbotPage() {
                           ) : (
                             <button
                               onClick={() => setAddingPhraseToIntent(intent.id)}
-                              className="flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700"
+                              className="flex items-center gap-1 text-sm text-(--brand-primary) hover:text-(--brand-primary)"
                             >
                               <Plus className="h-4 w-4" />
                               Add phrase
@@ -507,13 +507,13 @@ export default function AdminChatbotPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="relative flex-1 max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
                   <input
                     type="text"
                     placeholder="Search FAQs..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full pl-10 pr-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                   />
                 </div>
               </div>
@@ -523,47 +523,47 @@ export default function AdminChatbotPage() {
                   <div
                     key={faq.id}
                     className={`border rounded-lg p-4 ${
-                      faq.is_active ? 'border-gray-200' : 'border-gray-100 bg-gray-50'
+                      faq.is_active ? 'border-(--color-border)' : 'border-(--color-border) bg-background'
                     }`}
                   >
                     {editingFaq?.id === faq.id ? (
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-foreground mb-1">
                             Question
                           </label>
                           <input
                             type="text"
                             value={editingFaq.question}
                             onChange={(e) => setEditingFaq({ ...editingFaq, question: e.target.value })}
-                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary)"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-foreground mb-1">
                             Answer
                           </label>
                           <textarea
                             value={editingFaq.answer}
                             onChange={(e) => setEditingFaq({ ...editingFaq, answer: e.target.value })}
                             rows={4}
-                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary)"
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-foreground mb-1">
                               Category
                             </label>
                             <input
                               type="text"
                               value={editingFaq.category}
                               onChange={(e) => setEditingFaq({ ...editingFaq, category: e.target.value })}
-                              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+                              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary)"
                             />
                           </div>
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                            <label className="block text-sm font-medium text-foreground mb-1">
                               Keywords (comma separated)
                             </label>
                             <input
@@ -573,7 +573,7 @@ export default function AdminChatbotPage() {
                                 ...editingFaq,
                                 keywords: e.target.value.split(',').map(k => k.trim())
                               })}
-                              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+                              className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary)"
                             />
                           </div>
                         </div>
@@ -581,14 +581,14 @@ export default function AdminChatbotPage() {
                           <button
                             onClick={saveFaq}
                             disabled={saving}
-                            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 flex items-center gap-2"
+                            className="px-4 py-2.5 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover) flex items-center gap-2"
                           >
                             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                             Save
                           </button>
                           <button
                             onClick={() => setEditingFaq(null)}
-                            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                            className="px-4 py-2 border border-(--color-border) rounded-lg hover:bg-background"
                           >
                             Cancel
                           </button>
@@ -598,19 +598,19 @@ export default function AdminChatbotPage() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs px-2 py-0.5 bg-gray-100 rounded text-gray-600">
+                            <span className="text-xs px-2 py-0.5 bg-(--color-elevated) rounded text-(--color-text-secondary)">
                               {faq.category}
                             </span>
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-(--color-text-disabled)">
                               {faq.view_count} views
                             </span>
                           </div>
-                          <h3 className="font-medium text-gray-900 mb-2">{faq.question}</h3>
-                          <p className="text-sm text-gray-600">{faq.answer}</p>
+                          <h3 className="font-medium text-foreground mb-2">{faq.question}</h3>
+                          <p className="text-sm text-(--color-text-secondary)">{faq.answer}</p>
                           {faq.keywords.length > 0 && (
                             <div className="flex gap-1 mt-2">
                               {faq.keywords.map((kw, idx) => (
-                                <span key={idx} className="text-xs px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded">
+                                <span key={idx} className="text-xs px-2 py-0.5 bg-(--brand-primary-light) text-(--brand-primary) rounded">
                                   {kw}
                                 </span>
                               ))}
@@ -620,7 +620,7 @@ export default function AdminChatbotPage() {
                         <div className="flex items-center gap-1 ml-4">
                           <button
                             onClick={() => setEditingFaq(faq)}
-                            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded"
+                            className="p-1.5 text-(--color-text-disabled) hover:text-(--color-text-secondary) hover:bg-(--color-elevated) rounded"
                           >
                             <Edit2 className="h-4 w-4" />
                           </button>
@@ -628,8 +628,8 @@ export default function AdminChatbotPage() {
                             onClick={() => toggleFaqActive(faq)}
                             className={`p-1.5 rounded transition-colors ${
                               faq.is_active
-                                ? 'text-emerald-600 hover:bg-emerald-50'
-                                : 'text-gray-400 hover:bg-gray-100'
+                                ? 'text-(--brand-primary) hover:bg-(--brand-primary-light)'
+                                : 'text-(--color-text-disabled) hover:bg-(--color-elevated)'
                             }`}
                           >
                             {faq.is_active ? (
@@ -652,10 +652,10 @@ export default function AdminChatbotPage() {
             <div className="p-6">
               <div className="max-w-2xl space-y-6">
                 {/* Enable/Disable */}
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                   <div>
-                    <h3 className="font-medium text-gray-900">Enable Chatbot</h3>
-                    <p className="text-sm text-gray-500">
+                    <h3 className="font-medium text-foreground">Enable Chatbot</h3>
+                    <p className="text-sm text-(--color-text-muted)">
                       When disabled, customers will be connected directly to agents
                     </p>
                   </div>
@@ -663,8 +663,8 @@ export default function AdminChatbotPage() {
                     onClick={() => setSettings({ ...settings, is_enabled: !settings.is_enabled })}
                     className={`p-2 rounded-lg transition-colors ${
                       settings.is_enabled
-                        ? 'bg-emerald-100 text-emerald-600'
-                        : 'bg-gray-200 text-gray-500'
+                        ? 'bg-(--brand-primary-light) text-(--brand-primary)'
+                        : 'bg-(--color-border) text-(--color-text-muted)'
                     }`}
                   >
                     {settings.is_enabled ? (
@@ -677,33 +677,33 @@ export default function AdminChatbotPage() {
 
                 {/* Bot Name */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Bot Name
                   </label>
                   <input
                     type="text"
                     value={settings.bot_name}
                     onChange={(e) => setSettings({ ...settings, bot_name: e.target.value })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
                   />
                 </div>
 
                 {/* Welcome Message */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Welcome Message
                   </label>
                   <textarea
                     value={settings.welcome_message}
                     onChange={(e) => setSettings({ ...settings, welcome_message: e.target.value })}
                     rows={3}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
                   />
                 </div>
 
                 {/* Typing Delay */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Typing Delay (ms)
                   </label>
                   <input
@@ -713,16 +713,16 @@ export default function AdminChatbotPage() {
                     min={0}
                     max={5000}
                     step={100}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-(--color-text-muted) mt-1">
                     Simulates typing before bot responds (0-5000ms)
                   </p>
                 </div>
 
                 {/* Confidence Threshold */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Confidence Threshold
                   </label>
                   <input
@@ -734,19 +734,19 @@ export default function AdminChatbotPage() {
                     step={0.05}
                     className="w-full"
                   />
-                  <div className="flex justify-between text-xs text-gray-500">
+                  <div className="flex justify-between text-xs text-(--color-text-muted)">
                     <span>Low (0)</span>
                     <span>Current: {(settings.fallback_threshold * 100).toFixed(0)}%</span>
                     <span>High (100%)</span>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-(--color-text-muted) mt-1">
                     Bot uses fallback response if confidence is below this threshold
                   </p>
                 </div>
 
                 {/* Handoff Keywords */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-foreground mb-2">
                     Handoff Keywords
                   </label>
                   <input
@@ -756,9 +756,9 @@ export default function AdminChatbotPage() {
                       ...settings,
                       handoff_keywords: e.target.value.split(',').map(k => k.trim())
                     })}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-(--color-text-muted) mt-1">
                     Words that trigger immediate transfer to human agent (comma separated)
                   </p>
                 </div>
@@ -768,7 +768,7 @@ export default function AdminChatbotPage() {
                   <button
                     onClick={saveSettings}
                     disabled={saving}
-                    className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2"
+                    className="px-6 py-2 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover) disabled:opacity-50 flex items-center gap-2"
                   >
                     {saving ? (
                       <>
@@ -794,27 +794,27 @@ export default function AdminChatbotPage() {
                 <div className="space-y-6">
                   {/* Stats Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-4">
+                    <div className="bg-linear-to-br from-(--brand-primary-light) to-(--brand-primary-light) rounded-xl p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-(--brand-primary) rounded-lg flex items-center justify-center">
                           <MessageSquare className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm text-emerald-600">Total Conversations</p>
-                          <p className="text-2xl font-bold text-emerald-800">
+                          <p className="text-sm text-(--brand-primary)">Total Conversations</p>
+                          <p className="text-2xl font-bold text-(--brand-primary)">
                             {stats.total_conversations}
                           </p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4">
+                    <div className="bg-linear-to-br from-blue-50 to-blue-100 rounded-xl p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-(--color-info) rounded-lg flex items-center justify-center">
                           <Bot className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm text-blue-600">Bot Handled</p>
+                          <p className="text-sm text-(--color-info)">Bot Handled</p>
                           <p className="text-2xl font-bold text-blue-800">
                             {stats.bot_handled}
                           </p>
@@ -822,13 +822,13 @@ export default function AdminChatbotPage() {
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl p-4">
+                    <div className="bg-linear-to-br from-amber-50 to-amber-100 rounded-xl p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-(--brand-amber) rounded-lg flex items-center justify-center">
                           <Zap className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm text-amber-600">Handoff Rate</p>
+                          <p className="text-sm text-(--brand-amber)">Handoff Rate</p>
                           <p className="text-2xl font-bold text-amber-800">
                             {(stats.handoff_rate * 100).toFixed(1)}%
                           </p>
@@ -836,13 +836,13 @@ export default function AdminChatbotPage() {
                       </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4">
+                    <div className="bg-linear-to-br from-purple-50 to-purple-100 rounded-xl p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-(--color-info) rounded-lg flex items-center justify-center">
                           <TrendingUp className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="text-sm text-purple-600">Avg Confidence</p>
+                          <p className="text-sm text-(--color-info)">Avg Confidence</p>
                           <p className="text-2xl font-bold text-purple-800">
                             {(stats.avg_confidence * 100).toFixed(0)}%
                           </p>
@@ -852,26 +852,26 @@ export default function AdminChatbotPage() {
                   </div>
 
                   {/* Top Intents */}
-                  <div className="bg-white border rounded-xl p-6">
-                    <h3 className="font-semibold text-gray-900 mb-4">Top Matched Intents</h3>
+                  <div className="bg-(--color-surface) border rounded-xl p-6">
+                    <h3 className="font-semibold text-foreground mb-4">Top Matched Intents</h3>
                     <div className="space-y-3">
                       {stats.top_intents.map((item, idx) => (
                         <div key={idx} className="flex items-center gap-4">
-                          <span className="text-sm font-medium text-gray-500 w-6">
+                          <span className="text-sm font-medium text-(--color-text-muted) w-6">
                             #{idx + 1}
                           </span>
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-1">
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-medium text-foreground">
                                 {item.intent}
                               </span>
-                              <span className="text-sm text-gray-500">
+                              <span className="text-sm text-(--color-text-muted)">
                                 {item.count} times
                               </span>
                             </div>
-                            <div className="w-full bg-gray-100 rounded-full h-2">
+                            <div className="w-full bg-(--color-elevated) rounded-full h-2">
                               <div
-                                className="bg-emerald-500 h-2 rounded-full"
+                                className="bg-(--brand-primary) h-2 rounded-full"
                                 style={{
                                   width: `${(item.count / stats.top_intents[0].count) * 100}%`
                                 }}
@@ -884,8 +884,8 @@ export default function AdminChatbotPage() {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-12 text-gray-500">
-                  <TrendingUp className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <div className="text-center py-12 text-(--color-text-muted)">
+                  <TrendingUp className="h-12 w-12 mx-auto mb-4 text-(--color-text-disabled)" />
                   <p>No analytics data available yet</p>
                   <p className="text-sm">Data will appear once the chatbot starts handling conversations</p>
                 </div>

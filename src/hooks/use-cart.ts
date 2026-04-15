@@ -2,6 +2,7 @@
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { hapticLight } from '@/lib/utils/haptics'
 
 // Simplified product type for cart storage
 export interface CartProduct {
@@ -68,6 +69,7 @@ export const useCartStore = create<CartState>()(
       offersLoaded: false,
 
       addItem: (product: CartProduct, quantity = 1) => {
+        hapticLight()
         const items = get().items
         const existingItem = items.find((item) => item.product.id === product.id)
 
@@ -132,7 +134,15 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: 'cart-storage',
-      partialize: (state) => ({ items: state.items }), // Only persist items
+      partialize: (state) => ({ items: state.items }),
+      merge: (persisted, current) => {
+        const p = persisted as Partial<CartState> | undefined
+        if (!p?.items) return current
+        const validItems = p.items.filter(
+          (item) => item?.product?.id && item?.product?.name,
+        )
+        return { ...current, items: validItems }
+      },
     }
   )
 )

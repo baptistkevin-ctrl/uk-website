@@ -79,11 +79,11 @@ interface TeamMember {
 }
 
 const roleColors: Record<string, string> = {
-  super_admin: 'bg-purple-100 text-purple-700',
-  admin: 'bg-blue-100 text-blue-700',
-  manager: 'bg-emerald-100 text-emerald-700',
-  staff: 'bg-slate-100 text-slate-700',
-  support: 'bg-amber-100 text-amber-700',
+  super_admin: 'bg-(--color-info-bg) text-(--color-info)',
+  admin: 'bg-(--color-info-bg) text-(--color-info)',
+  manager: 'bg-(--brand-primary-light) text-(--brand-primary)',
+  staff: 'bg-(--color-elevated) text-foreground',
+  support: 'bg-(--brand-amber-soft) text-(--brand-amber)',
 }
 
 const statusIcons: Record<string, typeof CheckCircle> = {
@@ -94,10 +94,10 @@ const statusIcons: Record<string, typeof CheckCircle> = {
 }
 
 const statusColors: Record<string, string> = {
-  active: 'text-emerald-600',
-  inactive: 'text-slate-400',
-  pending: 'text-amber-600',
-  suspended: 'text-red-600',
+  active: 'text-(--brand-primary)',
+  inactive: 'text-(--color-text-disabled)',
+  pending: 'text-(--brand-amber)',
+  suspended: 'text-(--color-error)',
 }
 
 const defaultPermissions: Record<string, Permission> = {
@@ -326,13 +326,13 @@ export default function TeamPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <UserCog className="h-6 w-6 text-blue-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
+            <div className="p-2 bg-(--color-info-bg) rounded-lg">
+              <UserCog className="h-6 w-6 text-(--color-info)" />
             </div>
             Team Management
           </h1>
-          <p className="text-slate-600 mt-1">
+          <p className="text-(--color-text-secondary) mt-1">
             Manage staff members and their permissions
           </p>
         </div>
@@ -353,12 +353,12 @@ export default function TeamPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 rounded-lg">
-                <User className="h-5 w-5 text-emerald-600" />
+              <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+                <User className="h-5 w-5 text-(--brand-primary)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Total Members</p>
-                <p className="text-xl font-bold text-slate-900">{members.length}</p>
+                <p className="text-sm text-(--color-text-secondary)">Total Members</p>
+                <p className="text-xl font-bold text-foreground">{members.length}</p>
               </div>
             </div>
           </CardContent>
@@ -366,12 +366,12 @@ export default function TeamPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-blue-600" />
+              <div className="p-2 bg-(--color-info-bg) rounded-lg">
+                <CheckCircle className="h-5 w-5 text-(--color-info)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Active</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-sm text-(--color-text-secondary)">Active</p>
+                <p className="text-xl font-bold text-foreground">
                   {members.filter(m => m.status === 'active').length}
                 </p>
               </div>
@@ -381,12 +381,12 @@ export default function TeamPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <Clock className="h-5 w-5 text-amber-600" />
+              <div className="p-2 bg-(--brand-amber-soft) rounded-lg">
+                <Clock className="h-5 w-5 text-(--brand-amber)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Pending</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-sm text-(--color-text-secondary)">Pending</p>
+                <p className="text-xl font-bold text-foreground">
                   {members.filter(m => m.status === 'pending').length}
                 </p>
               </div>
@@ -396,12 +396,12 @@ export default function TeamPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Shield className="h-5 w-5 text-purple-600" />
+              <div className="p-2 bg-(--color-info-bg) rounded-lg">
+                <Shield className="h-5 w-5 text-(--color-info)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Admins</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-sm text-(--color-text-secondary)">Admins</p>
+                <p className="text-xl font-bold text-foreground">
                   {members.filter(m => ['admin', 'super_admin'].includes(m.role)).length}
                 </p>
               </div>
@@ -415,7 +415,7 @@ export default function TeamPage() {
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
               <Input
                 placeholder="Search by name or email..."
                 value={search}
@@ -460,12 +460,12 @@ export default function TeamPage() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+              <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
             </div>
           ) : members.length === 0 ? (
             <div className="text-center py-12">
-              <UserCog className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-600">No team members found</p>
+              <UserCog className="h-16 w-16 text-(--color-text-disabled) mx-auto mb-4" />
+              <p className="text-(--color-text-secondary)">No team members found</p>
               <Button className="mt-4" onClick={() => setIsAddOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add First Member
@@ -478,25 +478,25 @@ export default function TeamPage() {
                 return (
                   <div
                     key={member.id}
-                    className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                    className="flex items-center gap-4 p-4 bg-background rounded-lg hover:bg-(--color-elevated) transition-colors"
                   >
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={member.avatar_url || undefined} />
-                      <AvatarFallback className="bg-emerald-100 text-emerald-700">
+                      <AvatarFallback className="bg-(--brand-primary-light) text-(--brand-primary)">
                         {getInitials(member.first_name, member.last_name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="font-medium text-slate-900">
+                        <p className="font-medium text-foreground">
                           {member.first_name} {member.last_name}
                         </p>
-                        <Badge className={roleColors[member.role] || 'bg-slate-100 text-slate-700'}>
+                        <Badge className={roleColors[member.role] || 'bg-(--color-elevated) text-foreground'}>
                           {member.role.replace('_', ' ')}
                         </Badge>
                         <StatusIcon className={`h-4 w-4 ${statusColors[member.status]}`} />
                       </div>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-slate-500">
+                      <div className="flex items-center gap-4 mt-1 text-sm text-(--color-text-muted)">
                         <span className="flex items-center gap-1">
                           <Mail className="h-3 w-3" />
                           {member.email}
@@ -517,11 +517,11 @@ export default function TeamPage() {
                     </div>
                     <div className="text-right hidden md:block">
                       {member.last_login_at ? (
-                        <p className="text-sm text-slate-600">
+                        <p className="text-sm text-(--color-text-secondary)">
                           Last login: {formatDistanceToNow(new Date(member.last_login_at), { addSuffix: true })}
                         </p>
                       ) : member.status === 'pending' ? (
-                        <p className="text-sm text-amber-600">
+                        <p className="text-sm text-(--brand-amber)">
                           Invited {formatDistanceToNow(new Date(member.invited_at || member.created_at), { addSuffix: true })}
                         </p>
                       ) : null}
@@ -552,7 +552,7 @@ export default function TeamPage() {
                         )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          className="text-red-600"
+                          className="text-(--color-error)"
                           onClick={() => openDelete(member)}
                         >
                           <Trash2 className="h-4 w-4 mr-2" />
@@ -668,11 +668,11 @@ export default function TeamPage() {
             {/* Permissions */}
             <div>
               <Label className="text-base">Permissions</Label>
-              <p className="text-sm text-slate-500 mb-4">Configure what this team member can access</p>
+              <p className="text-sm text-(--color-text-muted) mb-4">Configure what this team member can access</p>
 
               <div className="space-y-3">
                 {Object.entries(form.permissions).map(([entity, perms]) => (
-                  <div key={entity} className="flex items-center gap-4 p-3 bg-slate-50 rounded-lg">
+                  <div key={entity} className="flex items-center gap-4 p-3 bg-background rounded-lg">
                     <span className="w-24 font-medium capitalize">{entity}</span>
                     <div className="flex items-center gap-4 flex-wrap">
                       {Object.entries(perms).map(([action, enabled]) => (
@@ -715,7 +715,7 @@ export default function TeamPage() {
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
+            <DialogTitle className="flex items-center gap-2 text-(--color-error)">
               <Trash2 className="h-5 w-5" />
               Remove Team Member
             </DialogTitle>

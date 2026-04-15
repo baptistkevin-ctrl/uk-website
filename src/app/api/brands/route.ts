@@ -13,7 +13,7 @@ function getSupabaseAdmin() {
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const featured = searchParams.get('featured') === 'true'
-  const limit = parseInt(searchParams.get('limit') || '50')
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '50') || 50))
 
   const supabase = getSupabaseAdmin()
 

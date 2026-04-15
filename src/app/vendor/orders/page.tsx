@@ -124,21 +124,21 @@ export default function VendorOrdersPage() {
 
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
-      pending: 'bg-yellow-100 text-yellow-700',
-      pending_payout: 'bg-orange-100 text-orange-700',
-      transferred: 'bg-emerald-100 text-emerald-700',
-      confirmed: 'bg-blue-100 text-blue-700',
-      processing: 'bg-purple-100 text-purple-700',
-      shipped: 'bg-indigo-100 text-indigo-700',
-      delivered: 'bg-emerald-100 text-emerald-700',
-      cancelled: 'bg-red-100 text-red-700',
+      pending: 'bg-(--color-warning-bg) text-(--color-warning)',
+      pending_payout: 'bg-(--color-warning-bg) text-(--brand-amber)',
+      transferred: 'bg-(--brand-primary-light) text-(--brand-primary)',
+      confirmed: 'bg-(--color-info-bg) text-(--color-info)',
+      processing: 'bg-(--color-info-bg) text-(--color-info)',
+      shipped: 'bg-(--color-info-bg) text-(--color-info)',
+      delivered: 'bg-(--brand-primary-light) text-(--brand-primary)',
+      cancelled: 'bg-(--color-error-bg) text-(--color-error)',
     }
     const labels: Record<string, string> = {
       pending_payout: 'Pending Payout',
       transferred: 'Paid',
     }
     return (
-      <span className={`px-2 py-1 text-xs rounded-full font-medium ${styles[status] || 'bg-gray-100 text-gray-700'}`}>
+      <span className={`px-2 py-1 text-xs rounded-full font-medium ${styles[status] || 'bg-(--color-elevated) text-foreground'}`}>
         {labels[status] || status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
     )
@@ -146,10 +146,10 @@ export default function VendorOrdersPage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'transferred': return <CheckCircle className="h-5 w-5 text-emerald-500" />
-      case 'delivered': return <CheckCircle className="h-5 w-5 text-emerald-500" />
+      case 'transferred': return <CheckCircle className="h-5 w-5 text-(--brand-primary)" />
+      case 'delivered': return <CheckCircle className="h-5 w-5 text-(--brand-primary)" />
       case 'shipped': return <Truck className="h-5 w-5 text-indigo-500" />
-      case 'cancelled': return <XCircle className="h-5 w-5 text-red-500" />
+      case 'cancelled': return <XCircle className="h-5 w-5 text-(--color-error)" />
       default: return <Clock className="h-5 w-5 text-yellow-500" />
     }
   }
@@ -157,7 +157,7 @@ export default function VendorOrdersPage() {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -191,16 +191,16 @@ export default function VendorOrdersPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
-            <p className="text-gray-600">{orders.length} total orders</p>
+            <h1 className="text-2xl font-bold text-foreground">Orders</h1>
+            <p className="text-(--color-text-secondary)">{orders.length} total orders</p>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm p-4 mb-6">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
               <Input
                 placeholder="Search orders..."
                 value={search}
@@ -211,7 +211,7 @@ export default function VendorOrdersPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+              className="px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
             >
               <option value="all">All Status</option>
               <option value="pending">Pending</option>
@@ -227,33 +227,33 @@ export default function VendorOrdersPage() {
         </div>
 
         {/* Orders List */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm overflow-hidden">
           {filteredOrders.length === 0 ? (
             <div className="p-12 text-center">
-              <Package className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
-              <p className="text-gray-500">Orders will appear here when customers purchase your products</p>
+              <Package className="h-12 w-12 mx-auto text-(--color-text-disabled) mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">No orders found</h3>
+              <p className="text-(--color-text-muted)">Orders will appear here when customers purchase your products</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-(--color-border)">
               {filteredOrders.map((order) => (
                 <div
                   key={order.id}
-                  className="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+                  className="p-4 hover:bg-background cursor-pointer transition-colors"
                   onClick={() => setSelectedOrder(order)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <div className="w-10 h-10 bg-(--color-elevated) rounded-lg flex items-center justify-center">
                         {getStatusIcon(order.status)}
                       </div>
                       <div>
-                        <p className="font-semibold text-gray-900">#{order.order_number}</p>
-                        <p className="text-sm text-gray-500">{order.order?.customer_name}</p>
+                        <p className="font-semibold text-foreground">#{order.order_number}</p>
+                        <p className="text-sm text-(--color-text-muted)">{order.order?.customer_name}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-gray-900">{formatPrice(order.vendor_amount)}</p>
+                      <p className="font-semibold text-foreground">{formatPrice(order.vendor_amount)}</p>
                       <div className="mt-1">{getStatusBadge(order.status)}</div>
                     </div>
                   </div>
@@ -267,14 +267,14 @@ export default function VendorOrdersPage() {
                         return (
                           <div key={step} className="flex items-center flex-1">
                             <div className={`h-1.5 w-full rounded-full ${
-                              stepIdx <= currentIdx ? 'bg-emerald-500' : 'bg-gray-200'
+                              stepIdx <= currentIdx ? 'bg-(--brand-primary)' : 'bg-(--color-border)'
                             }`} />
                           </div>
                         )
                       })}
                     </div>
                   )}
-                  <div className="mt-2 flex items-center justify-between text-sm text-gray-500">
+                  <div className="mt-2 flex items-center justify-between text-sm text-(--color-text-muted)">
                     <span>{new Date(order.created_at).toLocaleDateString('en-GB', {
                       day: 'numeric',
                       month: 'short',
@@ -291,27 +291,27 @@ export default function VendorOrdersPage() {
         {/* Order Detail Modal */}
         {selectedOrder && (
           <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b sticky top-0 bg-white z-10">
+            <div className="bg-(--color-surface) rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6 border-b sticky top-0 bg-(--color-surface) z-10">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-gray-900">Order #{selectedOrder.order_number}</h2>
-                    <p className="text-gray-500">{new Date(selectedOrder.created_at).toLocaleString('en-GB')}</p>
+                    <h2 className="text-xl font-bold text-foreground">Order #{selectedOrder.order_number}</h2>
+                    <p className="text-(--color-text-muted)">{new Date(selectedOrder.created_at).toLocaleString('en-GB')}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {/* Print Invoice Button */}
                     <Button
                       onClick={handlePrintInvoice}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      className="bg-(--color-info) hover:bg-(--color-info) text-white"
                     >
                       <Printer className="h-4 w-4 mr-2" />
                       Print Invoice
                     </Button>
                     <button
                       onClick={() => setSelectedOrder(null)}
-                      className="p-2 hover:bg-gray-100 rounded-lg"
+                      className="p-2 hover:bg-(--color-elevated) rounded-lg"
                     >
-                      <XCircle className="h-5 w-5 text-gray-500" />
+                      <XCircle className="h-5 w-5 text-(--color-text-muted)" />
                     </button>
                   </div>
                 </div>
@@ -320,14 +320,14 @@ export default function VendorOrdersPage() {
               <div className="p-6 space-y-6">
                 {/* Customer Info */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Customer</h3>
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <p className="font-medium text-gray-900">{selectedOrder.order?.customer_name}</p>
-                    <p className="text-sm text-gray-500">{selectedOrder.order?.customer_email}</p>
+                  <h3 className="font-semibold text-foreground mb-3">Customer</h3>
+                  <div className="bg-background rounded-lg p-4">
+                    <p className="font-medium text-foreground">{selectedOrder.order?.customer_name}</p>
+                    <p className="text-sm text-(--color-text-muted)">{selectedOrder.order?.customer_email}</p>
                     {selectedOrder.order?.customer_phone && (
-                      <p className="text-sm text-gray-500">{selectedOrder.order.customer_phone}</p>
+                      <p className="text-sm text-(--color-text-muted)">{selectedOrder.order.customer_phone}</p>
                     )}
-                    <p className="text-sm text-gray-500 mt-2">
+                    <p className="text-sm text-(--color-text-muted) mt-2">
                       <strong>Delivery:</strong><br />
                       {selectedOrder.order?.delivery_address && `${selectedOrder.order.delivery_address}, `}
                       {selectedOrder.order?.delivery_city && `${selectedOrder.order.delivery_city}, `}
@@ -338,15 +338,15 @@ export default function VendorOrdersPage() {
 
                 {/* Order Items */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Items</h3>
+                  <h3 className="font-semibold text-foreground mb-3">Items</h3>
                   <div className="space-y-2">
                     {selectedOrder.items?.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <div key={item.id} className="flex items-center justify-between p-3 bg-background rounded-lg">
                         <div>
-                          <p className="font-medium text-gray-900">{item.product_name}</p>
-                          <p className="text-sm text-gray-500">Qty: {item.quantity} x {formatPrice(item.unit_price_pence)}</p>
+                          <p className="font-medium text-foreground">{item.product_name}</p>
+                          <p className="text-sm text-(--color-text-muted)">Qty: {item.quantity} x {formatPrice(item.unit_price_pence)}</p>
                         </div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-foreground">
                           {formatPrice(item.unit_price_pence * item.quantity)}
                         </p>
                       </div>
@@ -356,32 +356,32 @@ export default function VendorOrdersPage() {
 
                 {/* Order Summary */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Summary</h3>
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                  <h3 className="font-semibold text-foreground mb-3">Summary</h3>
+                  <div className="bg-background rounded-lg p-4 space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Order Total</span>
+                      <span className="text-(--color-text-muted)">Order Total</span>
                       <span className="font-medium">{formatPrice(selectedOrder.total_amount)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-500">Platform Commission</span>
-                      <span className="font-medium text-red-600">-{formatPrice(selectedOrder.commission_amount)}</span>
+                      <span className="text-(--color-text-muted)">Platform Commission</span>
+                      <span className="font-medium text-(--color-error)">-{formatPrice(selectedOrder.commission_amount)}</span>
                     </div>
                     <div className="border-t pt-2 flex justify-between">
-                      <span className="font-semibold text-gray-900">Your Earnings</span>
-                      <span className="font-bold text-emerald-600">{formatPrice(selectedOrder.vendor_amount)}</span>
+                      <span className="font-semibold text-foreground">Your Earnings</span>
+                      <span className="font-bold text-(--brand-primary)">{formatPrice(selectedOrder.vendor_amount)}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Order Milestone Tracker */}
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-4">Order Progress</h3>
+                  <h3 className="font-semibold text-foreground mb-4">Order Progress</h3>
                   {selectedOrder.status === 'cancelled' ? (
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
-                      <XCircle className="h-6 w-6 text-red-500" />
+                    <div className="bg-(--color-error-bg) border border-(--color-border) rounded-xl p-4 flex items-center gap-3">
+                      <XCircle className="h-6 w-6 text-(--color-error)" />
                       <div>
-                        <p className="font-semibold text-red-700">Order Cancelled</p>
-                        <p className="text-sm text-red-600">This order has been cancelled and cannot be updated.</p>
+                        <p className="font-semibold text-(--color-error)">Order Cancelled</p>
+                        <p className="text-sm text-(--color-error)">This order has been cancelled and cannot be updated.</p>
                       </div>
                     </div>
                   ) : (
@@ -411,15 +411,15 @@ export default function VendorOrdersPage() {
                               return (
                                 <div key={milestone.key}>
                                   <div className={`flex items-center gap-4 p-3 rounded-xl transition-all ${
-                                    isCurrent ? 'bg-emerald-50 border border-emerald-200' :
-                                    isNext ? 'bg-blue-50/50 border border-blue-100' :
+                                    isCurrent ? 'bg-(--brand-primary-light) border border-(--brand-primary)/20' :
+                                    isNext ? 'bg-(--color-info-bg)/50 border border-blue-100' :
                                     ''
                                   }`}>
                                     {/* Step indicator */}
                                     <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                                      isCompleted ? 'bg-emerald-500 text-white' :
-                                      isNext ? 'bg-blue-100 text-blue-600 border-2 border-blue-300' :
-                                      'bg-gray-100 text-gray-400'
+                                      isCompleted ? 'bg-(--brand-primary) text-white' :
+                                      isNext ? 'bg-(--color-info-bg) text-(--color-info) border-2 border-(--color-border)' :
+                                      'bg-(--color-elevated) text-(--color-text-disabled)'
                                     }`}>
                                       {isCompleted ? (
                                         <CheckCircle className="h-5 w-5" />
@@ -431,21 +431,21 @@ export default function VendorOrdersPage() {
                                     {/* Step content */}
                                     <div className="flex-1">
                                       <p className={`font-semibold text-sm ${
-                                        isCompleted ? 'text-emerald-700' :
-                                        isNext ? 'text-blue-700' :
-                                        'text-gray-400'
+                                        isCompleted ? 'text-(--brand-primary)' :
+                                        isNext ? 'text-(--color-info)' :
+                                        'text-(--color-text-disabled)'
                                       }`}>
                                         {milestone.label}
                                         {isCurrent && (
-                                          <span className="ml-2 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                                          <span className="ml-2 text-xs bg-(--brand-primary-light) text-(--brand-primary) px-2 py-0.5 rounded-full">
                                             Current
                                           </span>
                                         )}
                                       </p>
                                       <p className={`text-xs ${
-                                        isCompleted ? 'text-emerald-600' :
-                                        isNext ? 'text-blue-600' :
-                                        'text-gray-400'
+                                        isCompleted ? 'text-(--brand-primary)' :
+                                        isNext ? 'text-(--color-info)' :
+                                        'text-(--color-text-disabled)'
                                       }`}>
                                         {milestone.description}
                                       </p>
@@ -457,7 +457,7 @@ export default function VendorOrdersPage() {
                                         size="sm"
                                         onClick={() => updateOrderStatus(selectedOrder.id, milestone.key)}
                                         disabled={updatingStatus === selectedOrder.id}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white shrink-0"
+                                        className="bg-(--color-info) hover:bg-(--color-info) text-white shrink-0"
                                       >
                                         {updatingStatus === selectedOrder.id ? (
                                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -475,7 +475,7 @@ export default function VendorOrdersPage() {
                                   {index < milestones.length - 1 && (
                                     <div className="ml-[1.15rem] h-4 flex items-center">
                                       <div className={`w-0.5 h-full ${
-                                        milestoneIndex < currentIndex ? 'bg-emerald-400' : 'bg-gray-200'
+                                        milestoneIndex < currentIndex ? 'bg-(--brand-primary)' : 'bg-(--color-border)'
                                       }`} />
                                     </div>
                                   )}
@@ -488,7 +488,7 @@ export default function VendorOrdersPage() {
 
                       {/* Cancel Order Button */}
                       {selectedOrder.status !== 'delivered' && selectedOrder.status !== 'shipped' && (
-                        <div className="mt-4 pt-4 border-t border-gray-200">
+                        <div className="mt-4 pt-4 border-t border-(--color-border)">
                           <Button
                             variant="outline"
                             size="sm"
@@ -498,7 +498,7 @@ export default function VendorOrdersPage() {
                               }
                             }}
                             disabled={updatingStatus === selectedOrder.id}
-                            className="text-red-600 border-red-200 hover:bg-red-50"
+                            className="text-(--color-error) border-(--color-border) hover:bg-(--color-error-bg)"
                           >
                             <XCircle className="h-4 w-4 mr-1" />
                             Cancel Order
@@ -517,41 +517,41 @@ export default function VendorOrdersPage() {
       {/* Printable Invoice */}
       {selectedOrder && (
         <div ref={invoiceRef} className="print-invoice hidden print:block">
-          <div className="max-w-3xl mx-auto p-8 bg-white">
+          <div className="max-w-3xl mx-auto p-8 bg-(--color-surface)">
             {/* Invoice Header */}
-            <div className="flex justify-between items-start mb-8 pb-6 border-b-2 border-gray-200">
+            <div className="flex justify-between items-start mb-8 pb-6 border-b-2 border-(--color-border)">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">INVOICE</h1>
-                <p className="text-gray-500 mt-1">#{selectedOrder.order_number}</p>
+                <h1 className="text-3xl font-bold text-foreground">INVOICE</h1>
+                <p className="text-(--color-text-muted) mt-1">#{selectedOrder.order_number}</p>
               </div>
               <div className="text-right">
-                <h2 className="text-xl font-bold text-emerald-600">FreshMart</h2>
-                <p className="text-sm text-gray-500">UK Grocery Store</p>
-                <p className="text-sm text-gray-500">VAT: GB123456789</p>
+                <h2 className="text-xl font-bold text-(--brand-primary)">UK Grocery</h2>
+                <p className="text-sm text-(--color-text-muted)">UK Grocery Store</p>
+                <p className="text-sm text-(--color-text-muted)">VAT: GB123456789</p>
               </div>
             </div>
 
             {/* Invoice Info */}
             <div className="grid grid-cols-2 gap-8 mb-8">
               <div>
-                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Bill To</h3>
-                <p className="font-semibold text-gray-900">{selectedOrder.order?.customer_name}</p>
-                <p className="text-sm text-gray-600">{selectedOrder.order?.customer_email}</p>
+                <h3 className="text-sm font-semibold text-(--color-text-muted) uppercase mb-2">Bill To</h3>
+                <p className="font-semibold text-foreground">{selectedOrder.order?.customer_name}</p>
+                <p className="text-sm text-(--color-text-secondary)">{selectedOrder.order?.customer_email}</p>
                 {selectedOrder.order?.customer_phone && (
-                  <p className="text-sm text-gray-600">{selectedOrder.order.customer_phone}</p>
+                  <p className="text-sm text-(--color-text-secondary)">{selectedOrder.order.customer_phone}</p>
                 )}
-                <p className="text-sm text-gray-600 mt-2">
+                <p className="text-sm text-(--color-text-secondary) mt-2">
                   {selectedOrder.order?.delivery_address && `${selectedOrder.order.delivery_address}`}<br />
                   {selectedOrder.order?.delivery_city && `${selectedOrder.order.delivery_city}`}<br />
                   {selectedOrder.order?.delivery_postcode}
                 </p>
               </div>
               <div className="text-right">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase mb-2">Invoice Details</h3>
+                <h3 className="text-sm font-semibold text-(--color-text-muted) uppercase mb-2">Invoice Details</h3>
                 <div className="space-y-1 text-sm">
-                  <p><span className="text-gray-500">Invoice Date:</span> <span className="font-medium">{new Date(selectedOrder.created_at).toLocaleDateString('en-GB')}</span></p>
-                  <p><span className="text-gray-500">Order Date:</span> <span className="font-medium">{new Date(selectedOrder.created_at).toLocaleDateString('en-GB')}</span></p>
-                  <p><span className="text-gray-500">Status:</span> <span className="font-medium capitalize">{selectedOrder.status}</span></p>
+                  <p><span className="text-(--color-text-muted)">Invoice Date:</span> <span className="font-medium">{new Date(selectedOrder.created_at).toLocaleDateString('en-GB')}</span></p>
+                  <p><span className="text-(--color-text-muted)">Order Date:</span> <span className="font-medium">{new Date(selectedOrder.created_at).toLocaleDateString('en-GB')}</span></p>
+                  <p><span className="text-(--color-text-muted)">Status:</span> <span className="font-medium capitalize">{selectedOrder.status}</span></p>
                 </div>
               </div>
             </div>
@@ -559,53 +559,53 @@ export default function VendorOrdersPage() {
             {/* Items Table */}
             <table className="w-full mb-8">
               <thead>
-                <tr className="border-b-2 border-gray-200">
-                  <th className="text-left py-3 text-sm font-semibold text-gray-600">Item</th>
-                  <th className="text-center py-3 text-sm font-semibold text-gray-600">Qty</th>
-                  <th className="text-right py-3 text-sm font-semibold text-gray-600">Unit Price</th>
-                  <th className="text-right py-3 text-sm font-semibold text-gray-600">Total</th>
+                <tr className="border-b-2 border-(--color-border)">
+                  <th className="text-left py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Item</th>
+                  <th className="text-center py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Qty</th>
+                  <th className="text-right py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Unit Price</th>
+                  <th className="text-right py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Total</th>
                 </tr>
               </thead>
               <tbody>
                 {selectedOrder.items?.map((item, index) => (
-                  <tr key={item.id} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
-                    <td className="py-3 px-2 text-sm text-gray-900">{item.product_name}</td>
-                    <td className="py-3 px-2 text-sm text-gray-600 text-center">{item.quantity}</td>
-                    <td className="py-3 px-2 text-sm text-gray-600 text-right">{formatPrice(item.unit_price_pence)}</td>
-                    <td className="py-3 px-2 text-sm font-medium text-gray-900 text-right">{formatPrice(item.unit_price_pence * item.quantity)}</td>
+                  <tr key={item.id} className={index % 2 === 0 ? 'bg-background' : ''}>
+                    <td className="py-3 px-2 text-sm text-foreground">{item.product_name}</td>
+                    <td className="py-3 px-2 text-sm text-(--color-text-secondary) text-center">{item.quantity}</td>
+                    <td className="py-3 px-2 text-sm text-(--color-text-secondary) text-right">{formatPrice(item.unit_price_pence)}</td>
+                    <td className="py-3 px-2 text-sm font-medium text-foreground text-right">{formatPrice(item.unit_price_pence * item.quantity)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
 
             {/* Totals */}
-            <div className="border-t-2 border-gray-200 pt-4">
+            <div className="border-t-2 border-(--color-border) pt-4">
               <div className="flex justify-end">
                 <div className="w-64 space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Subtotal</span>
+                    <span className="text-(--color-text-muted)">Subtotal</span>
                     <span className="font-medium">{formatPrice(selectedOrder.total_amount)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Delivery</span>
+                    <span className="text-(--color-text-muted)">Delivery</span>
                     <span className="font-medium">Free</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">VAT (20%)</span>
+                    <span className="text-(--color-text-muted)">VAT (20%)</span>
                     <span className="font-medium">{formatPrice(Math.round(selectedOrder.total_amount * 0.2))}</span>
                   </div>
-                  <div className="flex justify-between pt-2 border-t border-gray-200">
-                    <span className="font-bold text-gray-900">Total</span>
-                    <span className="font-bold text-xl text-gray-900">{formatPrice(selectedOrder.total_amount)}</span>
+                  <div className="flex justify-between pt-2 border-t border-(--color-border)">
+                    <span className="font-bold text-foreground">Total</span>
+                    <span className="font-bold text-xl text-foreground">{formatPrice(selectedOrder.total_amount)}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="mt-12 pt-6 border-t border-gray-200 text-center text-sm text-gray-500">
+            <div className="mt-12 pt-6 border-t border-(--color-border) text-center text-sm text-(--color-text-muted)">
               <p>Thank you for your order!</p>
-              <p className="mt-2">For questions, contact support@freshmart.co.uk</p>
+              <p className="mt-2">For questions, contact support@ukgrocerystore.com</p>
               <p className="mt-4 text-xs">This is a computer-generated invoice and does not require a signature.</p>
             </div>
           </div>

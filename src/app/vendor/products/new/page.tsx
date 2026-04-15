@@ -18,6 +18,8 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { BarcodeGenerator } from '@/components/barcode/BarcodeGenerator'
+import { BarcodeScanner } from '@/components/barcode/BarcodeScanner'
 import { Label } from '@/components/ui/label'
 
 interface Category {
@@ -31,6 +33,7 @@ export default function NewVendorProductPage() {
   const [loading, setLoading] = useState(false)
   const [categories, setCategories] = useState<Category[]>([])
   const [images, setImages] = useState<string[]>([])
+  const [scannerOpen, setScannerOpen] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -151,8 +154,8 @@ export default function NewVendorProductPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Add New Product</h1>
-          <p className="text-gray-600">Create a new product listing</p>
+          <h1 className="text-2xl font-bold text-foreground">Add New Product</h1>
+          <p className="text-(--color-text-secondary)">Create a new product listing</p>
         </div>
       </div>
 
@@ -161,12 +164,12 @@ export default function NewVendorProductPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
             {/* Basic Info */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-emerald-100 rounded-lg">
-                  <Package className="h-5 w-5 text-emerald-600" />
+                <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+                  <Package className="h-5 w-5 text-(--brand-primary)" />
                 </div>
-                <h2 className="font-semibold text-gray-900">Basic Information</h2>
+                <h2 className="font-semibold text-foreground">Basic Information</h2>
               </div>
 
               <div className="space-y-4">
@@ -189,7 +192,7 @@ export default function NewVendorProductPage() {
                     value={formData.description}
                     onChange={(e) => updateField('description', e.target.value)}
                     rows={4}
-                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                     placeholder="Describe your product..."
                   />
                 </div>
@@ -200,7 +203,7 @@ export default function NewVendorProductPage() {
                     id="category"
                     value={formData.category_id}
                     onChange={(e) => updateField('category_id', e.target.value)}
-                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                     required
                   >
                     <option value="">Select a category</option>
@@ -213,34 +216,34 @@ export default function NewVendorProductPage() {
             </div>
 
             {/* Images */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <ImageIcon className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-(--color-info-bg) rounded-lg">
+                  <ImageIcon className="h-5 w-5 text-(--color-info)" />
                 </div>
-                <h2 className="font-semibold text-gray-900">Images</h2>
+                <h2 className="font-semibold text-foreground">Images</h2>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {images.map((url, index) => (
-                  <div key={index} className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden group">
+                  <div key={index} className="relative aspect-square bg-(--color-elevated) rounded-lg overflow-hidden group">
                     <img src={url} alt="" className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removeImage(index)}
-                      className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-2 right-2 p-1 bg-(--color-error) text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X className="h-4 w-4" />
                     </button>
                     {index === 0 && (
-                      <span className="absolute bottom-2 left-2 px-2 py-1 bg-emerald-600 text-white text-xs rounded">
+                      <span className="absolute bottom-2 left-2 px-2 py-1 bg-(--brand-primary) text-white text-xs rounded">
                         Main
                       </span>
                     )}
                   </div>
                 ))}
                 <label
-                  className={`aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-2 hover:border-emerald-500 hover:bg-emerald-50 transition-colors cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
+                  className={`aspect-square border-2 border-dashed border-(--color-border) rounded-lg flex flex-col items-center justify-center gap-2 hover:border-(--brand-primary) hover:bg-(--brand-primary-light) transition-colors cursor-pointer ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
                 >
                   <input
                     type="file"
@@ -250,25 +253,25 @@ export default function NewVendorProductPage() {
                     disabled={uploading}
                   />
                   {uploading ? (
-                    <Loader2 className="h-6 w-6 text-emerald-500 animate-spin" />
+                    <Loader2 className="h-6 w-6 text-(--brand-primary) animate-spin" />
                   ) : (
-                    <Upload className="h-6 w-6 text-gray-400" />
+                    <Upload className="h-6 w-6 text-(--color-text-disabled)" />
                   )}
-                  <span className="text-sm text-gray-500">{uploading ? 'Uploading...' : 'Upload Image'}</span>
+                  <span className="text-sm text-(--color-text-muted)">{uploading ? 'Uploading...' : 'Upload Image'}</span>
                 </label>
               </div>
-              <p className="mt-3 text-sm text-gray-500">
+              <p className="mt-3 text-sm text-(--color-text-muted)">
                 First image will be used as the main product image
               </p>
             </div>
 
             {/* Pricing */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <DollarSign className="h-5 w-5 text-purple-600" />
+                <div className="p-2 bg-(--color-info-bg) rounded-lg">
+                  <DollarSign className="h-5 w-5 text-(--color-info)" />
                 </div>
-                <h2 className="font-semibold text-gray-900">Pricing</h2>
+                <h2 className="font-semibold text-foreground">Pricing</h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -305,7 +308,7 @@ export default function NewVendorProductPage() {
                     id="unit"
                     value={formData.unit}
                     onChange={(e) => updateField('unit', e.target.value)}
-                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
                   >
                     <option value="each">Each</option>
                     <option value="kg">Per kg</option>
@@ -331,12 +334,12 @@ export default function NewVendorProductPage() {
             </div>
 
             {/* Inventory */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Tag className="h-5 w-5 text-orange-600" />
+                <div className="p-2 bg-(--color-warning-bg) rounded-lg">
+                  <Tag className="h-5 w-5 text-(--brand-amber)" />
                 </div>
-                <h2 className="font-semibold text-gray-900">Inventory</h2>
+                <h2 className="font-semibold text-foreground">Inventory</h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -352,14 +355,52 @@ export default function NewVendorProductPage() {
                 </div>
                 <div>
                   <Label htmlFor="barcode">Barcode</Label>
-                  <Input
-                    id="barcode"
-                    value={formData.barcode}
-                    onChange={(e) => updateField('barcode', e.target.value)}
-                    className="mt-1"
-                    placeholder="UPC, EAN, etc."
-                  />
+                  <div className="flex gap-2 mt-1">
+                    <Input
+                      id="barcode"
+                      value={formData.barcode}
+                      onChange={(e) => updateField('barcode', e.target.value)}
+                      className="flex-1"
+                      placeholder="UPC, EAN, etc."
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setScannerOpen(true)}
+                      className="shrink-0 h-10 px-3 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-secondary) hover:bg-(--color-elevated) transition-colors text-xs font-medium"
+                    >
+                      📷 Scan
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const res = await fetch(`/api/barcode/generate?productId=${Date.now()}`)
+                          const data = await res.json()
+                          if (data.barcode) updateField('barcode', data.barcode)
+                        } catch {}
+                      }}
+                      className="shrink-0 h-10 px-3 rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-text-secondary) hover:bg-(--color-elevated) transition-colors text-xs font-medium"
+                    >
+                      Generate
+                    </button>
+                  </div>
+                  {formData.barcode && (
+                    <div className="mt-2">
+                      <BarcodeGenerator value={formData.barcode} format="CODE128" height={50} showValue />
+                    </div>
+                  )}
                 </div>
+
+                {/* Barcode Scanner Modal */}
+                {scannerOpen && (
+                  <BarcodeScanner
+                    onScan={(code) => {
+                      updateField('barcode', code)
+                      setScannerOpen(false)
+                    }}
+                    onClose={() => setScannerOpen(false)}
+                  />
+                )}
                 <div>
                   <Label htmlFor="stock_quantity">Stock Quantity *</Label>
                   <Input
@@ -390,12 +431,12 @@ export default function NewVendorProductPage() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Dietary Info */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Info className="h-5 w-5 text-green-600" />
+                <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+                  <Info className="h-5 w-5 text-(--brand-primary)" />
                 </div>
-                <h2 className="font-semibold text-gray-900">Dietary Info</h2>
+                <h2 className="font-semibold text-foreground">Dietary Info</h2>
               </div>
 
               <div className="space-y-3">
@@ -410,20 +451,20 @@ export default function NewVendorProductPage() {
                       type="checkbox"
                       checked={formData[key as keyof typeof formData] as boolean}
                       onChange={(e) => updateField(key, e.target.checked)}
-                      className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                      className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
                     />
-                    <span className="text-gray-700">{label}</span>
+                    <span className="text-foreground">{label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             {/* Actions */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
+            <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-emerald-600 hover:bg-emerald-700"
+                className="w-full bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
               >
                 {loading ? (
                   <>

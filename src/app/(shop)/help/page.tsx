@@ -18,6 +18,7 @@ import {
   Mail,
   Clock,
 } from 'lucide-react'
+import { cn } from '@/lib/utils/cn'
 
 interface FAQItem {
   question: string
@@ -53,7 +54,7 @@ const faqCategories: FAQCategory[] = [
       },
       {
         question: 'Is there a minimum order value?',
-        answer: 'The minimum order value is £15 for delivery. There is no minimum for click and collect orders.'
+        answer: 'The minimum order value is \u00a315 for delivery. There is no minimum for click and collect orders.'
       },
       {
         question: 'How do I apply a discount code?',
@@ -69,7 +70,7 @@ const faqCategories: FAQCategory[] = [
     faqs: [
       {
         question: 'What are your delivery options?',
-        answer: 'We offer Standard Delivery (2-3 business days, £3.99), Express Delivery (next business day, £6.99), and Same Day Delivery for orders placed before 12pm (£9.99). Free standard delivery on orders over £50.'
+        answer: 'We offer Standard Delivery (2-3 business days, \u00a33.99), Express Delivery (next business day, \u00a36.99), and Same Day Delivery for orders placed before 12pm (\u00a39.99). Free standard delivery on orders over \u00a350.'
       },
       {
         question: 'Do you deliver to my area?',
@@ -207,7 +208,6 @@ export default function HelpPage() {
     setExpandedQuestions(newExpanded)
   }
 
-  // Filter FAQs based on search
   const filteredCategories = searchQuery
     ? faqCategories.map(category => ({
         ...category,
@@ -222,34 +222,43 @@ export default function HelpPage() {
   const totalResults = filteredCategories.reduce((sum, cat) => sum + cat.faqs.length, 0)
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-(--color-background)">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+      <div className="bg-(--color-surface) border-b border-(--color-border)">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-4">
-              <HelpCircle className="w-8 h-8" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-(--brand-primary)/10 rounded-2xl mb-4">
+              <HelpCircle className="w-8 h-8 text-(--brand-primary)" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-3">Help Center</h1>
-            <p className="text-blue-100 max-w-2xl mx-auto mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3">
+              Help Centre
+            </h1>
+            <p className="text-(--color-text-secondary) max-w-2xl mx-auto mb-8">
               Find answers to common questions or get in touch with our support team
             </p>
 
             {/* Search */}
             <div className="max-w-xl mx-auto">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-text-muted)" />
                 <input
                   type="text"
                   placeholder="Search for answers..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  className={cn(
+                    'w-full pl-12 pr-4 py-3 rounded-lg',
+                    'bg-(--color-elevated) border border-(--color-border)',
+                    'text-foreground placeholder:text-(--color-text-muted)',
+                    'focus:outline-none focus:ring-2 focus:ring-(--brand-primary)/30',
+                    'focus:border-(--brand-primary)',
+                    'transition-all duration-(--duration-fast)'
+                  )}
                 />
               </div>
               {searchQuery && (
-                <p className="mt-3 text-blue-100 text-sm">
-                  Found {totalResults} result{totalResults !== 1 ? 's' : ''} for "{searchQuery}"
+                <p className="mt-3 text-(--color-text-secondary) text-sm">
+                  Found {totalResults} result{totalResults !== 1 ? 's' : ''} for &ldquo;{searchQuery}&rdquo;
                 </p>
               )}
             </div>
@@ -260,35 +269,41 @@ export default function HelpPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Quick Contact Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 -mt-8">
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mb-4">
-              <MessageCircle className="w-6 h-6 text-emerald-600" />
+          <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6 shadow-(--shadow-sm)">
+            <div className="w-12 h-12 bg-(--color-success)/10 rounded-lg flex items-center justify-center mb-4">
+              <MessageCircle className="w-6 h-6 text-(--color-success)" />
             </div>
-            <h3 className="font-semibold text-slate-900 mb-2">Live Chat</h3>
-            <p className="text-sm text-slate-500 mb-4">Chat with our support team for instant help</p>
-            <button className="text-emerald-600 font-medium text-sm hover:underline">
+            <h3 className="font-semibold text-foreground mb-2">Live Chat</h3>
+            <p className="text-sm text-(--color-text-muted) mb-4">
+              Chat with our support team for instant help
+            </p>
+            <button className="text-(--color-success) font-medium text-sm hover:underline">
               Start Chat
             </button>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
-              <Mail className="w-6 h-6 text-blue-600" />
+          <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6 shadow-(--shadow-sm)">
+            <div className="w-12 h-12 bg-(--brand-primary)/10 rounded-lg flex items-center justify-center mb-4">
+              <Mail className="w-6 h-6 text-(--brand-primary)" />
             </div>
-            <h3 className="font-semibold text-slate-900 mb-2">Email Support</h3>
-            <p className="text-sm text-slate-500 mb-4">Get a response within 24 hours</p>
-            <Link href="/contact" className="text-blue-600 font-medium text-sm hover:underline">
+            <h3 className="font-semibold text-foreground mb-2">Email Support</h3>
+            <p className="text-sm text-(--color-text-muted) mb-4">
+              Get a response within 24 hours
+            </p>
+            <Link href="/contact" className="text-(--brand-primary) font-medium text-sm hover:underline">
               Contact Us
             </Link>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-            <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
-              <Phone className="w-6 h-6 text-purple-600" />
+          <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6 shadow-(--shadow-sm)">
+            <div className="w-12 h-12 bg-(--brand-amber)/10 rounded-lg flex items-center justify-center mb-4">
+              <Phone className="w-6 h-6 text-(--brand-amber)" />
             </div>
-            <h3 className="font-semibold text-slate-900 mb-2">Phone Support</h3>
-            <p className="text-sm text-slate-500 mb-4">Mon-Fri, 9am-6pm GMT</p>
-            <a href="tel:+441onal234567890" className="text-purple-600 font-medium text-sm hover:underline">
+            <h3 className="font-semibold text-foreground mb-2">Phone Support</h3>
+            <p className="text-sm text-(--color-text-muted) mb-4">
+              Mon-Fri, 9am-6pm GMT
+            </p>
+            <a href="tel:08001234567" className="text-(--brand-amber) font-medium text-sm hover:underline">
               0800 123 4567
             </a>
           </div>
@@ -296,32 +311,35 @@ export default function HelpPage() {
 
         {/* FAQ Categories */}
         {searchQuery ? (
-          // Search Results View
+          /* Search Results View */
           <div className="space-y-6">
             {filteredCategories.length === 0 ? (
-              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                <Search className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-slate-900 mb-2">No results found</h3>
-                <p className="text-slate-500 mb-6">
+              <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-12 text-center">
+                <Search className="w-12 h-12 text-(--color-text-muted) mx-auto mb-4" />
+                <h3 className="font-semibold text-foreground mb-2">No results found</h3>
+                <p className="text-(--color-text-muted) mb-6">
                   Try different keywords or browse the categories below
                 </p>
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="text-emerald-600 font-medium hover:underline"
+                  className="text-(--brand-primary) font-medium hover:underline"
                 >
                   Clear search
                 </button>
               </div>
             ) : (
               filteredCategories.map((category) => (
-                <div key={category.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                  <div className="p-4 bg-slate-50 border-b border-slate-200">
+                <div
+                  key={category.id}
+                  className="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden"
+                >
+                  <div className="p-4 bg-(--color-elevated) border-b border-(--color-border)">
                     <div className="flex items-center gap-3">
-                      <div className="text-emerald-600">{category.icon}</div>
-                      <h3 className="font-semibold text-slate-900">{category.title}</h3>
+                      <div className="text-(--brand-primary)">{category.icon}</div>
+                      <h3 className="font-semibold text-foreground">{category.title}</h3>
                     </div>
                   </div>
-                  <div className="divide-y divide-slate-100">
+                  <div className="divide-y divide-(--color-border)">
                     {category.faqs.map((faq, index) => (
                       <div key={index} className="p-4">
                         <button
@@ -329,14 +347,15 @@ export default function HelpPage() {
                           className="w-full text-left flex items-start gap-3"
                         >
                           <ChevronDown
-                            className={`w-5 h-5 text-slate-400 mt-0.5 transition-transform flex-shrink-0 ${
-                              expandedQuestions.has(`${category.id}-${index}`) ? 'rotate-180' : ''
-                            }`}
+                            className={cn(
+                              'w-5 h-5 text-(--color-text-muted) mt-0.5 transition-transform shrink-0',
+                              expandedQuestions.has(`${category.id}-${index}`) && 'rotate-180'
+                            )}
                           />
-                          <span className="font-medium text-slate-900">{faq.question}</span>
+                          <span className="font-medium text-foreground">{faq.question}</span>
                         </button>
                         {expandedQuestions.has(`${category.id}-${index}`) && (
-                          <div className="mt-3 ml-8 text-slate-600 text-sm leading-relaxed">
+                          <div className="mt-3 ml-8 text-(--color-text-secondary) text-sm leading-relaxed">
                             {faq.answer}
                           </div>
                         )}
@@ -348,37 +367,50 @@ export default function HelpPage() {
             )}
           </div>
         ) : (
-          // Category View
+          /* Category View */
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Category List */}
             <div className="lg:col-span-1">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">Categories</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-4">Categories</h2>
               <div className="space-y-2">
                 {faqCategories.map((category) => (
                   <button
                     key={category.id}
                     onClick={() => setExpandedCategory(category.id)}
-                    className={`w-full text-left p-4 rounded-xl transition-colors ${
+                    className={cn(
+                      'w-full text-left p-4 rounded-xl transition-all duration-(--duration-fast)',
                       expandedCategory === category.id
-                        ? 'bg-emerald-50 border-2 border-emerald-200'
-                        : 'bg-white border border-slate-200 hover:border-emerald-200'
-                    }`}
+                        ? 'bg-(--brand-primary)/5 border-2 border-(--brand-primary)/30'
+                        : 'bg-(--color-surface) border border-(--color-border) hover:border-(--brand-primary)/30'
+                    )}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={expandedCategory === category.id ? 'text-emerald-600' : 'text-slate-400'}>
+                      <div className={
+                        expandedCategory === category.id
+                          ? 'text-(--brand-primary)'
+                          : 'text-(--color-text-muted)'
+                      }>
                         {category.icon}
                       </div>
                       <div className="flex-1">
-                        <h3 className={`font-medium ${
-                          expandedCategory === category.id ? 'text-emerald-700' : 'text-slate-900'
-                        }`}>
+                        <h3 className={cn(
+                          'font-medium',
+                          expandedCategory === category.id
+                            ? 'text-(--brand-dark)'
+                            : 'text-foreground'
+                        )}>
                           {category.title}
                         </h3>
-                        <p className="text-sm text-slate-500">{category.faqs.length} articles</p>
+                        <p className="text-sm text-(--color-text-muted)">
+                          {category.faqs.length} articles
+                        </p>
                       </div>
-                      <ChevronRight className={`w-5 h-5 ${
-                        expandedCategory === category.id ? 'text-emerald-600' : 'text-slate-300'
-                      }`} />
+                      <ChevronRight className={cn(
+                        'w-5 h-5',
+                        expandedCategory === category.id
+                          ? 'text-(--brand-primary)'
+                          : 'text-(--color-text-muted)'
+                      )} />
                     </div>
                   </button>
                 ))}
@@ -388,23 +420,27 @@ export default function HelpPage() {
             {/* FAQ Content */}
             <div className="lg:col-span-2">
               {expandedCategory && (
-                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <div className="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
                   {(() => {
                     const category = faqCategories.find(c => c.id === expandedCategory)
                     if (!category) return null
 
                     return (
                       <>
-                        <div className="p-6 bg-gradient-to-r from-emerald-50 to-green-50 border-b border-slate-200">
+                        <div className="p-6 bg-(--brand-primary)/5 border-b border-(--color-border)">
                           <div className="flex items-center gap-3">
-                            <div className="text-emerald-600">{category.icon}</div>
+                            <div className="text-(--brand-primary)">{category.icon}</div>
                             <div>
-                              <h2 className="text-xl font-semibold text-slate-900">{category.title}</h2>
-                              <p className="text-sm text-slate-500">{category.description}</p>
+                              <h2 className="text-xl font-semibold text-foreground">
+                                {category.title}
+                              </h2>
+                              <p className="text-sm text-(--color-text-muted)">
+                                {category.description}
+                              </p>
                             </div>
                           </div>
                         </div>
-                        <div className="divide-y divide-slate-100">
+                        <div className="divide-y divide-(--color-border)">
                           {category.faqs.map((faq, index) => (
                             <div key={index} className="p-6">
                               <button
@@ -412,14 +448,17 @@ export default function HelpPage() {
                                 className="w-full text-left flex items-start gap-3"
                               >
                                 <ChevronDown
-                                  className={`w-5 h-5 text-emerald-500 mt-0.5 transition-transform flex-shrink-0 ${
-                                    expandedQuestions.has(`${category.id}-${index}`) ? 'rotate-180' : ''
-                                  }`}
+                                  className={cn(
+                                    'w-5 h-5 text-(--brand-primary) mt-0.5 transition-transform shrink-0',
+                                    expandedQuestions.has(`${category.id}-${index}`) && 'rotate-180'
+                                  )}
                                 />
-                                <span className="font-medium text-slate-900">{faq.question}</span>
+                                <span className="font-medium text-foreground">
+                                  {faq.question}
+                                </span>
                               </button>
                               {expandedQuestions.has(`${category.id}-${index}`) && (
-                                <div className="mt-4 ml-8 text-slate-600 leading-relaxed">
+                                <div className="mt-4 ml-8 text-(--color-text-secondary) leading-relaxed">
                                   {faq.answer}
                                 </div>
                               )}
@@ -436,25 +475,37 @@ export default function HelpPage() {
         )}
 
         {/* Still Need Help Section */}
-        <div className="mt-12 bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-8 text-center text-white">
+        <div className="mt-12 bg-(--color-foreground) rounded-2xl p-8 text-center text-white">
           <h2 className="text-2xl font-bold mb-3">Still need help?</h2>
-          <p className="text-slate-300 mb-6 max-w-xl mx-auto">
-            Can't find what you're looking for? Our support team is here to help you with any questions.
+          <p className="text-white/60 mb-6 max-w-xl mx-auto">
+            Can&apos;t find what you&apos;re looking for? Our support team is here to help you with any questions.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-slate-900 rounded-xl font-medium hover:bg-slate-100 transition-colors"
+              className={cn(
+                'inline-flex items-center justify-center gap-2',
+                'px-6 py-3 bg-(--color-surface) text-(--color-foreground)',
+                'rounded-lg font-medium',
+                'hover:bg-(--color-surface)/90 transition-colors'
+              )}
             >
               <Mail className="w-5 h-5" />
               Contact Support
             </Link>
-            <button className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors">
+            <button
+              className={cn(
+                'inline-flex items-center justify-center gap-2',
+                'px-6 py-3 bg-(--brand-amber) text-white',
+                'rounded-lg font-medium',
+                'hover:brightness-110 transition-all'
+              )}
+            >
               <MessageCircle className="w-5 h-5" />
               Start Live Chat
             </button>
           </div>
-          <div className="mt-6 flex items-center justify-center gap-2 text-slate-400 text-sm">
+          <div className="mt-6 flex items-center justify-center gap-2 text-white/40 text-sm">
             <Clock className="w-4 h-4" />
             <span>Average response time: 2 hours</span>
           </div>

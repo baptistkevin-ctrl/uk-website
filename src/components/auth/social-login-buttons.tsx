@@ -51,13 +51,13 @@ export function SocialLoginButtons({ redirectTo, mode = 'login' }: SocialLoginBu
   return (
     <div className="space-y-3">
       {error && (
-        <p className="text-sm text-red-500 text-center">{error}</p>
+        <p className="text-sm text-(--color-error) text-center">{error}</p>
       )}
 
       <Button
         type="button"
         variant="outline"
-        className="w-full h-12 border-slate-200 hover:bg-slate-50 font-medium"
+        className="w-full h-12 border-(--color-border) hover:bg-background font-medium"
         onClick={() => handleSocialLogin('google')}
         disabled={loadingProvider !== null}
       >
@@ -89,7 +89,7 @@ export function SocialLoginButtons({ redirectTo, mode = 'login' }: SocialLoginBu
       <Button
         type="button"
         variant="outline"
-        className="w-full h-12 border-slate-200 hover:bg-slate-50 font-medium"
+        className="w-full h-12 border-(--color-border) hover:bg-background font-medium"
         onClick={() => handleSocialLogin('apple')}
         disabled={loadingProvider !== null}
       >
@@ -105,10 +105,10 @@ export function SocialLoginButtons({ redirectTo, mode = 'login' }: SocialLoginBu
 
       <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-slate-200" />
+          <div className="w-full border-t border-(--color-border)" />
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-4 bg-white text-gray-500">
+          <span className="px-4 bg-(--color-surface) text-(--color-text-muted)">
             or {mode === 'login' ? 'sign in' : 'sign up'} with email
           </span>
         </div>

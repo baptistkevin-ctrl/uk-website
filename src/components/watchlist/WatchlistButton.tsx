@@ -56,13 +56,13 @@ export function WatchlistButton({
     return (
       <button
         className={cn(
-          'rounded-full bg-white/90 shadow-sm transition-all hover:bg-white hover:shadow-md',
+          'rounded-full bg-(--color-surface)/90 shadow-sm transition-all hover:bg-(--color-surface) hover:shadow-md',
           buttonSizeClasses[size],
           className
         )}
         disabled
       >
-        <Eye className={cn(sizeClasses[size], 'text-gray-400')} />
+        <Eye className={cn(sizeClasses[size], 'text-(--color-text-disabled)')} />
       </button>
     )
   }
@@ -72,7 +72,7 @@ export function WatchlistButton({
       onClick={handleClick}
       disabled={isLoading}
       className={cn(
-        'rounded-full bg-white/90 shadow-sm transition-all hover:bg-white hover:shadow-md',
+        'rounded-full bg-(--color-surface)/90 shadow-sm transition-all hover:bg-(--color-surface) hover:shadow-md',
         'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
         buttonSizeClasses[size],
         className
@@ -81,7 +81,7 @@ export function WatchlistButton({
       title={isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
     >
       {isLoading ? (
-        <Loader2 className={cn(sizeClasses[size], 'animate-spin text-gray-400')} />
+        <Loader2 className={cn(sizeClasses[size], 'animate-spin text-(--color-text-disabled)')} />
       ) : isInWatchlist ? (
         <EyeOff
           className={cn(
@@ -95,7 +95,7 @@ export function WatchlistButton({
           className={cn(
             sizeClasses[size],
             'transition-colors',
-            'text-gray-400 hover:text-blue-500'
+            'text-(--color-text-disabled) hover:text-blue-500'
           )}
         />
       )}
@@ -139,10 +139,10 @@ export function WatchlistButtonInline({
       onClick={handleClick}
       disabled={isLoading}
       className={cn(
-        'flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors',
+        'flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors',
         isInWatchlist
           ? 'bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100'
-          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50',
+          : 'bg-(--color-surface) border-(--color-border) text-(--color-text-secondary) hover:bg-background',
         className
       )}
     >

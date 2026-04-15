@@ -586,17 +586,17 @@ export default function AdminProductsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-linear-to-r from-(--brand-dark) to-(--brand-dark) bg-clip-text text-transparent">
             Products
           </h1>
-          <p className="text-slate-500 mt-1">Manage your product catalog</p>
+          <p className="text-(--color-text-muted) mt-1">Manage your product catalog</p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           {/* Export Button */}
           <button
             onClick={handleExport}
             disabled={exporting || products.length === 0}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-(--color-info) text-white rounded-xl font-medium hover:bg-(--color-info) transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {exporting ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -618,7 +618,7 @@ export default function AdminProductsPage() {
             />
             <label
               htmlFor="import-file"
-              className={`inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-2 px-4 py-2.5 bg-(--color-info) text-white rounded-xl font-medium hover:bg-(--color-info) transition-all cursor-pointer ${
                 importing ? 'opacity-50 cursor-not-allowed' : ''
               }`}
             >
@@ -634,7 +634,7 @@ export default function AdminProductsPage() {
           {/* Template Download */}
           <button
             onClick={handleDownloadTemplate}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-(--color-elevated) text-foreground rounded-xl font-medium hover:bg-(--color-border) transition-all"
             title="Download import template"
           >
             <FileSpreadsheet className="w-4 h-4" />
@@ -644,7 +644,7 @@ export default function AdminProductsPage() {
           {/* Bulk Image Upload */}
           <button
             onClick={() => setShowBulkUploadModal(true)}
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-orange-600 text-white rounded-xl font-medium hover:bg-orange-700 transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-(--brand-amber) text-white rounded-xl font-medium hover:bg-orange-700 transition-all"
             title="Bulk upload images"
           >
             <ImagePlus className="w-4 h-4" />
@@ -654,7 +654,7 @@ export default function AdminProductsPage() {
           {/* Add Product */}
           <Link
             href="/admin/products/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-all shadow-lg shadow-(--shadow-green) hover:shadow-(--shadow-green)"
           >
             <Plus className="w-5 h-5" />
             Add Product
@@ -672,25 +672,25 @@ export default function AdminProductsPage() {
         ].map((stat, i) => (
           <div
             key={i}
-            className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
+            className="bg-(--color-surface) rounded-2xl p-5 shadow-sm border border-(--color-border) hover:shadow-md transition-shadow"
           >
             <div className="flex items-center gap-4">
               <div className={`p-3 rounded-xl ${
-                stat.color === 'emerald' ? 'bg-emerald-100' :
+                stat.color === 'emerald' ? 'bg-(--brand-primary-light)' :
                 stat.color === 'blue' ? 'bg-blue-100' :
-                stat.color === 'slate' ? 'bg-slate-100' :
+                stat.color === 'slate' ? 'bg-(--color-elevated)' :
                 'bg-amber-100'
               }`}>
                 <stat.icon className={`w-5 h-5 ${
-                  stat.color === 'emerald' ? 'text-emerald-600' :
-                  stat.color === 'blue' ? 'text-blue-600' :
-                  stat.color === 'slate' ? 'text-slate-600' :
-                  'text-amber-600'
+                  stat.color === 'emerald' ? 'text-(--brand-primary)' :
+                  stat.color === 'blue' ? 'text-(--color-info)' :
+                  stat.color === 'slate' ? 'text-(--color-text-secondary)' :
+                  'text-(--brand-amber)'
                 }`} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900">{loading ? '...' : stat.value}</p>
-                <p className="text-sm text-slate-500">{stat.label}</p>
+                <p className="text-2xl font-bold text-foreground">{loading ? '...' : stat.value}</p>
+                <p className="text-sm text-(--color-text-muted)">{stat.label}</p>
               </div>
             </div>
           </div>
@@ -698,17 +698,17 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Toolbar */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+      <div className="bg-(--color-surface) rounded-2xl p-4 shadow-sm border border-(--color-border)">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-text-disabled)" />
             <input
               type="text"
               placeholder="Search products by name or SKU..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-background border border-(--color-border) rounded-xl text-foreground placeholder:text-(--color-text-disabled) focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent transition-all"
             />
           </div>
 
@@ -720,14 +720,14 @@ export default function AdminProductsPage() {
                 onClick={() => setFilter(btn.key)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                   filter === btn.key
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-(--brand-primary) text-white shadow-lg shadow-(--shadow-green)'
+                    : 'bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border)'
                 }`}
               >
                 <btn.icon className="w-4 h-4" />
                 {btn.label}
                 <span className={`px-2 py-0.5 rounded-full text-xs ${
-                  filter === btn.key ? 'bg-white/20' : 'bg-slate-200'
+                  filter === btn.key ? 'bg-(--color-surface)/20' : 'bg-(--color-border)'
                 }`}>
                   {btn.count}
                 </span>
@@ -736,11 +736,11 @@ export default function AdminProductsPage() {
           </div>
 
           {/* View toggle */}
-          <div className="hidden lg:flex items-center gap-1 bg-slate-100 rounded-xl p-1">
+          <div className="hidden lg:flex items-center gap-1 bg-(--color-elevated) rounded-xl p-1">
             <button
               onClick={() => setViewMode('list')}
               className={`p-2.5 rounded-lg transition-all ${
-                viewMode === 'list' ? 'bg-white shadow text-emerald-600' : 'text-slate-500 hover:text-slate-900'
+                viewMode === 'list' ? 'bg-(--color-surface) shadow text-(--brand-primary)' : 'text-(--color-text-muted) hover:text-foreground'
               }`}
             >
               <List className="w-5 h-5" />
@@ -748,7 +748,7 @@ export default function AdminProductsPage() {
             <button
               onClick={() => setViewMode('grid')}
               className={`p-2.5 rounded-lg transition-all ${
-                viewMode === 'grid' ? 'bg-white shadow text-emerald-600' : 'text-slate-500 hover:text-slate-900'
+                viewMode === 'grid' ? 'bg-(--color-surface) shadow text-(--brand-primary)' : 'text-(--color-text-muted) hover:text-foreground'
               }`}
             >
               <Grid3X3 className="w-5 h-5" />
@@ -759,17 +759,17 @@ export default function AdminProductsPage() {
 
       {/* Bulk Actions Bar */}
       {selectedProducts.size > 0 && (
-        <div className="bg-slate-900 rounded-2xl p-4 shadow-lg flex items-center justify-between">
+        <div className="bg-(--brand-dark) rounded-2xl p-4 shadow-lg flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 text-white">
-              <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-bold">
+              <div className="w-8 h-8 bg-(--brand-primary) rounded-lg flex items-center justify-center font-bold">
                 {selectedProducts.size}
               </div>
               <span className="font-medium">product{selectedProducts.size > 1 ? 's' : ''} selected</span>
             </div>
             <button
               onClick={() => setSelectedProducts(new Set())}
-              className="text-slate-400 hover:text-white text-sm font-medium transition-colors"
+              className="text-(--color-text-disabled) hover:text-white text-sm font-medium transition-colors"
             >
               Clear selection
             </button>
@@ -778,7 +778,7 @@ export default function AdminProductsPage() {
             <button
               onClick={handleBulkDelete}
               disabled={bulkDeleting}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-(--color-error) text-white rounded-xl font-medium hover:bg-(--color-error) transition-colors disabled:opacity-50"
             >
               {bulkDeleting ? (
                 <>
@@ -799,22 +799,22 @@ export default function AdminProductsPage() {
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
-            <p className="text-slate-500">Loading products...</p>
+            <Loader2 className="w-10 h-10 text-(--brand-primary) animate-spin" />
+            <p className="text-(--color-text-muted)">Loading products...</p>
           </div>
         </div>
       ) : filteredProducts.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 shadow-sm border border-slate-100 text-center">
-          <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Package className="w-8 h-8 text-slate-400" />
+        <div className="bg-(--color-surface) rounded-2xl p-12 shadow-sm border border-(--color-border) text-center">
+          <div className="w-16 h-16 bg-(--color-elevated) rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Package className="w-8 h-8 text-(--color-text-disabled)" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">No products found</h3>
-          <p className="text-slate-500 mb-6">
+          <h3 className="text-lg font-semibold text-foreground mb-2">No products found</h3>
+          <p className="text-(--color-text-muted) mb-6">
             {searchQuery ? 'Try a different search term' : 'Get started by adding your first product'}
           </p>
           <Link
             href="/admin/products/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-colors"
           >
             <Plus className="w-5 h-5" />
             Add Product
@@ -826,10 +826,10 @@ export default function AdminProductsPage() {
           {paginatedProducts.map((product) => (
             <div
               key={product.id}
-              className={`group bg-white rounded-2xl shadow-sm border overflow-hidden hover:shadow-xl transition-all duration-300 ${selectedProducts.has(product.id) ? 'border-emerald-500 ring-2 ring-emerald-500/20' : 'border-slate-100'}`}
+              className={`group bg-(--color-surface) rounded-2xl shadow-sm border overflow-hidden hover:shadow-xl transition-all duration-300 ${selectedProducts.has(product.id) ? 'border-(--brand-primary) ring-2 ring-(--brand-primary)/20' : 'border-(--color-border)'}`}
             >
               {/* Image */}
-              <div className="relative aspect-square bg-slate-100">
+              <div className="relative aspect-square bg-(--color-elevated)">
                 {product.image_url ? (
                   <Image
                     src={product.image_url}
@@ -839,7 +839,7 @@ export default function AdminProductsPage() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <ShoppingBag className="w-16 h-16 text-slate-300" />
+                    <ShoppingBag className="w-16 h-16 text-(--color-text-disabled)" />
                   </div>
                 )}
                 {/* Checkbox */}
@@ -848,18 +848,18 @@ export default function AdminProductsPage() {
                     type="checkbox"
                     checked={selectedProducts.has(product.id)}
                     onChange={() => toggleProductSelection(product.id)}
-                    className="w-5 h-5 text-emerald-600 border-2 border-white rounded focus:ring-emerald-500 cursor-pointer shadow-lg"
+                    className="w-5 h-5 text-(--brand-primary) border-2 border-white rounded focus:ring-(--brand-primary) cursor-pointer shadow-lg"
                   />
                 </div>
                 {/* Badges */}
                 <div className="absolute top-3 left-10 flex flex-col gap-2">
                   {product.is_featured && (
-                    <span className="px-2.5 py-1 bg-amber-500 text-white text-xs font-semibold rounded-full flex items-center gap-1">
+                    <span className="px-2.5 py-1 bg-(--brand-amber) text-white text-xs font-semibold rounded-full flex items-center gap-1">
                       <Star className="w-3 h-3" fill="currentColor" /> Featured
                     </span>
                   )}
                   {!product.is_active && (
-                    <span className="px-2.5 py-1 bg-slate-900 text-white text-xs font-semibold rounded-full">
+                    <span className="px-2.5 py-1 bg-(--brand-dark) text-white text-xs font-semibold rounded-full">
                       Inactive
                     </span>
                   )}
@@ -868,35 +868,35 @@ export default function AdminProductsPage() {
                 <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Link
                     href={`/admin/products/${product.id}/edit`}
-                    className="p-2 bg-white rounded-xl shadow-lg hover:bg-emerald-50 transition-colors"
+                    className="p-2 bg-(--color-surface) rounded-xl shadow-lg hover:bg-(--brand-primary-light) transition-colors"
                   >
-                    <Pencil className="w-4 h-4 text-slate-600" />
+                    <Pencil className="w-4 h-4 text-(--color-text-secondary)" />
                   </Link>
                   <button
                     onClick={() => handleDelete(product.id)}
                     disabled={deleting === product.id}
-                    className="p-2 bg-white rounded-xl shadow-lg hover:bg-red-50 transition-colors disabled:opacity-50"
+                    className="p-2 bg-(--color-surface) rounded-xl shadow-lg hover:bg-(--color-error-bg) transition-colors disabled:opacity-50"
                   >
                     {deleting === product.id ? (
-                      <Loader2 className="w-4 h-4 text-slate-600 animate-spin" />
+                      <Loader2 className="w-4 h-4 text-(--color-text-secondary) animate-spin" />
                     ) : (
-                      <Trash2 className="w-4 h-4 text-slate-600" />
+                      <Trash2 className="w-4 h-4 text-(--color-text-secondary)" />
                     )}
                   </button>
                 </div>
               </div>
               {/* Info */}
               <div className="p-4">
-                <h3 className="font-semibold text-slate-900 truncate mb-1">{product.name}</h3>
-                {product.brand && <p className="text-sm text-slate-500 mb-2">{product.brand}</p>}
+                <h3 className="font-semibold text-foreground truncate mb-1">{product.name}</h3>
+                {product.brand && <p className="text-sm text-(--color-text-muted) mb-2">{product.brand}</p>}
                 <div className="flex items-center justify-between">
-                  <p className="text-lg font-bold text-emerald-600">{formatPrice(product.price_pence)}</p>
+                  <p className="text-lg font-bold text-(--brand-primary)">{formatPrice(product.price_pence)}</p>
                   <span className={`text-xs font-medium px-2 py-1 rounded-full ${
                     product.stock_quantity === 0
-                      ? 'bg-red-100 text-red-700'
+                      ? 'bg-(--color-error-bg) text-(--color-error)'
                       : product.stock_quantity <= product.low_stock_threshold
-                      ? 'bg-amber-100 text-amber-700'
-                      : 'bg-emerald-100 text-emerald-700'
+                      ? 'bg-(--brand-amber-soft) text-(--brand-amber)'
+                      : 'bg-(--brand-primary-light) text-(--brand-primary)'
                   }`}>
                     {product.stock_quantity} in stock
                   </span>
@@ -907,42 +907,42 @@ export default function AdminProductsPage() {
         </div>
       ) : (
         /* List View */
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="bg-(--color-surface) rounded-2xl shadow-sm border border-(--color-border) overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-100">
+                <tr className="bg-background border-b border-(--color-border)">
                   <th className="w-12 px-4 py-4">
                     <input
                       type="checkbox"
                       checked={isAllPageSelected}
                       onChange={toggleSelectAll}
-                      className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer"
+                      className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary) cursor-pointer"
                     />
                   </th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Product</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Vendor</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">SKU</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Price</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Stock</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Status</th>
-                  <th className="text-right px-6 py-4 text-sm font-semibold text-slate-600">Actions</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Product</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Vendor</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">SKU</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Price</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Stock</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Status</th>
+                  <th className="text-right px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-(--color-border)">
                 {paginatedProducts.map((product) => (
-                  <tr key={product.id} className={`hover:bg-slate-50 transition-colors ${selectedProducts.has(product.id) ? 'bg-emerald-50' : ''}`}>
+                  <tr key={product.id} className={`hover:bg-background transition-colors ${selectedProducts.has(product.id) ? 'bg-(--brand-primary-light)' : ''}`}>
                     <td className="px-4 py-4">
                       <input
                         type="checkbox"
                         checked={selectedProducts.has(product.id)}
                         onChange={() => toggleProductSelection(product.id)}
-                        className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer"
+                        className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary) cursor-pointer"
                       />
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0">
+                        <div className="w-14 h-14 rounded-xl overflow-hidden bg-(--color-elevated) shrink-0">
                           {product.image_url ? (
                             <Image
                               src={product.image_url}
@@ -953,15 +953,15 @@ export default function AdminProductsPage() {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <ShoppingBag className="w-6 h-6 text-slate-300" />
+                              <ShoppingBag className="w-6 h-6 text-(--color-text-disabled)" />
                             </div>
                           )}
                         </div>
                         <div>
-                          <p className="font-semibold text-slate-900">{product.name}</p>
-                          {product.brand && <p className="text-sm text-slate-500">{product.brand}</p>}
+                          <p className="font-semibold text-foreground">{product.name}</p>
+                          {product.brand && <p className="text-sm text-(--color-text-muted)">{product.brand}</p>}
                           {product.is_featured && (
-                            <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-medium mt-1">
+                            <span className="inline-flex items-center gap-1 text-xs text-(--brand-amber) font-medium mt-1">
                               <Star className="w-3 h-3" fill="currentColor" /> Featured
                             </span>
                           )}
@@ -969,16 +969,16 @@ export default function AdminProductsPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-slate-600">{product.vendors?.store_name || <span className="text-slate-400 italic">Platform</span>}</span>
+                      <span className="text-sm text-(--color-text-secondary)">{product.vendors?.store_name || <span className="text-(--color-text-disabled) italic">Platform</span>}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-slate-600 font-mono text-sm">{product.sku || '—'}</span>
+                      <span className="text-(--color-text-secondary) font-mono text-sm">{product.sku || '—'}</span>
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <span className="font-semibold text-slate-900">{formatPrice(product.price_pence)}</span>
+                        <span className="font-semibold text-foreground">{formatPrice(product.price_pence)}</span>
                         {product.compare_at_price_pence && product.compare_at_price_pence > product.price_pence && (
-                          <span className="text-sm text-slate-400 line-through ml-2">
+                          <span className="text-sm text-(--color-text-disabled) line-through ml-2">
                             {formatPrice(product.compare_at_price_pence)}
                           </span>
                         )}
@@ -988,24 +988,24 @@ export default function AdminProductsPage() {
                       {product.track_inventory ? (
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
                           product.stock_quantity === 0
-                            ? 'bg-red-100 text-red-700'
+                            ? 'bg-(--color-error-bg) text-(--color-error)'
                             : product.stock_quantity <= product.low_stock_threshold
-                            ? 'bg-amber-100 text-amber-700'
-                            : 'bg-slate-100 text-slate-700'
+                            ? 'bg-(--brand-amber-soft) text-(--brand-amber)'
+                            : 'bg-(--color-elevated) text-foreground'
                         }`}>
                           {product.stock_quantity === 0 && <XCircle className="w-3.5 h-3.5" />}
                           {product.stock_quantity > 0 && product.stock_quantity <= product.low_stock_threshold && <AlertTriangle className="w-3.5 h-3.5" />}
                           {product.stock_quantity} in stock
                         </span>
                       ) : (
-                        <span className="text-slate-400 text-sm">Not tracked</span>
+                        <span className="text-(--color-text-disabled) text-sm">Not tracked</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold ${
                         product.is_active
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-slate-100 text-slate-600'
+                          ? 'bg-(--brand-primary-light) text-(--brand-primary)'
+                          : 'bg-(--color-elevated) text-(--color-text-secondary)'
                       }`}>
                         {product.is_active ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
                         {product.is_active ? 'Active' : 'Inactive'}
@@ -1016,14 +1016,14 @@ export default function AdminProductsPage() {
                         <Link
                           href={`/products/${product.slug}`}
                           target="_blank"
-                          className="p-2.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors"
+                          className="p-2.5 text-(--color-text-muted) hover:text-(--brand-primary) hover:bg-(--brand-primary-light) rounded-xl transition-colors"
                           title="View product"
                         >
                           <Eye className="w-5 h-5" />
                         </Link>
                         <Link
                           href={`/admin/products/${product.id}/edit`}
-                          className="p-2.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-colors"
+                          className="p-2.5 text-(--color-text-muted) hover:text-(--color-info) hover:bg-(--color-info-bg) rounded-xl transition-colors"
                           title="Edit product"
                         >
                           <Pencil className="w-5 h-5" />
@@ -1031,7 +1031,7 @@ export default function AdminProductsPage() {
                         <button
                           onClick={() => handleDelete(product.id)}
                           disabled={deleting === product.id}
-                          className="p-2.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors disabled:opacity-50"
+                          className="p-2.5 text-(--color-text-muted) hover:text-(--color-error) hover:bg-(--color-error-bg) rounded-xl transition-colors disabled:opacity-50"
                           title="Delete product"
                         >
                           {deleting === product.id ? (
@@ -1052,13 +1052,13 @@ export default function AdminProductsPage() {
 
       {/* Pagination */}
       {!loading && filteredProducts.length > 0 && totalPages > 1 && (
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100">
+        <div className="bg-(--color-surface) rounded-2xl p-4 shadow-sm border border-(--color-border)">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             {/* Showing info */}
-            <div className="text-sm text-slate-600">
-              Showing <span className="font-semibold text-slate-900">{startIndex + 1}</span> to{' '}
-              <span className="font-semibold text-slate-900">{Math.min(endIndex, filteredProducts.length)}</span> of{' '}
-              <span className="font-semibold text-slate-900">{filteredProducts.length}</span> products
+            <div className="text-sm text-(--color-text-secondary)">
+              Showing <span className="font-semibold text-foreground">{startIndex + 1}</span> to{' '}
+              <span className="font-semibold text-foreground">{Math.min(endIndex, filteredProducts.length)}</span> of{' '}
+              <span className="font-semibold text-foreground">{filteredProducts.length}</span> products
             </div>
 
             {/* Page navigation */}
@@ -1067,7 +1067,7 @@ export default function AdminProductsPage() {
               <button
                 onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:hover:bg-slate-100"
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border) disabled:hover:bg-(--color-elevated)"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Previous
@@ -1082,10 +1082,10 @@ export default function AdminProductsPage() {
                     disabled={page === '...'}
                     className={`min-w-[40px] h-10 px-3 text-sm font-medium rounded-xl transition-colors ${
                       page === currentPage
-                        ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+                        ? 'bg-(--brand-primary) text-white shadow-lg shadow-(--shadow-green)'
                         : page === '...'
-                        ? 'bg-transparent text-slate-400 cursor-default'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-transparent text-(--color-text-disabled) cursor-default'
+                        : 'bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border)'
                     }`}
                   >
                     {page}
@@ -1094,7 +1094,7 @@ export default function AdminProductsPage() {
               </div>
 
               {/* Mobile page indicator */}
-              <div className="sm:hidden text-sm font-medium text-slate-600">
+              <div className="sm:hidden text-sm font-medium text-(--color-text-secondary)">
                 Page {currentPage} of {totalPages}
               </div>
 
@@ -1102,7 +1102,7 @@ export default function AdminProductsPage() {
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:hover:bg-slate-100"
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border) disabled:hover:bg-(--color-elevated)"
               >
                 Next
                 <ChevronRight className="w-4 h-4" />
@@ -1126,16 +1126,16 @@ export default function AdminProductsPage() {
       {/* Bulk Image Upload Modal */}
       {showBulkUploadModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-(--color-surface) rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-200">
+            <div className="flex items-center justify-between p-6 border-b border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-100 rounded-xl">
-                  <ImagePlus className="w-6 h-6 text-orange-600" />
+                <div className="p-2 bg-(--color-warning-bg) rounded-xl">
+                  <ImagePlus className="w-6 h-6 text-(--brand-amber)" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">Bulk Image Upload</h2>
-                  <p className="text-sm text-slate-500">Match images to products by filename</p>
+                  <h2 className="text-xl font-bold text-foreground">Bulk Image Upload</h2>
+                  <p className="text-sm text-(--color-text-muted)">Match images to products by filename</p>
                 </div>
               </div>
               <button
@@ -1143,7 +1143,7 @@ export default function AdminProductsPage() {
                   setShowBulkUploadModal(false)
                   setBulkUploadResults(null)
                 }}
-                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                className="p-2 text-(--color-text-disabled) hover:text-(--color-text-secondary) hover:bg-(--color-elevated) rounded-xl transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1152,7 +1152,7 @@ export default function AdminProductsPage() {
             {/* Modal Body */}
             <div className="p-6 space-y-6">
               {/* Instructions */}
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="bg-(--color-info-bg) border border-(--color-border) rounded-xl p-4">
                 <h3 className="font-semibold text-blue-900 mb-2">How it works:</h3>
                 <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
                   <li>Name your image files to match product names</li>
@@ -1166,21 +1166,21 @@ export default function AdminProductsPage() {
               <div className="text-center">
                 <label
                   htmlFor="bulk-image-input"
-                  className={`inline-flex items-center gap-3 px-6 py-4 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:border-orange-400 hover:bg-orange-50 transition-all ${
+                  className={`inline-flex items-center gap-3 px-6 py-4 border-2 border-dashed border-(--color-border) rounded-xl cursor-pointer hover:border-orange-400 hover:bg-(--color-warning-bg) transition-all ${
                     bulkUploading ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                 >
                   {bulkUploading ? (
                     <>
-                      <Loader2 className="w-8 h-8 text-orange-600 animate-spin" />
-                      <span className="text-slate-600 font-medium">Uploading images...</span>
+                      <Loader2 className="w-8 h-8 text-(--brand-amber) animate-spin" />
+                      <span className="text-(--color-text-secondary) font-medium">Uploading images...</span>
                     </>
                   ) : (
                     <>
-                      <Upload className="w-8 h-8 text-slate-400" />
+                      <Upload className="w-8 h-8 text-(--color-text-disabled)" />
                       <div className="text-left">
-                        <span className="text-slate-900 font-semibold block">Click to select images</span>
-                        <span className="text-sm text-slate-500">JPG, PNG, GIF, WebP</span>
+                        <span className="text-foreground font-semibold block">Click to select images</span>
+                        <span className="text-sm text-(--color-text-muted)">JPG, PNG, GIF, WebP</span>
                       </div>
                     </>
                   )}
@@ -1192,26 +1192,26 @@ export default function AdminProductsPage() {
                 <div className="space-y-4">
                   {/* Summary */}
                   <div className="flex gap-4">
-                    <div className="flex-1 bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center">
-                      <CheckCircle className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-emerald-700">{bulkUploadResults.matched}</p>
-                      <p className="text-sm text-emerald-600">Matched & Uploaded</p>
+                    <div className="flex-1 bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-xl p-4 text-center">
+                      <CheckCircle className="w-8 h-8 text-(--brand-primary) mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-(--brand-primary)">{bulkUploadResults.matched}</p>
+                      <p className="text-sm text-(--brand-primary)">Matched & Uploaded</p>
                     </div>
-                    <div className="flex-1 bg-red-50 border border-red-200 rounded-xl p-4 text-center">
-                      <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-red-700">{bulkUploadResults.notFound.length}</p>
-                      <p className="text-sm text-red-600">Not Matched</p>
+                    <div className="flex-1 bg-(--color-error-bg) border border-(--color-border) rounded-xl p-4 text-center">
+                      <AlertCircle className="w-8 h-8 text-(--color-error) mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-(--color-error)">{bulkUploadResults.notFound.length}</p>
+                      <p className="text-sm text-(--color-error)">Not Matched</p>
                     </div>
                   </div>
 
                   {/* Not found list */}
                   {bulkUploadResults.notFound.length > 0 && (
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                      <h4 className="font-semibold text-slate-900 mb-2">Files not matched:</h4>
-                      <ul className="text-sm text-slate-600 space-y-1 max-h-40 overflow-y-auto">
+                    <div className="bg-background border border-(--color-border) rounded-xl p-4">
+                      <h4 className="font-semibold text-foreground mb-2">Files not matched:</h4>
+                      <ul className="text-sm text-(--color-text-secondary) space-y-1 max-h-40 overflow-y-auto">
                         {bulkUploadResults.notFound.map((filename, i) => (
                           <li key={i} className="flex items-center gap-2">
-                            <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                            <XCircle className="w-4 h-4 text-(--color-error) shrink-0" />
                             {filename}
                           </li>
                         ))}
@@ -1223,13 +1223,13 @@ export default function AdminProductsPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-6 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+            <div className="p-6 border-t border-(--color-border) bg-background rounded-b-2xl">
               <button
                 onClick={() => {
                   setShowBulkUploadModal(false)
                   setBulkUploadResults(null)
                 }}
-                className="w-full py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-colors"
+                className="w-full py-3 bg-(--brand-dark) text-white rounded-xl font-medium hover:bg-(--brand-dark) transition-colors"
               >
                 Close
               </button>

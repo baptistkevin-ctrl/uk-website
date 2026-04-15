@@ -41,7 +41,7 @@ export function OrderChatButton({
       disabled={loading}
       className={
         className ||
-        'flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-50'
+        'flex items-center gap-2 px-3 py-2.5 text-xs font-medium text-(--brand-primary) bg-(--brand-primary-light) border border-(--brand-primary) rounded-lg hover:bg-(--brand-primary-light) transition-colors disabled:opacity-50'
       }
     >
       {loading ? (

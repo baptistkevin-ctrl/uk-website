@@ -26,7 +26,7 @@ import {
   MessageCircle,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
-import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/Spinner'
 
 const vendorNavItems = [
   { href: '/vendor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -99,8 +99,9 @@ export default function VendorLayout({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 bg-background">
+        <Spinner size="lg" />
+        <p className="text-sm text-(--color-text-muted)">Checking access...</p>
       </div>
     )
   }
@@ -111,42 +112,44 @@ export default function VendorLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Mobile sidebar toggle */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b px-4 py-3 flex items-center justify-between">
+    <div className="min-h-screen bg-background">
+      {/* Mobile top bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-(--z-sticky) bg-(--color-surface) border-b border-(--color-border) px-4 py-3 flex items-center justify-between">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-lg hover:bg-gray-100"
+          className="p-2 rounded-lg hover:bg-(--color-elevated) transition-colors duration-(--duration-fast)"
         >
-          {sidebarOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {sidebarOpen ? <X className="h-5 w-5 text-foreground" /> : <Menu className="h-5 w-5 text-foreground" />}
         </button>
         <Link href="/vendor/dashboard" className="flex items-center gap-2">
-          <Store className="h-6 w-6 text-emerald-600" />
-          <span className="font-bold text-gray-900">Vendor Portal</span>
+          <Store className="h-5 w-5 text-(--brand-primary)" />
+          <span className="font-display text-lg font-semibold text-(--brand-dark)">Vendor Portal</span>
         </Link>
         <div className="w-10" />
       </div>
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-(--z-overlay) w-64 bg-(--brand-dark) transform transition-transform duration-(--duration-base) ease-(--ease-premium) lg:translate-x-0 ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="h-full flex flex-col">
-          {/* Logo */}
-          <div className="p-6 border-b hidden lg:block">
-            <Link href="/vendor/dashboard" className="flex items-center gap-2">
-              <Store className="h-8 w-8 text-emerald-600" />
+          {/* Logo section */}
+          <div className="p-5 border-b border-white/10 hidden lg:block">
+            <Link href="/vendor/dashboard" className="flex items-center gap-3">
+              <div className="h-9 w-9 rounded-lg bg-(--color-surface)/15 backdrop-blur-sm flex items-center justify-center">
+                <Store className="h-4.5 w-4.5 text-white" />
+              </div>
               <div>
-                <span className="font-bold text-gray-900 block">Vendor Portal</span>
-                <span className="text-xs text-gray-500">{vendorData?.business_name}</span>
+                <span className="font-display text-base font-semibold text-white block">Vendor Portal</span>
+                <span className="text-xs text-white/50">{vendorData?.business_name}</span>
               </div>
             </Link>
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto mt-16 lg:mt-0">
+          <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto mt-16 lg:mt-0">
             {vendorNavItems.map((item) => {
               const isActive = pathname === item.href
               return (
@@ -154,53 +157,54 @@ export default function VendorLayout({
                   key={item.href}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-(--duration-fast) ${
                     isActive
-                      ? 'bg-emerald-50 text-emerald-700 font-medium'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      ? 'bg-(--color-surface)/15 text-white font-medium'
+                      : 'text-white/60 hover:bg-(--color-surface)/10 hover:text-white'
                   }`}
                 >
-                  <item.icon className="h-5 w-5" />
-                  {item.label}
+                  <item.icon className="h-4 w-4" />
+                  <span className="text-sm">{item.label}</span>
                 </Link>
               )
             })}
           </nav>
 
-          {/* Support Portal Link */}
-          <div className="p-4 border-t">
+          {/* Support section */}
+          <div className="px-3 py-3 border-t border-white/10">
             <Link
               href="/vendor/support"
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              onClick={() => setSidebarOpen(false)}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-(--duration-fast) ${
                 pathname === '/vendor/support'
-                  ? 'bg-emerald-50 text-emerald-700 font-medium'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  ? 'bg-(--color-surface)/15 text-white font-medium'
+                  : 'text-white/60 hover:bg-(--color-surface)/10 hover:text-white'
               }`}
             >
-              <HelpCircle className="h-5 w-5" />
-              Support Portal
+              <HelpCircle className="h-4 w-4" />
+              <span className="text-sm">Support Portal</span>
             </Link>
           </div>
 
           {/* Footer */}
-          <div className="p-4 border-t space-y-2">
+          <div className="px-3 py-3 border-t border-white/10 space-y-0.5">
             <Link
               href="/"
               target="_blank"
-              className="flex items-center justify-between px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors"
+              className="flex items-center justify-between px-3 py-2.5 text-white/60 hover:text-white rounded-lg transition-colors duration-(--duration-fast)"
             >
               <span className="flex items-center gap-3">
-                <Store className="h-5 w-5" />
-                View Store
+                <Store className="h-4 w-4" />
+                <span className="text-sm">View Store</span>
               </span>
-              <ExternalLink className="h-4 w-4" />
+              <ExternalLink className="h-3.5 w-3.5" />
             </Link>
             <button
               onClick={() => signOut()}
-              className="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-colors w-full"
+              className="flex items-center gap-3 px-3 py-2.5 text-white/60 hover:bg-(--color-error)/20 hover:text-(--color-error) rounded-lg transition-colors duration-(--duration-fast) w-full"
             >
-              <LogOut className="h-5 w-5" />
-              Sign Out
+              <LogOut className="h-4 w-4" />
+              <span className="text-sm">Sign Out</span>
             </button>
           </div>
         </div>
@@ -209,13 +213,13 @@ export default function VendorLayout({
       {/* Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-(--z-overlay) lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Main content */}
-      <main className="lg:ml-64 pt-16 lg:pt-0">
+      {/* Main content area */}
+      <main className="lg:ml-64 pt-16 lg:pt-0 bg-background min-h-screen">
         {children}
       </main>
     </div>

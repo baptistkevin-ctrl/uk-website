@@ -1,9 +1,8 @@
 import Link from 'next/link'
 import { Package, MapPin, Settings, ArrowRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { formatPrice, formatDate } from '@/lib/utils/format'
 
 export const dynamic = 'force-dynamic'
@@ -42,6 +41,8 @@ export default async function AccountPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'pending':
+        return 'warning'
       case 'confirmed':
       case 'processing':
         return 'info'
@@ -57,110 +58,114 @@ export default async function AccountPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="font-display text-2xl font-semibold text-foreground">
           Welcome back, {profile?.full_name || 'there'}!
         </h1>
-        <p className="text-gray-500 mt-1">{user?.email}</p>
+        <p className="text-(--color-text-muted) mt-1">{user?.email}</p>
       </div>
 
-      {/* Quick Links */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Quick Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Link href="/account/orders">
-          <Card className="hover:border-green-500 transition-colors cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-green-100 rounded-full">
-                  <Package className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Orders</p>
-                  <p className="text-sm text-gray-500">View order history</p>
-                </div>
+          <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-4 transition-colors hover:border-(--brand-primary) cursor-pointer">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 rounded-lg bg-(--brand-primary-light) flex items-center justify-center">
+                <Package className="h-5 w-5 text-(--brand-primary)" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="text-2xl font-semibold text-foreground">
+                  {recentOrders?.length ?? 0}
+                </p>
+                <p className="text-sm text-(--color-text-muted)">Orders</p>
+              </div>
+            </div>
+          </div>
         </Link>
 
         <Link href="/account/addresses">
-          <Card className="hover:border-green-500 transition-colors cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-blue-100 rounded-full">
-                  <MapPin className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Addresses</p>
-                  <p className="text-sm text-gray-500">{addressCount || 0} saved addresses</p>
-                </div>
+          <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-4 transition-colors hover:border-(--brand-primary) cursor-pointer">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 rounded-lg bg-(--brand-primary-light) flex items-center justify-center">
+                <MapPin className="h-5 w-5 text-(--brand-primary)" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="text-2xl font-semibold text-foreground">
+                  {addressCount || 0}
+                </p>
+                <p className="text-sm text-(--color-text-muted)">Addresses</p>
+              </div>
+            </div>
+          </div>
         </Link>
 
         <Link href="/account/settings">
-          <Card className="hover:border-green-500 transition-colors cursor-pointer">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-purple-100 rounded-full">
-                  <Settings className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">Settings</p>
-                  <p className="text-sm text-gray-500">Manage your account</p>
-                </div>
+          <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-4 transition-colors hover:border-(--brand-primary) cursor-pointer">
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 rounded-lg bg-(--brand-primary-light) flex items-center justify-center">
+                <Settings className="h-5 w-5 text-(--brand-primary)" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <p className="text-2xl font-semibold text-foreground">
+                  Manage
+                </p>
+                <p className="text-sm text-(--color-text-muted)">Settings</p>
+              </div>
+            </div>
+          </div>
         </Link>
       </div>
 
       {/* Recent Orders */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Recent Orders</CardTitle>
-          <Button variant="ghost" size="sm" asChild>
-            <Link href="/account/orders">
-              View All
-              <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
-        </CardHeader>
-        <CardContent>
-          {recentOrders && recentOrders.length > 0 ? (
-            <div className="space-y-4">
-              {recentOrders.map((order) => (
-                <div
-                  key={order.id}
-                  className="flex items-center justify-between py-3 border-b last:border-0"
-                >
-                  <div>
-                    <Link
-                      href={`/account/orders/${order.id}`}
-                      className="font-medium text-gray-900 hover:text-green-700"
-                    >
-                      {order.order_number}
-                    </Link>
-                    <p className="text-sm text-gray-500">{formatDate(order.created_at)}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">{formatPrice(order.total_pence)}</p>
-                    <Badge variant={getStatusColor(order.status) as 'default'}>
-                      {order.status.replace(/_/g, ' ')}
-                    </Badge>
-                  </div>
+      <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-foreground">Recent Orders</h2>
+          <Link
+            href="/account/orders"
+            className="text-sm text-(--brand-primary) hover:underline flex items-center gap-1"
+          >
+            View all
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        {recentOrders && recentOrders.length > 0 ? (
+          <div className="space-y-3">
+            {recentOrders.map((order) => (
+              <Link
+                key={order.id}
+                href={`/account/orders/${order.id}`}
+                className="rounded-lg border border-(--color-border) p-4 flex items-center justify-between hover:border-(--brand-primary) transition-colors"
+              >
+                <div>
+                  <p className="font-mono text-sm font-medium text-foreground">
+                    {order.order_number}
+                  </p>
+                  <p className="text-xs text-(--color-text-muted) mt-0.5">
+                    {formatDate(order.created_at)}
+                  </p>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500 mb-4">You haven't placed any orders yet.</p>
-              <Button asChild>
-                <Link href="/products">Start Shopping</Link>
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                <div className="flex items-center gap-3">
+                  <p className="font-mono font-semibold text-foreground">
+                    {formatPrice(order.total_pence)}
+                  </p>
+                  <Badge variant={getStatusColor(order.status) as 'default'}>
+                    {order.status.replace(/_/g, ' ')}
+                  </Badge>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-(--color-text-muted) mb-4">
+              You haven&apos;t placed any orders yet.
+            </p>
+            <Link href="/products">
+              <Button>Start Shopping</Button>
+            </Link>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

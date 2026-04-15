@@ -1,6 +1,9 @@
 // Authentication
 export { useAuth } from './use-auth'
 
+// Utilities
+export { useDebounce } from './use-debounce'
+
 // Cart
 export { useCart } from './use-cart'
 

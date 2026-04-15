@@ -128,12 +128,12 @@ function VerifyEmailPageContent() {
   // Verifying state
   if (status === 'verifying') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-emerald-600 mx-auto mb-6" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Verifying your email...</h1>
-            <p className="text-gray-600">Please wait while we verify your email address.</p>
+          <div className="bg-(--color-surface) rounded-2xl shadow-xl p-8 text-center">
+            <Loader2 className="h-12 w-12 animate-spin text-(--brand-primary) mx-auto mb-6" />
+            <h1 className="text-2xl font-bold text-foreground mb-2">Verifying your email...</h1>
+            <p className="text-(--color-text-secondary)">Please wait while we verify your email address.</p>
           </div>
         </div>
       </div>
@@ -143,19 +143,19 @@ function VerifyEmailPageContent() {
   // Success state
   if (status === 'success') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="h-8 w-8 text-emerald-600" />
+          <div className="bg-(--color-surface) rounded-2xl shadow-xl p-8 text-center">
+            <div className="w-16 h-16 bg-(--brand-primary-light) rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="h-8 w-8 text-(--brand-primary)" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Email verified!</h1>
-            <p className="text-gray-600 mb-6">
+            <h1 className="text-2xl font-bold text-foreground mb-2">Email verified!</h1>
+            <p className="text-(--color-text-secondary) mb-6">
               Your email has been verified successfully. You can now access all features.
             </p>
             <Link
               href="/"
-              className="inline-flex items-center justify-center w-full bg-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-emerald-700 transition-colors"
+              className="inline-flex items-center justify-center w-full bg-(--brand-primary) text-white py-3 px-4 rounded-lg font-medium hover:bg-(--brand-primary-hover) transition-colors"
             >
               Continue shopping
             </Link>
@@ -168,26 +168,26 @@ function VerifyEmailPageContent() {
   // Error state
   if (status === 'error') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <AlertCircle className="h-8 w-8 text-red-600" />
+          <div className="bg-(--color-surface) rounded-2xl shadow-xl p-8 text-center">
+            <div className="w-16 h-16 bg-(--color-error-bg) rounded-full flex items-center justify-center mx-auto mb-6">
+              <AlertCircle className="h-8 w-8 text-(--color-error)" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Verification failed</h1>
-            <p className="text-gray-600 mb-6">
+            <h1 className="text-2xl font-bold text-foreground mb-2">Verification failed</h1>
+            <p className="text-(--color-text-secondary) mb-6">
               {error || 'The verification link is invalid or has expired.'}
             </p>
             <div className="space-y-3">
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center w-full bg-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-emerald-700 transition-colors"
+                className="inline-flex items-center justify-center w-full bg-(--brand-primary) text-white py-3 px-4 rounded-lg font-medium hover:bg-(--brand-primary-hover) transition-colors"
               >
                 Go to login
               </Link>
               <Link
                 href="/register"
-                className="inline-flex items-center justify-center w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                className="inline-flex items-center justify-center w-full bg-background text-(--color-text-secondary) py-3 px-4 rounded-lg font-medium hover:bg-(--color-border) transition-colors"
               >
                 Create new account
               </Link>
@@ -200,18 +200,18 @@ function VerifyEmailPageContent() {
 
   // Pending state - waiting for verification
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Mail className="h-8 w-8 text-emerald-600" />
+        <div className="bg-(--color-surface) rounded-2xl shadow-xl p-8 text-center">
+          <div className="w-16 h-16 bg-(--brand-primary-light) rounded-full flex items-center justify-center mx-auto mb-6">
+            <Mail className="h-8 w-8 text-(--brand-primary)" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Verify your email</h1>
-          <p className="text-gray-600 mb-6">
+          <h1 className="text-2xl font-bold text-foreground mb-2">Verify your email</h1>
+          <p className="text-(--color-text-secondary) mb-6">
             {email ? (
               <>
                 We've sent a verification link to{' '}
-                <span className="font-medium text-gray-900">{email}</span>
+                <span className="font-medium text-foreground">{email}</span>
               </>
             ) : (
               'Please check your email for the verification link.'
@@ -220,22 +220,22 @@ function VerifyEmailPageContent() {
 
           {/* Resend success message */}
           {resendSuccess && (
-            <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-sm">
+            <div className="mb-6 p-4 bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-lg text-(--brand-primary) text-sm">
               Verification email sent! Check your inbox.
             </div>
           )}
 
           {/* Error message */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            <div className="mb-6 p-4 bg-(--color-error-bg) border border-(--color-error-border) rounded-lg text-(--color-error) text-sm">
               {error}
             </div>
           )}
 
           {/* Instructions */}
-          <div className="bg-gray-50 rounded-lg p-4 mb-6 text-left">
-            <h3 className="font-medium text-gray-900 mb-2">Next steps:</h3>
-            <ol className="text-sm text-gray-600 space-y-2">
+          <div className="bg-background rounded-lg p-4 mb-6 text-left">
+            <h3 className="font-medium text-foreground mb-2">Next steps:</h3>
+            <ol className="text-sm text-(--color-text-secondary) space-y-2">
               <li>1. Check your email inbox</li>
               <li>2. Click the verification link</li>
               <li>3. Start shopping!</li>
@@ -247,7 +247,7 @@ function VerifyEmailPageContent() {
             <button
               onClick={handleResendEmail}
               disabled={isResending}
-              className="inline-flex items-center justify-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-2 text-(--brand-primary) hover:text-(--brand-primary-hover) font-medium disabled:opacity-50"
             >
               {isResending ? (
                 <>
@@ -264,12 +264,12 @@ function VerifyEmailPageContent() {
           )}
 
           {/* Divider */}
-          <div className="my-6 border-t border-gray-200"></div>
+          <div className="my-6 border-t border-(--color-border)"></div>
 
           {/* Back to login */}
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-(--color-text-muted)">
             Wrong email?{' '}
-            <Link href="/register" className="text-emerald-600 hover:text-emerald-700 font-medium">
+            <Link href="/register" className="text-(--brand-primary) hover:text-(--brand-primary-hover) font-medium">
               Sign up again
             </Link>
           </p>
@@ -281,10 +281,10 @@ function VerifyEmailPageContent() {
 
 function VerifyEmailPageLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="text-center">
-        <Loader2 className="h-10 w-10 animate-spin mx-auto text-emerald-600 mb-4" />
-        <p className="text-gray-500">Loading...</p>
+        <Loader2 className="h-10 w-10 animate-spin mx-auto text-(--brand-primary) mb-4" />
+        <p className="text-(--color-text-muted)">Loading...</p>
       </div>
     </div>
   )

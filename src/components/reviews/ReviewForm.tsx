@@ -97,18 +97,18 @@ export function ReviewForm({
 
   return (
     <form onSubmit={handleSubmit} className={cn('space-y-4', className)}>
-      <h3 className="text-lg font-semibold text-gray-900">Write a Review</h3>
+      <h3 className="text-lg font-semibold text-foreground">Write a Review</h3>
 
       {error && (
-        <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+        <div className="p-3 bg-(--color-error)/5 text-(--color-error) rounded-lg text-sm">
           {error}
         </div>
       )}
 
       {/* Rating */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Your Rating <span className="text-red-500">*</span>
+        <label className="block text-sm font-medium text-(--color-text-secondary) mb-2">
+          Your Rating <span className="text-(--color-error)">*</span>
         </label>
         <StarRating
           rating={rating}
@@ -120,7 +120,7 @@ export function ReviewForm({
 
       {/* Title */}
       <div>
-        <label htmlFor="review-title" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="review-title" className="block text-sm font-medium text-(--color-text-secondary) mb-1">
           Review Title
         </label>
         <input
@@ -129,14 +129,14 @@ export function ReviewForm({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Summarize your experience"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          className="w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
           maxLength={100}
         />
       </div>
 
       {/* Content */}
       <div>
-        <label htmlFor="review-content" className="block text-sm font-medium text-gray-700 mb-1">
+        <label htmlFor="review-content" className="block text-sm font-medium text-(--color-text-secondary) mb-1">
           Your Review
         </label>
         <textarea
@@ -145,17 +145,17 @@ export function ReviewForm({
           onChange={(e) => setContent(e.target.value)}
           placeholder="Share your experience with this product..."
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+          className="w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary) resize-none"
           maxLength={2000}
         />
-        <div className="text-xs text-gray-500 text-right mt-1">
+        <div className="text-xs text-(--color-text-muted) text-right mt-1">
           {content.length}/2000
         </div>
       </div>
 
       {/* Images */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-(--color-text-secondary) mb-2">
           Add Photos (optional)
         </label>
         <div className="flex flex-wrap gap-2">
@@ -169,16 +169,16 @@ export function ReviewForm({
               <button
                 type="button"
                 onClick={() => removeImage(index)}
-                className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600"
+                className="absolute -top-2 -right-2 w-5 h-5 bg-(--color-error) text-white rounded-full flex items-center justify-center hover:bg-(--color-error)/80"
               >
                 <X className="h-3 w-3" />
               </button>
             </div>
           ))}
           {images.length < 5 && (
-            <label className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
-              <Upload className="h-5 w-5 text-gray-400" />
-              <span className="text-xs text-gray-500 mt-1">Add</span>
+            <label className="w-20 h-20 border-2 border-dashed border-(--color-border) rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-(--brand-primary) hover:bg-(--brand-primary-light) transition-colors">
+              <Upload className="h-5 w-5 text-(--color-text-disabled)" />
+              <span className="text-xs text-(--color-text-muted) mt-1">Add</span>
               <input
                 type="file"
                 accept="image/*"
@@ -189,7 +189,7 @@ export function ReviewForm({
             </label>
           )}
         </div>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-(--color-text-muted) mt-1">
           Max 5 images, each up to 5MB
         </p>
       </div>
@@ -199,7 +199,7 @@ export function ReviewForm({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="flex-1 bg-(--brand-primary) text-white py-2 px-4 rounded-lg font-medium hover:bg-(--brand-primary-hover) disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {isSubmitting ? (
             <>
@@ -214,14 +214,14 @@ export function ReviewForm({
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+            className="px-4 py-2 border border-(--color-border) rounded-lg text-(--color-text-secondary) hover:bg-background"
           >
             Cancel
           </button>
         )}
       </div>
 
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-(--color-text-muted)">
         Your review will be published after moderation.
       </p>
     </form>

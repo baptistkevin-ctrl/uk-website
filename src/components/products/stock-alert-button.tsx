@@ -59,14 +59,14 @@ export function StockAlertButton({
 
   if (subscribed) {
     return (
-      <div className={`bg-emerald-50 border border-emerald-200 rounded-xl p-4 ${className}`}>
+      <div className={`bg-(--brand-primary-light) border border-(--brand-primary) rounded-xl p-4 ${className}`}>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-            <Check className="h-5 w-5 text-emerald-600" />
+          <div className="w-10 h-10 bg-(--brand-primary-light) rounded-full flex items-center justify-center">
+            <Check className="h-5 w-5 text-(--brand-primary)" />
           </div>
           <div>
-            <p className="font-medium text-emerald-800">You're on the list!</p>
-            <p className="text-sm text-emerald-600">{message}</p>
+            <p className="font-medium text-(--brand-primary)">You're on the list!</p>
+            <p className="text-sm text-(--brand-primary)">{message}</p>
           </div>
         </div>
       </div>
@@ -89,7 +89,7 @@ export function StockAlertButton({
         <div className="space-y-3">
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
               <input
                 type="email"
                 value={email}
@@ -101,7 +101,7 @@ export function StockAlertButton({
             <button
               onClick={handleSubscribe}
               disabled={!email || loading}
-              className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 flex items-center gap-2"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -139,7 +139,7 @@ export function StockAlertButton({
       )}
 
       {message && !subscribed && (
-        <p className="mt-2 text-sm text-red-600">{message}</p>
+        <p className="mt-2 text-sm text-(--color-error)">{message}</p>
       )}
     </div>
   )

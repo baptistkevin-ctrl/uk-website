@@ -1,16 +1,16 @@
 {
-  "name": "MegaMart UK - Shop Everything Online",
-  "short_name": "MegaMart",
-  "description": "Shop millions of products online. Electronics, Fashion, Home, Beauty & more. Best deals delivered to your door across the UK.",
+  "name": "UK Grocery Store — Fresh Food Delivered",
+  "short_name": "UK Grocery",
+  "description": "Shop fresh produce, meat, dairy, and pantry essentials online. Free delivery on orders over £40.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "#ff6b00",
+  "theme_color": "#1B6B3A",
   "background_color": "#ffffff",
   "scope": "/",
   "lang": "en-GB",
   "dir": "ltr",
-  "categories": ["shopping", "marketplace", "ecommerce", "retail"],
+  "categories": ["shopping", "food", "grocery"],
   "prefer_related_applications": false,
   "icons": [
     {
@@ -35,7 +35,7 @@
     },
     {
       "name": "Categories",
-      "short_name": "Categories",
+      "short_name": "Browse",
       "description": "Browse all categories",
       "url": "/categories"
     },
@@ -46,14 +46,12 @@
       "url": "/account/orders"
     },
     {
-      "name": "Wishlist",
-      "short_name": "Wishlist",
-      "description": "View your wishlist",
-      "url": "/account/wishlist"
+      "name": "Smart Reorder",
+      "short_name": "Reorder",
+      "description": "Quickly reorder past items",
+      "url": "/smart-reorder"
     }
   ],
-  "related_applications": [],
-  "handle_links": "preferred",
   "launch_handler": {
     "client_mode": "navigate-existing"
   }

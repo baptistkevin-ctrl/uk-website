@@ -258,21 +258,21 @@ export default function AdminSupportPortal() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-8 text-white">
+      <div className="bg-linear-to-r from-(--brand-dark) to-(--brand-dark) rounded-2xl p-8 text-white">
         <div className="max-w-3xl">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-14 h-14 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400">
+            <div className="w-14 h-14 bg-(--brand-primary)/20 rounded-xl flex items-center justify-center text-(--brand-primary)">
               <ShieldIcon />
             </div>
             <div>
               <h1 className="text-3xl font-bold">Admin Support Portal</h1>
-              <p className="text-slate-400">Technical documentation and platform support</p>
+              <p className="text-(--color-text-disabled)">Technical documentation and platform support</p>
             </div>
           </div>
 
           {/* Search Bar */}
           <div className="relative mt-6">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-(--color-text-disabled)">
               <SearchIcon />
             </div>
             <input
@@ -280,25 +280,25 @@ export default function AdminSupportPortal() {
               placeholder="Search for documentation, guides, and FAQs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-transparent"
+              className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-(--brand-primary)/50 focus:border-transparent"
             />
           </div>
         </div>
       </div>
 
       {/* System Status */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-slate-900">System Status</h2>
-          <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-medium rounded-full">
+          <h2 className="font-semibold text-foreground">System Status</h2>
+          <span className="px-3 py-1 bg-(--brand-primary-light) text-(--brand-primary) text-sm font-medium rounded-full">
             All Systems Operational
           </span>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {systemStatus.map((system) => (
             <div key={system.name} className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-              <span className="text-sm text-slate-600">{system.name}</span>
+              <div className="w-2 h-2 bg-(--brand-primary) rounded-full"></div>
+              <span className="text-sm text-(--color-text-secondary)">{system.name}</span>
             </div>
           ))}
         </div>
@@ -308,73 +308,73 @@ export default function AdminSupportPortal() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <a
           href="mailto:admin-support@ukgrocery.com"
-          className="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all group"
+          className="flex items-center gap-4 p-5 bg-(--color-surface) rounded-xl border border-(--color-border) hover:border-(--brand-primary)/30 hover:shadow-md transition-all group"
         >
-          <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+          <div className="w-12 h-12 bg-(--brand-primary-light) rounded-xl flex items-center justify-center text-(--brand-primary) group-hover:bg-(--brand-primary) group-hover:text-white transition-colors">
             <MailIcon />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Technical Support</h3>
-            <p className="text-sm text-slate-500">admin-support@ukgrocery.com</p>
+            <h3 className="font-semibold text-foreground">Technical Support</h3>
+            <p className="text-sm text-(--color-text-muted)">admin-support@ukgrocery.com</p>
           </div>
         </a>
 
         <a
           href="tel:+441234567891"
-          className="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all group"
+          className="flex items-center gap-4 p-5 bg-(--color-surface) rounded-xl border border-(--color-border) hover:border-(--color-border) hover:shadow-md transition-all group"
         >
-          <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+          <div className="w-12 h-12 bg-(--color-info-bg) rounded-xl flex items-center justify-center text-(--color-info) group-hover:bg-(--color-info) group-hover:text-white transition-colors">
             <PhoneIcon />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Priority Hotline</h3>
-            <p className="text-sm text-slate-500">+44 (0) 123 456 7891</p>
+            <h3 className="font-semibold text-foreground">Priority Hotline</h3>
+            <p className="text-sm text-(--color-text-muted)">+44 (0) 123 456 7891</p>
           </div>
         </a>
 
         <a
           href="#"
-          className="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 hover:border-purple-300 hover:shadow-md transition-all group"
+          className="flex items-center gap-4 p-5 bg-(--color-surface) rounded-xl border border-(--color-border) hover:border-purple-300 hover:shadow-md transition-all group"
         >
-          <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+          <div className="w-12 h-12 bg-(--color-info-bg) rounded-xl flex items-center justify-center text-(--color-info) group-hover:bg-(--color-info) group-hover:text-white transition-colors">
             <ChatIcon />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Live Chat</h3>
-            <p className="text-sm text-slate-500">24/7 Technical Support</p>
+            <h3 className="font-semibold text-foreground">Live Chat</h3>
+            <p className="text-sm text-(--color-text-muted)">24/7 Technical Support</p>
           </div>
         </a>
       </div>
 
       {/* Help Categories */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mb-4">Documentation</h2>
+        <h2 className="text-xl font-bold text-foreground mb-4">Documentation</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredCategories.map((category) => (
             <div
               key={category.id}
-              className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg transition-shadow"
+              className="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 hover:shadow-lg transition-shadow"
             >
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${
-                category.color === 'emerald' ? 'bg-emerald-100 text-emerald-600' :
-                category.color === 'blue' ? 'bg-blue-100 text-blue-600' :
-                category.color === 'purple' ? 'bg-purple-100 text-purple-600' :
-                category.color === 'orange' ? 'bg-orange-100 text-orange-600' :
-                category.color === 'green' ? 'bg-green-100 text-green-600' :
-                category.color === 'pink' ? 'bg-pink-100 text-pink-600' :
-                category.color === 'cyan' ? 'bg-cyan-100 text-cyan-600' :
-                'bg-slate-100 text-slate-600'
+                category.color === 'emerald' ? 'bg-(--brand-primary-light) text-(--brand-primary)' :
+                category.color === 'blue' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                category.color === 'purple' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                category.color === 'orange' ? 'bg-(--color-warning-bg) text-(--brand-amber)' :
+                category.color === 'green' ? 'bg-(--brand-primary-light) text-(--brand-primary)' :
+                category.color === 'pink' ? 'bg-(--color-error-bg) text-(--color-error)' :
+                category.color === 'cyan' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                'bg-(--color-elevated) text-(--color-text-secondary)'
               }`}>
                 {category.icon}
               </div>
-              <h3 className="font-semibold text-slate-900 mb-1">{category.title}</h3>
-              <p className="text-xs text-slate-500 mb-3">{category.description}</p>
+              <h3 className="font-semibold text-foreground mb-1">{category.title}</h3>
+              <p className="text-xs text-(--color-text-muted) mb-3">{category.description}</p>
               <ul className="space-y-1.5">
                 {category.articles.map((article, idx) => (
                   <li key={idx}>
                     <Link
                       href={`/help/admin-guide#${category.id}`}
-                      className="text-xs text-slate-600 hover:text-emerald-600 flex items-center gap-1.5 group"
+                      className="text-xs text-(--color-text-secondary) hover:text-(--brand-primary) flex items-center gap-1.5 group"
                     >
                       <ArrowRightIcon />
                       <span className="group-hover:underline">{article}</span>
@@ -388,27 +388,27 @@ export default function AdminSupportPortal() {
       </div>
 
       {/* FAQs */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600">
+          <div className="w-10 h-10 bg-(--color-elevated) rounded-lg flex items-center justify-center text-(--color-text-secondary)">
             <QuestionIcon />
           </div>
-          <h2 className="text-xl font-bold text-slate-900">Frequently Asked Questions</h2>
+          <h2 className="text-xl font-bold text-foreground">Frequently Asked Questions</h2>
         </div>
 
         <div className="space-y-3">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="border border-slate-200 rounded-lg overflow-hidden"
+              className="border border-(--color-border) rounded-lg overflow-hidden"
             >
               <button
                 onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-background transition-colors"
               >
-                <span className="font-medium text-slate-900">{faq.question}</span>
+                <span className="font-medium text-foreground">{faq.question}</span>
                 <svg
-                  className={`w-5 h-5 text-slate-400 transition-transform ${expandedFaq === index ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-(--color-text-disabled) transition-transform ${expandedFaq === index ? 'rotate-180' : ''}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -418,7 +418,7 @@ export default function AdminSupportPortal() {
                 </svg>
               </button>
               {expandedFaq === index && (
-                <div className="px-4 pb-4 text-slate-600 text-sm">
+                <div className="px-4 pb-4 text-(--color-text-secondary) text-sm">
                   {faq.answer}
                 </div>
               )}
@@ -428,22 +428,22 @@ export default function AdminSupportPortal() {
       </div>
 
       {/* Full Guide Link */}
-      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl p-8 text-center">
+      <div className="bg-linear-to-r from-(--brand-primary) to-teal-600 rounded-xl p-8 text-center">
         <h2 className="text-2xl font-bold text-white mb-2">Complete Admin Documentation</h2>
-        <p className="text-emerald-100 mb-6">
+        <p className="text-white/80 mb-6">
           Access the full admin guide for detailed instructions on managing your marketplace.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/help/admin-guide"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-emerald-700 rounded-xl font-medium hover:bg-emerald-50 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-(--color-surface) text-(--brand-primary) rounded-xl font-medium hover:bg-(--brand-primary-light) transition-colors"
           >
             <BookIcon />
             View Admin Guide
           </Link>
           <Link
             href="/help"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl font-medium hover:bg-emerald-400 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary) transition-colors"
           >
             <QuestionIcon />
             Help Center

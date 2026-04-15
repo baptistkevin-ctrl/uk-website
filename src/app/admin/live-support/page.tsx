@@ -323,21 +323,21 @@ export default function LiveSupportPage() {
     switch (status) {
       case 'waiting':
         return (
-          <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full flex items-center gap-1">
+          <span className="px-2 py-1 bg-(--color-warning-bg) text-(--brand-amber) text-xs rounded-full flex items-center gap-1">
             <Clock className="h-3 w-3" />
             Waiting
           </span>
         )
       case 'active':
         return (
-          <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full flex items-center gap-1">
+          <span className="px-2 py-1 bg-(--brand-primary-light) text-(--brand-primary) text-xs rounded-full flex items-center gap-1">
             <MessageCircle className="h-3 w-3" />
             Active
           </span>
         )
       case 'resolved':
         return (
-          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full flex items-center gap-1">
+          <span className="px-2 py-1 bg-(--color-info-bg) text-(--color-info) text-xs rounded-full flex items-center gap-1">
             <CheckCircle className="h-3 w-3" />
             Resolved
           </span>
@@ -351,7 +351,7 @@ export default function LiveSupportPage() {
     return (
       <AdminLayout>
         <div className="flex items-center justify-center h-96">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
         </div>
       </AdminLayout>
     )
@@ -363,32 +363,32 @@ export default function LiveSupportPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-3">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Headphones className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-600" />
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
+              <Headphones className="h-6 w-6 sm:h-7 sm:w-7 text-(--brand-primary)" />
               Live Support
             </h1>
-            <p className="text-gray-500 mt-1 text-sm">
+            <p className="text-(--color-text-muted) mt-1 text-sm">
               Manage chat conversations in real-time
             </p>
           </div>
 
           {/* Stats */}
           <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-            <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-orange-50 rounded-lg">
-              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-orange-600" />
-              <span className="text-xs sm:text-sm font-medium text-orange-700">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-(--color-warning-bg) rounded-lg">
+              <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-(--brand-amber)" />
+              <span className="text-xs sm:text-sm font-medium text-(--brand-amber)">
                 {stats.waitingChats} waiting
               </span>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-emerald-50 rounded-lg">
-              <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-600" />
-              <span className="text-xs sm:text-sm font-medium text-emerald-700">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-(--brand-primary-light) rounded-lg">
+              <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-(--brand-primary)" />
+              <span className="text-xs sm:text-sm font-medium text-(--brand-primary)">
                 {stats.activeChats} active
               </span>
             </div>
-            <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-50 rounded-lg">
-              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-600" />
-              <span className="text-xs sm:text-sm font-medium text-blue-700">
+            <div className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-(--color-info-bg) rounded-lg">
+              <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-(--color-info)" />
+              <span className="text-xs sm:text-sm font-medium text-(--color-info)">
                 {stats.resolvedToday} resolved
               </span>
             </div>
@@ -398,7 +398,7 @@ export default function LiveSupportPage() {
         {/* Main Content */}
         <div className="flex-1 flex gap-4 min-h-0">
           {/* Conversations List */}
-          <div className={`w-full md:w-80 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col ${
+          <div className={`w-full md:w-80 bg-(--color-surface) rounded-xl shadow-sm border border-(--color-border) flex flex-col ${
             selectedConversation ? 'hidden md:flex' : 'flex'
           }`}>
             {/* Channel Filter */}
@@ -414,8 +414,8 @@ export default function LiveSupportPage() {
                     onClick={() => { setChannelFilter(tab.id as typeof channelFilter); setSelectedConversation(null); setMessages([]) }}
                     className={`flex-1 px-2 py-1 text-xs font-medium rounded-md transition-colors ${
                       channelFilter === tab.id
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'text-gray-500 hover:text-gray-700'
+                        ? 'bg-(--brand-primary-light) text-(--brand-primary)'
+                        : 'text-(--color-text-muted) hover:text-foreground'
                     }`}
                   >
                     {tab.label}
@@ -425,7 +425,7 @@ export default function LiveSupportPage() {
             </div>
             {/* Status Filter Tabs */}
             <div className="p-3 border-b">
-              <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
+              <div className="flex gap-1 bg-(--color-elevated) rounded-lg p-1">
                 {[
                   { id: 'all', label: 'All' },
                   { id: 'waiting', label: 'Waiting' },
@@ -435,10 +435,10 @@ export default function LiveSupportPage() {
                   <button
                     key={tab.id}
                     onClick={() => setFilter(tab.id as typeof filter)}
-                    className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                    className={`flex-1 px-3 py-2.5 text-xs font-medium rounded-md transition-colors ${
                       filter === tab.id
-                        ? 'bg-white text-gray-900 shadow-sm'
-                        : 'text-gray-500 hover:text-gray-700'
+                        ? 'bg-(--color-surface) text-foreground shadow-sm'
+                        : 'text-(--color-text-muted) hover:text-foreground'
                     }`}
                   >
                     {tab.label}
@@ -450,7 +450,7 @@ export default function LiveSupportPage() {
             {/* Conversation List */}
             <div className="flex-1 overflow-y-auto">
               {filteredConversations.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-gray-400 p-4">
+                <div className="flex flex-col items-center justify-center h-full text-(--color-text-disabled) p-4">
                   <MessageCircle className="h-12 w-12 mb-2" />
                   <p className="text-sm">No conversations</p>
                 </div>
@@ -460,8 +460,8 @@ export default function LiveSupportPage() {
                     <button
                       key={conv.id}
                       onClick={() => selectConversation(conv)}
-                      className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
-                        selectedConversation?.id === conv.id ? 'bg-emerald-50' : ''
+                      className={`w-full p-4 text-left hover:bg-background transition-colors ${
+                        selectedConversation?.id === conv.id ? 'bg-(--brand-primary-light)' : ''
                       }`}
                     >
                       <div className="flex items-start justify-between">
@@ -470,44 +470,44 @@ export default function LiveSupportPage() {
                             conv.status === 'waiting'
                               ? 'bg-orange-100'
                               : conv.status === 'active'
-                                ? 'bg-emerald-100'
-                                : 'bg-gray-100'
+                                ? 'bg-(--brand-primary-light)'
+                                : 'bg-(--color-elevated)'
                           }`}>
                             <User className={`h-5 w-5 ${
                               conv.status === 'waiting'
-                                ? 'text-orange-600'
+                                ? 'text-(--brand-amber)'
                                 : conv.status === 'active'
-                                  ? 'text-emerald-600'
-                                  : 'text-gray-500'
+                                  ? 'text-(--brand-primary)'
+                                  : 'text-(--color-text-muted)'
                             }`} />
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900 text-sm">
+                            <p className="font-medium text-foreground text-sm">
                               {conv.channel_type === 'vendor_admin'
                                 ? conv.vendors?.business_name || 'Vendor'
                                 : conv.guest_name || 'Guest'}
                             </p>
                             <div className="flex items-center gap-1">
                               {conv.channel_type === 'vendor_admin' && (
-                                <span className="px-1.5 py-0.5 bg-purple-100 text-purple-700 text-[10px] rounded font-medium">
+                                <span className="px-1.5 py-0.5 bg-(--color-info-bg) text-(--color-info) text-[11px] rounded font-medium">
                                   Vendor
                                 </span>
                               )}
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-(--color-text-muted)">
                                 {conv.subject || 'No subject'}
                               </p>
                             </div>
                           </div>
                         </div>
                         {conv.unread_agent > 0 && (
-                          <span className="px-2 py-0.5 bg-red-500 text-white text-xs rounded-full">
+                          <span className="px-2 py-0.5 bg-(--color-error) text-white text-xs rounded-full">
                             {conv.unread_agent}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center justify-between mt-2">
                         {getStatusBadge(conv.status)}
-                        <span className="text-xs text-gray-400">
+                        <span className="text-xs text-(--color-text-disabled)">
                           {formatDistanceToNow(new Date(conv.last_message_at || conv.created_at), { addSuffix: true })}
                         </span>
                       </div>
@@ -519,7 +519,7 @@ export default function LiveSupportPage() {
           </div>
 
           {/* Chat Area */}
-          <div className={`flex-1 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col ${
+          <div className={`flex-1 bg-(--color-surface) rounded-xl shadow-sm border border-(--color-border) flex flex-col ${
             selectedConversation ? 'flex' : 'hidden md:flex'
           }`}>
             {selectedConversation ? (
@@ -529,18 +529,18 @@ export default function LiveSupportPage() {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => { setSelectedConversation(null); setMessages([]) }}
-                      className="md:hidden p-1 hover:bg-gray-100 rounded-full"
+                      className="md:hidden p-1 hover:bg-(--color-elevated) rounded-full"
                     >
-                      <ArrowLeft className="h-5 w-5 text-gray-600" />
+                      <ArrowLeft className="h-5 w-5 text-(--color-text-secondary)" />
                     </button>
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                      <User className="h-5 w-5 text-gray-600" />
+                    <div className="w-10 h-10 bg-(--color-elevated) rounded-full flex items-center justify-center">
+                      <User className="h-5 w-5 text-(--color-text-secondary)" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-medium text-foreground">
                         {selectedConversation.guest_name || 'Guest'}
                       </h3>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-(--color-text-muted)">
                         {selectedConversation.guest_email && (
                           <span className="flex items-center gap-1">
                             <Mail className="h-3 w-3" />
@@ -555,7 +555,7 @@ export default function LiveSupportPage() {
                     {selectedConversation.status === 'waiting' && (
                       <button
                         onClick={() => acceptConversation(selectedConversation.id)}
-                        className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm font-medium flex items-center gap-2"
+                        className="px-4 py-2.5 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover) text-sm font-medium flex items-center gap-2"
                       >
                         <UserCheck className="h-4 w-4" />
                         Accept Chat
@@ -564,7 +564,7 @@ export default function LiveSupportPage() {
                     {(selectedConversation.status === 'active' || selectedConversation.status === 'waiting') && (
                       <button
                         onClick={() => closeConversation(selectedConversation.id, 'resolved')}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium flex items-center gap-2"
+                        className="px-4 py-2.5 bg-(--color-info) text-white rounded-lg hover:bg-(--color-info) text-sm font-medium flex items-center gap-2"
                       >
                         <CheckCircle className="h-4 w-4" />
                         Resolve
@@ -575,10 +575,10 @@ export default function LiveSupportPage() {
 
                 {/* AI History Panel */}
                 {aiMessages.length > 0 && (selectedConversation.status === 'waiting' || selectedConversation.status === 'active') && (
-                  <div className="border-b bg-amber-50">
+                  <div className="border-b bg-(--brand-amber-soft)">
                     <button
                       onClick={() => setShowAIHistory(!showAIHistory)}
-                      className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium text-amber-700"
+                      className="w-full px-4 py-2 flex items-center justify-between text-sm font-medium text-(--brand-amber)"
                     >
                       <span className="flex items-center gap-2">
                         <Bot className="h-4 w-4" />
@@ -597,8 +597,8 @@ export default function LiveSupportPage() {
                             key={msg.id}
                             className={`text-xs ${
                               msg.sender_type === 'customer'
-                                ? 'text-gray-700'
-                                : 'text-emerald-700'
+                                ? 'text-foreground'
+                                : 'text-(--brand-primary)'
                             }`}
                           >
                             <span className="font-medium">
@@ -625,7 +625,7 @@ export default function LiveSupportPage() {
                     >
                       {msg.sender_type === 'system' ? (
                         <div className="w-full text-center">
-                          <span className="inline-block px-3 py-1 bg-gray-100 text-gray-500 text-xs rounded-full">
+                          <span className="inline-block px-3 py-1 bg-(--color-elevated) text-(--color-text-muted) text-xs rounded-full">
                             {msg.content}
                           </span>
                         </div>
@@ -633,26 +633,26 @@ export default function LiveSupportPage() {
                         <div
                           className={`max-w-[70%] ${
                             msg.sender_type === 'agent'
-                              ? 'bg-emerald-600 text-white rounded-2xl rounded-br-md'
+                              ? 'bg-(--brand-primary) text-white rounded-2xl rounded-br-md'
                               : msg.sender_type === 'vendor'
-                                ? 'bg-purple-100 text-gray-900 rounded-2xl rounded-bl-md border border-purple-200'
+                                ? 'bg-purple-100 text-foreground rounded-2xl rounded-bl-md border border-(--color-border)'
                                 : msg.sender_type === 'bot'
-                                  ? 'bg-amber-50 text-gray-900 rounded-2xl rounded-bl-md border border-amber-200'
-                                  : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-md'
+                                  ? 'bg-(--brand-amber-soft) text-foreground rounded-2xl rounded-bl-md border border-(--color-border)'
+                                  : 'bg-(--color-elevated) text-foreground rounded-2xl rounded-bl-md'
                           } px-4 py-2`}
                         >
                           {msg.sender_type !== 'agent' && (
                             <div className="flex items-center gap-1 mb-1">
                               {msg.sender_type === 'bot' ? (
-                                <Bot className="h-3 w-3 text-amber-600" />
+                                <Bot className="h-3 w-3 text-(--brand-amber)" />
                               ) : msg.sender_type === 'vendor' ? (
-                                <Store className="h-3 w-3 text-purple-600" />
+                                <Store className="h-3 w-3 text-(--color-info)" />
                               ) : (
-                                <User className="h-3 w-3 text-gray-500" />
+                                <User className="h-3 w-3 text-(--color-text-muted)" />
                               )}
                               <span className={`text-xs font-medium ${
-                                msg.sender_type === 'bot' ? 'text-amber-600' :
-                                msg.sender_type === 'vendor' ? 'text-purple-600' : 'text-gray-500'
+                                msg.sender_type === 'bot' ? 'text-(--brand-amber)' :
+                                msg.sender_type === 'vendor' ? 'text-(--color-info)' : 'text-(--color-text-muted)'
                               }`}>
                                 {msg.sender_name || (msg.sender_type === 'bot' ? 'FreshBot' : msg.sender_type === 'vendor' ? 'Vendor' : 'Customer')}
                               </span>
@@ -661,8 +661,8 @@ export default function LiveSupportPage() {
                           <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                           <div className={`text-xs mt-1 ${
                             msg.sender_type === 'agent'
-                              ? 'text-emerald-100'
-                              : 'text-gray-400'
+                              ? 'text-white/80'
+                              : 'text-(--color-text-disabled)'
                           }`}>
                             {format(new Date(msg.created_at), 'HH:mm')}
                           </div>
@@ -675,9 +675,9 @@ export default function LiveSupportPage() {
 
                 {/* Error Banner */}
                 {actionError && (
-                  <div className="px-4 py-2 bg-red-50 border-t border-red-200 text-red-700 text-sm flex items-center justify-between">
+                  <div className="px-4 py-2.5 bg-(--color-error-bg) border-t border-(--color-border) text-(--color-error) text-sm flex items-center justify-between">
                     <span>{actionError}</span>
-                    <button onClick={() => setActionError(null)} className="text-red-500 hover:text-red-700 ml-2">&times;</button>
+                    <button onClick={() => setActionError(null)} className="text-(--color-error) hover:text-(--color-error) ml-2">&times;</button>
                   </div>
                 )}
 
@@ -691,12 +691,12 @@ export default function LiveSupportPage() {
                         onKeyDown={handleKeyPress}
                         placeholder="Type your message..."
                         rows={1}
-                        className="flex-1 px-4 py-2 border rounded-lg resize-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                        className="flex-1 px-4 py-2 border rounded-lg resize-none focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                       />
                       <button
                         onClick={sendMessage}
                         disabled={!newMessage.trim() || sending}
-                        className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-4 py-2.5 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover) disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {sending ? (
                           <Loader2 className="h-5 w-5 animate-spin" />
@@ -710,8 +710,8 @@ export default function LiveSupportPage() {
 
                 {/* Show message if chat is waiting */}
                 {selectedConversation.status === 'waiting' && (
-                  <div className="p-4 border-t bg-orange-50 text-center">
-                    <p className="text-sm text-orange-700">
+                  <div className="p-4 border-t bg-(--color-warning-bg) text-center">
+                    <p className="text-sm text-(--brand-amber)">
                       Click "Accept Chat" to start responding to this customer
                     </p>
                   </div>
@@ -719,17 +719,17 @@ export default function LiveSupportPage() {
 
                 {/* Show message if chat is resolved */}
                 {selectedConversation.status === 'resolved' && (
-                  <div className="p-4 border-t bg-blue-50 text-center">
-                    <p className="text-sm text-blue-700">
+                  <div className="p-4 border-t bg-(--color-info-bg) text-center">
+                    <p className="text-sm text-(--color-info)">
                       This conversation has been resolved
                     </p>
                   </div>
                 )}
               </>
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-gray-400">
+              <div className="flex-1 flex flex-col items-center justify-center text-(--color-text-disabled)">
                 <Headphones className="h-16 w-16 mb-4" />
-                <h3 className="text-lg font-medium text-gray-600">Select a conversation</h3>
+                <h3 className="text-lg font-medium text-(--color-text-secondary)">Select a conversation</h3>
                 <p className="text-sm">Choose a chat from the list to start helping customers</p>
               </div>
             )}

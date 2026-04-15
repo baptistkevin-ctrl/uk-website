@@ -17,8 +17,8 @@ export async function GET(
 ) {
   const { slug } = await params
   const searchParams = request.nextUrl.searchParams
-  const page = parseInt(searchParams.get('page') || '1')
-  const limit = parseInt(searchParams.get('limit') || '20')
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1') || 1)
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20') || 20))
   const sortBy = searchParams.get('sort') || 'newest' // newest, price_asc, price_desc, rating, popular
   const category = searchParams.get('category')
   const offset = (page - 1) * limit

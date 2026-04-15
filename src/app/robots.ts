@@ -20,6 +20,7 @@ export default function robots(): MetadataRoute.Robots {
           '/auth/',
           '/_next/',
           '/private/',
+          '/search',
         ],
       },
       {
@@ -31,6 +32,7 @@ export default function robots(): MetadataRoute.Robots {
           '/account/',
           '/checkout/',
           '/auth/',
+          '/search',
         ],
       },
     ],

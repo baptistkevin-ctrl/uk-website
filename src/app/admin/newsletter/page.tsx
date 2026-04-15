@@ -135,8 +135,8 @@ export default function NewsletterPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-green-500" />
+      <div className="flex items-center justify-center min-h-100">
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -149,8 +149,8 @@ export default function NewsletterPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Newsletter</h1>
-          <p className="text-gray-500">Manage campaigns and subscribers</p>
+          <h1 className="text-2xl font-bold text-foreground">Newsletter</h1>
+          <p className="text-(--color-text-muted)">Manage campaigns and subscribers</p>
         </div>
         <Button onClick={() => setShowNewCampaign(true)}>
           <Plus className="h-4 w-4 mr-2" />
@@ -163,12 +163,12 @@ export default function NewsletterPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Users className="h-5 w-5 text-blue-600" />
+              <div className="w-10 h-10 bg-(--color-info-bg) rounded-lg flex items-center justify-center">
+                <Users className="h-5 w-5 text-(--color-info)" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats?.totalSubscribers || 0}</p>
-                <p className="text-xs text-gray-500">Total Subscribers</p>
+                <p className="text-xs text-(--color-text-muted)">Total Subscribers</p>
               </div>
             </div>
           </CardContent>
@@ -176,12 +176,12 @@ export default function NewsletterPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 text-green-600" />
+              <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center">
+                <CheckCircle className="h-5 w-5 text-(--brand-primary)" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats?.activeSubscribers || 0}</p>
-                <p className="text-xs text-gray-500">Active</p>
+                <p className="text-xs text-(--color-text-muted)">Active</p>
               </div>
             </div>
           </CardContent>
@@ -189,12 +189,12 @@ export default function NewsletterPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Mail className="h-5 w-5 text-purple-600" />
+              <div className="w-10 h-10 bg-(--color-info-bg) rounded-lg flex items-center justify-center">
+                <Mail className="h-5 w-5 text-(--color-info)" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats?.totalCampaigns || 0}</p>
-                <p className="text-xs text-gray-500">Campaigns</p>
+                <p className="text-xs text-(--color-text-muted)">Campaigns</p>
               </div>
             </div>
           </CardContent>
@@ -202,14 +202,14 @@ export default function NewsletterPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                <BarChart3 className="h-5 w-5 text-amber-600" />
+              <div className="w-10 h-10 bg-(--brand-amber-soft) rounded-lg flex items-center justify-center">
+                <BarChart3 className="h-5 w-5 text-(--brand-amber)" />
               </div>
               <div>
                 <p className="text-2xl font-bold">
                   {stats?.recentCampaigns?.[0]?.open_count || 0}
                 </p>
-                <p className="text-xs text-gray-500">Last Campaign Opens</p>
+                <p className="text-xs text-(--color-text-muted)">Last Campaign Opens</p>
               </div>
             </div>
           </CardContent>
@@ -218,7 +218,7 @@ export default function NewsletterPage() {
 
       {/* New Campaign Form */}
       {showNewCampaign && (
-        <Card className="border-green-200">
+        <Card className="border-(--brand-primary)/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
@@ -237,7 +237,7 @@ export default function NewsletterPage() {
             <div>
               <Label>Email Body (HTML)</Label>
               <textarea
-                className="w-full min-h-[200px] rounded-lg border border-gray-200 p-3 text-sm font-mono"
+                className="w-full min-h-50 rounded-lg border border-(--color-border) p-3 text-sm font-mono"
                 value={campaignBody}
                 onChange={(e) => setCampaignBody(e.target.value)}
                 placeholder="<h1>Fresh Deals This Week</h1><p>Check out our latest offers...</p>"
@@ -285,7 +285,7 @@ export default function NewsletterPage() {
                             {campaign.status}
                           </Badge>
                         </div>
-                        <div className="flex gap-4 text-sm text-gray-500">
+                        <div className="flex gap-4 text-sm text-(--color-text-muted)">
                           <span>{new Date(campaign.created_at).toLocaleDateString()}</span>
                           {campaign.sent_count > 0 && <span>{campaign.sent_count} sent</span>}
                           {campaign.open_count > 0 && <span>{campaign.open_count} opens</span>}
@@ -307,8 +307,8 @@ export default function NewsletterPage() {
             </div>
           ) : (
             <Card>
-              <CardContent className="p-8 text-center text-gray-500">
-                <Mail className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+              <CardContent className="p-8 text-center text-(--color-text-muted)">
+                <Mail className="h-12 w-12 mx-auto mb-3 text-(--color-text-disabled)" />
                 <p>No campaigns yet. Create your first campaign above.</p>
               </CardContent>
             </Card>
@@ -317,7 +317,7 @@ export default function NewsletterPage() {
 
         <TabsContent value="subscribers" className="space-y-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
             <Input
               placeholder="Search subscribers..."
               value={searchQuery}
@@ -328,11 +328,11 @@ export default function NewsletterPage() {
 
           <div className="border rounded-lg overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50">
+              <thead className="bg-background">
                 <tr>
-                  <th className="text-left p-3 font-medium text-gray-600">Email</th>
-                  <th className="text-left p-3 font-medium text-gray-600">Status</th>
-                  <th className="text-left p-3 font-medium text-gray-600">Subscribed</th>
+                  <th className="text-left p-3 font-medium text-(--color-text-secondary)">Email</th>
+                  <th className="text-left p-3 font-medium text-(--color-text-secondary)">Status</th>
+                  <th className="text-left p-3 font-medium text-(--color-text-secondary)">Subscribed</th>
                 </tr>
               </thead>
               <tbody>
@@ -344,14 +344,14 @@ export default function NewsletterPage() {
                         {sub.is_active ? 'Active' : 'Unsubscribed'}
                       </Badge>
                     </td>
-                    <td className="p-3 text-gray-500">
+                    <td className="p-3 text-(--color-text-muted)">
                       {new Date(sub.subscribed_at).toLocaleDateString()}
                     </td>
                   </tr>
                 ))}
                 {filteredSubscribers.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="p-8 text-center text-gray-500">
+                    <td colSpan={3} className="p-8 text-center text-(--color-text-muted)">
                       No subscribers found
                     </td>
                   </tr>

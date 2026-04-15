@@ -815,7 +815,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
             <MessageCircle className="h-7 w-7" />
           </div>
           {activeConversationCount > 0 && (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-(--color-error) text-white text-xs font-bold rounded-full flex items-center justify-center">
               {activeConversationCount}
             </span>
           )}
@@ -829,9 +829,9 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     <div
       role="dialog"
       aria-label="Live chat"
-      className={`fixed bottom-16 lg:bottom-6 right-2 lg:right-6 w-[calc(100vw-16px)] sm:w-[400px] bg-white rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col ${
+      className={`fixed bottom-16 lg:bottom-6 right-2 lg:right-6 w-[calc(100vw-16px)] sm:w-[400px] bg-(--color-surface) rounded-2xl shadow-2xl overflow-hidden z-50 flex flex-col ${
         isMinimized ? 'h-14' : 'h-[calc(100vh-5rem)] lg:h-[600px]'
-      } transition-all duration-200 border border-gray-200`}
+      } transition-all duration-200 border border-(--color-border)`}
     >
       {/* ═══ LIST VIEW ═══ */}
       {view === 'list' && (
@@ -843,14 +843,14 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setIsMinimized(!isMinimized)}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  className="p-2 hover:bg-(--color-surface)/10 rounded-full transition-colors"
                   aria-label={isMinimized ? 'Expand chat' : 'Minimize chat'}
                 >
                   <Minimize2 className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  className="p-2 hover:bg-(--color-surface)/10 rounded-full transition-colors"
                   aria-label="Close chat"
                 >
                   <X className="h-4 w-4" />
@@ -865,7 +865,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                   className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                     activeTab === 'support'
                       ? 'bg-[#25D366] text-white shadow-sm'
-                      : 'text-green-200 hover:text-white'
+                      : 'text-white/70 hover:text-white'
                   }`}
                 >
                   <Headphones className="h-4 w-4" />
@@ -876,7 +876,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                   className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-2 ${
                     activeTab === 'sellers'
                       ? 'bg-[#25D366] text-white shadow-sm'
-                      : 'text-green-200 hover:text-white'
+                      : 'text-white/70 hover:text-white'
                   }`}
                 >
                   <Store className="h-4 w-4" />
@@ -889,24 +889,24 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
           {!isMinimized && (
             <>
               {/* Conversation list */}
-              <div className="flex-1 overflow-y-auto bg-white">
+              <div className="flex-1 overflow-y-auto bg-(--color-surface)">
                 {loadingConversations && conversations.length === 0 ? (
                   <div className="flex items-center justify-center py-16">
-                    <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+                    <Loader2 className="h-6 w-6 animate-spin text-(--color-text-disabled)" />
                   </div>
                 ) : filteredConversations.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 bg-(--color-elevated) rounded-full flex items-center justify-center mb-4">
                       {activeTab === 'support' ? (
-                        <Headphones className="h-8 w-8 text-gray-300" />
+                        <Headphones className="h-8 w-8 text-(--color-text-disabled)" />
                       ) : (
-                        <Store className="h-8 w-8 text-gray-300" />
+                        <Store className="h-8 w-8 text-(--color-text-disabled)" />
                       )}
                     </div>
-                    <p className="text-gray-900 font-medium mb-1">
+                    <p className="text-foreground font-medium mb-1">
                       {activeTab === 'support' ? 'No support chats yet' : 'No seller chats yet'}
                     </p>
-                    <p className="text-gray-500 text-sm mb-4">
+                    <p className="text-(--color-text-muted) text-sm mb-4">
                       {activeTab === 'support'
                         ? 'Start a conversation with our support team'
                         : 'Chat with sellers about their products'}
@@ -916,7 +916,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                         setNewChatType(activeTab === 'support' ? 'support' : 'vendor')
                         setView('new-chat')
                       }}
-                      className="px-4 py-2 bg-[#25D366] text-white rounded-full text-sm font-medium hover:bg-[#20BD5A] transition-colors"
+                      className="px-4 py-2.5 bg-[#25D366] text-white rounded-full text-sm font-medium hover:bg-[#20BD5A] transition-colors"
                     >
                       Start a chat
                     </button>
@@ -928,10 +928,10 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                       <button
                         key={conv.id}
                         onClick={() => openConversation(conv)}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors border-b border-gray-100 text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-background transition-colors border-b border-(--color-border) text-left"
                       >
                         {/* Avatar */}
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${
                           conv.channel_type === 'customer_vendor'
                             ? 'bg-purple-100 text-purple-600'
                             : 'bg-[#DCF8C6] text-[#075E54]'
@@ -946,25 +946,25 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                         {/* Info */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between">
-                            <span className="font-semibold text-gray-900 text-sm truncate">
+                            <span className="font-semibold text-foreground text-sm truncate">
                               {conv.channel_type === 'customer_vendor'
                                 ? (conv.vendors?.business_name || vendorName || 'Seller')
                                 : 'FreshMart Support'}
                             </span>
-                            <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
+                            <span className="text-xs text-(--color-text-disabled) shrink-0 ml-2">
                               {conv.last_message_at || conv.updated_at
                                 ? format(new Date(conv.last_message_at || conv.updated_at || conv.created_at), 'HH:mm')
                                 : format(new Date(conv.created_at), 'HH:mm')}
                             </span>
                           </div>
                           <div className="flex items-center justify-between mt-0.5">
-                            <p className="text-xs text-gray-500 truncate pr-2">
+                            <p className="text-xs text-(--color-text-muted) truncate pr-2">
                               {conv.last_message || conv.subject || 'No messages yet'}
                             </p>
-                            <div className="flex items-center gap-1 flex-shrink-0">
+                            <div className="flex items-center gap-1 shrink-0">
                               {isActive && (
                                 <span className={`w-2 h-2 rounded-full ${
-                                  conv.status === 'active' ? 'bg-green-400' : 'bg-yellow-400'
+                                  conv.status === 'active' ? 'bg-(--brand-primary)' : 'bg-yellow-400'
                                 }`} />
                               )}
                               {(conv.unread_customer || 0) > 0 && (
@@ -1002,12 +1002,12 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
       {view === 'new-chat' && (
         <>
           <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
-            <button onClick={() => setView('list')} className="p-1 hover:bg-white/10 rounded-full">
+            <button onClick={() => setView('list')} className="p-1 hover:bg-(--color-surface)/10 rounded-full">
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div className="flex-1">
               <h3 className="font-semibold text-sm">New Chat</h3>
-              <p className="text-xs text-green-200">
+              <p className="text-xs text-white/70">
                 {newChatType === 'vendor' ? `Chat with ${vendorName || 'Seller'}` : 'FreshMart Support'}
               </p>
             </div>
@@ -1021,8 +1021,8 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                   onClick={() => setNewChatType('support')}
                   className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium border-2 transition-all ${
                     newChatType === 'support'
-                      ? 'border-[#25D366] bg-green-50 text-[#075E54]'
-                      : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                      ? 'border-[#25D366] bg-(--brand-primary-light) text-[#075E54]'
+                      : 'border-(--color-border) text-(--color-text-muted) hover:bg-background'
                   }`}
                 >
                   <Headphones className="h-5 w-5" />
@@ -1033,7 +1033,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                   className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 rounded-xl text-sm font-medium border-2 transition-all ${
                     newChatType === 'vendor'
                       ? 'border-purple-400 bg-purple-50 text-purple-700'
-                      : 'border-gray-200 text-gray-500 hover:bg-gray-50'
+                      : 'border-(--color-border) text-(--color-text-muted) hover:bg-background'
                   }`}
                 >
                   <Store className="h-5 w-5" />
@@ -1069,13 +1069,13 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
             {/* Suggested FAQs */}
             {newChatType === 'support' && botSettings?.suggestedFaqs && botSettings.suggestedFaqs.length > 0 && (
               <div className="mb-4">
-                <p className="text-xs text-gray-500 mb-2 font-medium">Quick questions:</p>
+                <p className="text-xs text-(--color-text-muted) mb-2 font-medium">Quick questions:</p>
                 <div className="flex flex-wrap gap-2">
                   {botSettings.suggestedFaqs.slice(0, 4).map(faq => (
                     <button
                       key={faq.id}
                       onClick={() => setFormMessage(faq.question)}
-                      className="text-xs px-3 py-2 bg-white border border-gray-200 text-gray-700 rounded-full hover:bg-[#DCF8C6] hover:border-[#25D366] hover:text-[#075E54] transition-colors"
+                      className="text-xs px-3 py-2 bg-(--color-surface) border border-(--color-border) text-(--color-text-secondary) rounded-full hover:bg-[#DCF8C6] hover:border-[#25D366] hover:text-[#075E54] transition-colors"
                     >
                       {faq.question.length > 35 ? faq.question.substring(0, 35) + '...' : faq.question}
                     </button>
@@ -1091,14 +1091,14 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                 placeholder="Your name (optional)"
                 value={formName}
                 onChange={(e) => setFormName(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] outline-none"
+                className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] outline-none"
               />
               <input
                 type="email"
                 placeholder="Your email (optional)"
                 value={formEmail}
                 onChange={(e) => setFormEmail(e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] outline-none"
+                className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] outline-none"
               />
               <textarea
                 placeholder={newChatType === 'vendor' ? `Message to ${vendorName || 'seller'}...` : 'How can we help you?'}
@@ -1106,7 +1106,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                 onChange={(e) => setFormMessage(e.target.value)}
                 onKeyDown={handleKeyPress}
                 rows={3}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] resize-none outline-none"
+                className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] resize-none outline-none"
               />
               <button
                 onClick={startNewConversation}
@@ -1137,13 +1137,13 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
               ? 'bg-purple-700 text-white'
               : 'bg-[#075E54] text-white'
           }`}>
-            <button onClick={() => { setView('list'); setActiveConversation(null) }} className="p-1 hover:bg-white/10 rounded-full" aria-label="Back to conversations">
+            <button onClick={() => { setView('list'); setActiveConversation(null) }} className="p-1 hover:bg-(--color-surface)/10 rounded-full" aria-label="Back to conversations">
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
               activeConversation?.channel_type === 'customer_vendor'
-                ? 'bg-white/20'
-                : 'bg-white/20'
+                ? 'bg-(--color-surface)/20'
+                : 'bg-(--color-surface)/20'
             }`}>
               {getChatIcon()}
             </div>
@@ -1153,7 +1153,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-2 hover:bg-white/10 rounded-full"
+              className="p-2 hover:bg-(--color-surface)/10 rounded-full"
             >
               <X className="h-4 w-4" />
             </button>
@@ -1170,7 +1170,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
             {/* Date pill */}
             {messages.length > 0 && (
               <div className="flex justify-center mb-2">
-                <span className="px-3 py-1 bg-white/80 text-gray-600 text-xs rounded-lg shadow-sm">
+                <span className="px-3 py-1 bg-(--color-surface)/80 text-(--color-text-secondary) text-xs rounded-lg shadow-sm">
                   {format(new Date(messages[0].created_at), 'MMM d, yyyy')}
                 </span>
               </div>
@@ -1193,10 +1193,10 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                       message.sender_type === 'customer'
                         ? 'bg-[#DCF8C6] rounded-lg rounded-tr-none'
                         : message.sender_type === 'bot'
-                          ? 'bg-white rounded-lg rounded-tl-none'
+                          ? 'bg-(--color-surface) rounded-lg rounded-tl-none'
                           : message.sender_type === 'vendor'
                             ? 'bg-[#F3E8FF] rounded-lg rounded-tl-none'
-                            : 'bg-white rounded-lg rounded-tl-none'
+                            : 'bg-(--color-surface) rounded-lg rounded-tl-none'
                     }`}
                   >
                     {/* Sender name for non-customer */}
@@ -1212,12 +1212,12 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                       </p>
                     )}
 
-                    <p className="text-sm text-gray-900 whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                    <p className="text-sm text-foreground whitespace-pre-wrap leading-relaxed">{message.content}</p>
 
                     <div className={`flex items-center justify-end gap-1 mt-0.5 ${
-                      message.sender_type === 'customer' ? 'text-gray-500' : 'text-gray-400'
+                      message.sender_type === 'customer' ? 'text-(--color-text-muted)' : 'text-(--color-text-disabled)'
                     }`}>
-                      <span className="text-[10px]">
+                      <span className="text-[11px]">
                         {format(new Date(message.created_at), 'HH:mm')}
                       </span>
                       {message.sender_type === 'customer' && (
@@ -1234,14 +1234,14 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
             {/* Bot typing */}
             {botTyping && (
               <div className="flex justify-start mb-1">
-                <div className="bg-white rounded-lg rounded-tl-none px-3 py-2 shadow-sm">
+                <div className="bg-(--color-surface) rounded-lg rounded-tl-none px-3 py-2 shadow-sm">
                   <p className="text-xs font-semibold text-[#25D366] mb-1">
                     🤖 {botSettings?.botName || 'FreshBot'}
                   </p>
                   <div className="flex gap-1 py-1">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <span className="w-2 h-2 bg-(--color-text-disabled) rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <span className="w-2 h-2 bg-(--color-text-disabled) rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <span className="w-2 h-2 bg-(--color-text-disabled) rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               </div>
@@ -1252,13 +1252,13 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
 
           {/* Quick Replies */}
           {quickReplies.length > 0 && (
-            <div className="px-3 py-2 bg-[#ECE5DD] border-t border-gray-200">
+            <div className="px-3 py-2 bg-[#ECE5DD] border-t border-(--color-border)">
               <div className="flex flex-wrap gap-1.5">
                 {quickReplies.map((reply, i) => (
                   <button
                     key={i}
                     onClick={() => handleQuickReply(reply)}
-                    className="px-3 py-1.5 bg-white border border-[#25D366] text-[#075E54] rounded-full text-xs font-medium hover:bg-[#DCF8C6] transition-colors shadow-sm"
+                    className="px-3 py-1.5 bg-(--color-surface) border border-[#25D366] text-[#075E54] rounded-full text-xs font-medium hover:bg-[#DCF8C6] transition-colors shadow-sm"
                   >
                     {reply.text}
                   </button>
@@ -1269,8 +1269,8 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
 
           {/* Error banner */}
           {error && (
-            <div className="px-3 py-2 bg-red-50 border-t border-red-200">
-              <p className="text-xs text-red-600 text-center">{error}</p>
+            <div className="px-3 py-2 bg-(--color-error)/5 border-t border-(--color-error)/20">
+              <p className="text-xs text-(--color-error) text-center">{error}</p>
             </div>
           )}
 
@@ -1283,14 +1283,14 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
               onKeyDown={handleKeyPress}
               placeholder="Type a message"
               rows={1}
-              className="flex-1 px-4 py-2.5 bg-white rounded-3xl text-sm outline-none resize-none max-h-24 border-0"
+              className="flex-1 px-4 py-2.5 bg-(--color-surface) rounded-3xl text-sm outline-none resize-none max-h-24 border-0"
               style={{ minHeight: '42px' }}
             />
             <button
               onClick={sendMessage}
               disabled={!newMessage.trim() || sending}
               aria-label="Send message"
-              className="w-10 h-10 bg-[#25D366] text-white rounded-full flex items-center justify-center hover:bg-[#20BD5A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex-shrink-0"
+              className="w-10 h-10 bg-[#25D366] text-white rounded-full flex items-center justify-center hover:bg-[#20BD5A] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
             >
               {sending ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -1301,14 +1301,14 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
           </div>
 
           {/* Footer */}
-          <div className="px-3 py-1.5 bg-[#F0F0F0] flex items-center justify-between border-t border-gray-200">
+          <div className="px-3 py-1.5 bg-[#F0F0F0] flex items-center justify-between border-t border-(--color-border)">
             <button
               onClick={() => setShowRatingForm(true)}
-              className="text-[10px] text-gray-400 hover:text-gray-600"
+              className="text-[11px] text-(--color-text-disabled) hover:text-(--color-text-secondary)"
             >
               End conversation
             </button>
-            <span className="text-[10px] text-gray-400">
+            <span className="text-[11px] text-(--color-text-disabled)">
               {isBotActive && '🤖 '} Powered by FreshMart
             </span>
           </div>
@@ -1319,7 +1319,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
       {view === 'chat' && showRatingForm && (
         <>
           <div className="bg-[#075E54] text-white px-4 py-3 flex items-center gap-3">
-            <button onClick={() => setShowRatingForm(false)} className="p-1 hover:bg-white/10 rounded-full">
+            <button onClick={() => setShowRatingForm(false)} className="p-1 hover:bg-(--color-surface)/10 rounded-full">
               <ArrowLeft className="h-5 w-5" />
             </button>
             <h3 className="font-semibold text-sm">Rate your experience</h3>
@@ -1329,14 +1329,14 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
             <div className="w-16 h-16 bg-[#DCF8C6] rounded-full flex items-center justify-center mb-4">
               <Star className="h-8 w-8 text-[#075E54]" />
             </div>
-            <h4 className="font-semibold text-gray-900 text-lg mb-1">How was your experience?</h4>
-            <p className="text-sm text-gray-500 mb-6">Your feedback helps us improve</p>
+            <h4 className="font-semibold text-foreground text-lg mb-1">How was your experience?</h4>
+            <p className="text-sm text-(--color-text-muted) mb-6">Your feedback helps us improve</p>
 
             <div className="flex gap-2 mb-6">
               {[1, 2, 3, 4, 5].map(star => (
                 <button key={star} onClick={() => setRating(star)} className="p-1" aria-label={`Rate ${star} out of 5 stars`}>
                   <Star className={`h-10 w-10 transition-colors ${
-                    star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+                    star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-(--color-text-disabled)'
                   }`} />
                 </button>
               ))}
@@ -1347,7 +1347,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               rows={3}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] resize-none outline-none mb-4"
+              className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl text-sm focus:ring-2 focus:ring-[#25D366] focus:border-[#25D366] resize-none outline-none mb-4"
             />
 
             <div className="flex gap-3 w-full">
@@ -1360,7 +1360,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                   setIsBotActive(true)
                   fetchConversations()
                 }}
-                className="flex-1 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium"
+                className="flex-1 py-2.5 border border-(--color-border) text-(--color-text-secondary) rounded-xl hover:bg-background font-medium"
               >
                 Skip
               </button>

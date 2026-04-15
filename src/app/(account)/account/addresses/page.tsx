@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Plus, Pencil, Trash2, MapPin, Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import {
   Dialog,
@@ -111,8 +111,8 @@ export default function AddressesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Addresses</h1>
-          <p className="text-gray-500 mt-1">Manage your delivery addresses</p>
+          <h1 className="text-2xl font-bold text-foreground">My Addresses</h1>
+          <p className="text-(--color-text-muted) mt-1">Manage your delivery addresses</p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
@@ -156,7 +156,7 @@ export default function AddressesPage() {
                   defaultValue={editingAddress?.address_line_2 || ''}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="city">City</Label>
                   <Input
@@ -209,7 +209,7 @@ export default function AddressesPage() {
 
       {isLoading ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading addresses...</p>
+          <p className="text-(--color-text-muted)">Loading addresses...</p>
         </div>
       ) : addresses.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -218,25 +218,25 @@ export default function AddressesPage() {
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-3">
-                    <MapPin className="h-5 w-5 text-gray-400 mt-0.5" />
+                    <MapPin className="h-5 w-5 text-(--color-text-disabled) mt-0.5" />
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="font-medium text-gray-900">{address.label}</p>
+                        <p className="font-medium text-foreground">{address.label}</p>
                         {address.is_default && (
                           <Badge variant="success" className="text-xs">Default</Badge>
                         )}
                       </div>
-                      <p className="text-gray-600 mt-1">
+                      <p className="text-(--color-text-secondary) mt-1">
                         {address.address_line_1}
                         {address.address_line_2 && <>, {address.address_line_2}</>}
                       </p>
-                      <p className="text-gray-600">
+                      <p className="text-(--color-text-secondary)">
                         {address.city}
                         {address.county && <>, {address.county}</>}
                       </p>
-                      <p className="text-gray-600">{address.postcode}</p>
+                      <p className="text-(--color-text-secondary)">{address.postcode}</p>
                       {address.delivery_instructions && (
-                        <p className="text-sm text-gray-500 mt-2">
+                        <p className="text-sm text-(--color-text-muted) mt-2">
                           Note: {address.delivery_instructions}
                         </p>
                       )}
@@ -264,7 +264,7 @@ export default function AddressesPage() {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(address.id)}
-                      className="text-red-500 hover:text-red-600"
+                      className="text-(--color-error) hover:text-(--color-error)"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -277,9 +277,9 @@ export default function AddressesPage() {
       ) : (
         <Card>
           <CardContent className="py-12 text-center">
-            <MapPin className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">No addresses yet</h2>
-            <p className="text-gray-500 mb-6">
+            <MapPin className="h-16 w-16 text-(--color-text-disabled) mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-foreground mb-2">No addresses yet</h2>
+            <p className="text-(--color-text-muted) mb-6">
               Add a delivery address to make checkout faster.
             </p>
             <Button onClick={openNew}>

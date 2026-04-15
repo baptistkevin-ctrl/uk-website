@@ -332,7 +332,7 @@ interface DashboardData {
 }
 
 // Mini Sparkline Component
-const Sparkline = ({ data, color = '#10b981' }: { data: number[], color?: string }) => {
+const Sparkline = ({ data, color = 'var(--color-success)' }: { data: number[], color?: string }) => {
   const max = Math.max(...data, 1)
   const min = Math.min(...data, 0)
   const range = max - min || 1
@@ -393,8 +393,8 @@ const DonutChart = ({ data, size = 120 }: { data: { value: number; color: string
         })}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-2xl font-bold text-slate-900">{total}</span>
-        <span className="text-xs text-slate-500">Total</span>
+        <span className="text-2xl font-bold text-foreground">{total}</span>
+        <span className="text-xs text-(--color-text-muted)">Total</span>
       </div>
     </div>
   )
@@ -404,38 +404,38 @@ const DonutChart = ({ data, size = 120 }: { data: { value: number; color: string
 const LiveIndicator = () => (
   <div className="flex items-center gap-2">
     <span className="relative flex h-2.5 w-2.5">
-      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-(--color-success) opacity-75"></span>
+      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-(--color-success)"></span>
     </span>
-    <span className="text-xs font-medium text-emerald-600">Live</span>
+    <span className="text-xs font-medium text-(--color-success)">Live</span>
   </div>
 )
 
 // System Health Card
 const SystemHealthCard = ({ title, status, icon: Icon, details }: { title: string; status: 'healthy' | 'warning' | 'critical'; icon: React.FC; details: string }) => {
   const statusColors = {
-    healthy: 'bg-emerald-500',
-    warning: 'bg-amber-500',
-    critical: 'bg-red-500'
+    healthy: 'bg-(--color-success)',
+    warning: 'bg-(--color-warning)',
+    critical: 'bg-(--color-error)'
   }
   const statusBg = {
-    healthy: 'bg-emerald-50 border-emerald-200',
-    warning: 'bg-amber-50 border-amber-200',
-    critical: 'bg-red-50 border-red-200'
+    healthy: 'bg-(--color-success-bg) border-(--color-success)/20',
+    warning: 'bg-(--color-warning-bg) border-(--color-warning)/20',
+    critical: 'bg-(--color-error-bg) border-(--color-error)/20'
   }
 
   return (
-    <div className={`p-4 rounded-xl border ${statusBg[status]} transition-all hover:scale-[1.02]`}>
+    <div className={`p-4 rounded-lg border ${statusBg[status]} transition-all hover:scale-[1.02]`}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className="text-slate-600">
+          <div className="text-(--color-text-secondary)">
             <Icon />
           </div>
-          <span className="font-medium text-slate-700">{title}</span>
+          <span className="font-medium text-(--color-text-secondary)">{title}</span>
         </div>
         <div className={`w-2.5 h-2.5 rounded-full ${statusColors[status]}`} />
       </div>
-      <p className="text-xs text-slate-500">{details}</p>
+      <p className="text-xs text-(--color-text-muted)">{details}</p>
     </div>
   )
 }
@@ -486,15 +486,15 @@ export default function AdminDashboard() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-100">
         <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-(--color-error-bg) flex items-center justify-center text-(--color-error)">
             <XCircleIcon />
           </div>
-          <h2 className="text-xl font-semibold text-slate-900 mb-2">{error}</h2>
+          <h2 className="text-xl font-semibold text-foreground mb-2">{error}</h2>
           <button
             onClick={fetchDashboardData}
-            className="text-emerald-600 hover:text-emerald-700 font-medium"
+            className="text-(--brand-primary) hover:text-(--brand-primary-hover) font-medium"
           >
             Try again
           </button>
@@ -526,9 +526,10 @@ export default function AdminDashboard() {
       trend: data.overview.revenueChange >= 0 ? 'up' : 'down',
       subtext: `${formatPrice(data.overview.thisMonthRevenue)} this month`,
       icon: PoundIcon,
-      gradient: 'from-emerald-500 to-teal-600',
+      iconBg: 'bg-(--color-success)',
+      badgeUp: 'text-(--color-success) bg-(--color-success-bg)',
       sparklineData: revenueSparkline,
-      sparklineColor: '#10b981',
+      sparklineColor: 'var(--color-success)',
       href: '/admin/orders',
     },
     {
@@ -538,9 +539,10 @@ export default function AdminDashboard() {
       trend: 'up' as const,
       subtext: `${data.overview.thisMonthOrders} this month`,
       icon: CartIcon,
-      gradient: 'from-blue-500 to-indigo-600',
+      iconBg: 'bg-(--color-info)',
+      badgeUp: 'text-(--color-info) bg-(--color-info-bg)',
       sparklineData: ordersSparkline,
-      sparklineColor: '#3b82f6',
+      sparklineColor: 'var(--color-info)',
       href: '/admin/orders',
     },
     {
@@ -550,9 +552,10 @@ export default function AdminDashboard() {
       trend: 'up' as const,
       subtext: 'Based on paid orders',
       icon: TargetIcon,
-      gradient: 'from-violet-500 to-purple-600',
+      iconBg: 'bg-(--brand-primary)',
+      badgeUp: 'text-(--brand-primary) bg-(--brand-primary-light)',
       sparklineData: [data.overview.averageOrderValue * 0.9, data.overview.averageOrderValue * 0.95, data.overview.averageOrderValue * 0.92, data.overview.averageOrderValue * 1.0, data.overview.averageOrderValue * 0.98, data.overview.averageOrderValue * 1.02, data.overview.averageOrderValue],
-      sparklineColor: '#8b5cf6',
+      sparklineColor: 'var(--brand-primary)',
       href: '/admin/orders',
     },
     {
@@ -562,9 +565,10 @@ export default function AdminDashboard() {
       trend: 'up' as const,
       subtext: `${data.users.newThisMonth} this month`,
       icon: UsersIcon,
-      gradient: 'from-pink-500 to-rose-600',
+      iconBg: 'bg-(--brand-amber)',
+      badgeUp: 'text-(--brand-amber) bg-(--brand-amber-soft)',
       sparklineData: [data.users.total * 0.85, data.users.total * 0.88, data.users.total * 0.91, data.users.total * 0.94, data.users.total * 0.96, data.users.total * 0.98, data.users.total],
-      sparklineColor: '#ec4899',
+      sparklineColor: 'var(--brand-amber)',
       href: '/admin/users',
     },
   ] : []
@@ -577,7 +581,7 @@ export default function AdminDashboard() {
       trend: data.products.lowStock > 0 ? 'down' : 'up',
       subtext: `${data.products.lowStock} low stock`,
       icon: PackageIcon,
-      gradient: 'from-amber-500 to-orange-600',
+      iconBg: 'bg-(--brand-amber)',
       href: '/admin/products',
     },
     {
@@ -587,7 +591,7 @@ export default function AdminDashboard() {
       trend: data.vendors.pendingApplications > 0 ? 'down' : 'up',
       subtext: 'Marketplace sellers',
       icon: StoreIcon,
-      gradient: 'from-cyan-500 to-blue-600',
+      iconBg: 'bg-(--color-info)',
       href: '/admin/vendor-applications',
     },
     {
@@ -597,7 +601,7 @@ export default function AdminDashboard() {
       trend: data.reviews.pending > 5 ? 'down' : 'up',
       subtext: 'Product feedback',
       icon: StarIcon,
-      gradient: 'from-yellow-500 to-amber-600',
+      iconBg: 'bg-(--color-warning)',
       href: '/admin/reviews',
     },
     {
@@ -607,28 +611,28 @@ export default function AdminDashboard() {
       trend: 'up' as const,
       subtext: `${data.marketing.activeDeals} active deals`,
       icon: TagIcon,
-      gradient: 'from-green-500 to-emerald-600',
+      iconBg: 'bg-(--brand-primary)',
       href: '/admin/coupons',
     },
   ] : []
 
   // Order status data for donut chart
   const orderStatusData = data ? [
-    { value: data.orders.byStatus.pending, color: '#f59e0b', label: 'Pending' },
-    { value: data.orders.byStatus.confirmed, color: '#8b5cf6', label: 'Confirmed' },
-    { value: data.orders.byStatus.processing, color: '#3b82f6', label: 'Processing' },
-    { value: data.orders.byStatus.shipped, color: '#6366f1', label: 'Shipped' },
-    { value: data.orders.byStatus.delivered, color: '#10b981', label: 'Delivered' },
-    { value: data.orders.byStatus.cancelled, color: '#ef4444', label: 'Cancelled' },
+    { value: data.orders.byStatus.pending, color: '#D97706', label: 'Pending' },
+    { value: data.orders.byStatus.confirmed, color: '#7C3AED', label: 'Confirmed' },
+    { value: data.orders.byStatus.processing, color: '#2563EB', label: 'Processing' },
+    { value: data.orders.byStatus.shipped, color: '#4F46E5', label: 'Shipped' },
+    { value: data.orders.byStatus.delivered, color: '#16A34A', label: 'Delivered' },
+    { value: data.orders.byStatus.cancelled, color: '#DC2626', label: 'Cancelled' },
   ] : []
 
   return (
     <div className="space-y-6">
       {/* Enterprise Header */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-6 shadow-xl">
+      <div className="bg-(--brand-dark) rounded-xl p-6 shadow-(--shadow-lg)">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+            <div className="w-14 h-14 rounded-xl bg-(--brand-primary) flex items-center justify-center">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
                 <polyline points="9 22 9 12 15 12 15 22"/>
@@ -636,12 +640,12 @@ export default function AdminDashboard() {
             </div>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-white">
+                <h1 className="font-display text-2xl font-semibold text-white">
                   Command Center
                 </h1>
                 <LiveIndicator />
               </div>
-              <p className="text-slate-400 text-sm mt-0.5">
+              <p className="text-white/50 text-sm mt-0.5">
                 Enterprise Admin Dashboard | UK Grocery Store
               </p>
             </div>
@@ -649,8 +653,8 @@ export default function AdminDashboard() {
 
           <div className="flex flex-wrap items-center gap-3">
             {/* Current Time */}
-            <div className="px-4 py-2.5 bg-slate-800/50 rounded-xl border border-slate-700/50">
-              <div className="text-xs text-slate-500 mb-0.5">Local Time</div>
+            <div className="px-4 py-2.5 bg-(--color-surface)/5 rounded-lg border border-white/10">
+              <div className="text-xs text-white/40 mb-0.5">Local Time</div>
               <div className="text-white font-mono font-medium">
                 {currentTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </div>
@@ -658,9 +662,9 @@ export default function AdminDashboard() {
 
             {/* Last Update */}
             {lastUpdate && (
-              <div className="px-4 py-2.5 bg-slate-800/50 rounded-xl border border-slate-700/50">
-                <div className="text-xs text-slate-500 mb-0.5">Last Sync</div>
-                <div className="text-emerald-400 font-medium text-sm">
+              <div className="px-4 py-2.5 bg-(--color-surface)/5 rounded-lg border border-white/10">
+                <div className="text-xs text-white/40 mb-0.5">Last Sync</div>
+                <div className="text-(--color-success) font-medium text-sm">
                   {lastUpdate.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
@@ -669,7 +673,7 @@ export default function AdminDashboard() {
             <button
               onClick={fetchDashboardData}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-700/50 text-slate-300 rounded-xl font-medium hover:bg-slate-700 transition-all border border-slate-600/50 disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-(--color-surface)/10 text-white/70 rounded-lg font-medium hover:bg-(--color-surface)/15 transition-all border border-white/10 disabled:opacity-50"
             >
               <span className={loading ? 'animate-spin' : ''}>
                 <RefreshIcon />
@@ -679,7 +683,7 @@ export default function AdminDashboard() {
 
             <Link
               href="/admin/products/new"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/25"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-(--brand-primary) text-white rounded-lg font-medium hover:bg-(--brand-primary-hover) transition-all"
             >
               <PlusIcon />
               Add Product
@@ -695,26 +699,26 @@ export default function AdminDashboard() {
             <Link
               key={index}
               href={alert.link}
-              className={`flex items-start gap-3 p-4 rounded-xl border transition-all hover:scale-[1.02] hover:shadow-lg ${
+              className={`flex items-start gap-3 p-4 rounded-lg border transition-all hover:scale-[1.02] hover:shadow-(--shadow-md) ${
                 alert.type === 'error'
-                  ? 'bg-red-50 border-red-200 hover:bg-red-100'
+                  ? 'bg-(--color-error-bg) border-(--color-error)/20 hover:border-(--color-error)/40'
                   : alert.type === 'warning'
-                  ? 'bg-amber-50 border-amber-200 hover:bg-amber-100'
-                  : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                  ? 'bg-(--color-warning-bg) border-(--color-warning)/20 hover:border-(--color-warning)/40'
+                  : 'bg-(--color-info-bg) border-(--color-info)/20 hover:border-(--color-info)/40'
               }`}
             >
-              <div className={`p-2 rounded-lg ${
+              <div className={`p-2 rounded-md ${
                 alert.type === 'error'
-                  ? 'bg-red-100 text-red-600'
+                  ? 'bg-(--color-error)/10 text-(--color-error)'
                   : alert.type === 'warning'
-                  ? 'bg-amber-100 text-amber-600'
-                  : 'bg-blue-100 text-blue-600'
+                  ? 'bg-(--color-warning)/10 text-(--color-warning)'
+                  : 'bg-(--color-info)/10 text-(--color-info)'
               }`}>
                 {alert.type === 'error' ? <XCircleIcon /> : alert.type === 'warning' ? <AlertIcon /> : <InfoIcon />}
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-slate-900">{alert.title}</h4>
-                <p className="text-sm text-slate-600 truncate">{alert.message}</p>
+                <h4 className="font-semibold text-foreground">{alert.title}</h4>
+                <p className="text-sm text-(--color-text-secondary) truncate">{alert.message}</p>
               </div>
               <ArrowRightIcon />
             </Link>
@@ -726,13 +730,13 @@ export default function AdminDashboard() {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 animate-pulse">
+            <div key={i} className="bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) border border-(--color-border) animate-pulse">
               <div className="flex items-start justify-between mb-4">
-                <div className="w-14 h-14 bg-slate-200 rounded-2xl" />
-                <div className="w-20 h-6 bg-slate-200 rounded-full" />
+                <div className="w-14 h-14 bg-(--color-elevated) rounded-xl" />
+                <div className="w-20 h-6 bg-(--color-elevated) rounded-full" />
               </div>
-              <div className="w-24 h-10 bg-slate-200 rounded-lg mb-2" />
-              <div className="w-32 h-4 bg-slate-100 rounded" />
+              <div className="w-24 h-10 bg-(--color-elevated) rounded-md mb-2" />
+              <div className="w-32 h-4 bg-(--color-border) rounded" />
             </div>
           ))}
         </div>
@@ -742,14 +746,11 @@ export default function AdminDashboard() {
             <Link
               key={index}
               href={stat.href}
-              className="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 overflow-hidden"
+              className="group relative bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) hover:shadow-(--shadow-lg) transition-all duration-300 border border-(--color-border) overflow-hidden"
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${stat.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
-              <div className={`absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-10 rounded-full group-hover:scale-150 transition-transform duration-700`} />
-
               <div className="relative">
                 <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-2xl bg-gradient-to-br ${stat.gradient} shadow-lg`}>
+                  <div className={`p-3 rounded-xl ${stat.iconBg}`}>
                     <div className="text-white">
                       <stat.icon />
                     </div>
@@ -758,8 +759,8 @@ export default function AdminDashboard() {
                     <span
                       className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
                         stat.trend === 'up'
-                          ? 'text-emerald-700 bg-emerald-100'
-                          : 'text-red-700 bg-red-100'
+                          ? stat.badgeUp
+                          : 'text-(--color-error) bg-(--color-error-bg)'
                       }`}
                     >
                       {stat.trend === 'up' ? <ArrowUpRightIcon /> : <ArrowDownRightIcon />}
@@ -768,11 +769,11 @@ export default function AdminDashboard() {
                     <Sparkline data={stat.sparklineData} color={stat.sparklineColor} />
                   </div>
                 </div>
-                <h3 className="text-3xl font-bold text-slate-900 mb-1 tracking-tight">
+                <h3 className="text-3xl font-bold text-foreground mb-1 tracking-tight">
                   {stat.value}
                 </h3>
-                <p className="text-slate-500 font-medium">{stat.title}</p>
-                <p className="text-xs text-slate-400 mt-1">{stat.subtext}</p>
+                <p className="text-(--color-text-muted) font-medium">{stat.title}</p>
+                <p className="text-xs text-(--color-text-muted) mt-1">{stat.subtext}</p>
               </div>
             </Link>
           ))}
@@ -786,22 +787,22 @@ export default function AdminDashboard() {
             <Link
               key={index}
               href={stat.href}
-              className="group bg-white rounded-xl p-4 shadow-sm hover:shadow-lg transition-all duration-300 border border-slate-100"
+              className="group bg-(--color-surface) rounded-lg p-4 shadow-(--shadow-sm) hover:shadow-(--shadow-md) transition-all duration-300 border border-(--color-border)"
             >
               <div className="flex items-center gap-3">
-                <div className={`p-2.5 rounded-xl bg-gradient-to-br ${stat.gradient} shadow-md`}>
+                <div className={`p-2.5 rounded-lg ${stat.iconBg}`}>
                   <div className="text-white w-5 h-5">
                     <stat.icon />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xl font-bold text-slate-900">{stat.value}</span>
-                    <span className={`text-xs font-medium ${stat.trend === 'up' ? 'text-emerald-600' : 'text-red-600'}`}>
+                    <span className="text-xl font-bold text-foreground">{stat.value}</span>
+                    <span className={`text-xs font-medium ${stat.trend === 'up' ? 'text-(--color-success)' : 'text-(--color-error)'}`}>
                       {stat.change}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 truncate">{stat.title}</p>
+                  <p className="text-xs text-(--color-text-muted) truncate">{stat.title}</p>
                 </div>
               </div>
             </Link>
@@ -810,15 +811,15 @@ export default function AdminDashboard() {
       )}
 
       {/* System Health Monitoring */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+      <div className="bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) border border-(--color-border)">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-slate-100 rounded-lg">
+            <div className="p-2 bg-(--color-elevated) rounded-md">
               <ActivityIcon />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900">System Health</h2>
-              <p className="text-xs text-slate-500">Real-time infrastructure monitoring</p>
+              <h2 className="font-display text-lg font-semibold text-foreground">System Health</h2>
+              <p className="text-xs text-(--color-text-muted)">Real-time infrastructure monitoring</p>
             </div>
           </div>
           <LiveIndicator />
@@ -834,29 +835,29 @@ export default function AdminDashboard() {
       {/* Charts and Order Status Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sales Chart */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <div className="lg:col-span-2 bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) border border-(--color-border)">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Revenue Analytics</h2>
-              <p className="text-slate-500 text-sm mt-0.5">Performance overview</p>
+              <h2 className="font-display text-xl font-semibold text-foreground">Revenue Analytics</h2>
+              <p className="text-(--color-text-muted) text-sm mt-0.5">Performance overview</p>
             </div>
-            <div className="flex items-center gap-2 bg-slate-100 rounded-xl p-1">
+            <div className="flex items-center gap-2 bg-(--color-elevated) rounded-lg p-1">
               <button
                 onClick={() => setChartView('daily')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`px-4 py-2.5 rounded-md text-sm font-medium transition-all ${
                   chartView === 'daily'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-(--color-surface) text-foreground shadow-(--shadow-sm)'
+                    : 'text-(--color-text-secondary) hover:text-foreground'
                 }`}
               >
                 7 Days
               </button>
               <button
                 onClick={() => setChartView('monthly')}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`px-4 py-2.5 rounded-md text-sm font-medium transition-all ${
                   chartView === 'monthly'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                    ? 'bg-(--color-surface) text-foreground shadow-(--shadow-sm)'
+                    : 'text-(--color-text-secondary) hover:text-foreground'
                 }`}
               >
                 6 Months
@@ -867,7 +868,7 @@ export default function AdminDashboard() {
           {loading ? (
             <div className="h-64 flex items-end gap-4 px-2">
               {[...Array(7)].map((_, i) => (
-                <div key={i} className="flex-1 bg-slate-200 rounded-xl animate-pulse" style={{ height: `${Math.random() * 200 + 50}px` }} />
+                <div key={i} className="flex-1 bg-(--color-elevated) rounded-lg animate-pulse" style={{ height: `${Math.random() * 200 + 50}px` }} />
               ))}
             </div>
           ) : data && (
@@ -879,19 +880,19 @@ export default function AdminDashboard() {
                   <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
                     <div className="relative w-full">
                       <div
-                        className="w-full bg-gradient-to-t from-emerald-500 to-emerald-400 rounded-xl transition-all duration-500 group-hover:from-emerald-600 group-hover:to-emerald-500 relative min-h-[4px]"
+                        className="w-full bg-(--brand-primary) rounded-lg transition-all duration-500 group-hover:bg-(--brand-primary-hover) relative min-h-[4px]"
                         style={{ height: `${Math.max(height, 4)}px` }}
                       >
-                        <div className="absolute -top-20 left-1/2 -translate-x-1/2 px-3 py-2 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-xl">
-                          <div className="font-bold text-emerald-400">{formatPrice(item.revenue)}</div>
-                          <div className="text-slate-400">{item.orders} orders</div>
+                        <div className="absolute -top-20 left-1/2 -translate-x-1/2 px-3 py-2 bg-(--brand-dark) text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-(--shadow-lg)">
+                          <div className="font-bold text-(--color-success)">{formatPrice(item.revenue)}</div>
+                          <div className="text-white/50">{item.orders} orders</div>
                           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full">
-                            <div className="border-8 border-transparent border-t-slate-900"></div>
+                            <div className="border-8 border-transparent border-t-(--brand-dark)"></div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    <span className="text-xs text-slate-500 font-medium group-hover:text-emerald-600 transition-colors">
+                    <span className="text-xs text-(--color-text-muted) font-medium group-hover:text-(--brand-primary) transition-colors">
                       {chartView === 'daily' ? (item as { day: string }).day : (item as { month: string }).month}
                     </span>
                   </div>
@@ -902,13 +903,13 @@ export default function AdminDashboard() {
         </div>
 
         {/* Order Status Donut Chart */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Order Pipeline</h2>
-          <p className="text-sm text-slate-500 mb-6">Status distribution</p>
+        <div className="bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) border border-(--color-border)">
+          <h2 className="font-display text-xl font-semibold text-foreground mb-2">Order Pipeline</h2>
+          <p className="text-sm text-(--color-text-muted) mb-6">Status distribution</p>
 
           {loading ? (
             <div className="flex justify-center items-center h-48">
-              <div className="w-32 h-32 rounded-full border-8 border-slate-200 animate-pulse" />
+              <div className="w-32 h-32 rounded-full border-8 border-(--color-elevated) animate-pulse" />
             </div>
           ) : data && (
             <>
@@ -920,9 +921,9 @@ export default function AdminDashboard() {
                   <div key={index} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: status.color }} />
-                      <span className="text-slate-600">{status.label}</span>
+                      <span className="text-(--color-text-secondary)">{status.label}</span>
                     </div>
-                    <span className="font-semibold text-slate-900">{status.value}</span>
+                    <span className="font-semibold text-foreground">{status.value}</span>
                   </div>
                 ))}
               </div>
@@ -931,7 +932,7 @@ export default function AdminDashboard() {
 
           <Link
             href="/admin/orders"
-            className="flex items-center justify-center gap-2 mt-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-medium hover:bg-slate-200 transition-colors"
+            className="flex items-center justify-center gap-2 mt-6 py-3 bg-(--color-elevated) text-(--color-text-secondary) rounded-lg font-medium hover:bg-(--color-border) transition-colors"
           >
             <CartIcon />
             Manage Orders
@@ -941,47 +942,47 @@ export default function AdminDashboard() {
 
       {/* Performance Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl p-6 text-white">
+        <div className="bg-(--brand-primary) rounded-xl p-6 text-white">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-white/20 rounded-lg">
+            <div className="p-2 bg-(--color-surface)/20 rounded-md">
               <TargetIcon />
             </div>
-            <span className="text-emerald-100 text-sm">Conversion</span>
+            <span className="text-white/60 text-sm">Conversion</span>
           </div>
           <div className="text-4xl font-bold mb-1">{conversionRate}%</div>
-          <p className="text-emerald-100 text-sm">Visitor to customer rate</p>
-          <div className="mt-4 h-1 bg-white/20 rounded-full overflow-hidden">
-            <div className="h-full bg-white rounded-full" style={{ width: `${Math.min(parseFloat(conversionRate) * 10, 100)}%` }} />
+          <p className="text-white/60 text-sm">Visitor to customer rate</p>
+          <div className="mt-4 h-1 bg-(--color-surface)/20 rounded-full overflow-hidden">
+            <div className="h-full bg-(--color-surface) rounded-full" style={{ width: `${Math.min(parseFloat(conversionRate) * 10, 100)}%` }} />
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-6 text-white">
+        <div className="bg-(--color-info) rounded-xl p-6 text-white">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-white/20 rounded-lg">
+            <div className="p-2 bg-(--color-surface)/20 rounded-md">
               <ActivityIcon />
             </div>
-            <span className="text-blue-100 text-sm">Fulfillment</span>
+            <span className="text-white/60 text-sm">Fulfillment</span>
           </div>
           <div className="text-4xl font-bold mb-1">
             {data ? Math.round((data.orders.byStatus.delivered / Math.max(Object.values(data.orders.byStatus).reduce((a, b) => a + b, 0), 1)) * 100) : 0}%
           </div>
-          <p className="text-blue-100 text-sm">Order completion rate</p>
-          <div className="mt-4 h-1 bg-white/20 rounded-full overflow-hidden">
-            <div className="h-full bg-white rounded-full" style={{ width: data ? `${(data.orders.byStatus.delivered / Math.max(Object.values(data.orders.byStatus).reduce((a, b) => a + b, 0), 1)) * 100}%` : '0%' }} />
+          <p className="text-white/60 text-sm">Order completion rate</p>
+          <div className="mt-4 h-1 bg-(--color-surface)/20 rounded-full overflow-hidden">
+            <div className="h-full bg-(--color-surface) rounded-full" style={{ width: data ? `${(data.orders.byStatus.delivered / Math.max(Object.values(data.orders.byStatus).reduce((a, b) => a + b, 0), 1)) * 100}%` : '0%' }} />
           </div>
         </div>
 
-        <div className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-6 text-white">
+        <div className="bg-(--brand-amber) rounded-xl p-6 text-white">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-white/20 rounded-lg">
+            <div className="p-2 bg-(--color-surface)/20 rounded-md">
               <StarIcon />
             </div>
-            <span className="text-violet-100 text-sm">Satisfaction</span>
+            <span className="text-white/60 text-sm">Satisfaction</span>
           </div>
           <div className="text-4xl font-bold mb-1">
             {data ? (data.reviews.total > 0 ? '4.8' : 'N/A') : 'N/A'}
           </div>
-          <p className="text-violet-100 text-sm">Average customer rating</p>
+          <p className="text-white/60 text-sm">Average customer rating</p>
           <div className="mt-4 flex gap-1">
             {[1, 2, 3, 4, 5].map(star => (
               <svg key={star} width="16" height="16" viewBox="0 0 24 24" fill={star <= 4 ? 'white' : 'rgba(255,255,255,0.3)'} stroke="none">
@@ -995,15 +996,15 @@ export default function AdminDashboard() {
       {/* Activity Feeds */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Orders */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) border border-(--color-border)">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+              <div className="p-2 bg-(--color-info-bg) rounded-md text-(--color-info)">
                 <CartIcon />
               </div>
-              <h2 className="text-lg font-bold text-slate-900">Recent Orders</h2>
+              <h2 className="font-display text-lg font-semibold text-foreground">Recent Orders</h2>
             </div>
-            <Link href="/admin/orders" className="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
+            <Link href="/admin/orders" className="text-(--brand-primary) hover:text-(--brand-primary-hover) text-sm font-medium">
               View all
             </Link>
           </div>
@@ -1012,12 +1013,12 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="animate-pulse flex items-center gap-3">
-                  <div className="w-10 h-10 bg-slate-200 rounded-full" />
+                  <div className="w-10 h-10 bg-(--color-elevated) rounded-full" />
                   <div className="flex-1">
-                    <div className="w-24 h-4 bg-slate-200 rounded mb-1" />
-                    <div className="w-32 h-3 bg-slate-100 rounded" />
+                    <div className="w-24 h-4 bg-(--color-elevated) rounded mb-1" />
+                    <div className="w-32 h-3 bg-(--color-border) rounded" />
                   </div>
-                  <div className="w-16 h-4 bg-slate-200 rounded" />
+                  <div className="w-16 h-4 bg-(--color-elevated) rounded" />
                 </div>
               ))}
             </div>
@@ -1027,23 +1028,23 @@ export default function AdminDashboard() {
                 <Link
                   key={order.id}
                   href={`/admin/orders/${order.id}`}
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group"
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-(--color-elevated) transition-colors group"
                 >
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold ${
-                    order.status === 'delivered' ? 'bg-emerald-500' :
-                    order.status === 'confirmed' ? 'bg-purple-500' :
-                    order.status === 'shipped' || order.status === 'out_for_delivery' ? 'bg-blue-500' :
-                    order.status === 'processing' ? 'bg-amber-500' :
-                    order.status === 'cancelled' ? 'bg-red-500' :
-                    'bg-slate-500'
+                    order.status === 'delivered' ? 'bg-(--color-success)' :
+                    order.status === 'confirmed' ? 'bg-(--color-info)' :
+                    order.status === 'shipped' || order.status === 'out_for_delivery' ? 'bg-(--color-info)' :
+                    order.status === 'processing' ? 'bg-(--color-warning)' :
+                    order.status === 'cancelled' ? 'bg-(--color-error)' :
+                    'bg-(--color-text-muted)'
                   }`}>
                     #{order.order_number.slice(-2)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-900 truncate group-hover:text-emerald-600">
+                    <p className="font-medium text-foreground truncate group-hover:text-(--brand-primary)">
                       {order.customer_name || order.customer_email}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-(--color-text-muted)">
                       {new Date(order.created_at).toLocaleDateString('en-GB', {
                         day: 'numeric',
                         month: 'short',
@@ -1052,7 +1053,7 @@ export default function AdminDashboard() {
                       })}
                     </p>
                   </div>
-                  <span className="font-semibold text-slate-900">
+                  <span className="font-semibold text-foreground">
                     {formatPrice(order.total_pence)}
                   </span>
                 </Link>
@@ -1060,24 +1061,24 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <div className="text-slate-300">
+              <div className="text-(--color-border-strong)">
                 <CartIcon />
               </div>
-              <p className="text-slate-500 text-sm mt-2">No orders yet</p>
+              <p className="text-(--color-text-muted) text-sm mt-2">No orders yet</p>
             </div>
           )}
         </div>
 
         {/* Recent Reviews */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) border border-(--color-border)">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-lg text-amber-600">
+              <div className="p-2 bg-(--color-warning-bg) rounded-md text-(--color-warning)">
                 <StarIcon />
               </div>
-              <h2 className="text-lg font-bold text-slate-900">Recent Reviews</h2>
+              <h2 className="font-display text-lg font-semibold text-foreground">Recent Reviews</h2>
             </div>
-            <Link href="/admin/reviews" className="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
+            <Link href="/admin/reviews" className="text-(--brand-primary) hover:text-(--brand-primary-hover) text-sm font-medium">
               View all
             </Link>
           </div>
@@ -1087,10 +1088,10 @@ export default function AdminDashboard() {
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="animate-pulse">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-16 h-4 bg-slate-200 rounded" />
-                    <div className="w-12 h-4 bg-slate-100 rounded" />
+                    <div className="w-16 h-4 bg-(--color-elevated) rounded" />
+                    <div className="w-12 h-4 bg-(--color-border) rounded" />
                   </div>
-                  <div className="w-full h-3 bg-slate-100 rounded" />
+                  <div className="w-full h-3 bg-(--color-border) rounded" />
                 </div>
               ))}
             </div>
@@ -1100,7 +1101,7 @@ export default function AdminDashboard() {
                 <Link
                   key={review.id}
                   href="/admin/reviews"
-                  className="block p-3 rounded-xl hover:bg-slate-50 transition-colors group"
+                  className="block p-3 rounded-lg hover:bg-(--color-elevated) transition-colors group"
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <div className="flex items-center">
@@ -1110,7 +1111,7 @@ export default function AdminDashboard() {
                           width="14"
                           height="14"
                           viewBox="0 0 24 24"
-                          fill={i < review.rating ? '#fbbf24' : '#e2e8f0'}
+                          fill={i < review.rating ? '#D97706' : 'var(--color-border)'}
                           stroke="none"
                         >
                           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -1118,17 +1119,17 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                     <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      review.status === 'approved' ? 'bg-emerald-100 text-emerald-700' :
-                      review.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                      'bg-amber-100 text-amber-700'
+                      review.status === 'approved' ? 'bg-(--color-success-bg) text-(--color-success)' :
+                      review.status === 'rejected' ? 'bg-(--color-error-bg) text-(--color-error)' :
+                      'bg-(--color-warning-bg) text-(--color-warning)'
                     }`}>
                       {review.status}
                     </span>
                   </div>
-                  <p className="text-sm font-medium text-slate-900 truncate group-hover:text-emerald-600">
+                  <p className="text-sm font-medium text-foreground truncate group-hover:text-(--brand-primary)">
                     {review.title || 'No title'}
                   </p>
-                  <p className="text-xs text-slate-500 truncate">
+                  <p className="text-xs text-(--color-text-muted) truncate">
                     on {review.products?.name || 'Unknown product'}
                   </p>
                 </Link>
@@ -1136,24 +1137,24 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <div className="text-slate-300">
+              <div className="text-(--color-border-strong)">
                 <StarIcon />
               </div>
-              <p className="text-slate-500 text-sm mt-2">No reviews yet</p>
+              <p className="text-(--color-text-muted) text-sm mt-2">No reviews yet</p>
             </div>
           )}
         </div>
 
         {/* New Users */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <div className="bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) border border-(--color-border)">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-pink-100 rounded-lg text-pink-600">
+              <div className="p-2 bg-(--brand-amber-soft) rounded-md text-(--brand-amber)">
                 <UserPlusIcon />
               </div>
-              <h2 className="text-lg font-bold text-slate-900">New Customers</h2>
+              <h2 className="font-display text-lg font-semibold text-foreground">New Customers</h2>
             </div>
-            <Link href="/admin/users" className="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
+            <Link href="/admin/users" className="text-(--brand-primary) hover:text-(--brand-primary-hover) text-sm font-medium">
               View all
             </Link>
           </div>
@@ -1162,10 +1163,10 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="animate-pulse flex items-center gap-3">
-                  <div className="w-10 h-10 bg-slate-200 rounded-full" />
+                  <div className="w-10 h-10 bg-(--color-elevated) rounded-full" />
                   <div className="flex-1">
-                    <div className="w-24 h-4 bg-slate-200 rounded mb-1" />
-                    <div className="w-32 h-3 bg-slate-100 rounded" />
+                    <div className="w-24 h-4 bg-(--color-elevated) rounded mb-1" />
+                    <div className="w-32 h-3 bg-(--color-border) rounded" />
                   </div>
                 </div>
               ))}
@@ -1176,18 +1177,18 @@ export default function AdminDashboard() {
                 <Link
                   key={user.id}
                   href="/admin/users"
-                  className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group"
+                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-(--color-elevated) transition-colors group"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-emerald-200">
+                  <div className="w-10 h-10 rounded-full bg-(--brand-primary) flex items-center justify-center text-white font-bold text-sm">
                     {(user.full_name || user.email || '?')[0].toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-900 truncate group-hover:text-emerald-600">
+                    <p className="font-medium text-foreground truncate group-hover:text-(--brand-primary)">
                       {user.full_name || 'Anonymous'}
                     </p>
-                    <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                    <p className="text-xs text-(--color-text-muted) truncate">{user.email}</p>
                   </div>
-                  <span className="text-xs text-slate-400 flex items-center gap-1">
+                  <span className="text-xs text-(--color-text-muted) flex items-center gap-1">
                     <CheckCircleIcon />
                     {new Date(user.created_at).toLocaleDateString('en-GB', {
                       day: 'numeric',
@@ -1199,10 +1200,10 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <div className="text-slate-300">
+              <div className="text-(--color-border-strong)">
                 <UsersIcon />
               </div>
-              <p className="text-slate-500 text-sm mt-2">No new users</p>
+              <p className="text-(--color-text-muted) text-sm mt-2">No new users</p>
             </div>
           )}
         </div>
@@ -1211,18 +1212,18 @@ export default function AdminDashboard() {
       {/* Top Products and Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top Selling Products */}
-        <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+        <div className="lg:col-span-2 bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) border border-(--color-border)">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600">
+              <div className="p-2 bg-(--color-success-bg) rounded-md text-(--color-success)">
                 <TrendUpIcon />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-slate-900">Top Performers</h2>
-                <p className="text-sm text-slate-500">Best selling products</p>
+                <h2 className="font-display text-lg font-semibold text-foreground">Top Performers</h2>
+                <p className="text-sm text-(--color-text-muted)">Best selling products</p>
               </div>
             </div>
-            <Link href="/admin/products" className="text-emerald-600 hover:text-emerald-700 text-sm font-medium">
+            <Link href="/admin/products" className="text-(--brand-primary) hover:text-(--brand-primary-hover) text-sm font-medium">
               View all
             </Link>
           </div>
@@ -1230,11 +1231,11 @@ export default function AdminDashboard() {
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="animate-pulse flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
-                  <div className="w-16 h-16 bg-slate-200 rounded-xl" />
+                <div key={i} className="animate-pulse flex items-center gap-4 p-4 bg-(--color-elevated) rounded-lg">
+                  <div className="w-16 h-16 bg-(--color-border) rounded-lg" />
                   <div className="flex-1">
-                    <div className="w-32 h-4 bg-slate-200 rounded mb-2" />
-                    <div className="w-20 h-3 bg-slate-100 rounded" />
+                    <div className="w-32 h-4 bg-(--color-border) rounded mb-2" />
+                    <div className="w-20 h-3 bg-(--color-border) rounded" />
                   </div>
                 </div>
               ))}
@@ -1245,10 +1246,10 @@ export default function AdminDashboard() {
                 <Link
                   key={product.id}
                   href={`/admin/products/${product.id}`}
-                  className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors group"
+                  className="flex items-center gap-4 p-4 bg-(--color-elevated) rounded-lg hover:bg-(--color-border) transition-colors group"
                 >
                   <div className="relative">
-                    <div className="w-16 h-16 rounded-xl bg-white overflow-hidden border border-slate-200 shadow-sm">
+                    <div className="w-16 h-16 rounded-lg bg-(--color-surface) overflow-hidden border border-(--color-border) shadow-(--shadow-sm)">
                       {product.image_url ? (
                         <Image
                           src={product.image_url}
@@ -1258,25 +1259,25 @@ export default function AdminDashboard() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-300">
+                        <div className="w-full h-full flex items-center justify-center text-(--color-border-strong)">
                           <PackageIcon />
                         </div>
                       )}
                     </div>
-                    <div className={`absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg ${
-                      index === 0 ? 'bg-gradient-to-br from-amber-400 to-amber-600' :
-                      index === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-600' :
-                      index === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800' :
-                      'bg-slate-400'
+                    <div className={`absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-(--shadow-sm) ${
+                      index === 0 ? 'bg-(--color-warning)' :
+                      index === 1 ? 'bg-(--color-text-muted)' :
+                      index === 2 ? 'bg-(--brand-amber)' :
+                      'bg-(--color-text-muted)'
                     }`}>
                       {index + 1}
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-900 truncate group-hover:text-emerald-600">
+                    <p className="font-medium text-foreground truncate group-hover:text-(--brand-primary)">
                       {product.name}
                     </p>
-                    <p className="text-sm text-slate-500 flex items-center gap-1">
+                    <p className="text-sm text-(--color-text-muted) flex items-center gap-1">
                       <CheckCircleIcon />
                       {product.quantity} sold
                     </p>
@@ -1287,54 +1288,40 @@ export default function AdminDashboard() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <div className="text-slate-300">
+              <div className="text-(--color-border-strong)">
                 <PackageIcon />
               </div>
-              <p className="text-slate-500 text-sm mt-2">No sales data yet</p>
+              <p className="text-(--color-text-muted) text-sm mt-2">No sales data yet</p>
             </div>
           )}
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <h2 className="text-lg font-bold text-slate-900 mb-6">Quick Actions</h2>
+        <div className="bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) border border-(--color-border)">
+          <h2 className="font-display text-lg font-semibold text-foreground mb-6">Quick Actions</h2>
           <div className="space-y-3">
             {[
-              { href: '/admin/products/new', icon: PackageIcon, title: 'Add Product', desc: 'Create listing', color: 'emerald' },
-              { href: '/admin/orders?status=pending', icon: ClockIcon, title: 'Pending Orders', desc: 'Process orders', color: 'amber' },
-              { href: '/admin/reviews', icon: StarIcon, title: 'Moderate Reviews', desc: 'Approve/reject', color: 'yellow' },
-              { href: '/admin/deals', icon: ZapIcon, title: 'Flash Deals', desc: 'Promotions', color: 'purple' },
-              { href: '/admin/coupons', icon: TagIcon, title: 'Coupons', desc: 'Discount codes', color: 'blue' },
-              { href: '/', icon: EyeIcon, title: 'View Store', desc: 'Live site', color: 'slate', external: true },
+              { href: '/admin/products/new', icon: PackageIcon, title: 'Add Product', desc: 'Create listing', bg: 'bg-(--color-success-bg)', iconBg: 'bg-(--color-success)' },
+              { href: '/admin/orders?status=pending', icon: ClockIcon, title: 'Pending Orders', desc: 'Process orders', bg: 'bg-(--color-warning-bg)', iconBg: 'bg-(--color-warning)' },
+              { href: '/admin/reviews', icon: StarIcon, title: 'Moderate Reviews', desc: 'Approve/reject', bg: 'bg-(--brand-amber-soft)', iconBg: 'bg-(--brand-amber)' },
+              { href: '/admin/deals', icon: ZapIcon, title: 'Flash Deals', desc: 'Promotions', bg: 'bg-(--brand-primary-light)', iconBg: 'bg-(--brand-primary)' },
+              { href: '/admin/coupons', icon: TagIcon, title: 'Coupons', desc: 'Discount codes', bg: 'bg-(--color-info-bg)', iconBg: 'bg-(--color-info)' },
+              { href: '/', icon: EyeIcon, title: 'View Store', desc: 'Live site', bg: 'bg-(--color-elevated)', iconBg: 'bg-(--color-text-muted)', external: true },
             ].map((action, i) => (
               <Link
                 key={i}
                 href={action.href}
                 target={action.external ? '_blank' : undefined}
-                className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-300 group hover:scale-[1.02] ${
-                  action.color === 'emerald' ? 'bg-emerald-50 hover:bg-emerald-100' :
-                  action.color === 'amber' ? 'bg-amber-50 hover:bg-amber-100' :
-                  action.color === 'yellow' ? 'bg-yellow-50 hover:bg-yellow-100' :
-                  action.color === 'purple' ? 'bg-purple-50 hover:bg-purple-100' :
-                  action.color === 'blue' ? 'bg-blue-50 hover:bg-blue-100' :
-                  'bg-slate-50 hover:bg-slate-100'
-                }`}
+                className={`flex items-center gap-4 p-4 rounded-lg transition-all duration-300 group hover:scale-[1.02] ${action.bg}`}
               >
-                <div className={`p-2.5 rounded-xl transition-transform group-hover:scale-110 ${
-                  action.color === 'emerald' ? 'bg-emerald-600' :
-                  action.color === 'amber' ? 'bg-amber-600' :
-                  action.color === 'yellow' ? 'bg-yellow-500' :
-                  action.color === 'purple' ? 'bg-purple-600' :
-                  action.color === 'blue' ? 'bg-blue-600' :
-                  'bg-slate-600'
-                }`}>
+                <div className={`p-2.5 rounded-lg transition-transform group-hover:scale-110 ${action.iconBg}`}>
                   <div className="text-white">
                     <action.icon />
                   </div>
                 </div>
                 <div className="flex-1">
-                  <p className="font-semibold text-slate-900">{action.title}</p>
-                  <p className="text-sm text-slate-500">{action.desc}</p>
+                  <p className="font-semibold text-foreground">{action.title}</p>
+                  <p className="text-sm text-(--color-text-muted)">{action.desc}</p>
                 </div>
                 {action.external && <ExternalLinkIcon />}
               </Link>

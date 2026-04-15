@@ -1,5 +1,5 @@
 /**
- * MegaMart UK - Service Worker
+ * UK Grocery Store - Service Worker
  * Production-ready PWA service worker for marketplace e-commerce
  *
  * Features:
@@ -10,11 +10,11 @@
  * - Background sync for cart operations
  */
 
-const CACHE_VERSION = 'v1.0.0';
-const STATIC_CACHE = `megamart-static-${CACHE_VERSION}`;
-const DYNAMIC_CACHE = `megamart-dynamic-${CACHE_VERSION}`;
-const IMAGE_CACHE = `megamart-images-${CACHE_VERSION}`;
-const API_CACHE = `megamart-api-${CACHE_VERSION}`;
+const CACHE_VERSION = 'v1.1.0';
+const STATIC_CACHE = `ukgrocery-static-${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `ukgrocery-dynamic-${CACHE_VERSION}`;
+const IMAGE_CACHE = `ukgrocery-images-${CACHE_VERSION}`;
+const API_CACHE = `ukgrocery-api-${CACHE_VERSION}`;
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
@@ -76,7 +76,7 @@ self.addEventListener('activate', (event) => {
         return Promise.all(
           cacheNames
             .filter((cacheName) => {
-              return cacheName.startsWith('megamart-') &&
+              return cacheName.startsWith('ukgrocery-') &&
                      cacheName !== STATIC_CACHE &&
                      cacheName !== DYNAMIC_CACHE &&
                      cacheName !== IMAGE_CACHE &&
@@ -114,6 +114,16 @@ self.addEventListener('fetch', (event) => {
 
   // Skip routes that should never be cached
   if (NO_CACHE_ROUTES.some(route => url.pathname.startsWith(route))) {
+    return;
+  }
+
+  // Skip external domain requests (CDN images, fonts, etc.) — let browser handle directly
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // Skip Next.js image optimization endpoint — let Next.js handle directly
+  if (url.pathname.startsWith('/_next/image')) {
     return;
   }
 
@@ -351,11 +361,11 @@ self.addEventListener('push', (event) => {
   console.log('[ServiceWorker] Push received');
 
   let data = {
-    title: 'MegaMart UK',
-    body: 'Discover amazing deals across our marketplace!',
+    title: 'UK Grocery Store',
+    body: 'Fresh groceries delivered to your door.',
     icon: '/icons/icon.svg',
     badge: '/icons/icon.svg',
-    tag: 'megamart-notification',
+    tag: 'ukgrocery-notification',
     data: { url: '/' }
   };
 
@@ -434,7 +444,7 @@ self.addEventListener('message', (event) => {
       caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter(name => name.startsWith('megamart-'))
+            .filter(name => name.startsWith('ukgrocery-'))
             .map(name => caches.delete(name))
         );
       }).then(() => {
@@ -460,7 +470,7 @@ async function getCacheStatus() {
   const status = {};
 
   for (const cacheName of cacheNames) {
-    if (cacheName.startsWith('megamart-')) {
+    if (cacheName.startsWith('ukgrocery-')) {
       const cache = await caches.open(cacheName);
       const keys = await cache.keys();
       status[cacheName] = keys.length;
@@ -479,7 +489,7 @@ async function getCacheStatus() {
  */
 function getFromIndexedDB(storeName) {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('megamart-offline', 1);
+    const request = indexedDB.open('ukgrocery-offline', 1);
 
     request.onerror = () => reject(request.error);
 
@@ -511,7 +521,7 @@ function getFromIndexedDB(storeName) {
 
 function clearFromIndexedDB(storeName) {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('megamart-offline', 1);
+    const request = indexedDB.open('ukgrocery-offline', 1);
 
     request.onerror = () => reject(request.error);
 

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react'
 import Image from 'next/image'
+import { ShoppingBag } from 'lucide-react'
 import {
   ChevronLeft,
   ChevronRight,
@@ -33,6 +34,7 @@ export function ProductGallery({
   const [isZoomed, setIsZoomed] = useState(false)
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 })
   const [touchStart, setTouchStart] = useState<number | null>(null)
+  const [imgError, setImgError] = useState(false)
   const imageContainerRef = useRef<HTMLDivElement>(null)
   const thumbnailsRef = useRef<HTMLDivElement>(null)
 
@@ -159,7 +161,7 @@ export function ProductGallery({
       {/* Main Image */}
       <div
         ref={imageContainerRef}
-        className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden mb-4 group"
+        className="relative aspect-square bg-(--color-elevated) rounded-xl overflow-hidden mb-4 group"
         onMouseMove={handleMouseMove}
         onMouseLeave={() => isZoomed && setIsZoomed(false)}
         onTouchStart={handleTouchStart}
@@ -169,10 +171,17 @@ export function ProductGallery({
           className={`relative w-full h-full ${isZoomed ? 'cursor-zoom-out' : showZoom ? 'cursor-zoom-in' : ''}`}
           onClick={showZoom ? handleZoomToggle : undefined}
         >
-          <Image
+          {imgError ? (
+            <div className="flex flex-col items-center justify-center h-full w-full bg-(--color-elevated)">
+              <ShoppingBag className="h-16 w-16 text-(--color-text-muted) mb-3" />
+              <p className="text-sm text-(--color-text-muted)">Image not available</p>
+            </div>
+          ) : null}
+          {!imgError && <Image
             src={galleryImages[currentIndex]}
             alt={`${productName} - Image ${currentIndex + 1}`}
             fill
+            onError={() => setImgError(true)}
             className={`object-contain transition-transform duration-200 ${
               isZoomed ? 'scale-[2]' : ''
             }`}
@@ -185,7 +194,7 @@ export function ProductGallery({
             }
             priority={currentIndex === 0}
             sizes="(max-width: 768px) 100vw, 50vw"
-          />
+          />}
         </div>
 
         {/* Navigation Arrows */}
@@ -196,20 +205,20 @@ export function ProductGallery({
                 e.stopPropagation()
                 goToPrev()
               }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-(--color-surface)/90 hover:bg-(--color-surface) rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
               aria-label="Previous image"
             >
-              <ChevronLeft className="h-5 w-5 text-gray-700" />
+              <ChevronLeft className="h-5 w-5 text-foreground" />
             </button>
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 goToNext()
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/90 hover:bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-(--color-surface)/90 hover:bg-(--color-surface) rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10"
               aria-label="Next image"
             >
-              <ChevronRight className="h-5 w-5 text-gray-700" />
+              <ChevronRight className="h-5 w-5 text-foreground" />
             </button>
           </>
         )}
@@ -222,13 +231,13 @@ export function ProductGallery({
                 e.stopPropagation()
                 handleZoomToggle()
               }}
-              className="p-2 bg-white/90 hover:bg-white rounded-full shadow-md"
+              className="p-2 bg-(--color-surface)/90 hover:bg-(--color-surface) rounded-full shadow-md"
               aria-label={isZoomed ? 'Zoom out' : 'Zoom in'}
             >
               {isZoomed ? (
-                <ZoomOut className="h-4 w-4 text-gray-700" />
+                <ZoomOut className="h-4 w-4 text-foreground" />
               ) : (
-                <ZoomIn className="h-4 w-4 text-gray-700" />
+                <ZoomIn className="h-4 w-4 text-foreground" />
               )}
             </button>
           )}
@@ -238,10 +247,10 @@ export function ProductGallery({
                 e.stopPropagation()
                 setIsLightboxOpen(true)
               }}
-              className="p-2 bg-white/90 hover:bg-white rounded-full shadow-md"
+              className="p-2 bg-(--color-surface)/90 hover:bg-(--color-surface) rounded-full shadow-md"
               aria-label="View fullscreen"
             >
-              <Maximize2 className="h-4 w-4 text-gray-700" />
+              <Maximize2 className="h-4 w-4 text-foreground" />
             </button>
           )}
         </div>
@@ -265,10 +274,10 @@ export function ProductGallery({
             <button
               key={index}
               onClick={() => goToIndex(index)}
-              className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+              className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
                 index === currentIndex
-                  ? 'border-green-500 ring-2 ring-green-200'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-(--brand-primary) ring-2 ring-(--brand-primary-light)'
+                  : 'border-(--color-border) hover:border-(--color-border)'
               }`}
             >
               <Image
@@ -291,7 +300,7 @@ export function ProductGallery({
               key={index}
               onClick={() => goToIndex(index)}
               className={`w-2 h-2 rounded-full transition-all ${
-                index === currentIndex ? 'bg-green-500 w-4' : 'bg-gray-300'
+                index === currentIndex ? 'bg-(--brand-primary) w-4' : 'bg-(--color-text-disabled)'
               }`}
               aria-label={`Go to image ${index + 1}`}
             />
@@ -312,7 +321,7 @@ export function ProductGallery({
                 e.stopPropagation()
                 handleShare()
               }}
-              className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+              className="p-3 bg-(--color-surface)/10 hover:bg-(--color-surface)/20 text-white rounded-full transition-colors"
               aria-label="Share"
             >
               <Share2 className="h-5 w-5" />
@@ -322,14 +331,14 @@ export function ProductGallery({
                 e.stopPropagation()
                 handleDownload()
               }}
-              className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+              className="p-3 bg-(--color-surface)/10 hover:bg-(--color-surface)/20 text-white rounded-full transition-colors"
               aria-label="Download"
             >
               <Download className="h-5 w-5" />
             </button>
             <button
               onClick={() => setIsLightboxOpen(false)}
-              className="p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+              className="p-3 bg-(--color-surface)/10 hover:bg-(--color-surface)/20 text-white rounded-full transition-colors"
               aria-label="Close"
             >
               <X className="h-5 w-5" />
@@ -349,7 +358,7 @@ export function ProductGallery({
                   e.stopPropagation()
                   goToPrev()
                 }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-(--color-surface)/10 hover:bg-(--color-surface)/20 text-white rounded-full transition-colors"
                 aria-label="Previous image"
               >
                 <ChevronLeft className="h-8 w-8" />
@@ -359,7 +368,7 @@ export function ProductGallery({
                   e.stopPropagation()
                   goToNext()
                 }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-(--color-surface)/10 hover:bg-(--color-surface)/20 text-white rounded-full transition-colors"
                 aria-label="Next image"
               >
                 <ChevronRight className="h-8 w-8" />
@@ -391,7 +400,7 @@ export function ProductGallery({
                     e.stopPropagation()
                     goToIndex(index)
                   }}
-                  className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                  className={`shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
                     index === currentIndex
                       ? 'border-white opacity-100'
                       : 'border-transparent opacity-50 hover:opacity-75'

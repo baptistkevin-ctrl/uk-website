@@ -118,20 +118,20 @@ export default function AdminVendorsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <span className="px-2 py-1 text-xs rounded-full bg-emerald-100 text-emerald-700">Approved</span>
+        return <span className="px-2 py-1 text-xs rounded-full bg-(--brand-primary-light) text-(--brand-primary)">Approved</span>
       case 'suspended':
-        return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700">Suspended</span>
+        return <span className="px-2 py-1 text-xs rounded-full bg-(--color-error-bg) text-(--color-error)">Suspended</span>
       case 'pending':
-        return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700">Pending</span>
+        return <span className="px-2 py-1 text-xs rounded-full bg-(--color-warning-bg) text-(--color-warning)">Pending</span>
       default:
-        return <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-700">{status}</span>
+        return <span className="px-2 py-1 text-xs rounded-full bg-(--color-elevated) text-foreground">{status}</span>
     }
   }
 
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -140,16 +140,16 @@ export default function AdminVendorsPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vendors</h1>
-          <p className="text-gray-600">{vendors.length} total vendors</p>
+          <h1 className="text-2xl font-bold text-foreground">Vendors</h1>
+          <p className="text-(--color-text-secondary)">{vendors.length} total vendors</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+      <div className="bg-(--color-surface) rounded-xl shadow-sm p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
             <Input
               placeholder="Search vendors..."
               value={search}
@@ -160,7 +160,7 @@ export default function AdminVendorsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+            className="px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
           >
             <option value="all">All Status</option>
             <option value="approved">Approved</option>
@@ -171,52 +171,52 @@ export default function AdminVendorsPage() {
       </div>
 
       {/* Vendors Table */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-(--color-surface) rounded-xl shadow-sm overflow-hidden">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b">
+          <thead className="bg-background border-b">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vendor</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden md:table-cell">Contact</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">Stripe</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Commission</th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase">Vendor</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase hidden md:table-cell">Contact</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase hidden sm:table-cell">Stripe</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase">Commission</th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-(--color-text-muted) uppercase">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-(--color-border)">
             {filteredVendors.map((vendor) => (
-              <tr key={vendor.id} className="hover:bg-gray-50">
+              <tr key={vendor.id} className="hover:bg-background">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                      <Store className="h-5 w-5 text-emerald-600" />
+                    <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center">
+                      <Store className="h-5 w-5 text-(--brand-primary)" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{vendor.business_name}</p>
-                      <p className="text-sm text-gray-500">/{vendor.slug}</p>
+                      <p className="font-medium text-foreground">{vendor.business_name}</p>
+                      <p className="text-sm text-(--color-text-muted)">/{vendor.slug}</p>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 hidden md:table-cell">
-                  <p className="text-sm text-gray-900">{vendor.email}</p>
-                  <p className="text-sm text-gray-500">{vendor.phone || 'No phone'}</p>
+                  <p className="text-sm text-foreground">{vendor.email}</p>
+                  <p className="text-sm text-(--color-text-muted)">{vendor.phone || 'No phone'}</p>
                 </td>
                 <td className="px-6 py-4">
                   {getStatusBadge(vendor.status)}
                 </td>
                 <td className="px-6 py-4 hidden sm:table-cell">
                   {vendor.stripe_onboarding_complete ? (
-                    <div className="flex items-center gap-1 text-emerald-600">
+                    <div className="flex items-center gap-1 text-(--brand-primary)">
                       <CheckCircle className="h-4 w-4" />
                       <span className="text-sm">Connected</span>
                     </div>
                   ) : vendor.stripe_account_id ? (
-                    <div className="flex items-center gap-1 text-yellow-600">
+                    <div className="flex items-center gap-1 text-(--color-warning)">
                       <Clock className="h-4 w-4" />
                       <span className="text-sm">Incomplete</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1 text-gray-400">
+                    <div className="flex items-center gap-1 text-(--color-text-disabled)">
                       <XCircle className="h-4 w-4" />
                       <span className="text-sm">Not connected</span>
                     </div>
@@ -232,8 +232,8 @@ export default function AdminVendorsPage() {
                             onClick={() => setEditCommission(preset.toString())}
                             className={`px-2 py-1 text-xs rounded border transition-colors ${
                               editCommission === preset.toString()
-                                ? 'bg-emerald-100 border-emerald-400 text-emerald-700'
-                                : 'border-gray-200 hover:border-emerald-300 text-gray-600'
+                                ? 'bg-(--brand-primary-light) border-(--brand-primary) text-(--brand-primary)'
+                                : 'border-(--color-border) hover:border-(--brand-primary)/30 text-(--color-text-secondary)'
                             }`}
                           >
                             {preset}%
@@ -252,13 +252,13 @@ export default function AdminVendorsPage() {
                       />
                       <button
                         onClick={() => updateCommissionRate(vendor.id)}
-                        className="text-emerald-600 hover:text-emerald-700"
+                        className="text-(--brand-primary) hover:text-(--brand-primary)"
                       >
                         <CheckCircle className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => { setEditingId(null); setEditCommission('') }}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-(--color-text-disabled) hover:text-(--color-text-secondary)"
                       >
                         <XCircle className="h-4 w-4" />
                       </button>
@@ -266,10 +266,10 @@ export default function AdminVendorsPage() {
                   ) : (
                     <button
                       onClick={() => { setEditingId(vendor.id); setEditCommission(vendor.commission_rate.toString()) }}
-                      className={`text-sm font-medium px-2 py-1 rounded hover:bg-emerald-50 ${
-                        vendor.commission_rate <= 5 ? 'text-blue-700' :
-                        vendor.commission_rate <= 10 ? 'text-emerald-700' :
-                        'text-gray-900'
+                      className={`text-sm font-medium px-2 py-1 rounded hover:bg-(--brand-primary-light) ${
+                        vendor.commission_rate <= 5 ? 'text-(--color-info)' :
+                        vendor.commission_rate <= 10 ? 'text-(--brand-primary)' :
+                        'text-foreground'
                       }`}
                     >
                       {vendor.commission_rate}%
@@ -283,7 +283,7 @@ export default function AdminVendorsPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => updateVendorStatus(vendor.id, 'suspended')}
-                        className="text-red-600 border-red-200 hover:bg-red-50"
+                        className="text-(--color-error) border-(--color-border) hover:bg-(--color-error-bg)"
                       >
                         Suspend
                       </Button>
@@ -292,7 +292,7 @@ export default function AdminVendorsPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => updateVendorStatus(vendor.id, 'approved')}
-                        className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                        className="text-(--brand-primary) border-(--brand-primary)/20 hover:bg-(--brand-primary-light)"
                       >
                         Reactivate
                       </Button>
@@ -305,7 +305,7 @@ export default function AdminVendorsPage() {
         </table>
 
         {filteredVendors.length === 0 && (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-(--color-text-muted)">
             No vendors found
           </div>
         )}

@@ -33,8 +33,8 @@ async function getSupabaseServer() {
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
   const productId = searchParams.get('product_id')
-  const page = parseInt(searchParams.get('page') || '1')
-  const limit = parseInt(searchParams.get('limit') || '10')
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1') || 1)
+  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '10') || 10))
   const sortBy = searchParams.get('sort') || 'recent' // recent, helpful, rating_high, rating_low
 
   if (!productId) {

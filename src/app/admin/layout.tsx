@@ -14,7 +14,6 @@ import {
   Menu,
   X,
   LogOut,
-  ChevronRight,
   Store,
   Bell,
   User,
@@ -22,7 +21,6 @@ import {
   Tag,
   Users,
   FileText,
-  Loader2,
   MessageCircleQuestion,
   Gift,
   BellRing,
@@ -37,6 +35,7 @@ import {
 } from 'lucide-react'
 import { AdminSearch } from '@/components/admin/AdminSearch'
 import { useAuth } from '@/hooks/use-auth'
+import { Spinner } from '@/components/ui/Spinner'
 
 const sidebarLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -123,10 +122,10 @@ export default function AdminLayout({
 
   if (authLoading || checkingAccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-4" />
-          <p className="text-slate-600">Checking access...</p>
+          <Spinner className="h-8 w-8 mx-auto mb-4" />
+          <p className="text-(--color-text-muted)">Checking access...</p>
         </div>
       </div>
     )
@@ -142,7 +141,7 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="min-h-screen bg-background">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
@@ -153,31 +152,31 @@ export default function AdminLayout({
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-72 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 transform transition-transform duration-300 ease-in-out lg:translate-x-0 flex flex-col ${
+        className={`fixed top-0 left-0 z-50 h-full w-72 bg-(--brand-dark) transform transition-transform duration-300 ease-in-out lg:translate-x-0 flex flex-col ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Logo */}
-        <div className="flex items-center justify-between p-6 border-b border-slate-700/50 shrink-0">
+        <div className="flex items-center justify-between p-5 border-b border-white/10 shrink-0">
           <Link href="/admin" className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+            <div className="h-10 w-10 rounded-lg bg-(--brand-primary) flex items-center justify-center">
               <Store className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white">FreshMart</h1>
-              <p className="text-xs text-slate-400">Admin Panel</p>
+              <h1 className="font-display text-lg font-semibold text-white">UK Grocery</h1>
+              <p className="text-xs text-white/50">Admin Panel</p>
             </div>
           </Link>
           <button
             onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-700/50 transition-colors"
+            className="lg:hidden p-2 text-white/60 hover:text-white rounded-lg hover:bg-(--color-surface)/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Navigation - scrollable area */}
-        <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
           {sidebarLinks.map((link) => {
             const active = isActive(link.href)
             return (
@@ -185,61 +184,57 @@ export default function AdminLayout({
                 key={link.href}
                 href={link.href}
                 onClick={() => setSidebarOpen(false)}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 group ${
                   active
-                    ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30'
-                    : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                    ? 'bg-(--color-surface)/15 text-white'
+                    : 'text-white/60 hover:bg-(--color-surface)/10 hover:text-white'
                 }`}
               >
-                <link.icon className={`w-5 h-5 shrink-0 ${active ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'}`} />
+                <link.icon className={`w-4 h-4 shrink-0 ${active ? 'text-white' : 'text-white/60 group-hover:text-white'}`} />
                 <span>{link.label}</span>
-                {active && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
               </Link>
             )
           })}
 
           {/* Support Portal Links */}
-          <div className="pt-2 mt-2 border-t border-slate-700/50 space-y-1">
+          <div className="pt-2 mt-2 border-t border-white/10 space-y-1">
             <Link
               href="/admin/support"
               onClick={() => setSidebarOpen(false)}
-              className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 group ${
                 pathname === '/admin/support'
-                  ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/30'
-                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                  ? 'bg-(--color-surface)/15 text-white'
+                  : 'text-white/60 hover:bg-(--color-surface)/10 hover:text-white'
               }`}
             >
-              <Headphones className={`w-5 h-5 shrink-0 ${pathname === '/admin/support' ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'}`} />
+              <Headphones className={`w-4 h-4 shrink-0 ${pathname === '/admin/support' ? 'text-white' : 'text-white/60 group-hover:text-white'}`} />
               <span>Admin Support</span>
-              {pathname === '/admin/support' && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
             </Link>
             {userRole === 'super_admin' && (
               <>
                 <Link
                   href="/admin/audit-logs"
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 group ${
                     pathname === '/admin/audit-logs'
-                      ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
-                      : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                      ? 'bg-(--brand-amber)/20 text-(--brand-amber)'
+                      : 'text-white/60 hover:bg-(--color-surface)/10 hover:text-white'
                   }`}
                 >
-                  <History className={`w-5 h-5 shrink-0 ${pathname === '/admin/audit-logs' ? 'text-white' : 'text-amber-400 group-hover:text-amber-300'}`} />
+                  <History className={`w-4 h-4 shrink-0 ${pathname === '/admin/audit-logs' ? 'text-(--brand-amber)' : 'text-(--brand-amber)/60 group-hover:text-(--brand-amber)'}`} />
                   <span>Activity Logs</span>
-                  {pathname === '/admin/audit-logs' && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
                 </Link>
                 <Link
                   href="/admin/super-admin-support"
                   onClick={() => setSidebarOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
+                  className={`flex items-center gap-3 px-4 py-2.5 rounded-lg font-medium transition-all duration-200 group ${
                     pathname === '/admin/super-admin-support'
-                      ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg shadow-purple-500/30'
-                      : 'text-slate-300 hover:bg-slate-700/50 hover:text-white'
+                      ? 'bg-(--brand-amber)/20 text-(--brand-amber)'
+                      : 'text-white/60 hover:bg-(--color-surface)/10 hover:text-white'
                   }`}
                 >
-                  <Shield className={`w-5 h-5 shrink-0 ${pathname === '/admin/super-admin-support' ? 'text-white' : 'text-amber-400 group-hover:text-amber-300'}`} />
+                  <Shield className={`w-4 h-4 shrink-0 ${pathname === '/admin/super-admin-support' ? 'text-(--brand-amber)' : 'text-(--brand-amber)/60 group-hover:text-(--brand-amber)'}`} />
                   <span>Super Admin Portal</span>
-                  {pathname === '/admin/super-admin-support' && <ChevronRight className="w-4 h-4 ml-auto shrink-0" />}
                 </Link>
               </>
             )}
@@ -247,20 +242,20 @@ export default function AdminLayout({
         </nav>
 
         {/* Bottom section - fixed at bottom */}
-        <div className="shrink-0 p-4 border-t border-slate-700/50">
+        <div className="shrink-0 p-4 border-t border-white/10">
           <Link
             href="/"
             target="_blank"
-            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-700/50 hover:text-white transition-all duration-200 group"
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-white/60 hover:text-white transition-all duration-200 group"
           >
-            <Store className="w-5 h-5 text-slate-400 group-hover:text-emerald-400" />
+            <Store className="w-4 h-4 text-white/60 group-hover:text-white" />
             <span>View Store</span>
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-slate-300 hover:bg-red-500/20 hover:text-red-400 transition-all duration-200 group mt-1"
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-white/60 hover:bg-(--color-error)/20 hover:text-red-400 transition-all duration-200 group mt-1"
           >
-            <LogOut className="w-5 h-5 text-slate-400 group-hover:text-red-400" />
+            <LogOut className="w-4 h-4 text-white/60 group-hover:text-red-400" />
             <span>Logout</span>
           </button>
         </div>
@@ -269,12 +264,12 @@ export default function AdminLayout({
       {/* Main content */}
       <div className="lg:ml-72">
         {/* Top header */}
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-lg border-b border-slate-200/50 shadow-sm">
+        <header className="sticky top-0 z-30 bg-(--color-surface)/80 backdrop-blur-xl border-b border-(--color-border)">
           <div className="flex items-center justify-between px-4 lg:px-8 py-4">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors"
+                className="lg:hidden p-2 text-(--color-text-secondary) hover:text-foreground rounded-lg hover:bg-(--color-elevated) transition-colors"
               >
                 <Menu className="w-6 h-6" />
               </button>
@@ -287,17 +282,17 @@ export default function AdminLayout({
 
             <div className="flex items-center gap-3">
               {/* Notifications */}
-              <button className="relative p-2.5 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-colors">
+              <button className="relative p-2.5 text-(--color-text-secondary) hover:text-foreground rounded-lg hover:bg-(--color-elevated) transition-colors">
                 <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-(--color-error) rounded-full border-2 border-(--color-surface)"></span>
               </button>
 
               {/* Profile */}
-              <button className="flex items-center gap-3 p-2 pr-4 rounded-xl hover:bg-slate-100 transition-colors">
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+              <button className="flex items-center gap-3 p-2 pr-4 rounded-lg hover:bg-(--color-elevated) transition-colors">
+                <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${
                   userRole === 'super_admin'
-                    ? 'bg-gradient-to-br from-purple-400 to-indigo-600'
-                    : 'bg-gradient-to-br from-emerald-400 to-emerald-600'
+                    ? 'bg-(--brand-amber)'
+                    : 'bg-(--brand-primary)'
                 }`}>
                   {userRole === 'super_admin' ? (
                     <Shield className="w-5 h-5 text-white" />
@@ -306,10 +301,10 @@ export default function AdminLayout({
                   )}
                 </div>
                 <div className="hidden md:block text-left">
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p className="text-sm font-semibold text-foreground">
                     {userRole === 'super_admin' ? 'Super Admin' : 'Admin'}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-(--color-text-muted)">
                     {userRole === 'super_admin' ? 'Full Access' : 'Standard Access'}
                   </p>
                 </div>

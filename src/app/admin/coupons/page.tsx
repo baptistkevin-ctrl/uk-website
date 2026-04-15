@@ -292,7 +292,7 @@ export default function CouponsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -302,12 +302,12 @@ export default function CouponsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Coupons</h1>
-          <p className="text-slate-500 mt-1">Create and manage discount codes</p>
+          <h1 className="text-3xl font-bold text-foreground">Coupons</h1>
+          <p className="text-(--color-text-muted) mt-1">Create and manage discount codes</p>
         </div>
         <button
           onClick={openAddModal}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/25"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-all shadow-lg shadow-(--shadow-green)"
         >
           <Plus className="w-5 h-5" />
           Create Coupon
@@ -317,21 +317,21 @@ export default function CouponsPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-text-disabled)" />
           <input
             type="text"
             placeholder="Search coupons..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full pl-10 pr-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter className="w-5 h-5 text-slate-400" />
+          <Filter className="w-5 h-5 text-(--color-text-disabled)" />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as 'all' | 'active' | 'expired')}
-            className="px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
           >
             <option value="all">All Coupons</option>
             <option value="active">Active Only</option>
@@ -342,94 +342,94 @@ export default function CouponsPage() {
 
       {/* Coupons List */}
       {filteredCoupons.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
-          <Ticket className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">No coupons found</h3>
-          <p className="text-slate-500 mb-6">Create your first coupon to offer discounts to customers</p>
+        <div className="bg-(--color-surface) rounded-2xl p-12 text-center border border-(--color-border)">
+          <Ticket className="w-16 h-16 text-(--color-text-disabled) mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">No coupons found</h3>
+          <p className="text-(--color-text-muted) mb-6">Create your first coupon to offer discounts to customers</p>
           <button
             onClick={openAddModal}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-colors"
           >
             <Plus className="w-5 h-5" />
             Create First Coupon
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div className="bg-(--color-surface) rounded-2xl border border-(--color-border) overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-50 border-b border-slate-200">
+              <thead className="bg-background border-b border-(--color-border)">
                 <tr>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Code</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Discount</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Usage</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Validity</th>
-                  <th className="text-left px-6 py-4 text-sm font-semibold text-slate-600">Status</th>
-                  <th className="text-right px-6 py-4 text-sm font-semibold text-slate-600">Actions</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Code</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Discount</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Usage</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Validity</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Status</th>
+                  <th className="text-right px-6 py-4 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-(--color-border)">
                 {filteredCoupons.map((coupon) => {
                   const TypeIcon = discountTypeIcons[coupon.discount_type]
                   const expired = isExpired(coupon)
                   return (
-                    <tr key={coupon.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={coupon.id} className="hover:bg-background transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className={`p-2 rounded-lg ${
-                            coupon.discount_type === 'percentage' ? 'bg-blue-100 text-blue-600' :
-                            coupon.discount_type === 'fixed_amount' ? 'bg-green-100 text-green-600' :
-                            'bg-purple-100 text-purple-600'
+                            coupon.discount_type === 'percentage' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                            coupon.discount_type === 'fixed_amount' ? 'bg-(--brand-primary-light) text-(--brand-primary)' :
+                            'bg-(--color-info-bg) text-(--color-info)'
                           }`}>
                             <TypeIcon className="w-5 h-5" />
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-mono font-bold text-slate-900">{coupon.code}</span>
+                              <span className="font-mono font-bold text-foreground">{coupon.code}</span>
                               <button
                                 onClick={() => copyCode(coupon.code)}
-                                className="p-1 text-slate-400 hover:text-slate-600 rounded"
+                                className="p-1 text-(--color-text-disabled) hover:text-(--color-text-secondary) rounded"
                                 title="Copy code"
                               >
                                 {copiedCode === coupon.code ? (
-                                  <Check className="w-4 h-4 text-green-500" />
+                                  <Check className="w-4 h-4 text-(--brand-primary)" />
                                 ) : (
                                   <Copy className="w-4 h-4" />
                                 )}
                               </button>
                             </div>
                             {coupon.description && (
-                              <p className="text-sm text-slate-500 truncate max-w-[200px]">{coupon.description}</p>
+                              <p className="text-sm text-(--color-text-muted) truncate max-w-50">{coupon.description}</p>
                             )}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="font-semibold text-slate-900">{formatDiscountValue(coupon)}</span>
+                        <span className="font-semibold text-foreground">{formatDiscountValue(coupon)}</span>
                         {coupon.min_order_pence > 0 && (
-                          <p className="text-xs text-slate-500">Min. {formatPrice(coupon.min_order_pence)}</p>
+                          <p className="text-xs text-(--color-text-muted)">Min. {formatPrice(coupon.min_order_pence)}</p>
                         )}
                         {coupon.max_discount_pence && (
-                          <p className="text-xs text-slate-500">Max. {formatPrice(coupon.max_discount_pence)}</p>
+                          <p className="text-xs text-(--color-text-muted)">Max. {formatPrice(coupon.max_discount_pence)}</p>
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-1 text-slate-600">
+                        <div className="flex items-center gap-1 text-(--color-text-secondary)">
                           <Users className="w-4 h-4" />
                           <span>{coupon.usage_count}</span>
                           {coupon.usage_limit && (
-                            <span className="text-slate-400">/ {coupon.usage_limit}</span>
+                            <span className="text-(--color-text-disabled)">/ {coupon.usage_limit}</span>
                           )}
                         </div>
                         {coupon.first_order_only && (
-                          <p className="text-xs text-amber-600 flex items-center gap-1 mt-1">
+                          <p className="text-xs text-(--brand-amber) flex items-center gap-1 mt-1">
                             <ShoppingCart className="w-3 h-3" />
                             First order only
                           </p>
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center gap-1 text-sm text-slate-600">
+                        <div className="flex items-center gap-1 text-sm text-(--color-text-secondary)">
                           <Calendar className="w-4 h-4" />
                           <span>
                             {new Date(coupon.starts_at).toLocaleDateString()}
@@ -441,14 +441,14 @@ export default function CouponsPage() {
                       </td>
                       <td className="px-6 py-4">
                         {expired ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-(--color-error-bg) text-(--color-error)">
                             Expired
                           </span>
                         ) : (
                           <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
                             coupon.is_active
-                              ? 'bg-emerald-100 text-emerald-700'
-                              : 'bg-slate-100 text-slate-600'
+                              ? 'bg-(--brand-primary-light) text-(--brand-primary)'
+                              : 'bg-(--color-elevated) text-(--color-text-secondary)'
                           }`}>
                             {coupon.is_active ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                             {coupon.is_active ? 'Active' : 'Inactive'}
@@ -461,8 +461,8 @@ export default function CouponsPage() {
                             onClick={() => toggleActive(coupon)}
                             className={`p-2 rounded-lg transition-colors ${
                               coupon.is_active
-                                ? 'text-amber-600 hover:bg-amber-50'
-                                : 'text-emerald-600 hover:bg-emerald-50'
+                                ? 'text-(--brand-amber) hover:bg-(--brand-amber-soft)'
+                                : 'text-(--brand-primary) hover:bg-(--brand-primary-light)'
                             }`}
                             title={coupon.is_active ? 'Deactivate' : 'Activate'}
                           >
@@ -470,14 +470,14 @@ export default function CouponsPage() {
                           </button>
                           <button
                             onClick={() => openEditModal(coupon)}
-                            className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-2 text-(--color-text-muted) hover:text-(--color-info) hover:bg-(--color-info-bg) rounded-lg transition-colors"
                             title="Edit"
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(coupon.id)}
-                            className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className="p-2 text-(--color-text-muted) hover:text-(--color-error) hover:bg-(--color-error-bg) rounded-lg transition-colors"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -493,22 +493,22 @@ export default function CouponsPage() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200">
-              <p className="text-sm text-slate-500">
+            <div className="flex items-center justify-between px-6 py-4 border-t border-(--color-border)">
+              <p className="text-sm text-(--color-text-muted)">
                 Page {page} of {totalPages}
               </p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPage(page - 1)}
                   disabled={page === 1}
-                  className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2.5 text-sm font-medium text-(--color-text-secondary) bg-(--color-elevated) rounded-lg hover:bg-(--color-border) disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={page === totalPages}
-                  className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2.5 text-sm font-medium text-(--color-text-secondary) bg-(--color-elevated) rounded-lg hover:bg-(--color-border) disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>
@@ -521,14 +521,14 @@ export default function CouponsPage() {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
-            <div className="flex items-center justify-between p-6 border-b border-slate-200">
-              <h2 className="text-xl font-bold text-slate-900">
+          <div className="bg-(--color-surface) rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+            <div className="flex items-center justify-between p-6 border-b border-(--color-border)">
+              <h2 className="text-xl font-bold text-foreground">
                 {editingCoupon ? 'Edit Coupon' : 'Create New Coupon'}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
+                className="p-2 text-(--color-text-disabled) hover:text-(--color-text-secondary) rounded-lg hover:bg-(--color-elevated)"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -537,7 +537,7 @@ export default function CouponsPage() {
             <div className="p-6 space-y-6">
               {/* Code */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Coupon Code *
                 </label>
                 <div className="flex gap-2">
@@ -545,13 +545,13 @@ export default function CouponsPage() {
                     type="text"
                     value={formData.code}
                     onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                    className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-mono uppercase"
+                    className="flex-1 px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary) font-mono uppercase"
                     placeholder="e.g., SAVE20"
                   />
                   <button
                     type="button"
                     onClick={generateRandomCode}
-                    className="px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors font-medium"
+                    className="px-4 py-2.5 bg-(--color-elevated) text-(--color-text-secondary) rounded-xl hover:bg-(--color-border) transition-colors font-medium"
                   >
                     Generate
                   </button>
@@ -560,21 +560,21 @@ export default function CouponsPage() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Description
                 </label>
                 <input
                   type="text"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                   placeholder="e.g., Summer sale 20% off"
                 />
               </div>
 
               {/* Discount Type */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Discount Type *
                 </label>
                 <div className="grid grid-cols-3 gap-3">
@@ -587,8 +587,8 @@ export default function CouponsPage() {
                         onClick={() => setFormData({ ...formData, discount_type: type })}
                         className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
                           formData.discount_type === type
-                            ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
-                            : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                            ? 'border-(--brand-primary) bg-(--brand-primary-light) text-(--brand-primary)'
+                            : 'border-(--color-border) hover:border-(--color-border) text-(--color-text-secondary)'
                         }`}
                       >
                         <Icon className="w-6 h-6" />
@@ -602,11 +602,11 @@ export default function CouponsPage() {
               {/* Discount Value */}
               {formData.discount_type !== 'free_shipping' && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Discount Value *
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-(--color-text-muted) font-medium">
                       {formData.discount_type === 'percentage' ? '%' : '£'}
                     </span>
                     <input
@@ -615,12 +615,12 @@ export default function CouponsPage() {
                       step={formData.discount_type === 'percentage' ? '1' : '0.01'}
                       value={formData.discount_value}
                       onChange={(e) => setFormData({ ...formData, discount_value: e.target.value })}
-                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                      className="w-full pl-10 pr-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                       placeholder={formData.discount_type === 'percentage' ? '20' : '5.00'}
                     />
                   </div>
                   {formData.discount_type === 'percentage' && (
-                    <p className="text-xs text-slate-500 mt-1">Enter a value between 1 and 100</p>
+                    <p className="text-xs text-(--color-text-muted) mt-1">Enter a value between 1 and 100</p>
                   )}
                 </div>
               )}
@@ -628,36 +628,36 @@ export default function CouponsPage() {
               {/* Min Order & Max Discount */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Minimum Order (£)
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">£</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-(--color-text-muted) font-medium">£</span>
                     <input
                       type="number"
                       min="0"
                       step="0.01"
                       value={formData.min_order_pounds}
                       onChange={(e) => setFormData({ ...formData, min_order_pounds: e.target.value })}
-                      className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                      className="w-full pl-10 pr-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                       placeholder="0.00"
                     />
                   </div>
                 </div>
                 {formData.discount_type === 'percentage' && (
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
+                    <label className="block text-sm font-medium text-foreground mb-1">
                       Maximum Discount (£)
                     </label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-medium">£</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-(--color-text-muted) font-medium">£</span>
                       <input
                         type="number"
                         min="0"
                         step="0.01"
                         value={formData.max_discount_pounds}
                         onChange={(e) => setFormData({ ...formData, max_discount_pounds: e.target.value })}
-                        className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                        className="w-full pl-10 pr-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                         placeholder="No limit"
                       />
                     </div>
@@ -668,7 +668,7 @@ export default function CouponsPage() {
               {/* Usage Limits */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Total Usage Limit
                   </label>
                   <input
@@ -676,12 +676,12 @@ export default function CouponsPage() {
                     min="0"
                     value={formData.usage_limit}
                     onChange={(e) => setFormData({ ...formData, usage_limit: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                     placeholder="Unlimited"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Per User Limit
                   </label>
                   <input
@@ -689,7 +689,7 @@ export default function CouponsPage() {
                     min="1"
                     value={formData.per_user_limit}
                     onChange={(e) => setFormData({ ...formData, per_user_limit: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                     placeholder="1"
                   />
                 </div>
@@ -698,85 +698,85 @@ export default function CouponsPage() {
               {/* Validity Period */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Start Date *
                   </label>
                   <input
                     type="datetime-local"
                     value={formData.starts_at}
                     onChange={(e) => setFormData({ ...formData, starts_at: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     End Date
                   </label>
                   <input
                     type="datetime-local"
                     value={formData.expires_at}
                     onChange={(e) => setFormData({ ...formData, expires_at: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                   />
-                  <p className="text-xs text-slate-500 mt-1">Leave empty for no expiration</p>
+                  <p className="text-xs text-(--color-text-muted) mt-1">Leave empty for no expiration</p>
                 </div>
               </div>
 
               {/* Options */}
               <div className="space-y-3">
-                <label className="block text-sm font-medium text-slate-700">Options</label>
+                <label className="block text-sm font-medium text-foreground">Options</label>
                 <div className="space-y-2">
-                  <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                  <label className="flex items-center gap-3 p-3 bg-background rounded-xl cursor-pointer hover:bg-(--color-elevated) transition-colors">
                     <input
                       type="checkbox"
                       checked={formData.first_order_only}
                       onChange={(e) => setFormData({ ...formData, first_order_only: e.target.checked })}
-                      className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                      className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
                     />
                     <div>
-                      <span className="font-medium text-slate-700">First order only</span>
-                      <p className="text-xs text-slate-500">Only valid for customers making their first purchase</p>
+                      <span className="font-medium text-foreground">First order only</span>
+                      <p className="text-xs text-(--color-text-muted)">Only valid for customers making their first purchase</p>
                     </div>
                   </label>
-                  <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                  <label className="flex items-center gap-3 p-3 bg-background rounded-xl cursor-pointer hover:bg-(--color-elevated) transition-colors">
                     <input
                       type="checkbox"
                       checked={formData.exclude_sale_items}
                       onChange={(e) => setFormData({ ...formData, exclude_sale_items: e.target.checked })}
-                      className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                      className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
                     />
                     <div>
-                      <span className="font-medium text-slate-700">Exclude sale items</span>
-                      <p className="text-xs text-slate-500">Coupon won't apply to products already on sale</p>
+                      <span className="font-medium text-foreground">Exclude sale items</span>
+                      <p className="text-xs text-(--color-text-muted)">Coupon won't apply to products already on sale</p>
                     </div>
                   </label>
-                  <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                  <label className="flex items-center gap-3 p-3 bg-background rounded-xl cursor-pointer hover:bg-(--color-elevated) transition-colors">
                     <input
                       type="checkbox"
                       checked={formData.is_active}
                       onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                      className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
                     />
                     <div>
-                      <span className="font-medium text-slate-700">Active</span>
-                      <p className="text-xs text-slate-500">Coupon can be used by customers</p>
+                      <span className="font-medium text-foreground">Active</span>
+                      <p className="text-xs text-(--color-text-muted)">Coupon can be used by customers</p>
                     </div>
                   </label>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-6 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+            <div className="flex items-center gap-3 p-6 border-t border-(--color-border) bg-background rounded-b-2xl">
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-slate-700 font-medium hover:bg-slate-100 transition-colors"
+                className="flex-1 px-4 py-2.5 border border-(--color-border) rounded-xl text-foreground font-medium hover:bg-(--color-elevated) transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-colors disabled:opacity-50"
               >
                 {saving ? (
                   <>

@@ -73,10 +73,10 @@ export default function CompareButton({ product, variant = 'icon', className = '
       <div className="relative">
         <button
           onClick={handleClick}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-colors ${
             inCompare
-              ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              ? 'bg-(--brand-primary-light) text-(--brand-primary) hover:bg-(--brand-primary-light)'
+              : 'bg-background text-foreground hover:bg-(--color-elevated)'
           } ${className}`}
         >
           {inCompare ? <Check className="w-4 h-4" /> : <Scale className="w-4 h-4" />}
@@ -85,7 +85,7 @@ export default function CompareButton({ product, variant = 'icon', className = '
 
         {/* Toast */}
         {showToast && (
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-slate-900 text-white text-sm rounded-lg whitespace-nowrap animate-fade-in">
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-(--color-elevated) text-foreground text-sm rounded-lg whitespace-nowrap animate-fade-in">
             {toastMessage}
           </div>
         )}
@@ -99,8 +99,8 @@ export default function CompareButton({ product, variant = 'icon', className = '
         onClick={handleClick}
         className={`p-2 rounded-lg transition-colors ${
           inCompare
-            ? 'bg-emerald-100 text-emerald-600'
-            : 'bg-white/80 hover:bg-white text-slate-600 hover:text-emerald-600'
+            ? 'bg-(--brand-primary-light) text-(--brand-primary)'
+            : 'bg-(--color-surface)/80 hover:bg-(--color-surface) text-(--color-text-secondary) hover:text-(--brand-primary)'
         } ${className}`}
         title={inCompare ? 'Remove from compare' : 'Add to compare'}
       >
@@ -109,7 +109,7 @@ export default function CompareButton({ product, variant = 'icon', className = '
 
       {/* Toast */}
       {showToast && (
-        <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-slate-900 text-white text-sm rounded-lg whitespace-nowrap animate-fade-in z-50">
+        <div className="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-(--color-elevated) text-foreground text-sm rounded-lg whitespace-nowrap animate-fade-in z-50">
           {toastMessage}
         </div>
       )}

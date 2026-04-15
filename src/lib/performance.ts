@@ -695,7 +695,7 @@ export function logPerformanceMetrics(): void {
   console.group('Resources');
   console.log(`Total: ${resourceSummary.totalResources}`);
   console.log(`Size: ${formatBytes(resourceSummary.totalSize)}`);
-  console.table(resourceSummary.byType);
+  console.log(resourceSummary.byType);
   console.groupEnd();
 
   console.groupEnd();

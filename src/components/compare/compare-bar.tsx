@@ -19,14 +19,14 @@ export default function CompareBar() {
   }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-40 animate-slide-up">
+    <div className="fixed bottom-0 left-0 right-0 bg-(--color-surface) border-t border-(--color-border) shadow-lg z-40 animate-slide-up">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center gap-4">
           {/* Label */}
-          <div className="flex items-center gap-2 text-slate-700">
-            <Scale className="w-5 h-5 text-emerald-600" />
+          <div className="flex items-center gap-2 text-foreground">
+            <Scale className="w-5 h-5 text-(--brand-primary)" />
             <span className="font-medium hidden sm:inline">Compare</span>
-            <span className="text-sm text-slate-500">
+            <span className="text-sm text-(--color-text-muted)">
               ({products.length}/{maxProducts})
             </span>
           </div>
@@ -36,11 +36,11 @@ export default function CompareBar() {
             {products.map((product) => (
               <div
                 key={product.id}
-                className="relative flex-shrink-0 group"
+                className="relative shrink-0 group"
               >
                 <Link
                   href={`/products/${product.slug}`}
-                  className="block w-12 h-12 rounded-lg bg-slate-100 overflow-hidden"
+                  className="block w-12 h-12 rounded-lg bg-background overflow-hidden"
                 >
                   {product.image_url ? (
                     <Image
@@ -52,13 +52,13 @@ export default function CompareBar() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Package className="w-5 h-5 text-slate-300" />
+                      <Package className="w-5 h-5 text-(--color-text-muted)" />
                     </div>
                   )}
                 </Link>
                 <button
                   onClick={() => removeProduct(product.id)}
-                  className="absolute -top-1.5 -right-1.5 p-0.5 bg-red-100 text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute -top-1.5 -right-1.5 p-0.5 bg-(--color-error-light) text-(--color-error) rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -69,7 +69,7 @@ export default function CompareBar() {
             {Array.from({ length: maxProducts - products.length }).map((_, i) => (
               <div
                 key={`empty-${i}`}
-                className="w-12 h-12 rounded-lg border-2 border-dashed border-slate-200 flex-shrink-0"
+                className="w-12 h-12 rounded-lg border-2 border-dashed border-(--color-border) shrink-0"
               />
             ))}
           </div>
@@ -78,13 +78,13 @@ export default function CompareBar() {
           <div className="flex items-center gap-2">
             <button
               onClick={clearAll}
-              className="text-sm text-slate-500 hover:text-red-600 transition-colors"
+              className="text-sm text-(--color-text-muted) hover:text-(--color-error) transition-colors"
             >
               Clear
             </button>
             <Link
               href="/compare"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-(--brand-primary) text-white rounded-lg font-medium hover:bg-(--brand-primary-dark) transition-colors"
             >
               <span className="hidden sm:inline">Compare Now</span>
               <ArrowRight className="w-4 h-4" />

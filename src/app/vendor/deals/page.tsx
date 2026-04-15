@@ -171,10 +171,10 @@ export default function VendorDealsPage() {
     const now = new Date()
     const start = new Date(deal.starts_at)
     const end = new Date(deal.ends_at)
-    if (!deal.is_active) return { label: 'Inactive', color: 'bg-gray-100 text-gray-600' }
-    if (now < start) return { label: 'Upcoming', color: 'bg-blue-100 text-blue-700' }
-    if (now > end) return { label: 'Ended', color: 'bg-red-100 text-red-700' }
-    return { label: 'Active', color: 'bg-emerald-100 text-emerald-700' }
+    if (!deal.is_active) return { label: 'Inactive', color: 'bg-(--color-elevated) text-(--color-text-secondary)' }
+    if (now < start) return { label: 'Upcoming', color: 'bg-(--color-info-bg) text-(--color-info)' }
+    if (now > end) return { label: 'Ended', color: 'bg-(--color-error-bg) text-(--color-error)' }
+    return { label: 'Active', color: 'bg-(--brand-primary-light) text-(--brand-primary)' }
   }
 
   const selectedProduct = products.find(p => p.id === formData.product_id)
@@ -185,7 +185,7 @@ export default function VendorDealsPage() {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -195,12 +195,12 @@ export default function VendorDealsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Flash Deals</h1>
-          <p className="text-gray-600">Create time-limited deals on your products</p>
+          <h1 className="text-2xl font-bold text-foreground">Flash Deals</h1>
+          <p className="text-(--color-text-secondary)">Create time-limited deals on your products</p>
         </div>
         <Button
           onClick={() => { resetForm(); setShowModal(true) }}
-          className="bg-emerald-600 hover:bg-emerald-700"
+          className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
           disabled={products.length === 0}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -210,16 +210,16 @@ export default function VendorDealsPage() {
 
       {/* Deals List */}
       {deals.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-gray-100">
-          <Zap className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No deals yet</h3>
-          <p className="text-gray-500 mb-4">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm p-12 text-center border border-(--color-border)">
+          <Zap className="h-12 w-12 mx-auto text-(--color-text-disabled) mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">No deals yet</h3>
+          <p className="text-(--color-text-muted) mb-4">
             {products.length === 0
               ? 'Add products first to create deals'
               : 'Create flash deals to boost your sales'}
           </p>
           {products.length > 0 && (
-            <Button onClick={() => { resetForm(); setShowModal(true) }} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button onClick={() => { resetForm(); setShowModal(true) }} className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
               <Plus className="h-4 w-4 mr-2" /> Create Deal
             </Button>
           )}
@@ -233,7 +233,7 @@ export default function VendorDealsPage() {
               : 0
 
             return (
-              <div key={deal.id} className="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+              <div key={deal.id} className="bg-(--color-surface) rounded-xl shadow-sm p-5 border border-(--color-border)">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     {deal.products?.image_url ? (
@@ -245,34 +245,34 @@ export default function VendorDealsPage() {
                         className="w-14 h-14 rounded-xl object-cover"
                       />
                     ) : (
-                      <div className="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center">
-                        <Package className="h-6 w-6 text-gray-400" />
+                      <div className="w-14 h-14 bg-(--color-elevated) rounded-xl flex items-center justify-center">
+                        <Package className="h-6 w-6 text-(--color-text-disabled)" />
                       </div>
                     )}
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className="font-semibold text-gray-900">{deal.title}</h3>
+                        <h3 className="font-semibold text-foreground">{deal.title}</h3>
                         <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${status.color}`}>
                           {status.label}
                         </span>
                         {discount > 0 && (
-                          <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-bold">
+                          <span className="px-2 py-0.5 bg-(--color-error-bg) text-(--color-error) text-xs rounded-full font-bold">
                             -{discount}%
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-gray-500">{deal.products?.name}</p>
+                      <p className="text-sm text-(--color-text-muted)">{deal.products?.name}</p>
                       <div className="flex items-center gap-3 mt-1 text-sm">
-                        <span className="font-bold text-emerald-600">{formatPrice(deal.deal_price_pence)}</span>
-                        <span className="line-through text-gray-400">{formatPrice(deal.original_price_pence)}</span>
-                        <span className="text-gray-400 flex items-center gap-1">
+                        <span className="font-bold text-(--brand-primary)">{formatPrice(deal.deal_price_pence)}</span>
+                        <span className="line-through text-(--color-text-disabled)">{formatPrice(deal.original_price_pence)}</span>
+                        <span className="text-(--color-text-disabled) flex items-center gap-1">
                           <Timer className="h-3.5 w-3.5" />
                           {new Date(deal.starts_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                           {' - '}
                           {new Date(deal.ends_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                         </span>
                         {deal.max_quantity && (
-                          <span className="text-gray-400">
+                          <span className="text-(--color-text-disabled)">
                             {deal.claimed_quantity}/{deal.max_quantity} claimed
                           </span>
                         )}
@@ -281,14 +281,14 @@ export default function VendorDealsPage() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <button onClick={() => toggleActive(deal)} className="p-2 hover:bg-gray-100 rounded-lg">
-                      {deal.is_active ? <Eye className="h-4 w-4 text-emerald-500" /> : <EyeOff className="h-4 w-4 text-gray-400" />}
+                    <button onClick={() => toggleActive(deal)} className="p-2 hover:bg-(--color-elevated) rounded-lg">
+                      {deal.is_active ? <Eye className="h-4 w-4 text-(--brand-primary)" /> : <EyeOff className="h-4 w-4 text-(--color-text-disabled)" />}
                     </button>
-                    <button onClick={() => openEdit(deal)} className="p-2 hover:bg-gray-100 rounded-lg">
-                      <Pencil className="h-4 w-4 text-gray-500" />
+                    <button onClick={() => openEdit(deal)} className="p-2 hover:bg-(--color-elevated) rounded-lg">
+                      <Pencil className="h-4 w-4 text-(--color-text-muted)" />
                     </button>
-                    <button onClick={() => handleDelete(deal.id)} className="p-2 hover:bg-red-50 rounded-lg">
-                      <Trash2 className="h-4 w-4 text-red-500" />
+                    <button onClick={() => handleDelete(deal.id)} className="p-2 hover:bg-(--color-error-bg) rounded-lg">
+                      <Trash2 className="h-4 w-4 text-(--color-error)" />
                     </button>
                   </div>
                 </div>
@@ -301,12 +301,12 @@ export default function VendorDealsPage() {
       {/* Create/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-(--color-surface) rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl font-bold text-foreground">
                 {editingDeal ? 'Edit Deal' : 'Create Flash Deal'}
               </h2>
-              <button onClick={() => { setShowModal(false); resetForm() }} className="p-2 hover:bg-gray-100 rounded-lg">
+              <button onClick={() => { setShowModal(false); resetForm() }} className="p-2 hover:bg-(--color-elevated) rounded-lg">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -314,7 +314,7 @@ export default function VendorDealsPage() {
             <div className="p-6 space-y-4">
               {/* Title */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Deal Title *</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Deal Title *</label>
                 <Input
                   value={formData.title}
                   onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
@@ -324,7 +324,7 @@ export default function VendorDealsPage() {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Description</label>
                 <Input
                   value={formData.description}
                   onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
@@ -334,11 +334,11 @@ export default function VendorDealsPage() {
 
               {/* Product */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Product *</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Product *</label>
                 <select
                   value={formData.product_id}
                   onChange={e => setFormData(prev => ({ ...prev, product_id: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  className="w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
                 >
                   <option value="">Select a product</option>
                   {products.map(p => (
@@ -351,7 +351,7 @@ export default function VendorDealsPage() {
 
               {/* Deal Price */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Deal Price (£) *</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Deal Price (£) *</label>
                 <Input
                   type="number"
                   step="0.01"
@@ -360,7 +360,7 @@ export default function VendorDealsPage() {
                   placeholder="9.99"
                 />
                 {selectedProduct && formData.deal_price_pounds && savings > 0 && (
-                  <p className="text-sm text-emerald-600 mt-1">
+                  <p className="text-sm text-(--brand-primary) mt-1">
                     Customers save {formatPrice(savings)} ({Math.round((savings / selectedProduct.price_pence) * 100)}% off)
                   </p>
                 )}
@@ -369,7 +369,7 @@ export default function VendorDealsPage() {
               {/* Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Starts *</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Starts *</label>
                   <Input
                     type="datetime-local"
                     value={formData.starts_at}
@@ -377,7 +377,7 @@ export default function VendorDealsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ends *</label>
+                  <label className="block text-sm font-medium text-foreground mb-1">Ends *</label>
                   <Input
                     type="datetime-local"
                     value={formData.ends_at}
@@ -388,7 +388,7 @@ export default function VendorDealsPage() {
 
               {/* Max Quantity */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Max Quantity (optional)</label>
+                <label className="block text-sm font-medium text-foreground mb-1">Max Quantity (optional)</label>
                 <Input
                   type="number"
                   value={formData.max_quantity}
@@ -403,7 +403,7 @@ export default function VendorDealsPage() {
                 Cancel
               </Button>
               <Button
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                className="flex-1 bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
                 onClick={handleSave}
                 disabled={saving}
               >

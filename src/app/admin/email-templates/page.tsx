@@ -78,10 +78,10 @@ const categoryIcons: Record<string, typeof Mail> = {
 }
 
 const categoryColors: Record<string, string> = {
-  order: 'bg-blue-100 text-blue-700',
-  account: 'bg-purple-100 text-purple-700',
-  notification: 'bg-amber-100 text-amber-700',
-  marketing: 'bg-emerald-100 text-emerald-700',
+  order: 'bg-(--color-info-bg) text-(--color-info)',
+  account: 'bg-(--color-info-bg) text-(--color-info)',
+  notification: 'bg-(--brand-amber-soft) text-(--brand-amber)',
+  marketing: 'bg-(--brand-primary-light) text-(--brand-primary)',
 }
 
 export default function EmailTemplatesPage() {
@@ -294,13 +294,13 @@ export default function EmailTemplatesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 rounded-lg">
-              <Mail className="h-6 w-6 text-emerald-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
+            <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+              <Mail className="h-6 w-6 text-(--brand-primary)" />
             </div>
             Email Templates
           </h1>
-          <p className="text-slate-600 mt-1">
+          <p className="text-(--color-text-secondary) mt-1">
             Manage email templates for orders, notifications, and marketing
           </p>
         </div>
@@ -329,8 +329,8 @@ export default function EmailTemplatesPage() {
                     <Icon className={`h-5 w-5 ${categoryColors[cat]?.split(' ')[1]}`} />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 capitalize">{cat}</p>
-                    <p className="text-xl font-bold text-slate-900">{count}</p>
+                    <p className="text-sm text-(--color-text-secondary) capitalize">{cat}</p>
+                    <p className="text-xl font-bold text-foreground">{count}</p>
                   </div>
                 </div>
               </CardContent>
@@ -344,7 +344,7 @@ export default function EmailTemplatesPage() {
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
               <Input
                 placeholder="Search templates..."
                 value={search}
@@ -376,12 +376,12 @@ export default function EmailTemplatesPage() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+              <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
             </div>
           ) : templates.length === 0 ? (
             <div className="text-center py-12">
-              <Mail className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-600">No email templates found</p>
+              <Mail className="h-16 w-16 text-(--color-text-disabled) mx-auto mb-4" />
+              <p className="text-(--color-text-secondary)">No email templates found</p>
               <Button className="mt-4" onClick={() => setIsEditOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create First Template
@@ -394,14 +394,14 @@ export default function EmailTemplatesPage() {
                 return (
                   <div
                     key={template.id}
-                    className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                    className="flex items-center gap-4 p-4 bg-background rounded-lg hover:bg-(--color-elevated) transition-colors"
                   >
-                    <div className={`p-2 rounded-lg ${categoryColors[template.category] || 'bg-slate-100 text-slate-700'}`}>
+                    <div className={`p-2 rounded-lg ${categoryColors[template.category] || 'bg-(--color-elevated) text-foreground'}`}>
                       <CategoryIcon className="h-5 w-5" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="font-medium text-slate-900">{template.name}</p>
+                        <p className="font-medium text-foreground">{template.name}</p>
                         {template.is_system && (
                           <Badge variant="outline" className="text-xs">
                             <Lock className="h-3 w-3 mr-1" />
@@ -409,17 +409,17 @@ export default function EmailTemplatesPage() {
                           </Badge>
                         )}
                         {!template.is_active && (
-                          <Badge variant="outline" className="text-red-600 border-red-200">
+                          <Badge variant="outline" className="text-(--color-error) border-(--color-border)">
                             Inactive
                           </Badge>
                         )}
                       </div>
-                      <p className="text-sm text-slate-500 truncate">{template.subject}</p>
+                      <p className="text-sm text-(--color-text-muted) truncate">{template.subject}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge className={categoryColors[template.category] || 'bg-slate-100 text-slate-700'}>
+                        <Badge className={categoryColors[template.category] || 'bg-(--color-elevated) text-foreground'}>
                           {template.category}
                         </Badge>
-                        <span className="text-xs text-slate-400">
+                        <span className="text-xs text-(--color-text-disabled)">
                           Sent {template.send_count} times
                         </span>
                       </div>
@@ -439,7 +439,7 @@ export default function EmailTemplatesPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-red-600 hover:text-red-700"
+                          className="text-(--color-error) hover:text-(--color-error)"
                           onClick={() => openDelete(template)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -533,14 +533,14 @@ export default function EmailTemplatesPage() {
               <Input
                 value={form.subject}
                 onChange={(e) => setForm(prev => ({ ...prev, subject: e.target.value }))}
-                placeholder="Your FreshMart Order #{{order_number}} is Confirmed!"
+                placeholder="Your UK Grocery Order #{{order_number}} is Confirmed!"
               />
             </div>
 
             {/* Variables */}
             <div>
               <Label>Available Variables</Label>
-              <p className="text-sm text-slate-500 mb-2">
+              <p className="text-sm text-(--color-text-muted) mb-2">
                 Variables that can be used in subject and body with {'{{variable_name}}'} syntax
               </p>
               <div className="flex flex-wrap gap-2 mb-2">
@@ -548,18 +548,18 @@ export default function EmailTemplatesPage() {
                   <Badge
                     key={variable}
                     variant="secondary"
-                    className="px-3 py-1 cursor-pointer hover:bg-slate-200"
+                    className="px-3 py-1 cursor-pointer hover:bg-(--color-border)"
                   >
                     <Code className="h-3 w-3 mr-1" />
                     {`{{${variable}}}`}
                     <button
-                      className="ml-2 hover:text-emerald-600"
+                      className="ml-2 hover:text-(--brand-primary)"
                       onClick={() => copyVariable(variable)}
                     >
                       <Copy className="h-3 w-3" />
                     </button>
                     <button
-                      className="ml-1 hover:text-red-600"
+                      className="ml-1 hover:text-(--color-error)"
                       onClick={() => removeVariable(variable)}
                     >
                       <X className="h-3 w-3" />
@@ -599,7 +599,7 @@ export default function EmailTemplatesPage() {
                   value={form.body_html}
                   onChange={(e) => setForm(prev => ({ ...prev, body_html: e.target.value }))}
                   placeholder="<h1>Hello {{customer_name}}</h1><p>Your order has been confirmed...</p>"
-                  className="min-h-[300px] font-mono text-sm"
+                  className="min-h-75 font-mono text-sm"
                 />
               </TabsContent>
               <TabsContent value="text">
@@ -607,7 +607,7 @@ export default function EmailTemplatesPage() {
                   value={form.body_text}
                   onChange={(e) => setForm(prev => ({ ...prev, body_text: e.target.value }))}
                   placeholder="Hello {{customer_name}}, Your order has been confirmed..."
-                  className="min-h-[300px]"
+                  className="min-h-75"
                 />
               </TabsContent>
             </Tabs>
@@ -641,13 +641,13 @@ export default function EmailTemplatesPage() {
 
           {selectedTemplate && (
             <div className="space-y-4">
-              <div className="p-4 bg-slate-50 rounded-lg">
-                <p className="text-sm text-slate-500">Subject</p>
+              <div className="p-4 bg-background rounded-lg">
+                <p className="text-sm text-(--color-text-muted)">Subject</p>
                 <p className="font-medium">{selectedTemplate.subject}</p>
               </div>
 
-              <div className="p-4 bg-slate-50 rounded-lg">
-                <p className="text-sm text-slate-500 mb-2">Available Variables</p>
+              <div className="p-4 bg-background rounded-lg">
+                <p className="text-sm text-(--color-text-muted) mb-2">Available Variables</p>
                 <div className="flex flex-wrap gap-2">
                   {selectedTemplate.available_variables?.map((v) => (
                     <Badge key={v} variant="secondary">
@@ -665,17 +665,17 @@ export default function EmailTemplatesPage() {
                 </TabsList>
                 <TabsContent value="html">
                   <div
-                    className="p-4 bg-white border rounded-lg min-h-[300px]"
+                    className="p-4 bg-(--color-surface) border rounded-lg min-h-75"
                     dangerouslySetInnerHTML={{ __html: selectedTemplate.body_html }}
                   />
                 </TabsContent>
                 <TabsContent value="code">
-                  <pre className="p-4 bg-slate-900 text-slate-100 rounded-lg text-sm overflow-auto min-h-[300px]">
+                  <pre className="p-4 bg-(--brand-dark) text-white/90 rounded-lg text-sm overflow-auto min-h-75">
                     {selectedTemplate.body_html}
                   </pre>
                 </TabsContent>
                 <TabsContent value="text">
-                  <pre className="p-4 bg-slate-50 rounded-lg text-sm whitespace-pre-wrap min-h-[300px]">
+                  <pre className="p-4 bg-background rounded-lg text-sm whitespace-pre-wrap min-h-75">
                     {selectedTemplate.body_text || 'No plain text version available'}
                   </pre>
                 </TabsContent>
@@ -689,7 +689,7 @@ export default function EmailTemplatesPage() {
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-red-600">
+            <DialogTitle className="flex items-center gap-2 text-(--color-error)">
               <Trash2 className="h-5 w-5" />
               Delete Template
             </DialogTitle>

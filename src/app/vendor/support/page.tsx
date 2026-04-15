@@ -212,16 +212,16 @@ export default function VendorSupportPortal() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-8 text-white">
+      <div className="bg-linear-to-r from-(--brand-primary) to-teal-600 rounded-2xl p-8 text-white">
         <div className="max-w-3xl">
           <h1 className="text-3xl font-bold mb-2">Vendor Support Portal</h1>
-          <p className="text-emerald-100 mb-6">
+          <p className="text-white/80 mb-6">
             Find answers, get help, and learn how to grow your business on our platform.
           </p>
 
           {/* Search Bar */}
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-(--color-text-disabled)">
               <SearchIcon />
             </div>
             <input
@@ -229,7 +229,7 @@ export default function VendorSupportPortal() {
               placeholder="Search for help articles, FAQs, and more..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
+              className="w-full pl-12 pr-4 py-4 bg-(--color-surface)/10 backdrop-blur-sm border border-white/20 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
             />
           </div>
         </div>
@@ -239,82 +239,82 @@ export default function VendorSupportPortal() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <a
           href="mailto:vendor-support@ukgrocery.com"
-          className="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all group"
+          className="flex items-center gap-4 p-5 bg-(--color-surface) rounded-xl border border-(--color-border) hover:border-(--brand-primary)/30 hover:shadow-md transition-all group"
         >
-          <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+          <div className="w-12 h-12 bg-(--brand-primary-light) rounded-xl flex items-center justify-center text-(--brand-primary) group-hover:bg-(--brand-primary) group-hover:text-white transition-colors">
             <MailIcon />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Email Support</h3>
-            <p className="text-sm text-slate-500">vendor-support@ukgrocery.com</p>
+            <h3 className="font-semibold text-foreground">Email Support</h3>
+            <p className="text-sm text-(--color-text-muted)">vendor-support@ukgrocery.com</p>
           </div>
         </a>
 
         <a
           href="tel:+441onal2345678"
-          className="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all group"
+          className="flex items-center gap-4 p-5 bg-(--color-surface) rounded-xl border border-(--color-border) hover:border-(--color-border) hover:shadow-md transition-all group"
         >
-          <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+          <div className="w-12 h-12 bg-(--color-info-bg) rounded-xl flex items-center justify-center text-(--color-info) group-hover:bg-(--color-info) group-hover:text-white transition-colors">
             <PhoneIcon />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Phone Support</h3>
-            <p className="text-sm text-slate-500">+44 (0) 123 456 7890</p>
+            <h3 className="font-semibold text-foreground">Phone Support</h3>
+            <p className="text-sm text-(--color-text-muted)">+44 (0) 123 456 7890</p>
           </div>
         </a>
 
         <Link
           href="/vendor/support/ticket"
-          className="flex items-center gap-4 p-5 bg-white rounded-xl border border-slate-200 hover:border-purple-300 hover:shadow-md transition-all group"
+          className="flex items-center gap-4 p-5 bg-(--color-surface) rounded-xl border border-(--color-border) hover:border-purple-300 hover:shadow-md transition-all group"
         >
-          <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+          <div className="w-12 h-12 bg-(--color-info-bg) rounded-xl flex items-center justify-center text-(--color-info) group-hover:bg-(--color-info) group-hover:text-white transition-colors">
             <TicketIcon />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Submit a Ticket</h3>
-            <p className="text-sm text-slate-500">Get help within 24 hours</p>
+            <h3 className="font-semibold text-foreground">Submit a Ticket</h3>
+            <p className="text-sm text-(--color-text-muted)">Get help within 24 hours</p>
           </div>
         </Link>
       </div>
 
       {/* Support Hours */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
-        <div className="text-amber-600">
+      <div className="bg-(--brand-amber-soft) border border-(--color-border) rounded-xl p-4 flex items-center gap-3">
+        <div className="text-(--brand-amber)">
           <ClockIcon />
         </div>
         <div>
           <span className="font-medium text-amber-900">Support Hours:</span>
-          <span className="text-amber-700 ml-2">Monday - Friday, 9:00 AM - 6:00 PM GMT</span>
+          <span className="text-(--brand-amber) ml-2">Monday - Friday, 9:00 AM - 6:00 PM GMT</span>
         </div>
       </div>
 
       {/* Help Categories */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mb-4">Browse Help Topics</h2>
+        <h2 className="text-xl font-bold text-foreground mb-4">Browse Help Topics</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCategories.map((category) => (
             <div
               key={category.id}
-              className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow"
+              className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6 hover:shadow-lg transition-shadow"
             >
               <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${
-                category.color === 'emerald' ? 'bg-emerald-100 text-emerald-600' :
-                category.color === 'blue' ? 'bg-blue-100 text-blue-600' :
-                category.color === 'purple' ? 'bg-purple-100 text-purple-600' :
-                category.color === 'orange' ? 'bg-orange-100 text-orange-600' :
-                category.color === 'green' ? 'bg-green-100 text-green-600' :
-                'bg-pink-100 text-pink-600'
+                category.color === 'emerald' ? 'bg-(--brand-primary-light) text-(--brand-primary)' :
+                category.color === 'blue' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                category.color === 'purple' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                category.color === 'orange' ? 'bg-(--color-warning-bg) text-(--brand-amber)' :
+                category.color === 'green' ? 'bg-(--brand-primary-light) text-(--brand-primary)' :
+                'bg-(--color-error-bg) text-(--color-error)'
               }`}>
                 {category.icon}
               </div>
-              <h3 className="font-semibold text-slate-900 mb-1">{category.title}</h3>
-              <p className="text-sm text-slate-500 mb-4">{category.description}</p>
+              <h3 className="font-semibold text-foreground mb-1">{category.title}</h3>
+              <p className="text-sm text-(--color-text-muted) mb-4">{category.description}</p>
               <ul className="space-y-2">
                 {category.articles.map((article, idx) => (
                   <li key={idx}>
                     <Link
                       href={`/help/vendor-guide#${category.id}`}
-                      className="text-sm text-slate-600 hover:text-emerald-600 flex items-center gap-2 group"
+                      className="text-sm text-(--color-text-secondary) hover:text-(--brand-primary) flex items-center gap-2 group"
                     >
                       <ArrowRightIcon />
                       <span className="group-hover:underline">{article}</span>
@@ -328,27 +328,27 @@ export default function VendorSupportPortal() {
       </div>
 
       {/* FAQs */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center text-slate-600">
+          <div className="w-10 h-10 bg-(--color-elevated) rounded-lg flex items-center justify-center text-(--color-text-secondary)">
             <QuestionIcon />
           </div>
-          <h2 className="text-xl font-bold text-slate-900">Frequently Asked Questions</h2>
+          <h2 className="text-xl font-bold text-foreground">Frequently Asked Questions</h2>
         </div>
 
         <div className="space-y-3">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="border border-slate-200 rounded-lg overflow-hidden"
+              className="border border-(--color-border) rounded-lg overflow-hidden"
             >
               <button
                 onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-background transition-colors"
               >
-                <span className="font-medium text-slate-900">{faq.question}</span>
+                <span className="font-medium text-foreground">{faq.question}</span>
                 <svg
-                  className={`w-5 h-5 text-slate-400 transition-transform ${expandedFaq === index ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-(--color-text-disabled) transition-transform ${expandedFaq === index ? 'rotate-180' : ''}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -358,7 +358,7 @@ export default function VendorSupportPortal() {
                 </svg>
               </button>
               {expandedFaq === index && (
-                <div className="px-4 pb-4 text-slate-600">
+                <div className="px-4 pb-4 text-(--color-text-secondary)">
                   {faq.answer}
                 </div>
               )}
@@ -368,22 +368,22 @@ export default function VendorSupportPortal() {
       </div>
 
       {/* Full Guide Link */}
-      <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-xl p-8 text-center">
+      <div className="bg-linear-to-r from-(--brand-dark) to-(--brand-dark) rounded-xl p-8 text-center">
         <h2 className="text-2xl font-bold text-white mb-2">Need More Help?</h2>
-        <p className="text-slate-400 mb-6">
+        <p className="text-(--color-text-disabled) mb-6">
           Check out our comprehensive seller guide for detailed tutorials and best practices.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/help/vendor-guide"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl font-medium hover:bg-emerald-600 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary) transition-colors"
           >
             <BookIcon />
             View Full Seller Guide
           </Link>
           <Link
             href="/help"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-slate-700 text-white rounded-xl font-medium hover:bg-slate-600 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 text-white rounded-xl font-medium hover:bg-white/15 transition-colors"
           >
             <QuestionIcon />
             Help Center

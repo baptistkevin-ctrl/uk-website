@@ -57,11 +57,11 @@ export function DealCard({
 
   return (
     <div className={cn(
-      'group relative bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-lg transition-shadow',
+      'group relative bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden shadow-sm hover:shadow-lg transition-shadow',
       className
     )}>
       {/* Discount Badge */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-1 bg-red-600 text-white px-2 py-1 rounded-full text-sm font-bold">
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-1 bg-(--color-error) text-white px-2 py-1 rounded-full text-sm font-bold">
         <Zap className="h-3 w-3" />
         {deal.discount_percentage}% OFF
       </div>
@@ -76,7 +76,7 @@ export function DealCard({
 
       {/* Image */}
       <Link href={`/products/${product.slug}`}>
-        <div className="relative aspect-square bg-gray-100">
+        <div className="relative aspect-square bg-(--color-elevated)">
           {product.image_url ? (
             <Image
               src={product.image_url}
@@ -85,7 +85,7 @@ export function DealCard({
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400">
+            <div className="w-full h-full flex items-center justify-center text-(--color-text-disabled)">
               No image
             </div>
           )}
@@ -103,16 +103,16 @@ export function DealCard({
       <div className="p-4">
         {/* Timer */}
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs text-gray-500">Ends in:</span>
+          <span className="text-xs text-(--color-text-muted)">Ends in:</span>
           <CountdownTimerInline
             endTime={deal.ends_at}
-            className="text-sm font-bold text-red-600"
+            className="text-sm font-bold text-(--color-error)"
           />
         </div>
 
         {/* Title */}
         <Link href={`/products/${product.slug}`}>
-          <h3 className="font-semibold text-gray-900 hover:text-green-600 transition-colors line-clamp-2 mb-2">
+          <h3 className="font-semibold text-foreground hover:text-(--brand-primary) transition-colors line-clamp-2 mb-2">
             {deal.title || product.name}
           </h3>
         </Link>
@@ -128,13 +128,13 @@ export function DealCard({
 
         {/* Price */}
         <div className="flex items-baseline gap-2 mb-3">
-          <span className="text-xl font-bold text-red-600">
+          <span className="text-xl font-bold text-(--color-error)">
             £{(deal.deal_price_pence / 100).toFixed(2)}
           </span>
-          <span className="text-sm text-gray-500 line-through">
+          <span className="text-sm text-(--color-text-muted) line-through">
             £{(deal.original_price_pence / 100).toFixed(2)}
           </span>
-          <span className="text-sm text-green-600 font-medium">
+          <span className="text-sm text-(--brand-primary) font-medium">
             Save £{(savings / 100).toFixed(2)}
           </span>
         </div>
@@ -155,8 +155,8 @@ export function DealCard({
           className={cn(
             'w-full flex items-center justify-center gap-2 py-2.5 rounded-lg font-semibold transition-colors',
             isAvailable
-              ? 'bg-green-600 text-white hover:bg-green-700'
-              : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              ? 'bg-(--brand-primary) text-white hover:bg-(--brand-primary-hover)'
+              : 'bg-(--color-elevated) text-(--color-text-muted) cursor-not-allowed'
           )}
         >
           <ShoppingCart className="h-4 w-4" />
@@ -184,12 +184,12 @@ export function DealCardCompact({
 
   return (
     <div className={cn(
-      'flex gap-4 p-3 bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow',
+      'flex gap-4 p-3 bg-(--color-surface) rounded-lg border border-(--color-border) hover:shadow-md transition-shadow',
       className
     )}>
       {/* Image */}
-      <Link href={`/products/${product.slug}`} className="flex-shrink-0">
-        <div className="relative w-20 h-20 bg-gray-100 rounded-lg overflow-hidden">
+      <Link href={`/products/${product.slug}`} className="shrink-0">
+        <div className="relative w-20 h-20 bg-(--color-elevated) rounded-lg overflow-hidden">
           {product.image_url ? (
             <Image
               src={product.image_url}
@@ -198,9 +198,9 @@ export function DealCardCompact({
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gray-200" />
+            <div className="w-full h-full bg-(--color-elevated)" />
           )}
-          <div className="absolute top-1 left-1 bg-red-600 text-white text-xs font-bold px-1 py-0.5 rounded">
+          <div className="absolute top-1 left-1 bg-(--color-error) text-white text-xs font-bold px-1 py-0.5 rounded">
             -{deal.discount_percentage}%
           </div>
         </div>
@@ -209,25 +209,25 @@ export function DealCardCompact({
       {/* Content */}
       <div className="flex-1 min-w-0">
         <Link href={`/products/${product.slug}`}>
-          <h4 className="font-medium text-gray-900 text-sm line-clamp-1 hover:text-green-600">
+          <h4 className="font-medium text-foreground text-sm line-clamp-1 hover:text-(--brand-primary)">
             {product.name}
           </h4>
         </Link>
         <div className="flex items-center gap-2 mt-1">
-          <span className="text-lg font-bold text-red-600">
+          <span className="text-lg font-bold text-(--color-error)">
             £{(deal.deal_price_pence / 100).toFixed(2)}
           </span>
-          <span className="text-xs text-gray-400 line-through">
+          <span className="text-xs text-(--color-text-disabled) line-through">
             £{(deal.original_price_pence / 100).toFixed(2)}
           </span>
         </div>
         <div className="flex items-center justify-between mt-1">
           <CountdownTimerInline
             endTime={deal.ends_at}
-            className="text-xs text-red-600"
+            className="text-xs text-(--color-error)"
           />
           {deal.max_quantity && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-(--color-text-muted)">
               {Math.max(deal.max_quantity - deal.claimed_quantity, 0)} left
             </span>
           )}
@@ -241,8 +241,8 @@ export function DealCardCompact({
         className={cn(
           'self-center p-2 rounded-lg transition-colors',
           isAvailable
-            ? 'bg-green-600 text-white hover:bg-green-700'
-            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            ? 'bg-(--brand-primary) text-white hover:bg-(--brand-primary-hover)'
+            : 'bg-(--color-elevated) text-(--color-text-disabled) cursor-not-allowed'
         )}
       >
         <ShoppingCart className="h-5 w-5" />

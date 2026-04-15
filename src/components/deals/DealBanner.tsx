@@ -33,7 +33,7 @@ export function DealBanner({ deal, className }: DealBannerProps) {
 
   return (
     <div className={cn(
-      'relative bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl overflow-hidden',
+      'relative bg-linear-to-r from-red-600 to-orange-500 rounded-2xl overflow-hidden',
       className
     )}>
       <div className="relative z-10 flex flex-col md:flex-row items-center gap-6 p-6 md:p-8">
@@ -72,7 +72,7 @@ export function DealBanner({ deal, className }: DealBannerProps) {
           </div>
 
           {/* Timer */}
-          <div className="bg-white/20 rounded-lg p-3 inline-block mb-4">
+          <div className="bg-(--color-surface)/20 rounded-lg p-3 inline-block mb-4">
             <div className="flex items-center gap-2 text-white/80 text-xs mb-1">
               <Clock className="h-3 w-3" />
               <span>Offer ends in:</span>
@@ -89,7 +89,7 @@ export function DealBanner({ deal, className }: DealBannerProps) {
           {product && (
             <Link
               href={`/products/${product.slug}`}
-              className="inline-flex items-center gap-2 bg-white text-red-600 px-6 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors"
+              className="inline-flex items-center gap-2 bg-(--color-surface) text-red-600 px-6 py-3 rounded-lg font-bold hover:bg-(--color-elevated) transition-colors"
             >
               Shop Now
               <ArrowRight className="h-4 w-4" />
@@ -99,8 +99,8 @@ export function DealBanner({ deal, className }: DealBannerProps) {
 
         {/* Product Image */}
         {(deal.banner_image_url || product?.image_url) && (
-          <div className="relative w-48 h-48 md:w-64 md:h-64 flex-shrink-0">
-            <div className="absolute inset-0 bg-white/10 rounded-full blur-3xl" />
+          <div className="relative w-48 h-48 md:w-64 md:h-64 shrink-0">
+            <div className="absolute inset-0 bg-(--color-surface)/10 rounded-full blur-3xl" />
             <Image
               src={deal.banner_image_url || product?.image_url || ''}
               alt={product?.name || deal.title}
@@ -136,13 +136,13 @@ export function DealBannerCompact({
     <Link
       href={product ? `/products/${product.slug}` : '#'}
       className={cn(
-        'block bg-gradient-to-r from-red-600 to-orange-500 rounded-xl overflow-hidden hover:shadow-lg transition-shadow',
+        'block bg-linear-to-r from-red-600 to-orange-500 rounded-xl overflow-hidden hover:shadow-lg transition-shadow',
         className
       )}
     >
       <div className="flex items-center gap-4 p-4">
         {(deal.banner_image_url || product?.image_url) && (
-          <div className="relative w-16 h-16 flex-shrink-0 bg-white/20 rounded-lg overflow-hidden">
+          <div className="relative w-16 h-16 shrink-0 bg-(--color-surface)/20 rounded-lg overflow-hidden">
             <Image
               src={deal.banner_image_url || product?.image_url || ''}
               alt={product?.name || deal.title}

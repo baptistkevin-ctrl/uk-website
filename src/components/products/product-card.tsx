@@ -1,14 +1,15 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import { ProductImage } from '@/components/ui/ProductImage'
 import { Card } from '@/components/ui/card'
 import { useCart } from '@/hooks/use-cart'
 import { formatPrice } from '@/lib/utils/format'
 import { WishlistButton } from '@/components/wishlist'
 import { WatchlistButton } from '@/components/watchlist'
 import { useQuickViewStore } from '@/stores/quick-view-store'
+import { SwipeToAdd } from '@/components/mobile/SwipeToAdd'
 import { useState } from 'react'
 
 // Custom SVG Icons
@@ -168,8 +169,13 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
     return stars
   }
 
+  const handleSwipeAdd = () => {
+    if (!isOutOfStock && canAddMore) addItem(product)
+  }
+
   return (
-    <Card className="group relative overflow-hidden border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200 bg-white rounded-lg">
+    <SwipeToAdd onAdd={handleSwipeAdd} disabled={isOutOfStock || !canAddMore}>
+    <Card className="group relative overflow-hidden border border-(--color-border) hover:border-(--color-border) hover:shadow-md transition-all duration-200 bg-(--color-surface) rounded-lg">
       <Link
         href={`/products/${product.slug}`}
         className="block"
@@ -181,30 +187,24 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
         }}
       >
         {/* Image Container */}
-        <div className="relative aspect-square bg-gray-50 overflow-hidden">
-          {product.image_url ? (
-            <Image
-              src={product.image_url}
-              alt={product.name}
-              fill
-              className="object-cover group-hover:scale-102 transition-transform duration-300"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <ShoppingBagIcon />
-            </div>
-          )}
+        <div className="relative aspect-square bg-background overflow-hidden">
+          <ProductImage
+            src={product.image_url}
+            alt={product.name}
+            fill
+            className="object-cover group-hover:scale-102 transition-transform duration-300"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+          />
 
           {/* Top Left Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
             {hasDiscount && (
-              <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
+              <span className="bg-(--color-error) text-white text-[11px] font-bold px-2 py-0.5 rounded-sm">
                 -{discountPercentage}%
               </span>
             )}
             {product.has_offer && product.offer_badge && (
-              <span className="bg-orange-500 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-sm">
+              <span className="bg-(--brand-amber) text-white text-[11px] font-semibold px-2 py-0.5 rounded-sm">
                 {product.offer_badge}
               </span>
             )}
@@ -214,7 +214,7 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
           {(product.is_organic || product.is_vegan) && (
             <div className="absolute top-2 right-8 flex gap-1">
               {product.is_organic && (
-                <span className="bg-green-100 p-1 rounded-full" title="Organic">
+                <span className="bg-(--brand-primary-light) p-1 rounded-full" title="Organic">
                   <LeafIcon />
                 </span>
               )}
@@ -223,8 +223,8 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
 
           {/* Out of Stock Overlay */}
           {isOutOfStock && (
-            <div className="absolute inset-0 bg-white/90 flex items-center justify-center">
-              <span className="bg-gray-900 text-white text-xs font-medium px-3 py-1.5 rounded">
+            <div className="absolute inset-0 bg-(--color-surface)/90 flex items-center justify-center">
+              <span className="bg-(--color-text) text-white text-xs font-medium px-3 py-1.5 rounded">
                 Out of Stock
               </span>
             </div>
@@ -233,7 +233,7 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
           {/* Low Stock Badge */}
           {isLowStock && !isOutOfStock && (
             <div className="absolute bottom-2 left-2 right-2">
-              <span className="inline-flex items-center gap-1 bg-amber-100 border border-amber-300 text-amber-800 text-[10px] font-semibold px-2 py-0.5 rounded-sm">
+              <span className="inline-flex items-center gap-1 bg-(--brand-amber-soft) border border-(--color-border) text-(--brand-amber) text-[11px] font-semibold px-2 py-0.5 rounded-sm">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" xmlns="http://www.w3.org/2000/svg">
                   <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
@@ -252,19 +252,19 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
         {/* Content */}
         <div className="p-2 lg:p-2.5">
           {/* Product Name */}
-          <h3 className="text-gray-800 text-xs lg:text-[13px] font-normal leading-tight line-clamp-2 mb-1 lg:mb-1.5 min-h-[28px] lg:min-h-[32px] group-hover:text-green-600 transition-colors">
+          <h3 className="text-foreground text-xs lg:text-[13px] font-normal leading-tight line-clamp-2 mb-1 lg:mb-1.5 min-h-[28px] lg:min-h-[32px] group-hover:text-(--brand-primary) transition-colors">
             {product.name}
           </h3>
 
           {/* Vendor Name */}
           {product.vendor && (
             <div className="flex items-center gap-1 mb-1">
-              <span className="text-[10px] lg:text-[11px] text-blue-600 font-medium truncate">
+              <span className="text-[11px] lg:text-[11px] text-(--color-info) font-medium truncate">
                 {product.vendor.business_name}
               </span>
               {product.vendor.is_verified && (
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="#2563EB" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#2563EB" strokeWidth="2" fill="none"/>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="var(--color-info)" strokeWidth="2" fill="none"/>
                 </svg>
               )}
             </div>
@@ -275,17 +275,17 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
             <div className="flex items-center gap-[1px]">
               {renderStars()}
             </div>
-            <span className="text-[11px] text-gray-500">{rating.toFixed(1)}</span>
+            <span className="text-[11px] text-(--color-text-muted)">{rating.toFixed(1)}</span>
           </div>
 
           {/* Price + Add to Cart Row */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-baseline gap-1.5">
-              <span className="text-green-600 text-lg font-bold">
+              <span className="text-(--brand-primary) text-lg font-bold">
                 {formatPrice(product.price_pence)}
               </span>
               {hasDiscount && (
-                <span className="text-gray-400 text-[11px] line-through">
+                <span className="text-(--color-text-disabled) text-[11px] line-through">
                   {formatPrice(product.compare_at_price_pence!)}
                 </span>
               )}
@@ -296,24 +296,24 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
               <div onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
                 {quantityInCart > 0 ? (
                   // Quantity controls when item is in cart
-                  <div className="flex items-center gap-0 border border-green-500 rounded-full overflow-hidden">
+                  <div className="flex items-center gap-0 border border-(--brand-primary) rounded-full overflow-hidden">
                     <button
                       onClick={handleDecrement}
                       aria-label="Decrease quantity"
-                      className="w-7 h-7 flex items-center justify-center text-green-600 hover:bg-green-50 transition-colors"
+                      className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center text-(--brand-primary) hover:bg-(--brand-primary-light) transition-colors"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <line x1="5" y1="12" x2="19" y2="12"/>
                       </svg>
                     </button>
-                    <span className="w-7 h-7 flex items-center justify-center text-sm font-bold text-green-600 bg-green-50">
+                    <span className="w-8 h-9 sm:h-8 flex items-center justify-center text-sm font-bold text-(--brand-primary) bg-(--brand-primary-light)">
                       {quantityInCart}
                     </span>
                     <button
                       onClick={handleIncrement}
                       disabled={!canAddMore}
                       aria-label="Increase quantity"
-                      className={`w-7 h-7 flex items-center justify-center transition-colors ${canAddMore ? 'text-green-600 hover:bg-green-50' : 'text-gray-300 cursor-not-allowed'}`}
+                      className={`w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center transition-colors ${canAddMore ? 'text-(--brand-primary) hover:bg-(--brand-primary-light)' : 'text-(--color-text-disabled) cursor-not-allowed'}`}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -324,7 +324,7 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
                   // Add button when not in cart
                   <Button
                     size="icon"
-                    className="h-8 w-8 rounded-full bg-green-500 hover:bg-green-600 shadow-sm transition-all"
+                    className="h-9 w-9 sm:h-8 sm:w-8 rounded-full bg-(--brand-primary) hover:bg-(--brand-primary-hover) shadow-sm transition-all"
                     onClick={handleAddToCart}
                     disabled={isAdding}
                   >
@@ -340,7 +340,7 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
           {/* Shipping info */}
           {hasFreeShipping && (
             <div className="mt-1.5">
-              <span className="inline-flex items-center gap-0.5 text-[10px] text-green-600 font-medium">
+              <span className="inline-flex items-center gap-0.5 text-[11px] text-(--brand-primary) font-medium">
                 <TruckIcon />
                 Free delivery
               </span>
@@ -349,5 +349,6 @@ export function ProductCard({ product, isLoggedIn = false }: ProductCardProps) {
         </div>
       </Link>
     </Card>
+    </SwipeToAdd>
   )
 }

@@ -186,13 +186,17 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: '*.supabase.co' },
       { protocol: 'https', hostname: '*.stripe.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      { protocol: 'https', hostname: 'cdn.sanity.io' },
     ],
     // Image formats - prioritize modern formats for better compression
     formats: ['image/avif', 'image/webp'],
     // Device sizes for responsive images
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    deviceSizes: [320, 480, 640, 750, 828, 1080, 1200, 1440, 1920],
     // Icon/thumbnail sizes
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    // Allowed quality levels for next/image
+    qualities: [75, 85],
     // Minimize layout shift with proper sizing
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 days cache
     // Disable static image imports if not needed (can reduce bundle)
@@ -201,8 +205,6 @@ const nextConfig: NextConfig = {
     contentDispositionType: 'inline',
     // Enable dangerous SVG allow (only if you trust all image sources)
     dangerouslyAllowSVG: false,
-    // Content security policy for images
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     // Unoptimized mode for development (faster builds)
     unoptimized: isDev,
   },
@@ -226,6 +228,7 @@ const nextConfig: NextConfig = {
     // Optimize package imports - tree-shake specific packages
     optimizePackageImports: [
       'lucide-react',
+      'framer-motion',
       '@radix-ui/react-avatar',
       '@radix-ui/react-checkbox',
       '@radix-ui/react-dialog',
@@ -256,12 +259,13 @@ const nextConfig: NextConfig = {
         process.env.NEXT_PUBLIC_APP_URL?.replace(/^https?:\/\//, ''),
       ].filter((origin): origin is string => Boolean(origin)),
     },
-    // Typed routes disabled - codebase uses many dynamic routes
-    typedRoutes: false,
+    // Typed routes disabled — codebase uses many dynamic routes
     // Web vitals attribution for debugging
     webVitalsAttribution: ['CLS', 'LCP', 'FCP', 'FID', 'TTFB', 'INP'],
     // Scroll restoration for better UX
     scrollRestoration: true,
+    // View Transitions API for smooth page transitions
+    viewTransition: true,
     // Optimistic client cache
     staleTimes: {
       dynamic: 30, // Cache dynamic data for 30 seconds
@@ -282,8 +286,8 @@ const nextConfig: NextConfig = {
   // ==========================================================================
   // OUTPUT CONFIGURATION
   // ==========================================================================
-  // Standalone output for Docker/containerized deployments
-  output: isProd ? 'standalone' : undefined,
+  // Output mode — set to 'standalone' for Docker, leave undefined for Vercel
+  // output: isProd ? 'standalone' : undefined,
 
   // ==========================================================================
   // COMPRESSION CONFIGURATION
@@ -427,14 +431,24 @@ const nextConfig: NextConfig = {
   // ==========================================================================
   async redirects() {
     return [
-      // Redirect www to non-www (or vice versa based on preference)
-      // Uncomment and modify as needed:
-      // {
-      //   source: '/:path*',
-      //   has: [{ type: 'host', value: 'www.example.com' }],
-      //   destination: 'https://example.com/:path*',
-      //   permanent: true,
-      // },
+      // Old product URL patterns
+      { source: '/product/:slug', destination: '/products/:slug', permanent: true },
+      { source: '/product/:slug/', destination: '/products/:slug', permanent: true },
+      // Old category patterns
+      { source: '/category/:slug', destination: '/categories/:slug', permanent: true },
+      { source: '/category/:slug/', destination: '/categories/:slug', permanent: true },
+      // Old shop patterns
+      { source: '/shop', destination: '/products', permanent: true },
+      { source: '/shop/', destination: '/products', permanent: true },
+      // Old help pages
+      { source: '/help', destination: '/faq', permanent: true },
+      { source: '/help/delivery', destination: '/delivery', permanent: true },
+      { source: '/help/returns', destination: '/returns', permanent: true },
+      // Old auth patterns
+      { source: '/signin', destination: '/login', permanent: true },
+      { source: '/sign-in', destination: '/login', permanent: true },
+      { source: '/signup', destination: '/register', permanent: true },
+      { source: '/sign-up', destination: '/register', permanent: true },
     ];
   },
 

@@ -121,7 +121,7 @@ export default function VendorSettingsPage() {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -129,7 +129,7 @@ export default function VendorSettingsPage() {
   if (!settings) {
     return (
       <div className="p-8 text-center">
-        <p className="text-gray-500">Failed to load settings</p>
+        <p className="text-(--color-text-muted)">Failed to load settings</p>
       </div>
     )
   }
@@ -138,21 +138,21 @@ export default function VendorSettingsPage() {
     <div className="p-6 lg:p-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Store Settings</h1>
-        <p className="text-gray-600">Manage your vendor profile and store information</p>
+        <h1 className="text-2xl font-bold text-foreground">Store Settings</h1>
+        <p className="text-(--color-text-secondary)">Manage your vendor profile and store information</p>
       </div>
 
       {/* Message */}
       {message && (
         <div className={`mb-6 p-4 rounded-xl flex items-center gap-3 ${
-          message.type === 'success' ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'
+          message.type === 'success' ? 'bg-(--brand-primary-light) border border-(--brand-primary)/20' : 'bg-(--color-error-bg) border border-(--color-border)'
         }`}>
           {message.type === 'success' ? (
-            <CheckCircle className="h-5 w-5 text-emerald-600" />
+            <CheckCircle className="h-5 w-5 text-(--brand-primary)" />
           ) : (
-            <AlertCircle className="h-5 w-5 text-red-600" />
+            <AlertCircle className="h-5 w-5 text-(--color-error)" />
           )}
-          <span className={message.type === 'success' ? 'text-emerald-700' : 'text-red-700'}>
+          <span className={message.type === 'success' ? 'text-(--brand-primary)' : 'text-(--color-error)'}>
             {message.text}
           </span>
         </div>
@@ -160,12 +160,12 @@ export default function VendorSettingsPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Store Information */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-emerald-100 rounded-lg">
-              <Store className="h-5 w-5 text-emerald-600" />
+            <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+              <Store className="h-5 w-5 text-(--brand-primary)" />
             </div>
-            <h2 className="font-semibold text-gray-900">Store Information</h2>
+            <h2 className="font-semibold text-foreground">Store Information</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -181,12 +181,12 @@ export default function VendorSettingsPage() {
             <div>
               <Label htmlFor="slug">Store URL</Label>
               <div className="mt-1 flex items-center gap-2">
-                <span className="text-gray-500 text-sm">/store/</span>
+                <span className="text-(--color-text-muted) text-sm">/store/</span>
                 <Input
                   id="slug"
                   value={settings.slug}
                   disabled
-                  className="bg-gray-50"
+                  className="bg-background"
                 />
               </div>
             </div>
@@ -197,7 +197,7 @@ export default function VendorSettingsPage() {
                 value={settings.description || ''}
                 onChange={(e) => updateField('description', e.target.value)}
                 rows={3}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                 placeholder="Tell customers about your store..."
               />
             </div>
@@ -205,12 +205,12 @@ export default function VendorSettingsPage() {
         </div>
 
         {/* Contact Information */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Mail className="h-5 w-5 text-blue-600" />
+            <div className="p-2 bg-(--color-info-bg) rounded-lg">
+              <Mail className="h-5 w-5 text-(--color-info)" />
             </div>
-            <h2 className="font-semibold text-gray-900">Contact Information</h2>
+            <h2 className="font-semibold text-foreground">Contact Information</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -238,19 +238,19 @@ export default function VendorSettingsPage() {
         </div>
 
         {/* Online Presence */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-indigo-100 rounded-lg">
-              <Globe className="h-5 w-5 text-indigo-600" />
+            <div className="p-2 bg-(--color-info-bg) rounded-lg">
+              <Globe className="h-5 w-5 text-(--color-info)" />
             </div>
-            <h2 className="font-semibold text-gray-900">Online Presence</h2>
+            <h2 className="font-semibold text-foreground">Online Presence</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <Label htmlFor="website_url">Website URL</Label>
               <div className="mt-1 relative">
-                <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
                 <Input
                   id="website_url"
                   type="url"
@@ -264,7 +264,7 @@ export default function VendorSettingsPage() {
             <div>
               <Label htmlFor="facebook_url">Facebook</Label>
               <div className="mt-1 relative">
-                <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Facebook className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
                 <Input
                   id="facebook_url"
                   type="url"
@@ -278,7 +278,7 @@ export default function VendorSettingsPage() {
             <div>
               <Label htmlFor="instagram_url">Instagram</Label>
               <div className="mt-1 relative">
-                <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Instagram className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
                 <Input
                   id="instagram_url"
                   type="url"
@@ -292,7 +292,7 @@ export default function VendorSettingsPage() {
             <div>
               <Label htmlFor="twitter_url">Twitter / X</Label>
               <div className="mt-1 relative">
-                <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Twitter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
                 <Input
                   id="twitter_url"
                   type="url"
@@ -307,12 +307,12 @@ export default function VendorSettingsPage() {
         </div>
 
         {/* Business Address */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <MapPin className="h-5 w-5 text-purple-600" />
+            <div className="p-2 bg-(--color-info-bg) rounded-lg">
+              <MapPin className="h-5 w-5 text-(--color-info)" />
             </div>
-            <h2 className="font-semibold text-gray-900">Business Address</h2>
+            <h2 className="font-semibold text-foreground">Business Address</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -356,12 +356,12 @@ export default function VendorSettingsPage() {
         </div>
 
         {/* Business Details */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Building2 className="h-5 w-5 text-orange-600" />
+            <div className="p-2 bg-(--color-warning-bg) rounded-lg">
+              <Building2 className="h-5 w-5 text-(--brand-amber)" />
             </div>
-            <h2 className="font-semibold text-gray-900">Business Details</h2>
+            <h2 className="font-semibold text-foreground">Business Details</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -389,26 +389,26 @@ export default function VendorSettingsPage() {
         </div>
 
         {/* Payment Settings */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CreditCard className="h-5 w-5 text-green-600" />
+            <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+              <CreditCard className="h-5 w-5 text-(--brand-primary)" />
             </div>
-            <h2 className="font-semibold text-gray-900">Payment Settings</h2>
+            <h2 className="font-semibold text-foreground">Payment Settings</h2>
           </div>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-background rounded-lg">
               <div>
-                <p className="font-medium text-gray-900">Stripe Connect</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-foreground">Stripe Connect</p>
+                <p className="text-sm text-(--color-text-muted)">
                   {settings.stripe_onboarding_complete
                     ? 'Your Stripe account is connected and ready to receive payments'
                     : 'Complete Stripe onboarding to receive payments'}
                 </p>
               </div>
               {settings.stripe_onboarding_complete ? (
-                <span className="flex items-center gap-2 text-emerald-600 font-medium">
+                <span className="flex items-center gap-2 text-(--brand-primary) font-medium">
                   <CheckCircle className="h-5 w-5" />
                   Connected
                 </span>
@@ -416,19 +416,19 @@ export default function VendorSettingsPage() {
                 <Button
                   type="button"
                   onClick={() => window.location.href = '/vendor/onboarding'}
-                  className="bg-emerald-600 hover:bg-emerald-700"
+                  className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
                 >
                   Complete Setup
                 </Button>
               )}
             </div>
 
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between p-4 bg-background rounded-lg">
               <div>
-                <p className="font-medium text-gray-900">Commission Rate</p>
-                <p className="text-sm text-gray-500">Platform commission on each sale</p>
+                <p className="font-medium text-foreground">Commission Rate</p>
+                <p className="text-sm text-(--color-text-muted)">Platform commission on each sale</p>
               </div>
-              <span className="text-lg font-bold text-gray-900">{settings.commission_rate}%</span>
+              <span className="text-lg font-bold text-foreground">{settings.commission_rate}%</span>
             </div>
           </div>
         </div>
@@ -438,7 +438,7 @@ export default function VendorSettingsPage() {
           <Button
             type="submit"
             disabled={saving}
-            className="bg-emerald-600 hover:bg-emerald-700"
+            className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
           >
             {saving ? (
               <>

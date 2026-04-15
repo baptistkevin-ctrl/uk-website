@@ -85,7 +85,7 @@ export async function register() {
   // Enterprise: Log startup info
   console.log(`[startup] UK Grocery Store v${process.env.npm_package_version || '0.1.0'}`)
   console.log(`[startup] Environment: ${process.env.NODE_ENV}`)
-  console.log(`[startup] Node: ${process.version}`)
+  console.log(`[startup] Node: ${typeof process !== 'undefined' && process.version ? process.version : 'edge'}`)
   console.log(`[startup] Cache: in-memory (set REDIS_URL for Redis)`)
   console.log(`[startup] Queue: in-memory (set REDIS_URL for BullMQ)`)
 }

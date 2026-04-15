@@ -38,14 +38,14 @@ interface ReturnRequest {
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: typeof Clock }> = {
-  pending: { label: 'Pending Review', color: 'bg-amber-100 text-amber-800', icon: Clock },
-  approved: { label: 'Approved', color: 'bg-blue-100 text-blue-800', icon: CheckCircle },
-  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-800', icon: XCircle },
+  pending: { label: 'Pending Review', color: 'bg-(--brand-amber-soft) text-(--brand-amber)', icon: Clock },
+  approved: { label: 'Approved', color: 'bg-(--color-info-bg) text-(--color-info)', icon: CheckCircle },
+  rejected: { label: 'Rejected', color: 'bg-(--color-error-bg) text-(--color-error)', icon: XCircle },
   items_received: { label: 'Items Received', color: 'bg-indigo-100 text-indigo-800', icon: Package },
   inspecting: { label: 'Inspecting', color: 'bg-purple-100 text-purple-800', icon: Eye },
   refund_processing: { label: 'Processing Refund', color: 'bg-cyan-100 text-cyan-800', icon: RotateCcw },
-  refunded: { label: 'Refunded', color: 'bg-green-100 text-green-800', icon: CheckCircle },
-  cancelled: { label: 'Cancelled', color: 'bg-gray-100 text-gray-800', icon: XCircle },
+  refunded: { label: 'Refunded', color: 'bg-(--brand-primary-light) text-(--brand-primary)', icon: CheckCircle },
+  cancelled: { label: 'Cancelled', color: 'bg-(--color-elevated) text-(--color-text-secondary)', icon: XCircle },
 }
 
 const reasonLabels: Record<string, string> = {
@@ -108,8 +108,8 @@ export default function ReturnsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-green-500" />
+      <div className="flex items-center justify-center min-h-100">
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -117,8 +117,8 @@ export default function ReturnsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Returns</h1>
-        <p className="text-gray-500">Track and manage your return requests</p>
+        <h1 className="text-2xl font-bold text-foreground">My Returns</h1>
+        <p className="text-(--color-text-muted)">Track and manage your return requests</p>
       </div>
 
       {/* Filter tabs */}
@@ -144,8 +144,8 @@ export default function ReturnsPage() {
       {returns.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center">
-            <RotateCcw className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-            <p className="text-gray-500 mb-4">No return requests found</p>
+            <RotateCcw className="h-12 w-12 mx-auto mb-3 text-(--color-text-disabled)" />
+            <p className="text-(--color-text-muted) mb-4">No return requests found</p>
             <Link href="/account/orders">
               <Button variant="outline" size="sm">
                 <Package className="h-4 w-4 mr-2" />
@@ -169,7 +169,7 @@ export default function ReturnsPage() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <Link
                           href={`/account/orders/${ret.order_id}`}
-                          className="font-medium text-green-700 hover:underline"
+                          className="font-medium text-(--brand-primary) hover:underline"
                         >
                           Order {ret.orders?.order_number || ret.order_id.slice(0, 8)}
                         </Link>
@@ -180,11 +180,11 @@ export default function ReturnsPage() {
                       </div>
 
                       {/* Reason */}
-                      <p className="text-sm text-gray-600">
-                        <span className="text-gray-500">Reason:</span>{' '}
+                      <p className="text-sm text-(--color-text-secondary)">
+                        <span className="text-(--color-text-muted)">Reason:</span>{' '}
                         {reasonLabels[ret.reason] || ret.reason}
                         {ret.reason_details && (
-                          <span className="text-gray-400"> — {ret.reason_details}</span>
+                          <span className="text-(--color-text-disabled)"> — {ret.reason_details}</span>
                         )}
                       </p>
 
@@ -194,7 +194,7 @@ export default function ReturnsPage() {
                           {ret.return_items.map((item) => (
                             <span
                               key={item.id}
-                              className="text-xs bg-gray-100 rounded px-2 py-1 text-gray-600"
+                              className="text-xs bg-(--color-elevated) rounded px-2 py-1 text-(--color-text-secondary)"
                             >
                               {item.products?.name || 'Item'} x{item.quantity}
                             </span>
@@ -203,7 +203,7 @@ export default function ReturnsPage() {
                       )}
 
                       {/* Footer info */}
-                      <div className="flex gap-4 text-xs text-gray-400">
+                      <div className="flex gap-4 text-xs text-(--color-text-disabled)">
                         <span>Refund: {formatPrice(ret.refund_amount_pence)}</span>
                         <span>Method: {ret.refund_method?.replace(/_/g, ' ')}</span>
                         <span>Submitted {new Date(ret.created_at).toLocaleDateString()}</span>
@@ -239,10 +239,10 @@ export default function ReturnsPage() {
       )}
 
       {/* Help text */}
-      <Card className="bg-amber-50 border-amber-200">
+      <Card className="bg-(--brand-amber-soft) border-(--brand-amber)/20">
         <CardContent className="p-4 flex gap-3">
-          <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-          <div className="text-sm text-amber-800">
+          <AlertTriangle className="h-5 w-5 text-(--brand-amber) shrink-0 mt-0.5" />
+          <div className="text-sm text-(--brand-amber)">
             <p className="font-medium mb-1">Return Policy</p>
             <p>
               Items can be returned within 30 days of delivery. To start a return, go to your{' '}

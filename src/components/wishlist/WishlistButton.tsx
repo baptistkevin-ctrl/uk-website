@@ -47,7 +47,7 @@ export function WishlistButton({
   const buttonSizeClasses = {
     sm: 'p-1.5',
     md: 'p-2',
-    lg: 'p-2.5',
+    lg: 'h-12 w-12 flex items-center justify-center rounded-xl border border-(--color-border)',
   }
 
   const handleClick = async (e: React.MouseEvent) => {
@@ -73,13 +73,13 @@ export function WishlistButton({
     return (
       <button
         className={cn(
-          'rounded-full bg-white/90 shadow-sm transition-all hover:bg-white hover:shadow-md',
+          'rounded-full bg-(--color-surface)/90 shadow-sm transition-all hover:bg-(--color-surface) hover:shadow-md',
           buttonSizeClasses[size],
           className
         )}
         disabled
       >
-        <Heart className={cn(sizeClasses[size], 'text-gray-400')} />
+        <Heart className={cn(sizeClasses[size], 'text-(--color-text-disabled)')} />
       </button>
     )
   }
@@ -89,15 +89,15 @@ export function WishlistButton({
       onClick={handleClick}
       disabled={isLoading}
       className={cn(
-        'rounded-full bg-white/90 shadow-sm transition-all hover:bg-white hover:shadow-md',
-        'focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2',
+        'rounded-full bg-(--color-surface)/90 shadow-sm transition-all hover:bg-(--color-surface) hover:shadow-md',
+        'focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:ring-offset-2',
         buttonSizeClasses[size],
         className
       )}
       aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
     >
       {isLoading ? (
-        <Loader2 className={cn(sizeClasses[size], 'animate-spin text-gray-400')} />
+        <Loader2 className={cn(sizeClasses[size], 'animate-spin text-(--color-text-disabled)')} />
       ) : (
         <Heart
           className={cn(
@@ -105,7 +105,7 @@ export function WishlistButton({
             'transition-colors',
             isInWishlist
               ? 'fill-red-500 text-red-500'
-              : 'text-gray-400 hover:text-red-500'
+              : 'text-(--color-text-disabled) hover:text-red-500'
           )}
         />
       )}
@@ -163,10 +163,10 @@ export function WishlistButtonInline({
       onClick={handleClick}
       disabled={isLoading}
       className={cn(
-        'flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors',
+        'flex items-center gap-2 px-4 py-2.5 rounded-lg border transition-colors',
         isInWishlist
           ? 'bg-red-50 border-red-200 text-red-600 hover:bg-red-100'
-          : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50',
+          : 'bg-(--color-surface) border-(--color-border) text-(--color-text-secondary) hover:bg-background',
         className
       )}
     >

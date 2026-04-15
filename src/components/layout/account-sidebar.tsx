@@ -16,6 +16,7 @@ import {
   Shield,
   Settings,
 } from 'lucide-react'
+import { cn } from '@/lib/utils/cn'
 
 const accountLinks = [
   { href: '/account', label: 'Overview', icon: User },
@@ -36,29 +37,60 @@ const accountLinks = [
 export function AccountSidebar() {
   const pathname = usePathname()
 
-  return (
-    <nav className="bg-white rounded-lg border p-4 space-y-1">
-      {accountLinks.map((link) => {
-        const isActive =
-          link.href === '/account'
-            ? pathname === '/account'
-            : pathname.startsWith(link.href)
+  const isActive = (href: string) =>
+    href === '/account' ? pathname === '/account' : pathname.startsWith(href)
 
-        return (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-              isActive
-                ? 'bg-green-50 text-green-700 font-semibold'
-                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-            }`}
-          >
-            <link.icon className="h-5 w-5" />
-            {link.label}
-          </Link>
-        )
-      })}
-    </nav>
+  return (
+    <>
+      {/* Mobile: horizontal scrollable nav */}
+      <nav className="lg:hidden -mx-4 px-4 overflow-x-auto scrollbar-none">
+        <div className="flex gap-2 pb-2 min-w-max">
+          {accountLinks.map((link) => {
+            const active = isActive(link.href)
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-2.5 rounded-lg text-sm whitespace-nowrap transition-colors shrink-0',
+                  active
+                    ? 'bg-(--brand-primary) text-white font-medium'
+                    : 'bg-(--color-surface) border border-(--color-border) text-(--color-text-secondary)'
+                )}
+              >
+                <link.icon className="h-4 w-4" />
+                {link.label}
+              </Link>
+            )
+          })}
+        </div>
+      </nav>
+
+      {/* Desktop: vertical sidebar */}
+      <nav className="hidden lg:block rounded-xl border border-(--color-border) bg-(--color-surface) p-3 space-y-0.5">
+        <p className="text-xs font-semibold uppercase tracking-wider text-(--color-text-muted) px-3 pb-2 mb-1">
+          My Account
+        </p>
+
+        {accountLinks.map((link) => {
+          const active = isActive(link.href)
+          return (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
+                active
+                  ? 'bg-(--brand-primary-light) text-(--brand-primary) font-medium'
+                  : 'text-(--color-text-secondary) hover:bg-(--color-elevated) hover:text-foreground'
+              )}
+            >
+              <link.icon className="h-4 w-4" />
+              {link.label}
+            </Link>
+          )
+        })}
+      </nav>
+    </>
   )
 }

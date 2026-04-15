@@ -62,27 +62,27 @@ const notificationIcons: Record<string, typeof Bell> = {
 const notificationColors: Record<string, string> = {
   order_placed: 'bg-blue-100 text-blue-600',
   order_shipped: 'bg-purple-100 text-purple-600',
-  order_delivered: 'bg-green-100 text-green-600',
+  order_delivered: 'bg-(--brand-primary-light) text-(--brand-primary)',
   order_cancelled: 'bg-red-100 text-red-600',
-  payment_received: 'bg-green-100 text-green-600',
+  payment_received: 'bg-(--brand-primary-light) text-(--brand-primary)',
   payment_failed: 'bg-red-100 text-red-600',
   price_drop: 'bg-orange-100 text-orange-600',
   back_in_stock: 'bg-teal-100 text-teal-600',
   low_stock: 'bg-yellow-100 text-yellow-600',
-  review_approved: 'bg-green-100 text-green-600',
+  review_approved: 'bg-(--brand-primary-light) text-(--brand-primary)',
   review_rejected: 'bg-red-100 text-red-600',
   points_earned: 'bg-amber-100 text-amber-600',
   points_redeemed: 'bg-amber-100 text-amber-600',
   tier_upgrade: 'bg-purple-100 text-purple-600',
   referral_signup: 'bg-blue-100 text-blue-600',
-  referral_reward: 'bg-green-100 text-green-600',
+  referral_reward: 'bg-(--brand-primary-light) text-(--brand-primary)',
   coupon_expiring: 'bg-orange-100 text-orange-600',
-  new_coupon: 'bg-green-100 text-green-600',
+  new_coupon: 'bg-(--brand-primary-light) text-(--brand-primary)',
   flash_deal: 'bg-red-100 text-red-600',
   promotional: 'bg-pink-100 text-pink-600',
   ticket_reply: 'bg-blue-100 text-blue-600',
-  ticket_resolved: 'bg-green-100 text-green-600',
-  system: 'bg-gray-100 text-gray-600'
+  ticket_resolved: 'bg-(--brand-primary-light) text-(--brand-primary)',
+  system: 'bg-(--color-elevated) text-(--color-text-secondary)'
 }
 
 export function NotificationBell() {
@@ -174,14 +174,14 @@ export function NotificationBell() {
   }
 
   const getColorClass = (type: string) => {
-    return notificationColors[type] || 'bg-gray-100 text-gray-600'
+    return notificationColors[type] || 'bg-(--color-elevated) text-(--color-text-secondary)'
   }
 
   return (
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+        className="relative p-2 text-(--color-text-secondary) hover:text-foreground hover:bg-(--color-elevated) rounded-full transition-colors"
         aria-label="Notifications"
       >
         <Bell className="h-5 w-5" />
@@ -193,15 +193,15 @@ export function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-96 bg-(--color-surface) rounded-xl shadow-xl border border-(--color-border) z-50 overflow-hidden">
           {/* Header */}
-          <div className="px-4 py-3 border-b bg-gray-50 flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">Notifications</h3>
+          <div className="px-4 py-3 border-b bg-background flex items-center justify-between">
+            <h3 className="font-semibold text-foreground">Notifications</h3>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
                 <button
                   onClick={markAllAsRead}
-                  className="text-xs text-green-600 hover:text-green-700 flex items-center gap-1"
+                  className="text-xs text-(--brand-primary) hover:text-(--brand-primary) flex items-center gap-1"
                 >
                   <CheckCheck className="h-3.5 w-3.5" />
                   Mark all read
@@ -210,7 +210,7 @@ export function NotificationBell() {
               <Link
                 href="/account/notifications/settings"
                 onClick={() => setIsOpen(false)}
-                className="p-1 text-gray-400 hover:text-gray-600"
+                className="p-1 text-(--color-text-disabled) hover:text-(--color-text-secondary)"
               >
                 <Settings className="h-4 w-4" />
               </Link>
@@ -218,15 +218,15 @@ export function NotificationBell() {
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-[400px] overflow-y-auto">
+          <div className="max-h-100 overflow-y-auto">
             {loading ? (
               <div className="p-8 text-center">
-                <div className="w-8 h-8 border-2 border-green-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <div className="w-8 h-8 border-2 border-(--brand-primary) border-t-transparent rounded-full animate-spin mx-auto"></div>
               </div>
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
-                <Bell className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">No notifications yet</p>
+                <Bell className="h-12 w-12 text-(--color-text-disabled) mx-auto mb-3" />
+                <p className="text-(--color-text-muted)">No notifications yet</p>
               </div>
             ) : (
               <div className="divide-y">
@@ -236,28 +236,28 @@ export function NotificationBell() {
 
                   const content = (
                     <div
-                      className={`px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer ${
-                        !notification.is_read ? 'bg-green-50/50' : ''
+                      className={`px-4 py-3 hover:bg-background transition-colors cursor-pointer ${
+                        !notification.is_read ? 'bg-(--brand-primary-light)/50' : ''
                       }`}
                       onClick={() => handleNotificationClick(notification)}
                     >
                       <div className="flex gap-3">
-                        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}>
+                        <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${colorClass}`}>
                           <Icon className="h-5 w-5" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
-                            <p className={`text-sm font-medium text-gray-900 ${!notification.is_read ? 'font-semibold' : ''}`}>
+                            <p className={`text-sm font-medium text-foreground ${!notification.is_read ? 'font-semibold' : ''}`}>
                               {notification.title}
                             </p>
                             {!notification.is_read && (
-                              <span className="flex-shrink-0 w-2 h-2 bg-green-500 rounded-full mt-1.5"></span>
+                              <span className="shrink-0 w-2 h-2 bg-(--brand-primary) rounded-full mt-1.5"></span>
                             )}
                           </div>
-                          <p className="text-sm text-gray-600 line-clamp-2 mt-0.5">
+                          <p className="text-sm text-(--color-text-secondary) line-clamp-2 mt-0.5">
                             {notification.message}
                           </p>
-                          <p className="text-xs text-gray-400 mt-1">
+                          <p className="text-xs text-(--color-text-disabled) mt-1">
                             {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
                           </p>
                         </div>
@@ -283,11 +283,11 @@ export function NotificationBell() {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="px-4 py-3 border-t bg-gray-50 text-center">
+            <div className="px-4 py-3 border-t bg-background text-center">
               <Link
                 href="/account/notifications"
                 onClick={() => setIsOpen(false)}
-                className="text-sm text-green-600 hover:text-green-700 font-medium"
+                className="text-sm text-(--brand-primary) hover:text-(--brand-primary) font-medium"
               >
                 View all notifications
               </Link>

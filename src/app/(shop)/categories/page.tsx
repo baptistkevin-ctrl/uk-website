@@ -25,8 +25,8 @@ const categoryImages: Record<string, string> = {
   'fruits-vegetables': 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=600&h=400&fit=crop&q=80',
   'meat': 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=600&h=400&fit=crop&q=80',
   'meat-poultry': 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=600&h=400&fit=crop&q=80',
-  'poultry': 'https://images.unsplash.com/photo-1604503468506-a8da13d82571?w=600&h=400&fit=crop&q=80',
-  'chicken': 'https://images.unsplash.com/photo-1604503468506-a8da13d82571?w=600&h=400&fit=crop&q=80',
+  'poultry': 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=600&h=400&fit=crop&q=80',
+  'chicken': 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=600&h=400&fit=crop&q=80',
   'dairy': 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=600&h=400&fit=crop&q=80',
   'dairy-eggs': 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=600&h=400&fit=crop&q=80',
   'bakery': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&h=400&fit=crop&q=80',
@@ -55,7 +55,7 @@ const categoryImages: Record<string, string> = {
   'pet-food': 'https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=600&h=400&fit=crop&q=80',
   'desserts': 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&h=400&fit=crop&q=80',
   'cakes': 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&h=400&fit=crop&q=80',
-  'coffee': 'https://images.unsplash.com/photo-1447933601403-56dc2df6e3f5?w=600&h=400&fit=crop&q=80',
+  'coffee': 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&h=400&fit=crop&q=80',
   'tea': 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&h=400&fit=crop&q=80',
 }
 
@@ -83,29 +83,29 @@ export default async function CategoriesPage() {
     .order('display_order')
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50/60 via-amber-50/30 to-orange-50/50">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 overflow-hidden">
-        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,_white_1px,_transparent_1px)] bg-[size:20px_20px]" />
-        <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl" />
-        <div className="absolute bottom-10 right-10 w-32 h-32 bg-teal-400/20 rounded-full blur-2xl" />
+      <div className="relative bg-(--brand-dark) overflow-hidden">
+        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,_white_1px,_transparent_1px)] bg-size-[20px_20px]" />
+        <div className="absolute top-4 left-4 md:top-10 md:left-10 w-20 h-20 bg-(--color-surface)/10 rounded-full blur-xl" />
+        <div className="absolute bottom-4 right-4 md:bottom-10 md:right-10 w-32 h-32 bg-(--color-surface)/10 rounded-full blur-2xl" />
 
-        <div className="container mx-auto px-4 py-12 lg:py-16 relative">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16 relative">
           <div className="max-w-3xl">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
+              <div className="w-12 h-12 bg-(--color-surface)/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
                 <Grid3X3 className="h-6 w-6 text-white" />
               </div>
-              <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
+              <Badge className="bg-(--color-surface)/20 text-white border-white/30 backdrop-blur-sm">
                 <Sparkles className="h-3 w-3 mr-1" />
                 Browse by Category
               </Badge>
             </div>
 
             <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4">
-              Shop by <span className="text-emerald-200">Category</span>
+              Shop by <span className="text-(--brand-primary)">Category</span>
             </h1>
-            <p className="text-lg text-emerald-100 max-w-2xl">
+            <p className="text-lg text-white/80 max-w-2xl">
               Explore our carefully organized categories to find exactly what you need.
               From fresh produce to pantry staples, we have got you covered.
             </p>
@@ -114,7 +114,7 @@ export default async function CategoriesPage() {
       </div>
 
       {/* Categories Grid */}
-      <div className="container mx-auto px-4 py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         {categories && categories.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
             {categories.map((category) => {
@@ -126,7 +126,7 @@ export default async function CategoriesPage() {
                   href={`/categories/${category.slug}`}
                   className="group block"
                 >
-                  <div className="relative rounded-2xl overflow-hidden aspect-[4/3] shadow-sm hover:shadow-xl transition-all duration-300">
+                  <div className="relative rounded-2xl overflow-hidden aspect-4/3 shadow-sm hover:shadow-xl transition-all duration-300">
                     {/* Real Photo Background */}
                     <Image
                       src={imageUrl}
@@ -136,7 +136,7 @@ export default async function CategoriesPage() {
                       sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                     />
                     {/* Dark gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/5 group-hover:from-black/70 transition-colors duration-300" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-black/5 group-hover:from-black/70 transition-colors duration-300" />
 
                     {/* Content */}
                     <div className="absolute inset-0 flex flex-col justify-end p-4 lg:p-5">
@@ -148,7 +148,7 @@ export default async function CategoriesPage() {
                           {category.description}
                         </p>
                       )}
-                      <div className="flex items-center text-emerald-300 font-medium text-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                      <div className="flex items-center text-(--brand-primary) font-medium text-sm opacity-100 lg:opacity-0 lg:group-hover:opacity-100 translate-y-0 lg:translate-y-2 lg:group-hover:translate-y-0 transition-all duration-300">
                         <span>Browse Products</span>
                         <ArrowRight className="h-4 w-4 ml-1" />
                       </div>
@@ -160,14 +160,14 @@ export default async function CategoriesPage() {
           </div>
         ) : (
           <div className="text-center py-16">
-            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Grid3X3 className="h-12 w-12 text-slate-300" />
+            <div className="w-24 h-24 bg-(--color-elevated) rounded-full flex items-center justify-center mx-auto mb-6">
+              <Grid3X3 className="h-16 w-16 text-(--color-text-disabled)" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No categories yet</h3>
-            <p className="text-gray-500 mb-6">Categories will appear here once they are added.</p>
+            <h3 className="text-xl font-semibold text-foreground mb-2">No categories yet</h3>
+            <p className="text-(--color-text-muted) mb-6">Categories will appear here once they are added.</p>
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-emerald-700 transition-colors"
+              className="inline-flex items-center gap-2 bg-(--brand-primary) text-white px-6 py-3 rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-colors"
             >
               Browse All Products
               <ArrowRight className="h-4 w-4" />
@@ -178,10 +178,10 @@ export default async function CategoriesPage() {
         {/* Bottom CTA */}
         {categories && categories.length > 0 && (
           <div className="mt-12 text-center">
-            <p className="text-gray-500 mb-4">Can&apos;t find what you&apos;re looking for?</p>
+            <p className="text-(--color-text-muted) mb-4">Can&apos;t find what you&apos;re looking for?</p>
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
+              className="inline-flex items-center gap-2 text-(--brand-primary) hover:text-(--brand-primary-hover) font-medium transition-colors"
             >
               Browse All Products
               <ArrowRight className="h-4 w-4" />

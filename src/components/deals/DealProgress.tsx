@@ -19,7 +19,7 @@ export function DealProgress({
   if (total === null) {
     // Unlimited quantity
     return showText ? (
-      <div className={cn('text-sm text-gray-500', className)}>
+      <div className={cn('text-sm text-(--color-text-muted)', className)}>
         {claimed.toLocaleString()} claimed
       </div>
     ) : null
@@ -33,15 +33,15 @@ export function DealProgress({
   return (
     <div className={cn('space-y-1', className)}>
       {/* Progress Bar */}
-      <div className="relative h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div className="relative h-2 bg-(--color-elevated) rounded-full overflow-hidden">
         <div
           className={cn(
             'h-full rounded-full transition-all duration-500',
             isSoldOut
-              ? 'bg-gray-400'
+              ? 'bg-(--color-text-disabled)'
               : isLow
               ? 'bg-orange-500'
-              : 'bg-green-500'
+              : 'bg-(--brand-primary)'
           )}
           style={{ width: `${percentage}%` }}
         />
@@ -53,10 +53,10 @@ export function DealProgress({
           <span className={cn(
             'font-medium',
             isSoldOut
-              ? 'text-gray-500'
+              ? 'text-(--color-text-muted)'
               : isLow
               ? 'text-orange-600'
-              : 'text-gray-600'
+              : 'text-(--color-text-secondary)'
           )}>
             {isSoldOut ? (
               'Sold Out!'
@@ -69,7 +69,7 @@ export function DealProgress({
               `${remaining.toLocaleString()} left`
             )}
           </span>
-          <span className="text-gray-500">
+          <span className="text-(--color-text-muted)">
             {percentage.toFixed(0)}% claimed
           </span>
         </div>
@@ -98,7 +98,7 @@ export function DealProgressBadge({
     return (
       <span className={cn(
         'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
-        'bg-gray-500 text-white',
+        'bg-(--color-text-muted) text-white',
         className
       )}>
         Sold Out

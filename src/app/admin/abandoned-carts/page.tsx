@@ -86,10 +86,10 @@ export default function AdminAbandonedCartsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'abandoned': return 'bg-amber-100 text-amber-700'
-      case 'recovered': return 'bg-emerald-100 text-emerald-700'
-      case 'expired': return 'bg-gray-100 text-gray-700'
-      default: return 'bg-gray-100 text-gray-700'
+      case 'abandoned': return 'bg-(--brand-amber-soft) text-(--brand-amber)'
+      case 'recovered': return 'bg-(--brand-primary-light) text-(--brand-primary)'
+      case 'expired': return 'bg-(--color-elevated) text-foreground'
+      default: return 'bg-(--color-elevated) text-foreground'
     }
   }
 
@@ -103,11 +103,11 @@ export default function AdminAbandonedCartsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <ShoppingCart className="h-7 w-7 text-emerald-600" />
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <ShoppingCart className="h-7 w-7 text-(--brand-primary)" />
               Abandoned Carts
             </h1>
-            <p className="text-gray-500 mt-1">
+            <p className="text-(--color-text-muted) mt-1">
               Track and recover abandoned shopping carts
             </p>
           </div>
@@ -116,58 +116,58 @@ export default function AdminAbandonedCartsPage() {
         {/* Stats */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <ShoppingCart className="h-5 w-5 text-amber-600" />
+                <div className="w-10 h-10 bg-(--brand-amber-soft) rounded-lg flex items-center justify-center">
+                  <ShoppingCart className="h-5 w-5 text-(--brand-amber)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total Abandoned</p>
-                  <p className="text-xl font-bold text-gray-900">{stats.total_abandoned}</p>
+                  <p className="text-sm text-(--color-text-muted)">Total Abandoned</p>
+                  <p className="text-xl font-bold text-foreground">{stats.total_abandoned}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 text-red-600" />
+                <div className="w-10 h-10 bg-(--color-error-bg) rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-(--color-error)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Lost Value</p>
-                  <p className="text-xl font-bold text-gray-900">{formatPrice(stats.total_value_pence)}</p>
+                  <p className="text-sm text-(--color-text-muted)">Lost Value</p>
+                  <p className="text-xl font-bold text-foreground">{formatPrice(stats.total_value_pence)}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <RotateCcw className="h-5 w-5 text-emerald-600" />
+                <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center">
+                  <RotateCcw className="h-5 w-5 text-(--brand-primary)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Recovered</p>
-                  <p className="text-xl font-bold text-gray-900">{stats.recovered_count}</p>
+                  <p className="text-sm text-(--color-text-muted)">Recovered</p>
+                  <p className="text-xl font-bold text-foreground">{stats.recovered_count}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 text-blue-600" />
+                <div className="w-10 h-10 bg-(--color-info-bg) rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-(--color-info)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Recovered Value</p>
-                  <p className="text-xl font-bold text-gray-900">{formatPrice(stats.recovered_value_pence)}</p>
+                  <p className="text-sm text-(--color-text-muted)">Recovered Value</p>
+                  <p className="text-xl font-bold text-foreground">{formatPrice(stats.recovered_value_pence)}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-purple-600" />
+                <div className="w-10 h-10 bg-(--color-info-bg) rounded-lg flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-(--color-info)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Recovery Rate</p>
-                  <p className="text-xl font-bold text-gray-900">{recoveryRate}%</p>
+                  <p className="text-sm text-(--color-text-muted)">Recovery Rate</p>
+                  <p className="text-xl font-bold text-foreground">{recoveryRate}%</p>
                 </div>
               </div>
             </div>
@@ -176,15 +176,15 @@ export default function AdminAbandonedCartsPage() {
 
         {/* Filters */}
         <div className="flex items-center gap-4">
-          <div className="flex bg-gray-100 rounded-lg p-1">
+          <div className="flex bg-(--color-elevated) rounded-lg p-1">
             {['all', 'abandoned', 'recovered', 'expired'].map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   statusFilter === status
-                    ? 'bg-white shadow text-gray-900'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-(--color-surface) shadow text-foreground'
+                    : 'text-(--color-text-secondary) hover:text-foreground'
                 }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -193,13 +193,13 @@ export default function AdminAbandonedCartsPage() {
           </div>
 
           <div className="flex-1 relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by email or name..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
             />
           </div>
         </div>
@@ -207,64 +207,64 @@ export default function AdminAbandonedCartsPage() {
         {/* Carts List */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
           </div>
         ) : filteredCarts.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
-            <ShoppingCart className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500">No abandoned carts found</p>
+          <div className="text-center py-12 bg-background rounded-xl">
+            <ShoppingCart className="h-12 w-12 mx-auto text-(--color-text-disabled) mb-4" />
+            <p className="text-(--color-text-muted)">No abandoned carts found</p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-(--color-surface) rounded-xl shadow-sm border border-(--color-border) overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-background border-b">
                 <tr>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Customer
                   </th>
-                  <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-center px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Items
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-right px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Value
                   </th>
-                  <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-center px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Emails Sent
                   </th>
-                  <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-center px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Status
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Abandoned
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-right px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-(--color-border)">
                 {filteredCarts.map((cart) => (
-                  <tr key={cart.id} className="hover:bg-gray-50">
+                  <tr key={cart.id} className="hover:bg-background">
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-foreground">
                         {cart.user?.full_name || 'Guest'}
                       </p>
-                      <p className="text-xs text-gray-500">{cart.email}</p>
+                      <p className="text-xs text-(--color-text-muted)">{cart.email}</p>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm text-foreground">
                         {cart.cart_items?.length || 0} items
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-foreground">
                         {formatPrice(cart.cart_total_pence)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <div className="flex items-center justify-center gap-1">
-                        <Mail className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm text-gray-700">
+                        <Mail className="h-4 w-4 text-(--color-text-disabled)" />
+                        <span className="text-sm text-foreground">
                           {cart.recovery_emails?.length || 0}
                         </span>
                       </div>
@@ -275,7 +275,7 @@ export default function AdminAbandonedCartsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-1 text-sm text-(--color-text-secondary)">
                         <Clock className="h-4 w-4" />
                         {formatDistanceToNow(new Date(cart.created_at))} ago
                       </div>
@@ -284,7 +284,7 @@ export default function AdminAbandonedCartsPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => setSelectedCart(cart)}
-                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded"
+                          className="p-1.5 text-(--color-text-secondary) hover:bg-(--color-elevated) rounded"
                           title="View details"
                         >
                           <Eye className="h-4 w-4" />
@@ -301,13 +301,13 @@ export default function AdminAbandonedCartsPage() {
         {/* Cart Details Modal */}
         {selectedCart && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-lg w-full max-h-[80vh] overflow-auto">
+            <div className="bg-(--color-surface) rounded-xl max-w-lg w-full max-h-[80vh] overflow-auto">
               <div className="p-6 border-b">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-gray-900">Cart Details</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Cart Details</h3>
                   <button
                     onClick={() => setSelectedCart(null)}
-                    className="text-gray-400 hover:text-gray-600"
+                    className="text-(--color-text-disabled) hover:text-(--color-text-secondary)"
                   >
                     &times;
                   </button>
@@ -315,12 +315,12 @@ export default function AdminAbandonedCartsPage() {
               </div>
               <div className="p-6 space-y-4">
                 <div>
-                  <p className="text-sm text-gray-500">Customer</p>
+                  <p className="text-sm text-(--color-text-muted)">Customer</p>
                   <p className="font-medium">{selectedCart.user?.full_name || 'Guest'}</p>
-                  <p className="text-sm text-gray-600">{selectedCart.email}</p>
+                  <p className="text-sm text-(--color-text-secondary)">{selectedCart.email}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-2">Items</p>
+                  <p className="text-sm text-(--color-text-muted) mb-2">Items</p>
                   <div className="space-y-2">
                     {selectedCart.cart_items?.map((item, idx) => (
                       <div key={idx} className="flex justify-between text-sm">
@@ -332,23 +332,23 @@ export default function AdminAbandonedCartsPage() {
                 </div>
                 <div className="pt-4 border-t flex justify-between">
                   <span className="font-medium">Total</span>
-                  <span className="font-bold text-emerald-600">{formatPrice(selectedCart.cart_total_pence)}</span>
+                  <span className="font-bold text-(--brand-primary)">{formatPrice(selectedCart.cart_total_pence)}</span>
                 </div>
                 {selectedCart.recovery_emails?.length > 0 && (
                   <div>
-                    <p className="text-sm text-gray-500 mb-2">Recovery Emails</p>
+                    <p className="text-sm text-(--color-text-muted) mb-2">Recovery Emails</p>
                     <div className="space-y-2">
                       {selectedCart.recovery_emails.map((email) => (
-                        <div key={email.id} className="text-sm p-2 bg-gray-50 rounded-lg">
+                        <div key={email.id} className="text-sm p-2 bg-background rounded-lg">
                           <p className="font-medium">Email #{email.email_number}</p>
-                          <p className="text-gray-600">
+                          <p className="text-(--color-text-secondary)">
                             Sent: {formatDistanceToNow(new Date(email.sent_at))} ago
                           </p>
                           {email.opened_at && (
-                            <p className="text-emerald-600">Opened</p>
+                            <p className="text-(--brand-primary)">Opened</p>
                           )}
                           {email.clicked_at && (
-                            <p className="text-blue-600">Clicked</p>
+                            <p className="text-(--color-info)">Clicked</p>
                           )}
                         </div>
                       ))}

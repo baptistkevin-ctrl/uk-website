@@ -149,12 +149,12 @@ export default function AdminTransactionsPage() {
 
   const getPaymentColor = (status: string) => {
     switch (status) {
-      case 'paid': return 'bg-emerald-100 text-emerald-700'
-      case 'pending': return 'bg-yellow-100 text-yellow-700'
-      case 'failed': return 'bg-red-100 text-red-700'
-      case 'refunded': return 'bg-gray-100 text-gray-700'
-      case 'partially_refunded': return 'bg-orange-100 text-orange-700'
-      default: return 'bg-gray-100 text-gray-700'
+      case 'paid': return 'bg-(--brand-primary-light) text-(--brand-primary)'
+      case 'pending': return 'bg-(--color-warning-bg) text-(--color-warning)'
+      case 'failed': return 'bg-(--color-error-bg) text-(--color-error)'
+      case 'refunded': return 'bg-(--color-elevated) text-foreground'
+      case 'partially_refunded': return 'bg-(--color-warning-bg) text-(--brand-amber)'
+      default: return 'bg-(--color-elevated) text-foreground'
     }
   }
 
@@ -205,11 +205,11 @@ export default function AdminTransactionsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <ArrowRightLeft className="h-7 w-7 text-emerald-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <ArrowRightLeft className="h-7 w-7 text-(--brand-primary)" />
             Transactions
           </h1>
-          <p className="text-gray-500 mt-1">Payment transactions and revenue overview</p>
+          <p className="text-(--color-text-muted) mt-1">Payment transactions and revenue overview</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={exportCSV} variant="outline" className="gap-2" disabled={transactions.length === 0}>
@@ -225,60 +225,60 @@ export default function AdminTransactionsPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 rounded-lg">
-              <PoundSterling className="h-5 w-5 text-emerald-600" />
+            <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+              <PoundSterling className="h-5 w-5 text-(--brand-primary)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">{formatPrice(stats.totalRevenue)}</p>
+              <p className="text-sm text-(--color-text-muted)">Total Revenue</p>
+              <p className="text-2xl font-bold text-foreground">{formatPrice(stats.totalRevenue)}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <TrendingUp className="h-5 w-5 text-blue-600" />
+            <div className="p-2 bg-(--color-info-bg) rounded-lg">
+              <TrendingUp className="h-5 w-5 text-(--color-info)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Paid</p>
-              <p className="text-2xl font-bold text-emerald-600">{formatPrice(stats.paidRevenue)}</p>
-              <p className="text-xs text-gray-400">{stats.paidCount} transactions</p>
+              <p className="text-sm text-(--color-text-muted)">Paid</p>
+              <p className="text-2xl font-bold text-(--brand-primary)">{formatPrice(stats.paidRevenue)}</p>
+              <p className="text-xs text-(--color-text-disabled)">{stats.paidCount} transactions</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Clock className="h-5 w-5 text-yellow-600" />
+            <div className="p-2 bg-(--color-warning-bg) rounded-lg">
+              <Clock className="h-5 w-5 text-(--color-warning)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Pending</p>
-              <p className="text-2xl font-bold text-yellow-600">{formatPrice(stats.pendingRevenue)}</p>
-              <p className="text-xs text-gray-400">{stats.pendingCount} transactions</p>
+              <p className="text-sm text-(--color-text-muted)">Pending</p>
+              <p className="text-2xl font-bold text-(--color-warning)">{formatPrice(stats.pendingRevenue)}</p>
+              <p className="text-xs text-(--color-text-disabled)">{stats.pendingCount} transactions</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <RotateCcw className="h-5 w-5 text-red-600" />
+            <div className="p-2 bg-(--color-error-bg) rounded-lg">
+              <RotateCcw className="h-5 w-5 text-(--color-error)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Refunded / Failed</p>
-              <p className="text-2xl font-bold text-red-600">{formatPrice(stats.refundedRevenue)}</p>
-              <p className="text-xs text-gray-400">{stats.refundedCount + stats.failedCount} transactions</p>
+              <p className="text-sm text-(--color-text-muted)">Refunded / Failed</p>
+              <p className="text-2xl font-bold text-(--color-error)">{formatPrice(stats.refundedRevenue)}</p>
+              <p className="text-xs text-(--color-text-disabled)">{stats.refundedCount + stats.failedCount} transactions</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
             <Input
               type="text"
               placeholder="Search by order number, customer, email, or Stripe ID..."
@@ -291,26 +291,26 @@ export default function AdminTransactionsPage() {
             <select
               value={paymentFilter}
               onChange={(e) => { setPaymentFilter(e.target.value); setPage(1) }}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+              className="px-3 py-2 border border-(--color-border) rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary)"
             >
               {PAYMENT_STATUSES.map(s => (
                 <option key={s.value} value={s.value}>{s.label}</option>
               ))}
             </select>
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-gray-400" />
+              <Calendar className="h-4 w-4 text-(--color-text-disabled)" />
               <input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => { setDateFrom(e.target.value); setPage(1) }}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+                className="px-3 py-2 border border-(--color-border) rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary)"
               />
-              <span className="text-gray-400 text-sm">to</span>
+              <span className="text-(--color-text-disabled) text-sm">to</span>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => { setDateTo(e.target.value); setPage(1) }}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+                className="px-3 py-2 border border-(--color-border) rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary)"
               />
             </div>
           </div>
@@ -318,18 +318,18 @@ export default function AdminTransactionsPage() {
       </div>
 
       {/* Transactions Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
           </div>
         ) : transactions.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CreditCard className="h-8 w-8 text-gray-400" />
+            <div className="w-16 h-16 bg-(--color-elevated) rounded-full flex items-center justify-center mx-auto mb-4">
+              <CreditCard className="h-8 w-8 text-(--color-text-disabled)" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No transactions found</h3>
-            <p className="text-gray-500">
+            <h3 className="text-lg font-semibold text-foreground mb-2">No transactions found</h3>
+            <p className="text-(--color-text-muted)">
               {searchQuery || paymentFilter !== 'all' || dateFrom || dateTo
                 ? 'Try adjusting your filters'
                 : 'Transactions will appear here when payments are processed'}
@@ -338,75 +338,75 @@ export default function AdminTransactionsPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-background border-b border-(--color-border)">
                 <tr>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Order
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Customer
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Subtotal
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Delivery
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Discount
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Total
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Payment
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Stripe ID
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-(--color-border)">
                 {transactions.map((txn) => (
-                  <tr key={txn.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={txn.id} className="hover:bg-background transition-colors">
                     <td className="px-6 py-4">
-                      <p className="font-semibold text-gray-900">{txn.order_number}</p>
+                      <p className="font-semibold text-foreground">{txn.order_number}</p>
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-medium text-gray-900">{txn.customer_name}</p>
-                        <p className="text-sm text-gray-500">{txn.customer_email}</p>
+                        <p className="font-medium text-foreground">{txn.customer_name}</p>
+                        <p className="text-sm text-(--color-text-muted)">{txn.customer_email}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <p className="text-sm text-gray-600">{formatDate(txn.created_at)}</p>
+                        <p className="text-sm text-(--color-text-secondary)">{formatDate(txn.created_at)}</p>
                         {txn.paid_at && (
-                          <p className="text-xs text-emerald-600">Paid {formatDate(txn.paid_at)}</p>
+                          <p className="text-xs text-(--brand-primary)">Paid {formatDate(txn.paid_at)}</p>
                         )}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <p className="text-sm text-gray-600">{formatPrice(txn.subtotal_pence)}</p>
+                      <p className="text-sm text-(--color-text-secondary)">{formatPrice(txn.subtotal_pence)}</p>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <p className="text-sm text-gray-600">{formatPrice(txn.delivery_fee_pence)}</p>
+                      <p className="text-sm text-(--color-text-secondary)">{formatPrice(txn.delivery_fee_pence)}</p>
                     </td>
                     <td className="px-6 py-4 text-right">
                       {txn.discount_pence > 0 ? (
-                        <p className="text-sm text-red-600">-{formatPrice(txn.discount_pence)}</p>
+                        <p className="text-sm text-(--color-error)">-{formatPrice(txn.discount_pence)}</p>
                       ) : (
-                        <p className="text-sm text-gray-400">-</p>
+                        <p className="text-sm text-(--color-text-disabled)">-</p>
                       )}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <p className="font-semibold text-gray-900">{formatPrice(txn.total_pence)}</p>
+                      <p className="font-semibold text-foreground">{formatPrice(txn.total_pence)}</p>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${getPaymentColor(txn.payment_status)}`}>
@@ -416,18 +416,18 @@ export default function AdminTransactionsPage() {
                     </td>
                     <td className="px-6 py-4">
                       {txn.stripe_payment_intent_id ? (
-                        <span className="text-xs font-mono text-gray-500 truncate max-w-[140px] block" title={txn.stripe_payment_intent_id}>
+                        <span className="text-xs font-mono text-(--color-text-muted) truncate max-w-[140px] block" title={txn.stripe_payment_intent_id}>
                           {txn.stripe_payment_intent_id.slice(0, 20)}...
                         </span>
                       ) : (
-                        <span className="text-xs text-gray-400">-</span>
+                        <span className="text-xs text-(--color-text-disabled)">-</span>
                       )}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/admin/orders/${txn.id}`}
-                          className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                          className="p-2 text-(--color-text-disabled) hover:text-(--brand-primary) hover:bg-(--brand-primary-light) rounded-lg transition-colors"
                           title="View order"
                         >
                           <Eye className="h-4 w-4" />
@@ -444,18 +444,18 @@ export default function AdminTransactionsPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-600">
-              Showing <span className="font-semibold text-gray-900">{((page - 1) * perPage) + 1}</span> to{' '}
-              <span className="font-semibold text-gray-900">{Math.min(page * perPage, total)}</span> of{' '}
-              <span className="font-semibold text-gray-900">{total}</span> transactions
+            <div className="text-sm text-(--color-text-secondary)">
+              Showing <span className="font-semibold text-foreground">{((page - 1) * perPage) + 1}</span> to{' '}
+              <span className="font-semibold text-foreground">{Math.min(page * perPage, total)}</span> of{' '}
+              <span className="font-semibold text-foreground">{total}</span> transactions
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:hover:bg-gray-100"
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border) disabled:hover:bg-(--color-elevated)"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Previous
@@ -468,23 +468,23 @@ export default function AdminTransactionsPage() {
                     disabled={pageNum === '...'}
                     className={`min-w-[40px] h-10 px-3 text-sm font-medium rounded-lg transition-colors ${
                       pageNum === page
-                        ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+                        ? 'bg-(--brand-primary) text-white shadow-lg shadow-(--shadow-green)'
                         : pageNum === '...'
-                        ? 'bg-transparent text-gray-400 cursor-default'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-transparent text-(--color-text-disabled) cursor-default'
+                        : 'bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border)'
                     }`}
                   >
                     {pageNum}
                   </button>
                 ))}
               </div>
-              <div className="sm:hidden text-sm font-medium text-gray-600">
+              <div className="sm:hidden text-sm font-medium text-(--color-text-secondary)">
                 Page {page} of {totalPages}
               </div>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:hover:bg-gray-100"
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border) disabled:hover:bg-(--color-elevated)"
               >
                 Next
                 <ChevronRight className="w-4 h-4" />

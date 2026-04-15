@@ -107,14 +107,14 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/account/orders">
+        <Link href="/account/orders">
+          <Button variant="ghost" size="icon">
             <ArrowLeft className="h-5 w-5" />
-          </Link>
-        </Button>
+          </Button>
+        </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Order {order.order_number}</h1>
-          <p className="text-gray-500">Placed on {formatDate(order.created_at)}</p>
+          <h1 className="text-2xl font-bold text-foreground">Order {order.order_number}</h1>
+          <p className="text-(--color-text-muted)">Placed on {formatDate(order.created_at)}</p>
         </div>
       </div>
 
@@ -134,14 +134,14 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
         <CardContent>
           {isCancelled ? (
             <div className="text-center py-4">
-              <p className="text-red-600 font-medium">This order has been cancelled</p>
+              <p className="text-(--color-error) font-medium">This order has been cancelled</p>
             </div>
           ) : (
             <div className="relative">
               {/* Progress bar */}
-              <div className="absolute top-4 left-0 right-0 h-1 bg-gray-200 rounded">
+              <div className="absolute top-4 left-0 right-0 h-1 bg-(--color-border) rounded">
                 <div
-                  className={`h-full bg-green-600 rounded transition-all ${
+                  className={`h-full bg-(--brand-primary) rounded transition-all ${
                     currentStep === 0 ? 'w-0' :
                     currentStep === 1 ? 'w-1/3' :
                     currentStep === 2 ? 'w-2/3' :
@@ -157,15 +157,15 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                         index <= currentStep
-                          ? 'bg-green-600 text-white'
-                          : 'bg-gray-200 text-gray-500'
+                          ? 'bg-(--brand-primary) text-white'
+                          : 'bg-(--color-border) text-(--color-text-muted)'
                       }`}
                     >
                       {index + 1}
                     </div>
                     <p
                       className={`text-xs mt-2 text-center ${
-                        index <= currentStep ? 'text-green-600 font-medium' : 'text-gray-500'
+                        index <= currentStep ? 'text-(--brand-primary) font-medium' : 'text-(--color-text-muted)'
                       }`}
                     >
                       {step.label}
@@ -184,7 +184,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           {vendorGroups.map(({ vendor, items }) => (
             <Card key={vendor.id} className="overflow-hidden">
               {/* Store Header */}
-              <div className="flex items-center justify-between px-4 py-3 bg-gray-50 border-b">
+              <div className="flex items-center justify-between px-4 py-3 bg-background border-b">
                 <div className="flex items-center gap-3">
                   {vendor.logo_url ? (
                     <img
@@ -193,14 +193,14 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                       className="w-8 h-8 rounded-full object-cover ring-2 ring-white"
                     />
                   ) : (
-                    <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center ring-2 ring-white">
-                      <Store className="h-4 w-4 text-emerald-600" />
+                    <div className="w-8 h-8 bg-(--brand-primary-light) rounded-full flex items-center justify-center ring-2 ring-white">
+                      <Store className="h-4 w-4 text-(--brand-primary)" />
                     </div>
                   )}
                   <div>
                     <Link
                       href={`/store/${vendor.slug}`}
-                      className="font-semibold text-sm text-gray-900 hover:text-emerald-700"
+                      className="font-semibold text-sm text-foreground hover:text-(--brand-primary)"
                     >
                       {vendor.business_name}
                     </Link>
@@ -219,7 +219,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                 <div className="divide-y">
                   {items?.map((item) => (
                     <div key={item.id} className="flex gap-4 px-4 py-3">
-                      <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                      <div className="w-16 h-16 bg-(--color-elevated) rounded-lg flex items-center justify-center overflow-hidden shrink-0">
                         {item.product?.image_url ? (
                           <img
                             src={item.product.image_url}
@@ -227,22 +227,22 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <Package className="h-8 w-8 text-gray-400" />
+                          <Package className="h-8 w-8 text-(--color-text-disabled)" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <Link
                           href={`/products/${item.product?.slug}`}
-                          className="font-medium text-sm text-gray-900 hover:text-green-700 line-clamp-2"
+                          className="font-medium text-sm text-foreground hover:text-(--brand-primary) line-clamp-2"
                         >
                           {item.product?.name || item.product_name}
                         </Link>
-                        <p className="text-sm text-gray-500 mt-0.5">Qty: {item.quantity}</p>
+                        <p className="text-sm text-(--color-text-muted) mt-0.5">Qty: {item.quantity}</p>
                       </div>
-                      <div className="text-right flex-shrink-0">
+                      <div className="text-right shrink-0">
                         <p className="font-semibold text-sm">{formatPrice(item.unit_price_pence * item.quantity)}</p>
                         {item.quantity > 1 && (
-                          <p className="text-xs text-gray-500">{formatPrice(item.unit_price_pence)} each</p>
+                          <p className="text-xs text-(--color-text-muted)">{formatPrice(item.unit_price_pence)} each</p>
                         )}
                       </div>
                     </div>
@@ -255,17 +255,17 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           {/* Items without a vendor */}
           {noVendorItems.length > 0 && (
             <Card>
-              <CardHeader className="py-3 px-4 bg-gray-50 border-b">
+              <CardHeader className="py-3 px-4 bg-background border-b">
                 <CardTitle className="text-sm flex items-center gap-2">
-                  <Package className="h-4 w-4 text-gray-500" />
-                  FreshMart Store
+                  <Package className="h-4 w-4 text-(--color-text-muted)" />
+                  UK Grocery Store
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y">
                   {noVendorItems.map((item) => (
                     <div key={item.id} className="flex gap-4 px-4 py-3">
-                      <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+                      <div className="w-16 h-16 bg-(--color-elevated) rounded-lg flex items-center justify-center overflow-hidden shrink-0">
                         {item.product?.image_url ? (
                           <img
                             src={item.product.image_url}
@@ -273,22 +273,22 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <Package className="h-8 w-8 text-gray-400" />
+                          <Package className="h-8 w-8 text-(--color-text-disabled)" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <Link
                           href={`/products/${item.product?.slug}`}
-                          className="font-medium text-sm text-gray-900 hover:text-green-700 line-clamp-2"
+                          className="font-medium text-sm text-foreground hover:text-(--brand-primary) line-clamp-2"
                         >
                           {item.product?.name || item.product_name}
                         </Link>
-                        <p className="text-sm text-gray-500 mt-0.5">Qty: {item.quantity}</p>
+                        <p className="text-sm text-(--color-text-muted) mt-0.5">Qty: {item.quantity}</p>
                       </div>
-                      <div className="text-right flex-shrink-0">
+                      <div className="text-right shrink-0">
                         <p className="font-semibold text-sm">{formatPrice(item.unit_price_pence * item.quantity)}</p>
                         {item.quantity > 1 && (
-                          <p className="text-xs text-gray-500">{formatPrice(item.unit_price_pence)} each</p>
+                          <p className="text-xs text-(--color-text-muted)">{formatPrice(item.unit_price_pence)} each</p>
                         )}
                       </div>
                     </div>
@@ -312,29 +312,29 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             <CardContent className="space-y-4">
               {order.delivery_date && (
                 <div>
-                  <p className="text-sm text-gray-500">Delivery Date</p>
+                  <p className="text-sm text-(--color-text-muted)">Delivery Date</p>
                   <p className="font-medium">{formatDate(order.delivery_date)}</p>
                   {order.delivery_slot && (
-                    <p className="text-sm text-gray-600">{order.delivery_slot}</p>
+                    <p className="text-sm text-(--color-text-secondary)">{order.delivery_slot}</p>
                   )}
                 </div>
               )}
               <Separator />
               <div>
-                <p className="text-sm text-gray-500">Delivery Address</p>
+                <p className="text-sm text-(--color-text-muted)">Delivery Address</p>
                 <p className="font-medium">{order.delivery_address_line_1}</p>
                 {order.delivery_address_line_2 && (
-                  <p className="text-gray-600">{order.delivery_address_line_2}</p>
+                  <p className="text-(--color-text-secondary)">{order.delivery_address_line_2}</p>
                 )}
-                <p className="text-gray-600">{order.delivery_city}</p>
-                <p className="text-gray-600">{order.delivery_postcode}</p>
+                <p className="text-(--color-text-secondary)">{order.delivery_city}</p>
+                <p className="text-(--color-text-secondary)">{order.delivery_postcode}</p>
               </div>
               {order.delivery_instructions && (
                 <>
                   <Separator />
                   <div>
-                    <p className="text-sm text-gray-500">Delivery Instructions</p>
-                    <p className="text-gray-600">{order.delivery_instructions}</p>
+                    <p className="text-sm text-(--color-text-muted)">Delivery Instructions</p>
+                    <p className="text-(--color-text-secondary)">{order.delivery_instructions}</p>
                   </div>
                 </>
               )}
@@ -352,11 +352,11 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Subtotal</span>
+                  <span className="text-(--color-text-muted)">Subtotal</span>
                   <span>{formatPrice(order.subtotal_pence)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Delivery</span>
+                  <span className="text-(--color-text-muted)">Delivery</span>
                   <span>
                     {order.delivery_fee_pence === 0
                       ? 'FREE'
@@ -364,7 +364,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                   </span>
                 </div>
                 {order.discount_pence > 0 && (
-                  <div className="flex justify-between text-sm text-green-600">
+                  <div className="flex justify-between text-sm text-(--brand-primary)">
                     <span>Discount</span>
                     <span>-{formatPrice(order.discount_pence)}</span>
                   </div>
@@ -374,7 +374,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
                   <span>Total</span>
                   <span>{formatPrice(order.total_pence)}</span>
                 </div>
-                <p className="text-xs text-gray-500 text-right">
+                <p className="text-xs text-(--color-text-muted) text-right">
                   {order.payment_status === 'paid' ? 'Paid via card' : 'Payment pending'}
                 </p>
               </div>
@@ -385,17 +385,17 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           <Card>
             <CardContent className="p-6 text-center space-y-3">
               {order.status === 'delivered' && (
-                <Button asChild className="w-full">
-                  <Link href={`/account/returns/new?order=${order.id}`}>
+                <Link href={`/account/returns/new?order=${order.id}`} className="block w-full">
+                  <Button className="w-full">
                     <RotateCcw className="h-4 w-4 mr-2" />
                     Request Return
-                  </Link>
-                </Button>
+                  </Button>
+                </Link>
               )}
-              <p className="text-gray-600 text-sm">Need help with this order?</p>
-              <Button variant="outline" className="w-full" asChild>
-                <Link href="/account/tickets">Contact Support</Link>
-              </Button>
+              <p className="text-(--color-text-secondary) text-sm">Need help with this order?</p>
+              <Link href="/account/tickets" className="block w-full">
+                <Button variant="outline" className="w-full">Contact Support</Button>
+              </Link>
             </CardContent>
           </Card>
         </div>

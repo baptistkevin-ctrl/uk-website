@@ -171,33 +171,33 @@ function StoresPageContent() {
   const hasActiveFilters = currentCity || currentVerified || currentSearch
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-emerald-600 to-emerald-700 text-white">
+      <div className="bg-(--brand-dark) text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-(--color-surface)/20 rounded-2xl mb-4">
               <Store className="w-8 h-8" />
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-3">Store Directory</h1>
-            <p className="text-emerald-100 max-w-2xl mx-auto">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3">Store Directory</h1>
+            <p className="text-white/70 max-w-2xl mx-auto">
               Discover quality vendors and local sellers. Browse our marketplace of trusted stores offering fresh groceries and specialty products.
             </p>
 
             {/* Search */}
             <form onSubmit={handleSearch} className="mt-8 max-w-xl mx-auto">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-(--color-text-disabled)" />
                 <input
                   type="text"
                   placeholder="Search stores..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-24 py-3 rounded-xl bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white/50"
+                  className="w-full pl-12 pr-24 py-3 rounded-xl bg-(--color-surface) text-foreground placeholder:text-(--color-text-disabled) focus:outline-none focus:ring-2 focus:ring-white/50"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-(--brand-primary) text-white rounded-lg font-medium hover:bg-(--brand-primary-hover) transition-colors"
                 >
                   Search
                 </button>
@@ -211,32 +211,32 @@ function StoresPageContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Location Banner */}
         {geoStatus === 'denied' && (
-          <div className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between gap-4">
+          <div className="mb-6 bg-(--brand-amber-soft) border border-(--brand-amber) rounded-xl p-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <Navigation className="w-5 h-5 text-amber-600 flex-shrink-0" />
-              <p className="text-sm text-amber-800">
+              <Navigation className="w-5 h-5 text-(--brand-amber) shrink-0" />
+              <p className="text-sm text-(--brand-amber)">
                 Enable location to see nearest stores and distances. Your location is only used to sort stores.
               </p>
             </div>
             <button
               onClick={requestLocation}
-              className="px-4 py-1.5 bg-amber-600 text-white text-sm rounded-lg font-medium hover:bg-amber-700 transition-colors flex-shrink-0"
+              className="px-4 py-1.5 bg-(--brand-amber) text-white text-sm rounded-lg font-medium hover:opacity-90 transition-colors shrink-0"
             >
               Enable
             </button>
           </div>
         )}
         {geoStatus === 'granted' && currentSort !== 'nearest' && (
-          <div className="mb-6 bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center justify-between gap-4">
+          <div className="mb-6 bg-(--brand-primary-light) border border-(--brand-primary) rounded-xl p-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-              <p className="text-sm text-emerald-800">
+              <MapPin className="w-5 h-5 text-(--brand-primary) shrink-0" />
+              <p className="text-sm text-(--brand-primary)">
                 Location detected! Sort by &quot;Nearest First&quot; to see stores closest to you.
               </p>
             </div>
             <button
               onClick={() => updateParams({ sort: 'nearest' })}
-              className="px-4 py-1.5 bg-emerald-600 text-white text-sm rounded-lg font-medium hover:bg-emerald-700 transition-colors flex-shrink-0"
+              className="px-4 py-1.5 bg-(--brand-primary) text-white text-sm rounded-lg font-medium hover:bg-(--brand-primary-hover) transition-colors shrink-0"
             >
               Sort by Nearest
             </button>
@@ -246,7 +246,7 @@ function StoresPageContent() {
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <p className="text-slate-600">
+            <p className="text-(--color-text-secondary)">
               {pagination.total} {pagination.total === 1 ? 'store' : 'stores'} found
             </p>
           </div>
@@ -255,12 +255,12 @@ function StoresPageContent() {
             {/* Mobile Filter Toggle */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="sm:hidden inline-flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50"
+              className="sm:hidden inline-flex items-center gap-2 px-4 py-2 border border-(--color-border) rounded-lg text-(--color-text-secondary) hover:bg-background"
             >
               <Filter className="w-4 h-4" />
               Filters
               {hasActiveFilters && (
-                <span className="w-2 h-2 bg-emerald-500 rounded-full" />
+                <span className="w-2 h-2 bg-(--brand-primary) rounded-full" />
               )}
             </button>
 
@@ -269,7 +269,7 @@ function StoresPageContent() {
               <select
                 value={currentCity}
                 onChange={(e) => updateParams({ city: e.target.value || null })}
-                className="px-4 py-2 border border-slate-200 rounded-lg text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="px-4 py-2 border border-(--color-border) rounded-lg text-(--color-text-secondary) focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
               >
                 <option value="">All Cities</option>
                 {cities.map((city) => (
@@ -283,8 +283,8 @@ function StoresPageContent() {
               onClick={() => updateParams({ verified: currentVerified ? null : 'true' })}
               className={`hidden sm:inline-flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
                 currentVerified
-                  ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                  : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                  ? 'bg-(--brand-primary-light) border-(--brand-primary) text-(--brand-primary)'
+                  : 'border-(--color-border) text-(--color-text-secondary) hover:bg-background'
               }`}
             >
               <CheckCircle className="w-4 h-4" />
@@ -293,7 +293,7 @@ function StoresPageContent() {
 
             {/* Sort */}
             <div className="flex items-center gap-2">
-              <ArrowUpDown className="w-4 h-4 text-slate-400" />
+              <ArrowUpDown className="w-4 h-4 text-(--color-text-disabled)" />
               <select
                 value={currentSort}
                 onChange={(e) => {
@@ -303,7 +303,7 @@ function StoresPageContent() {
                   }
                   updateParams({ sort: e.target.value })
                 }}
-                className="px-4 py-2 border border-slate-200 rounded-lg text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="px-4 py-2 border border-(--color-border) rounded-lg text-(--color-text-secondary) focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
               >
                 {sortOptions.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -315,22 +315,22 @@ function StoresPageContent() {
 
         {/* Mobile Filters Panel */}
         {showFilters && (
-          <div className="sm:hidden bg-white rounded-xl border border-slate-200 p-4 mb-6">
+          <div className="sm:hidden bg-(--color-surface) rounded-xl border border-(--color-border) p-4 mb-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-900">Filters</h3>
+              <h3 className="font-semibold text-foreground">Filters</h3>
               <button onClick={() => setShowFilters(false)}>
-                <X className="w-5 h-5 text-slate-400" />
+                <X className="w-5 h-5 text-(--color-text-disabled)" />
               </button>
             </div>
 
             <div className="space-y-4">
               {/* City Filter */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">City</label>
+                <label className="block text-sm font-medium text-(--color-text-secondary) mb-2">City</label>
                 <select
                   value={currentCity}
                   onChange={(e) => updateParams({ city: e.target.value || null })}
-                  className="w-full px-4 py-2 border border-slate-200 rounded-lg text-slate-700"
+                  className="w-full px-4 py-2 border border-(--color-border) rounded-lg text-(--color-text-secondary)"
                 >
                   <option value="">All Cities</option>
                   {cities.map((city) => (
@@ -346,9 +346,9 @@ function StoresPageContent() {
                     type="checkbox"
                     checked={currentVerified}
                     onChange={(e) => updateParams({ verified: e.target.checked ? 'true' : null })}
-                    className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    className="w-4 h-4 rounded border-(--color-border) text-(--brand-primary) focus:ring-(--brand-primary)"
                   />
-                  <span className="text-slate-700">Verified stores only</span>
+                  <span className="text-(--color-text-secondary)">Verified stores only</span>
                 </label>
               </div>
             </div>
@@ -356,7 +356,7 @@ function StoresPageContent() {
             {hasActiveFilters && (
               <button
                 onClick={() => router.push('/stores')}
-                className="mt-4 w-full py-2 text-center text-red-600 font-medium"
+                className="mt-4 w-full py-2 text-center text-(--color-error) font-medium"
               >
                 Clear All Filters
               </button>
@@ -367,9 +367,9 @@ function StoresPageContent() {
         {/* Active Filters */}
         {hasActiveFilters && (
           <div className="hidden sm:flex items-center gap-2 mb-6 flex-wrap">
-            <span className="text-sm text-slate-500">Active filters:</span>
+            <span className="text-sm text-(--color-text-muted)">Active filters:</span>
             {currentSearch && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-sm">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-(--brand-primary-light) text-(--brand-primary) rounded-full text-sm">
                 Search: {currentSearch}
                 <button onClick={() => { setSearchQuery(''); updateParams({ search: null }) }}>
                   <X className="w-3 h-3" />
@@ -377,7 +377,7 @@ function StoresPageContent() {
               </span>
             )}
             {currentCity && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-sm">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-(--brand-primary-light) text-(--brand-primary) rounded-full text-sm">
                 {currentCity}
                 <button onClick={() => updateParams({ city: null })}>
                   <X className="w-3 h-3" />
@@ -385,7 +385,7 @@ function StoresPageContent() {
               </span>
             )}
             {currentVerified && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-sm">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-(--brand-primary-light) text-(--brand-primary) rounded-full text-sm">
                 Verified
                 <button onClick={() => updateParams({ verified: null })}>
                   <X className="w-3 h-3" />
@@ -394,7 +394,7 @@ function StoresPageContent() {
             )}
             <button
               onClick={() => router.push('/stores')}
-              className="text-sm text-red-600 hover:underline"
+              className="text-sm text-(--color-error) hover:underline"
             >
               Clear all
             </button>
@@ -405,26 +405,26 @@ function StoresPageContent() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-xl border border-slate-200 overflow-hidden animate-pulse">
-                <div className="h-32 bg-slate-200" />
+              <div key={i} className="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden animate-pulse">
+                <div className="h-32 bg-(--color-elevated)" />
                 <div className="p-5 space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-14 h-14 bg-slate-200 rounded-xl" />
+                    <div className="w-14 h-14 bg-(--color-elevated) rounded-xl" />
                     <div className="flex-1 space-y-2">
-                      <div className="h-5 bg-slate-200 rounded w-3/4" />
-                      <div className="h-4 bg-slate-200 rounded w-1/2" />
+                      <div className="h-5 bg-(--color-elevated) rounded w-3/4" />
+                      <div className="h-4 bg-(--color-elevated) rounded w-1/2" />
                     </div>
                   </div>
-                  <div className="h-12 bg-slate-200 rounded" />
+                  <div className="h-12 bg-(--color-elevated) rounded" />
                 </div>
               </div>
             ))}
           </div>
         ) : stores.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-            <Store className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-slate-900 mb-2">No stores found</h2>
-            <p className="text-slate-500 mb-6">
+          <div className="bg-(--color-surface) rounded-2xl border border-(--color-border) p-12 text-center">
+            <Store className="w-16 h-16 text-(--color-text-disabled) mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-foreground mb-2">No stores found</h2>
+            <p className="text-(--color-text-muted) mb-6">
               {hasActiveFilters
                 ? 'Try adjusting your filters or search criteria'
                 : 'No stores are available at the moment'}
@@ -432,7 +432,7 @@ function StoresPageContent() {
             {hasActiveFilters && (
               <button
                 onClick={() => router.push('/stores')}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-colors"
               >
                 Clear Filters
               </button>
@@ -446,10 +446,10 @@ function StoresPageContent() {
                 <Link
                   key={store.id}
                   href={`/store/${store.slug}`}
-                  className="group bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow"
+                  className="group bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden hover:shadow-lg transition-shadow"
                 >
                   {/* Banner */}
-                  <div className="relative h-32 bg-gradient-to-r from-emerald-500 to-emerald-600">
+                  <div className="relative h-32 bg-(--brand-primary)">
                     {store.banner_url && (
                       <Image
                         src={store.banner_url}
@@ -458,14 +458,14 @@ function StoresPageContent() {
                         className="object-cover opacity-60"
                       />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
                   </div>
 
                   {/* Content */}
                   <div className="p-5">
                     <div className="flex items-start gap-3 -mt-10 relative">
                       {/* Logo */}
-                      <div className="w-14 h-14 rounded-xl bg-white border-2 border-white shadow-lg overflow-hidden flex-shrink-0">
+                      <div className="w-14 h-14 rounded-xl bg-(--color-surface) border-2 border-(--color-surface) shadow-lg overflow-hidden shrink-0">
                         {store.logo_url ? (
                           <Image
                             src={store.logo_url}
@@ -475,8 +475,8 @@ function StoresPageContent() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-emerald-50">
-                            <Store className="w-6 h-6 text-emerald-600" />
+                          <div className="w-full h-full flex items-center justify-center bg-(--brand-primary-light)">
+                            <Store className="w-6 h-6 text-(--brand-primary)" />
                           </div>
                         )}
                       </div>
@@ -484,11 +484,11 @@ function StoresPageContent() {
                       {/* Name & Verified */}
                       <div className="flex-1 min-w-0 pt-6">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-semibold text-slate-900 truncate group-hover:text-emerald-600 transition-colors">
+                          <h3 className="font-semibold text-foreground truncate group-hover:text-(--brand-primary) transition-colors">
                             {store.business_name}
                           </h3>
                           {store.is_verified && (
-                            <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 text-(--brand-primary) shrink-0" />
                           )}
                         </div>
                       </div>
@@ -496,7 +496,7 @@ function StoresPageContent() {
 
                     {/* Description */}
                     {store.description && (
-                      <p className="mt-3 text-sm text-slate-500 line-clamp-2">
+                      <p className="mt-3 text-sm text-(--color-text-muted) line-clamp-2">
                         {store.description}
                       </p>
                     )}
@@ -504,23 +504,23 @@ function StoresPageContent() {
                     {/* Stats */}
                     <div className="mt-4 flex items-center gap-4 text-sm">
                       {store.rating > 0 && (
-                        <div className="flex items-center gap-1 text-slate-600">
-                          <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                        <div className="flex items-center gap-1 text-(--color-text-secondary)">
+                          <Star className="w-4 h-4 text-(--brand-amber) fill-(--brand-amber)" />
                           <span className="font-medium">{store.rating.toFixed(1)}</span>
-                          <span className="text-slate-400">({store.review_count})</span>
+                          <span className="text-(--color-text-disabled)">({store.review_count})</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-1 text-slate-600">
+                      <div className="flex items-center gap-1 text-(--color-text-secondary)">
                         <Package className="w-4 h-4" />
                         <span>{store.product_count} products</span>
                       </div>
                       {store.distance_km !== null && store.distance_km !== undefined ? (
-                        <div className="flex items-center gap-1 text-emerald-600 font-medium">
+                        <div className="flex items-center gap-1 text-(--brand-primary) font-medium">
                           <Navigation className="w-4 h-4" />
                           <span>{store.distance_km} km</span>
                         </div>
                       ) : store.city ? (
-                        <div className="flex items-center gap-1 text-slate-600">
+                        <div className="flex items-center gap-1 text-(--color-text-secondary)">
                           <MapPin className="w-4 h-4" />
                           <span className="truncate">{store.city}</span>
                         </div>
@@ -537,7 +537,7 @@ function StoresPageContent() {
                 <button
                   onClick={() => updateParams({ page: String(currentPage - 1) })}
                   disabled={currentPage === 1}
-                  className="inline-flex items-center gap-1 px-4 py-2 border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-1 px-4 py-2 border border-(--color-border) rounded-lg text-(--color-text-secondary) hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   Previous
@@ -558,14 +558,14 @@ function StoresPageContent() {
                       return (
                         <div key={page} className="flex items-center">
                           {showEllipsisBefore && (
-                            <span className="px-2 text-slate-400">...</span>
+                            <span className="px-2 text-(--color-text-disabled)">...</span>
                           )}
                           <button
                             onClick={() => updateParams({ page: String(page) })}
                             className={`w-10 h-10 rounded-lg font-medium transition-colors ${
                               page === currentPage
-                                ? 'bg-emerald-600 text-white'
-                                : 'text-slate-700 hover:bg-slate-100'
+                                ? 'bg-(--brand-primary) text-white'
+                                : 'text-(--color-text-secondary) hover:bg-(--color-elevated)'
                             }`}
                           >
                             {page}
@@ -578,7 +578,7 @@ function StoresPageContent() {
                 <button
                   onClick={() => updateParams({ page: String(currentPage + 1) })}
                   disabled={currentPage === pagination.totalPages}
-                  className="inline-flex items-center gap-1 px-4 py-2 border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-1 px-4 py-2 border border-(--color-border) rounded-lg text-(--color-text-secondary) hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Next
                   <ChevronRight className="w-4 h-4" />
@@ -594,10 +594,10 @@ function StoresPageContent() {
 
 function StoresPageLoading() {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
-        <Store className="w-12 h-12 text-slate-300 mx-auto mb-4 animate-pulse" />
-        <p className="text-slate-500">Loading stores...</p>
+        <Store className="w-12 h-12 text-(--color-text-disabled) mx-auto mb-4 animate-pulse" />
+        <p className="text-(--color-text-muted)">Loading stores...</p>
       </div>
     </div>
   )

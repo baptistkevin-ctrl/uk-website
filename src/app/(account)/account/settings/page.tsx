@@ -111,8 +111,8 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Account Settings</h1>
-        <p className="text-gray-500 mt-1">Manage your account settings and preferences</p>
+        <h1 className="text-2xl font-bold text-foreground">Account Settings</h1>
+        <p className="text-(--color-text-muted) mt-1">Manage your account settings and preferences</p>
       </div>
 
       {/* Profile Settings */}
@@ -129,12 +129,12 @@ export default function SettingsPage() {
         <CardContent>
           <form onSubmit={handleProfileSubmit(onProfileSubmit)} className="space-y-4">
             {profileError && (
-              <div className="p-3 rounded-md bg-red-50 text-red-600 text-sm">
+              <div className="p-3 rounded-md bg-(--color-error-bg) text-(--color-error) text-sm">
                 {profileError}
               </div>
             )}
             {profileSuccess && (
-              <div className="p-3 rounded-md bg-green-50 text-green-600 text-sm">
+              <div className="p-3 rounded-md bg-(--brand-primary-light) text-(--brand-primary) text-sm">
                 Profile updated successfully!
               </div>
             )}
@@ -146,9 +146,9 @@ export default function SettingsPage() {
                 type="email"
                 value={user?.email || ''}
                 disabled
-                className="bg-gray-50"
+                className="bg-background"
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-(--color-text-muted)">
                 Contact support to change your email address
               </p>
             </div>
@@ -161,7 +161,7 @@ export default function SettingsPage() {
                 {...registerProfile('fullName')}
               />
               {profileErrors.fullName && (
-                <p className="text-sm text-red-500">{profileErrors.fullName.message}</p>
+                <p className="text-sm text-(--color-error)">{profileErrors.fullName.message}</p>
               )}
             </div>
 
@@ -197,12 +197,12 @@ export default function SettingsPage() {
         <CardContent>
           <form onSubmit={handlePasswordSubmit(onPasswordSubmit)} className="space-y-4">
             {passwordError && (
-              <div className="p-3 rounded-md bg-red-50 text-red-600 text-sm">
+              <div className="p-3 rounded-md bg-(--color-error-bg) text-(--color-error) text-sm">
                 {passwordError}
               </div>
             )}
             {passwordSuccess && (
-              <div className="p-3 rounded-md bg-green-50 text-green-600 text-sm">
+              <div className="p-3 rounded-md bg-(--brand-primary-light) text-(--brand-primary) text-sm">
                 Password updated successfully!
               </div>
             )}
@@ -215,7 +215,7 @@ export default function SettingsPage() {
                 {...registerPassword('currentPassword')}
               />
               {passwordErrors.currentPassword && (
-                <p className="text-sm text-red-500">{passwordErrors.currentPassword.message}</p>
+                <p className="text-sm text-(--color-error)">{passwordErrors.currentPassword.message}</p>
               )}
             </div>
 
@@ -227,7 +227,7 @@ export default function SettingsPage() {
                 {...registerPassword('newPassword')}
               />
               {passwordErrors.newPassword && (
-                <p className="text-sm text-red-500">{passwordErrors.newPassword.message}</p>
+                <p className="text-sm text-(--color-error)">{passwordErrors.newPassword.message}</p>
               )}
             </div>
 
@@ -239,7 +239,7 @@ export default function SettingsPage() {
                 {...registerPassword('confirmPassword')}
               />
               {passwordErrors.confirmPassword && (
-                <p className="text-sm text-red-500">{passwordErrors.confirmPassword.message}</p>
+                <p className="text-sm text-(--color-error)">{passwordErrors.confirmPassword.message}</p>
               )}
             </div>
 

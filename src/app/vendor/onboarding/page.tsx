@@ -107,7 +107,7 @@ function VendorOnboardingContent() {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -143,20 +143,20 @@ function VendorOnboardingContent() {
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Fresh Groceries!</h1>
-          <p className="text-gray-600">Complete these steps to start selling</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Welcome to Fresh Groceries!</h1>
+          <p className="text-(--color-text-secondary)">Complete these steps to start selling</p>
         </div>
 
         {/* Success message */}
         {success && vendor?.stripe_onboarding_complete && (
-          <div className="mb-8 bg-emerald-50 border border-emerald-200 rounded-xl p-6">
+          <div className="mb-8 bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-xl p-6">
             <div className="flex items-center gap-4">
-              <div className="p-2 bg-emerald-100 rounded-lg">
-                <CheckCircle className="h-6 w-6 text-emerald-600" />
+              <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+                <CheckCircle className="h-6 w-6 text-(--brand-primary)" />
               </div>
               <div>
-                <h3 className="font-semibold text-emerald-800">Stripe Connected Successfully!</h3>
-                <p className="text-emerald-700 text-sm">
+                <h3 className="font-semibold text-(--brand-primary)">Stripe Connected Successfully!</h3>
+                <p className="text-(--brand-primary) text-sm">
                   Your payment account is now set up. You can start adding products.
                 </p>
               </div>
@@ -166,21 +166,21 @@ function VendorOnboardingContent() {
 
         {/* Refresh message */}
         {refresh && (
-          <div className="mb-8 bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+          <div className="mb-8 bg-(--color-warning-bg) border border-(--color-border) rounded-xl p-6">
             <div className="flex items-center gap-4">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <AlertCircle className="h-6 w-6 text-yellow-600" />
+              <div className="p-2 bg-(--color-warning-bg) rounded-lg">
+                <AlertCircle className="h-6 w-6 text-(--color-warning)" />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold text-yellow-800">Session Expired</h3>
-                <p className="text-yellow-700 text-sm">
+                <p className="text-(--color-warning) text-sm">
                   Your onboarding session expired. Please continue where you left off.
                 </p>
               </div>
               <Button
                 onClick={handleStripeOnboarding}
                 disabled={stripeLoading}
-                className="bg-yellow-600 hover:bg-yellow-700"
+                className="bg-(--color-warning) hover:bg-yellow-700"
               >
                 {stripeLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -193,14 +193,14 @@ function VendorOnboardingContent() {
         )}
 
         {/* Steps */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-8">
+        <div className="bg-(--color-surface) rounded-2xl shadow-sm p-6 mb-8">
           <div className="space-y-6">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-start gap-4">
-                <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
                   step.completed
-                    ? 'bg-emerald-100 text-emerald-600'
-                    : 'bg-gray-100 text-gray-400'
+                    ? 'bg-(--brand-primary-light) text-(--brand-primary)'
+                    : 'bg-(--color-elevated) text-(--color-text-disabled)'
                 }`}>
                   {step.completed ? (
                     <CheckCircle className="h-5 w-5" />
@@ -211,17 +211,17 @@ function VendorOnboardingContent() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
                     <h3 className={`font-semibold ${
-                      step.completed ? 'text-emerald-700' : 'text-gray-900'
+                      step.completed ? 'text-(--brand-primary)' : 'text-foreground'
                     }`}>
                       {step.title}
                     </h3>
                     {step.completed && (
-                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full">
+                      <span className="text-xs bg-(--brand-primary-light) text-(--brand-primary) px-2 py-1 rounded-full">
                         Complete
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">{step.description}</p>
+                  <p className="text-sm text-(--color-text-secondary) mt-1">{step.description}</p>
 
                   {/* Action buttons */}
                   {step.id === 'stripe' && !step.completed && (
@@ -229,7 +229,7 @@ function VendorOnboardingContent() {
                       <Button
                         onClick={handleStripeOnboarding}
                         disabled={stripeLoading}
-                        className="bg-emerald-600 hover:bg-emerald-700"
+                        className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
                       >
                         {stripeLoading ? (
                           <>
@@ -243,7 +243,7 @@ function VendorOnboardingContent() {
                           </>
                         )}
                       </Button>
-                      <p className="text-xs text-gray-500 mt-2">
+                      <p className="text-xs text-(--color-text-muted) mt-2">
                         You'll be redirected to Stripe to complete the setup
                       </p>
                     </div>
@@ -252,7 +252,7 @@ function VendorOnboardingContent() {
                   {step.id === 'products' && isComplete && (
                     <div className="mt-3">
                       <Link href="/vendor/products/new">
-                        <Button className="bg-emerald-600 hover:bg-emerald-700">
+                        <Button className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
                           <Package className="h-4 w-4 mr-2" />
                           Add Your First Product
                         </Button>
@@ -261,7 +261,7 @@ function VendorOnboardingContent() {
                   )}
                 </div>
                 {index < steps.length - 1 && (
-                  <div className="absolute left-5 mt-10 w-0.5 h-6 bg-gray-200" />
+                  <div className="absolute left-5 mt-10 w-0.5 h-6 bg-(--color-border)" />
                 )}
               </div>
             ))}
@@ -274,7 +274,7 @@ function VendorOnboardingContent() {
             <button
               onClick={refreshStripeStatus}
               disabled={refreshing}
-              className="text-sm text-gray-500 hover:text-gray-700 inline-flex items-center gap-2"
+              className="text-sm text-(--color-text-muted) hover:text-foreground inline-flex items-center gap-2"
             >
               <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
               {refreshing ? 'Checking...' : 'Check Stripe status'}
@@ -286,7 +286,7 @@ function VendorOnboardingContent() {
         {isComplete && (
           <div className="text-center">
             <Link href="/vendor/dashboard">
-              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700">
+              <Button size="lg" className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
                 Go to Dashboard
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
@@ -295,12 +295,12 @@ function VendorOnboardingContent() {
         )}
 
         {/* Help section */}
-        <div className="mt-8 p-6 bg-gray-50 rounded-xl text-center">
-          <h3 className="font-semibold text-gray-900 mb-2">Need Help?</h3>
-          <p className="text-sm text-gray-600 mb-4">
+        <div className="mt-8 p-6 bg-background rounded-xl text-center">
+          <h3 className="font-semibold text-foreground mb-2">Need Help?</h3>
+          <p className="text-sm text-(--color-text-secondary) mb-4">
             If you're having trouble setting up your account, our support team is here to help.
           </p>
-          <Link href="/contact" className="text-emerald-600 hover:underline text-sm">
+          <Link href="/contact" className="text-(--brand-primary) hover:underline text-sm">
             Contact Support
           </Link>
         </div>
@@ -312,7 +312,7 @@ function VendorOnboardingContent() {
 function VendorOnboardingLoading() {
   return (
     <div className="p-8 flex items-center justify-center min-h-[50vh]">
-      <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+      <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
     </div>
   )
 }

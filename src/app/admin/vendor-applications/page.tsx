@@ -98,11 +98,11 @@ export default function AdminVendorApplicationsPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'approved':
-        return <span className="px-2 py-1 text-xs rounded-full bg-emerald-100 text-emerald-700 flex items-center gap-1"><CheckCircle className="h-3 w-3" />Approved</span>
+        return <span className="px-2 py-1 text-xs rounded-full bg-(--brand-primary-light) text-(--brand-primary) flex items-center gap-1"><CheckCircle className="h-3 w-3" />Approved</span>
       case 'rejected':
-        return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-700 flex items-center gap-1"><XCircle className="h-3 w-3" />Rejected</span>
+        return <span className="px-2 py-1 text-xs rounded-full bg-(--color-error-bg) text-(--color-error) flex items-center gap-1"><XCircle className="h-3 w-3" />Rejected</span>
       default:
-        return <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-700 flex items-center gap-1"><Clock className="h-3 w-3" />Pending</span>
+        return <span className="px-2 py-1 text-xs rounded-full bg-(--color-warning-bg) text-(--color-warning) flex items-center gap-1"><Clock className="h-3 w-3" />Pending</span>
     }
   }
 
@@ -130,7 +130,7 @@ export default function AdminVendorApplicationsPage() {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -139,16 +139,16 @@ export default function AdminVendorApplicationsPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vendor Applications</h1>
-          <p className="text-gray-600">{applications.length} applications</p>
+          <h1 className="text-2xl font-bold text-foreground">Vendor Applications</h1>
+          <p className="text-(--color-text-secondary)">{applications.length} applications</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+      <div className="bg-(--color-surface) rounded-xl shadow-sm p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
             <Input
               placeholder="Search applications..."
               value={search}
@@ -159,7 +159,7 @@ export default function AdminVendorApplicationsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+            className="px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
           >
             <option value="pending">Pending Review</option>
             <option value="approved">Approved</option>
@@ -176,22 +176,22 @@ export default function AdminVendorApplicationsPage() {
             filteredApplications.map((app) => (
               <div
                 key={app.id}
-                className={`bg-white rounded-xl shadow-sm p-6 cursor-pointer transition-all ${
-                  selectedApp?.id === app.id ? 'ring-2 ring-emerald-500' : 'hover:shadow-md'
+                className={`bg-(--color-surface) rounded-xl shadow-sm p-6 cursor-pointer transition-all ${
+                  selectedApp?.id === app.id ? 'ring-2 ring-(--brand-primary)' : 'hover:shadow-md'
                 }`}
                 onClick={() => setSelectedApp(app)}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <Building2 className="h-6 w-6 text-gray-600" />
+                    <div className="w-12 h-12 bg-(--color-elevated) rounded-lg flex items-center justify-center">
+                      <Building2 className="h-6 w-6 text-(--color-text-secondary)" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">{app.business_name}</h3>
-                      <p className="text-sm text-gray-500">{formatBusinessType(app.business_type)}</p>
+                      <h3 className="font-semibold text-foreground">{app.business_name}</h3>
+                      <p className="text-sm text-(--color-text-muted)">{formatBusinessType(app.business_type)}</p>
                       <div className="flex items-center gap-2 mt-1">
-                        <User className="h-3 w-3 text-gray-400" />
-                        <span className="text-sm text-gray-600">{app.user?.full_name || app.user?.email}</span>
+                        <User className="h-3 w-3 text-(--color-text-disabled)" />
+                        <span className="text-sm text-(--color-text-secondary)">{app.user?.full_name || app.user?.email}</span>
                       </div>
                     </div>
                   </div>
@@ -201,25 +201,25 @@ export default function AdminVendorApplicationsPage() {
                 {app.product_categories && app.product_categories.length > 0 && (
                   <div className="mt-4 flex flex-wrap gap-2">
                     {app.product_categories.slice(0, 3).map((cat, i) => (
-                      <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
+                      <span key={i} className="px-2 py-0.5 bg-(--color-elevated) text-(--color-text-secondary) text-xs rounded-full">
                         {cat}
                       </span>
                     ))}
                     {app.product_categories.length > 3 && (
-                      <span className="text-xs text-gray-500">+{app.product_categories.length - 3} more</span>
+                      <span className="text-xs text-(--color-text-muted)">+{app.product_categories.length - 3} more</span>
                     )}
                   </div>
                 )}
 
-                <div className="mt-4 text-xs text-gray-500">
+                <div className="mt-4 text-xs text-(--color-text-muted)">
                   Applied {new Date(app.created_at).toLocaleDateString()}
                 </div>
               </div>
             ))
           ) : (
-            <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-              <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500">No applications found</p>
+            <div className="bg-(--color-surface) rounded-xl shadow-sm p-12 text-center">
+              <FileText className="h-12 w-12 mx-auto text-(--color-text-disabled) mb-4" />
+              <p className="text-(--color-text-muted)">No applications found</p>
             </div>
           )}
         </div>
@@ -227,39 +227,39 @@ export default function AdminVendorApplicationsPage() {
         {/* Application Details */}
         <div className="lg:col-span-1">
           {selectedApp ? (
-            <div className="bg-white rounded-xl shadow-sm p-6 sticky top-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Application Details</h3>
+            <div className="bg-(--color-surface) rounded-xl shadow-sm p-6 sticky top-6">
+              <h3 className="font-semibold text-foreground mb-4">Application Details</h3>
 
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs text-gray-500 uppercase">Business Name</label>
-                  <p className="font-medium text-gray-900">{selectedApp.business_name}</p>
+                  <label className="text-xs text-(--color-text-muted) uppercase">Business Name</label>
+                  <p className="font-medium text-foreground">{selectedApp.business_name}</p>
                 </div>
 
                 <div>
-                  <label className="text-xs text-gray-500 uppercase">Business Type</label>
-                  <p className="text-gray-900">{formatBusinessType(selectedApp.business_type)}</p>
+                  <label className="text-xs text-(--color-text-muted) uppercase">Business Type</label>
+                  <p className="text-foreground">{formatBusinessType(selectedApp.business_type)}</p>
                 </div>
 
                 <div>
-                  <label className="text-xs text-gray-500 uppercase">Applicant</label>
-                  <p className="text-gray-900">{selectedApp.user?.full_name || 'N/A'}</p>
-                  <p className="text-sm text-gray-500">{selectedApp.user?.email}</p>
+                  <label className="text-xs text-(--color-text-muted) uppercase">Applicant</label>
+                  <p className="text-foreground">{selectedApp.user?.full_name || 'N/A'}</p>
+                  <p className="text-sm text-(--color-text-muted)">{selectedApp.user?.email}</p>
                 </div>
 
                 <div>
-                  <label className="text-xs text-gray-500 uppercase">Phone</label>
-                  <p className="text-gray-900">{selectedApp.phone || 'Not provided'}</p>
+                  <label className="text-xs text-(--color-text-muted) uppercase">Phone</label>
+                  <p className="text-foreground">{selectedApp.phone || 'Not provided'}</p>
                 </div>
 
                 {selectedApp.website_url && (
                   <div>
-                    <label className="text-xs text-gray-500 uppercase">Website</label>
+                    <label className="text-xs text-(--color-text-muted) uppercase">Website</label>
                     <a
                       href={selectedApp.website_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-emerald-600 hover:underline text-sm block"
+                      className="text-(--brand-primary) hover:underline text-sm block"
                     >
                       {selectedApp.website_url}
                     </a>
@@ -267,16 +267,16 @@ export default function AdminVendorApplicationsPage() {
                 )}
 
                 <div>
-                  <label className="text-xs text-gray-500 uppercase">Expected Monthly Sales</label>
-                  <p className="text-gray-900">{formatSalesRange(selectedApp.expected_monthly_sales)}</p>
+                  <label className="text-xs text-(--color-text-muted) uppercase">Expected Monthly Sales</label>
+                  <p className="text-foreground">{formatSalesRange(selectedApp.expected_monthly_sales)}</p>
                 </div>
 
                 {selectedApp.product_categories && selectedApp.product_categories.length > 0 && (
                   <div>
-                    <label className="text-xs text-gray-500 uppercase">Categories</label>
+                    <label className="text-xs text-(--color-text-muted) uppercase">Categories</label>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {selectedApp.product_categories.map((cat, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
+                        <span key={i} className="px-2 py-0.5 bg-(--color-elevated) text-foreground text-xs rounded-full">
                           {cat}
                         </span>
                       ))}
@@ -286,20 +286,20 @@ export default function AdminVendorApplicationsPage() {
 
                 {selectedApp.description && (
                   <div>
-                    <label className="text-xs text-gray-500 uppercase">Description</label>
-                    <p className="text-gray-900 text-sm">{selectedApp.description}</p>
+                    <label className="text-xs text-(--color-text-muted) uppercase">Description</label>
+                    <p className="text-foreground text-sm">{selectedApp.description}</p>
                   </div>
                 )}
 
                 {selectedApp.status === 'pending' && (
                   <>
                     <div>
-                      <label className="text-xs text-gray-500 uppercase">Admin Notes</label>
+                      <label className="text-xs text-(--color-text-muted) uppercase">Admin Notes</label>
                       <textarea
                         value={adminNotes}
                         onChange={(e) => setAdminNotes(e.target.value)}
                         placeholder="Add notes (optional)..."
-                        className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+                        className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary)"
                         rows={3}
                       />
                     </div>
@@ -308,7 +308,7 @@ export default function AdminVendorApplicationsPage() {
                       <Button
                         onClick={() => handleReview(selectedApp.id, 'approved')}
                         disabled={processing}
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                        className="flex-1 bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
                       >
                         {processing ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -323,7 +323,7 @@ export default function AdminVendorApplicationsPage() {
                         onClick={() => handleReview(selectedApp.id, 'rejected')}
                         disabled={processing}
                         variant="outline"
-                        className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                        className="flex-1 border-(--color-border) text-(--color-error) hover:bg-(--color-error-bg)"
                       >
                         {processing ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -340,16 +340,16 @@ export default function AdminVendorApplicationsPage() {
 
                 {selectedApp.admin_notes && selectedApp.status !== 'pending' && (
                   <div>
-                    <label className="text-xs text-gray-500 uppercase">Admin Notes</label>
-                    <p className="text-gray-900 text-sm">{selectedApp.admin_notes}</p>
+                    <label className="text-xs text-(--color-text-muted) uppercase">Admin Notes</label>
+                    <p className="text-foreground text-sm">{selectedApp.admin_notes}</p>
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-xl shadow-sm p-8 text-center sticky top-6">
-              <Eye className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500">Select an application to view details</p>
+            <div className="bg-(--color-surface) rounded-xl shadow-sm p-8 text-center sticky top-6">
+              <Eye className="h-12 w-12 mx-auto text-(--color-text-disabled) mb-4" />
+              <p className="text-(--color-text-muted)">Select an application to view details</p>
             </div>
           )}
         </div>

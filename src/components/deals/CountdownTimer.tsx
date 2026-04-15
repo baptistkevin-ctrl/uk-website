@@ -68,7 +68,7 @@ export function CountdownTimer({
 
   if (!mounted) {
     return (
-      <div className={cn('flex items-center gap-2 text-gray-500', className)}>
+      <div className={cn('flex items-center gap-2 text-(--color-text-muted)', className)}>
         <Clock className="h-4 w-4" />
         <span>Loading...</span>
       </div>
@@ -77,7 +77,7 @@ export function CountdownTimer({
 
   if (!timeLeft) {
     return (
-      <div className={cn('flex items-center gap-2 text-red-600', className)}>
+      <div className={cn('flex items-center gap-2 text-(--color-error)', className)}>
         <Clock className="h-4 w-4" />
         <span>Deal Expired</span>
       </div>
@@ -109,40 +109,40 @@ export function CountdownTimer({
 
   // Show urgency colors
   const isUrgent = timeLeft.days === 0 && timeLeft.hours < 2
-  const textColor = isUrgent ? 'text-red-600' : 'text-gray-900'
-  const bgColor = isUrgent ? 'bg-red-50' : 'bg-gray-100'
+  const textColor = isUrgent ? 'text-(--color-error)' : 'text-foreground'
+  const bgColor = isUrgent ? 'bg-(--color-error)/10' : 'bg-(--color-elevated)'
 
   return (
     <div className={cn('flex items-center', classes.container, className)}>
-      {showIcon && <Clock className={cn(classes.icon, isUrgent ? 'text-red-600' : 'text-gray-500')} />}
+      {showIcon && <Clock className={cn(classes.icon, isUrgent ? 'text-(--color-error)' : 'text-(--color-text-muted)')} />}
       <div className="flex items-center gap-1">
         {timeLeft.days > 0 && (
           <div className="text-center">
             <span className={cn('rounded', classes.unit, textColor, bgColor)}>
               {timeLeft.days}
             </span>
-            <span className={cn('block', classes.label, 'text-gray-500')}>days</span>
+            <span className={cn('block', classes.label, 'text-(--color-text-muted)')}>days</span>
           </div>
         )}
         <div className="text-center">
           <span className={cn('rounded', classes.unit, textColor, bgColor)}>
             {String(timeLeft.hours).padStart(2, '0')}
           </span>
-          <span className={cn('block', classes.label, 'text-gray-500')}>hrs</span>
+          <span className={cn('block', classes.label, 'text-(--color-text-muted)')}>hrs</span>
         </div>
         <span className={textColor}>:</span>
         <div className="text-center">
           <span className={cn('rounded', classes.unit, textColor, bgColor)}>
             {String(timeLeft.minutes).padStart(2, '0')}
           </span>
-          <span className={cn('block', classes.label, 'text-gray-500')}>min</span>
+          <span className={cn('block', classes.label, 'text-(--color-text-muted)')}>min</span>
         </div>
         <span className={textColor}>:</span>
         <div className="text-center">
           <span className={cn('rounded', classes.unit, textColor, bgColor)}>
             {String(timeLeft.seconds).padStart(2, '0')}
           </span>
-          <span className={cn('block', classes.label, 'text-gray-500')}>sec</span>
+          <span className={cn('block', classes.label, 'text-(--color-text-muted)')}>sec</span>
         </div>
       </div>
     </div>

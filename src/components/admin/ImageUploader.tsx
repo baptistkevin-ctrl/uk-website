@@ -135,7 +135,7 @@ export default function ImageUploader({ images, onChange, maxImages = 5 }: Image
       <div className="flex flex-wrap gap-4">
         {images.map((url, index) => (
           <div key={index} className="relative group">
-            <div className="w-24 h-24 rounded-lg overflow-hidden border border-gray-200">
+            <div className="w-24 h-24 rounded-lg overflow-hidden border border-(--color-border)">
               <Image
                 src={url}
                 alt={`Product image ${index + 1}`}
@@ -157,13 +157,13 @@ export default function ImageUploader({ images, onChange, maxImages = 5 }: Image
         {images.length < maxImages && (
           <div className="flex gap-2">
             {/* Upload button */}
-            <label className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-gray-50 transition-colors">
+            <label className="w-24 h-24 border-2 border-dashed border-(--color-border) rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-(--brand-primary) hover:bg-background transition-colors">
               {uploading ? (
-                <Loader2 size={24} className="text-gray-400 animate-spin" />
+                <Loader2 size={24} className="text-(--color-text-disabled) animate-spin" />
               ) : (
                 <>
-                  <Upload size={24} className="text-gray-400" />
-                  <span className="text-xs text-gray-400 mt-1">Upload</span>
+                  <Upload size={24} className="text-(--color-text-disabled)" />
+                  <span className="text-xs text-(--color-text-disabled) mt-1">Upload</span>
                 </>
               )}
               <input
@@ -182,10 +182,10 @@ export default function ImageUploader({ images, onChange, maxImages = 5 }: Image
               <button
                 type="button"
                 onClick={() => setShowUnsplash(true)}
-                className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
+                className="w-24 h-24 border-2 border-dashed border-(--color-border) rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-purple-500 hover:bg-purple-50 transition-colors"
               >
-                <ImageIcon size={24} className="text-gray-400" />
-                <span className="text-xs text-gray-400 mt-1">Unsplash</span>
+                <ImageIcon size={24} className="text-(--color-text-disabled)" />
+                <span className="text-xs text-(--color-text-disabled) mt-1">Unsplash</span>
               </button>
             )}
           </div>
@@ -193,7 +193,7 @@ export default function ImageUploader({ images, onChange, maxImages = 5 }: Image
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
-      <p className="text-gray-500 text-xs">
+      <p className="text-(--color-text-muted) text-xs">
         Supported formats: JPEG, PNG, WebP, GIF. Max size: 5MB per image.
         {unsplashEnabled && ' Or search free images from Unsplash.'}
       </p>
@@ -201,12 +201,12 @@ export default function ImageUploader({ images, onChange, maxImages = 5 }: Image
       {/* Unsplash Search Modal */}
       {showUnsplash && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+          <div className="bg-(--color-surface) rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <div className="flex items-center justify-between p-4 border-b border-(--color-border)">
               <div className="flex items-center gap-2">
                 <ImageIcon className="h-5 w-5 text-purple-600" />
-                <h3 className="text-lg font-semibold text-gray-900">Search Unsplash</h3>
+                <h3 className="text-lg font-semibold text-foreground">Search Unsplash</h3>
               </div>
               <button
                 type="button"
@@ -216,31 +216,31 @@ export default function ImageUploader({ images, onChange, maxImages = 5 }: Image
                   setUnsplashImages([])
                   setUnsplashError('')
                 }}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-(--color-text-disabled) hover:text-(--color-text-secondary) hover:bg-(--color-elevated) rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Search Input */}
-            <div className="p-4 border-b border-gray-200">
+            <div className="p-4 border-b border-(--color-border)">
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-(--color-text-disabled)" />
                   <input
                     type="text"
                     value={unsplashQuery}
                     onChange={(e) => setUnsplashQuery(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && searchUnsplash()}
                     placeholder="Search for images... (e.g., fruits, vegetables, groceries)"
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={searchUnsplash}
                   disabled={unsplashLoading || !unsplashQuery.trim()}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  className="px-4 py-2.5 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   {unsplashLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -265,8 +265,8 @@ export default function ImageUploader({ images, onChange, maxImages = 5 }: Image
               )}
 
               {!unsplashLoading && unsplashImages.length === 0 && !unsplashError && (
-                <div className="text-center py-12 text-gray-500">
-                  <ImageIcon className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+                <div className="text-center py-12 text-(--color-text-muted)">
+                  <ImageIcon className="w-12 h-12 mx-auto text-(--color-text-disabled) mb-3" />
                   <p>Search for images to get started</p>
                 </div>
               )}
@@ -298,8 +298,8 @@ export default function ImageUploader({ images, onChange, maxImages = 5 }: Image
             </div>
 
             {/* Footer */}
-            <div className="p-3 border-t border-gray-200 bg-gray-50 text-center">
-              <p className="text-xs text-gray-500">
+            <div className="p-3 border-t border-(--color-border) bg-background text-center">
+              <p className="text-xs text-(--color-text-muted)">
                 Photos provided by{' '}
                 <a
                   href="https://unsplash.com"

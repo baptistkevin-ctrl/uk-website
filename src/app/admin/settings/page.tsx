@@ -54,8 +54,8 @@ interface StoreSettings {
 }
 
 const defaultSettings: StoreSettings = {
-  store_name: 'FreshMart UK',
-  store_email: 'support@freshmart.co.uk',
+  store_name: 'UK Grocery Store',
+  store_email: 'support@ukgrocerystore.com',
   store_phone: '+44 20 1234 5678',
   store_address: 'London, United Kingdom',
   currency: 'GBP',
@@ -200,7 +200,7 @@ export default function AdminSettingsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -210,11 +210,11 @@ export default function AdminSettingsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Settings className="h-7 w-7 text-emerald-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <Settings className="h-7 w-7 text-(--brand-primary)" />
             Settings
           </h1>
-          <p className="text-gray-500 mt-1">Manage your store configuration</p>
+          <p className="text-(--color-text-muted) mt-1">Manage your store configuration</p>
         </div>
         <div className="flex items-center gap-3">
           <Button
@@ -228,7 +228,7 @@ export default function AdminSettingsPage() {
           <Button
             onClick={handleSave}
             disabled={saving || !hasChanges}
-            className="bg-emerald-600 hover:bg-emerald-700 gap-2"
+            className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) gap-2"
           >
             {saving ? (
               <>
@@ -252,16 +252,16 @@ export default function AdminSettingsPage() {
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3 text-red-700">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+        <div className="bg-(--color-error-bg) border border-(--color-border) rounded-xl p-4 flex items-center gap-3 text-(--color-error)">
+          <AlertCircle className="h-5 w-5 shrink-0" />
           <p className="text-sm">{error}</p>
         </div>
       )}
 
       {/* Unsaved Changes Alert */}
       {hasChanges && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3 text-amber-700">
-          <AlertCircle className="h-5 w-5 flex-shrink-0" />
+        <div className="bg-(--brand-amber-soft) border border-(--color-border) rounded-xl p-4 flex items-center gap-3 text-(--brand-amber)">
+          <AlertCircle className="h-5 w-5 shrink-0" />
           <p className="text-sm">You have unsaved changes. Don't forget to save!</p>
         </div>
       )}
@@ -269,7 +269,7 @@ export default function AdminSettingsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Sidebar */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
             <nav className="p-2">
               {sections.map((section) => (
                 <button
@@ -277,12 +277,12 @@ export default function AdminSettingsPage() {
                   onClick={() => setActiveSection(section.id)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                     activeSection === section.id
-                      ? 'bg-emerald-50 text-emerald-700'
-                      : 'text-gray-600 hover:bg-gray-50'
+                      ? 'bg-(--brand-primary-light) text-(--brand-primary)'
+                      : 'text-(--color-text-secondary) hover:bg-background'
                   }`}
                 >
                   <section.icon className={`h-5 w-5 ${
-                    activeSection === section.id ? 'text-emerald-600' : 'text-gray-400'
+                    activeSection === section.id ? 'text-(--brand-primary)' : 'text-(--color-text-disabled)'
                   }`} />
                   {section.label}
                 </button>
@@ -293,13 +293,13 @@ export default function AdminSettingsPage() {
 
         {/* Content */}
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
             {/* Store Info */}
             {activeSection === 'store' && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Store className="h-5 w-5 text-gray-400" />
+                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Store className="h-5 w-5 text-(--color-text-disabled)" />
                     Store Information
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -347,8 +347,8 @@ export default function AdminSettingsPage() {
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 pt-6">
-                  <h3 className="text-md font-medium text-gray-900 mb-4">Regional Settings</h3>
+                <div className="border-t border-(--color-border) pt-6">
+                  <h3 className="text-md font-medium text-foreground mb-4">Regional Settings</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="currency">Currency</Label>
@@ -357,7 +357,7 @@ export default function AdminSettingsPage() {
                         name="currency"
                         value={settings.currency}
                         onChange={handleChange}
-                        className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm"
+                        className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) text-sm"
                       >
                         <option value="GBP">GBP (£)</option>
                         <option value="EUR">EUR (€)</option>
@@ -371,7 +371,7 @@ export default function AdminSettingsPage() {
                         name="timezone"
                         value={settings.timezone}
                         onChange={handleChange}
-                        className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm"
+                        className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) text-sm"
                       >
                         <option value="Europe/London">Europe/London (GMT)</option>
                         <option value="Europe/Paris">Europe/Paris (CET)</option>
@@ -387,8 +387,8 @@ export default function AdminSettingsPage() {
             {activeSection === 'delivery' && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Truck className="h-5 w-5 text-gray-400" />
+                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Truck className="h-5 w-5 text-(--color-text-disabled)" />
                     Delivery Settings
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -402,7 +402,7 @@ export default function AdminSettingsPage() {
                         onChange={handleChange}
                         className="mt-1"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Display: {formatPrice(settings.min_order_value)}</p>
+                      <p className="text-xs text-(--color-text-muted) mt-1">Display: {formatPrice(settings.min_order_value)}</p>
                     </div>
                     <div>
                       <Label htmlFor="free_delivery_threshold">Free Delivery Threshold (pence)</Label>
@@ -414,7 +414,7 @@ export default function AdminSettingsPage() {
                         onChange={handleChange}
                         className="mt-1"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Display: {formatPrice(settings.free_delivery_threshold)}</p>
+                      <p className="text-xs text-(--color-text-muted) mt-1">Display: {formatPrice(settings.free_delivery_threshold)}</p>
                     </div>
                     <div>
                       <Label htmlFor="default_delivery_fee">Default Delivery Fee (pence)</Label>
@@ -426,20 +426,20 @@ export default function AdminSettingsPage() {
                         onChange={handleChange}
                         className="mt-1"
                       />
-                      <p className="text-xs text-gray-500 mt-1">Display: {formatPrice(settings.default_delivery_fee)}</p>
+                      <p className="text-xs text-(--color-text-muted) mt-1">Display: {formatPrice(settings.default_delivery_fee)}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="border-t border-gray-200 pt-6">
-                  <div className="bg-emerald-50 rounded-lg p-4">
-                    <h3 className="font-medium text-emerald-900 mb-2">Delivery Slot Management</h3>
-                    <p className="text-sm text-emerald-700 mb-3">
+                <div className="border-t border-(--color-border) pt-6">
+                  <div className="bg-(--brand-primary-light) rounded-lg p-4">
+                    <h3 className="font-medium text-(--brand-primary) mb-2">Delivery Slot Management</h3>
+                    <p className="text-sm text-(--brand-primary) mb-3">
                       Manage delivery time slots, pricing, and availability.
                     </p>
                     <a
                       href="/admin/delivery"
-                      className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                      className="text-sm text-(--brand-primary) hover:text-(--brand-primary) font-medium"
                     >
                       Go to Delivery Slots →
                     </a>
@@ -452,8 +452,8 @@ export default function AdminSettingsPage() {
             {activeSection === 'payments' && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <CreditCard className="h-5 w-5 text-gray-400" />
+                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <CreditCard className="h-5 w-5 text-(--color-text-disabled)" />
                     Payment Settings
                   </h2>
                   <div className="space-y-4">
@@ -470,12 +470,12 @@ export default function AdminSettingsPage() {
                         className="mt-1 max-w-xs"
                       />
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h3 className="font-medium text-gray-900 mb-2">Payment Provider</h3>
-                      <p className="text-sm text-gray-600 mb-3">Your store is connected to Stripe for payment processing.</p>
+                    <div className="bg-background rounded-lg p-4">
+                      <h3 className="font-medium text-foreground mb-2">Payment Provider</h3>
+                      <p className="text-sm text-(--color-text-secondary) mb-3">Your store is connected to Stripe for payment processing.</p>
                       <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
-                        <span className="text-sm text-emerald-600 font-medium">Stripe Connected</span>
+                        <div className="w-3 h-3 bg-(--brand-primary) rounded-full"></div>
+                        <span className="text-sm text-(--brand-primary) font-medium">Stripe Connected</span>
                       </div>
                     </div>
                   </div>
@@ -487,15 +487,15 @@ export default function AdminSettingsPage() {
             {activeSection === 'notifications' && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Bell className="h-5 w-5 text-gray-400" />
+                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Bell className="h-5 w-5 text-(--color-text-disabled)" />
                     Notification Settings
                   </h2>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                       <div>
-                        <p className="font-medium text-gray-900">Order Confirmation Emails</p>
-                        <p className="text-sm text-gray-500">Send email to customers when order is placed</p>
+                        <p className="font-medium text-foreground">Order Confirmation Emails</p>
+                        <p className="text-sm text-(--color-text-muted)">Send email to customers when order is placed</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
@@ -505,13 +505,13 @@ export default function AdminSettingsPage() {
                           onChange={handleChange}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                       </label>
                     </div>
-                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                       <div>
-                        <p className="font-medium text-gray-900">Low Stock Alerts</p>
-                        <p className="text-sm text-gray-500">Get notified when products are running low</p>
+                        <p className="font-medium text-foreground">Low Stock Alerts</p>
+                        <p className="text-sm text-(--color-text-muted)">Get notified when products are running low</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
@@ -521,7 +521,7 @@ export default function AdminSettingsPage() {
                           onChange={handleChange}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                       </label>
                     </div>
                     {settings.low_stock_alert && (
@@ -546,20 +546,20 @@ export default function AdminSettingsPage() {
             {activeSection === 'features' && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Globe className="h-5 w-5 text-gray-400" />
+                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Globe className="h-5 w-5 text-(--color-text-disabled)" />
                     Store Features
                   </h2>
-                  <p className="text-sm text-gray-500 mb-6">Enable or disable features across your store</p>
+                  <p className="text-sm text-(--color-text-muted) mb-6">Enable or disable features across your store</p>
 
                   {/* Core Features */}
                   <div className="mb-6">
-                    <h3 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wide">Core Features</h3>
+                    <h3 className="text-sm font-medium text-foreground mb-3 uppercase tracking-wide">Core Features</h3>
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div>
-                          <p className="font-medium text-gray-900">Hero Slides</p>
-                          <p className="text-sm text-gray-500">Display promotional banners on homepage</p>
+                          <p className="font-medium text-foreground">Hero Slides</p>
+                          <p className="text-sm text-(--color-text-muted)">Display promotional banners on homepage</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -569,13 +569,13 @@ export default function AdminSettingsPage() {
                             onChange={handleChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                          <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                         </label>
                       </div>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div>
-                          <p className="font-medium text-gray-900">Multi-Buy Offers</p>
-                          <p className="text-sm text-gray-500">Enable "2 for £X" promotional pricing</p>
+                          <p className="font-medium text-foreground">Multi-Buy Offers</p>
+                          <p className="text-sm text-(--color-text-muted)">Enable "2 for £X" promotional pricing</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -585,13 +585,13 @@ export default function AdminSettingsPage() {
                             onChange={handleChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                          <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                         </label>
                       </div>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div>
-                          <p className="font-medium text-gray-900">Product Search</p>
-                          <p className="text-sm text-gray-500">Enable search functionality across the store</p>
+                          <p className="font-medium text-foreground">Product Search</p>
+                          <p className="text-sm text-(--color-text-muted)">Enable search functionality across the store</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -601,7 +601,7 @@ export default function AdminSettingsPage() {
                             onChange={handleChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                          <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                         </label>
                       </div>
                     </div>
@@ -609,12 +609,12 @@ export default function AdminSettingsPage() {
 
                   {/* Customer Features */}
                   <div className="mb-6">
-                    <h3 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wide">Customer Features</h3>
+                    <h3 className="text-sm font-medium text-foreground mb-3 uppercase tracking-wide">Customer Features</h3>
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div>
-                          <p className="font-medium text-gray-900">Guest Checkout</p>
-                          <p className="text-sm text-gray-500">Allow customers to checkout without an account</p>
+                          <p className="font-medium text-foreground">Guest Checkout</p>
+                          <p className="text-sm text-(--color-text-muted)">Allow customers to checkout without an account</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -624,13 +624,13 @@ export default function AdminSettingsPage() {
                             onChange={handleChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                          <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                         </label>
                       </div>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div>
-                          <p className="font-medium text-gray-900">Order Tracking</p>
-                          <p className="text-sm text-gray-500">Allow customers to track their orders</p>
+                          <p className="font-medium text-foreground">Order Tracking</p>
+                          <p className="text-sm text-(--color-text-muted)">Allow customers to track their orders</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -640,13 +640,13 @@ export default function AdminSettingsPage() {
                             onChange={handleChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                          <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                         </label>
                       </div>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div>
-                          <p className="font-medium text-gray-900">Product Reviews</p>
-                          <p className="text-sm text-gray-500">Allow customers to leave reviews on products</p>
+                          <p className="font-medium text-foreground">Product Reviews</p>
+                          <p className="text-sm text-(--color-text-muted)">Allow customers to leave reviews on products</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -656,13 +656,13 @@ export default function AdminSettingsPage() {
                             onChange={handleChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                          <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                         </label>
                       </div>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div>
-                          <p className="font-medium text-gray-900">Wishlist</p>
-                          <p className="text-sm text-gray-500">Allow customers to save products to wishlist</p>
+                          <p className="font-medium text-foreground">Wishlist</p>
+                          <p className="text-sm text-(--color-text-muted)">Allow customers to save products to wishlist</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -672,7 +672,7 @@ export default function AdminSettingsPage() {
                             onChange={handleChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                          <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                         </label>
                       </div>
                     </div>
@@ -680,12 +680,12 @@ export default function AdminSettingsPage() {
 
                   {/* Product Display */}
                   <div>
-                    <h3 className="text-sm font-medium text-gray-700 mb-3 uppercase tracking-wide">Product Display</h3>
+                    <h3 className="text-sm font-medium text-foreground mb-3 uppercase tracking-wide">Product Display</h3>
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div>
-                          <p className="font-medium text-gray-900">Stock Display</p>
-                          <p className="text-sm text-gray-500">Show stock levels and low stock warnings</p>
+                          <p className="font-medium text-foreground">Stock Display</p>
+                          <p className="text-sm text-(--color-text-muted)">Show stock levels and low stock warnings</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -695,13 +695,13 @@ export default function AdminSettingsPage() {
                             onChange={handleChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                          <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                         </label>
                       </div>
-                      <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center justify-between p-4 bg-background rounded-lg">
                         <div>
-                          <p className="font-medium text-gray-900">Dietary Filters</p>
-                          <p className="text-sm text-gray-500">Show vegan, organic, gluten-free filters</p>
+                          <p className="font-medium text-foreground">Dietary Filters</p>
+                          <p className="text-sm text-(--color-text-muted)">Show vegan, organic, gluten-free filters</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
                           <input
@@ -711,7 +711,7 @@ export default function AdminSettingsPage() {
                             onChange={handleChange}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                          <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                         </label>
                       </div>
                     </div>
@@ -724,22 +724,22 @@ export default function AdminSettingsPage() {
             {activeSection === 'integrations' && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Plug className="h-5 w-5 text-gray-400" />
+                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Plug className="h-5 w-5 text-(--color-text-disabled)" />
                     Integrations
                   </h2>
-                  <p className="text-sm text-gray-500 mb-6">Connect third-party services to enhance your store</p>
+                  <p className="text-sm text-(--color-text-muted) mb-6">Connect third-party services to enhance your store</p>
 
                   {/* Unsplash Integration */}
-                  <div className="border border-gray-200 rounded-xl overflow-hidden">
-                    <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
+                  <div className="border border-(--color-border) rounded-xl overflow-hidden">
+                    <div className="flex items-center justify-between p-4 bg-background border-b border-(--color-border)">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
                           <ImageIcon className="h-5 w-5 text-white" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">Unsplash</p>
-                          <p className="text-sm text-gray-500">Free high-quality stock images</p>
+                          <p className="font-medium text-foreground">Unsplash</p>
+                          <p className="text-sm text-(--color-text-muted)">Free high-quality stock images</p>
                         </div>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
@@ -750,7 +750,7 @@ export default function AdminSettingsPage() {
                           onChange={handleChange}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-emerald-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-(--brand-primary)/30 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--brand-primary)"></div>
                       </label>
                     </div>
                     {settings.enable_unsplash && (
@@ -775,25 +775,25 @@ export default function AdminSettingsPage() {
                                   setHasChanges(true)
                                   setSaved(false)
                                 }}
-                                className="px-3 py-2 bg-red-100 text-red-600 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
+                                className="px-3 py-2 bg-(--color-error-bg) text-(--color-error) rounded-lg text-sm font-medium hover:bg-red-200 transition-colors"
                               >
                                 Delete Key
                               </button>
                             )}
                           </div>
-                          <p className="text-xs text-gray-500 mt-2">
+                          <p className="text-xs text-(--color-text-muted) mt-2">
                             Get your free API key from{' '}
                             <a
                               href="https://unsplash.com/developers"
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-emerald-600 hover:text-emerald-700 underline"
+                              className="text-(--brand-primary) hover:text-(--brand-primary) underline"
                             >
                               unsplash.com/developers
                             </a>
                           </p>
                         </div>
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div className="bg-(--color-info-bg) border border-(--color-border) rounded-lg p-3">
                           <p className="text-sm text-blue-800">
                             <strong>How it works:</strong> When enabled, you can search and use free Unsplash images
                             directly when adding product images in the admin panel.
@@ -810,15 +810,15 @@ export default function AdminSettingsPage() {
             {activeSection === 'security' && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-gray-400" />
+                  <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-(--color-text-disabled)" />
                     Security & Maintenance
                   </h2>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
+                    <div className="flex items-center justify-between p-4 bg-(--color-error-bg) rounded-lg border border-(--color-border)">
                       <div>
-                        <p className="font-medium text-gray-900">Maintenance Mode</p>
-                        <p className="text-sm text-red-600">When enabled, customers will see a maintenance page</p>
+                        <p className="font-medium text-foreground">Maintenance Mode</p>
+                        <p className="text-sm text-(--color-error)">When enabled, customers will see a maintenance page</p>
                       </div>
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
@@ -828,27 +828,27 @@ export default function AdminSettingsPage() {
                           onChange={handleChange}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                        <div className="w-11 h-6 bg-(--color-border) peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-red-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-(--color-surface) after:border-(--color-border) after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-(--color-error)"></div>
                       </label>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h3 className="font-medium text-gray-900 mb-2">Admin Access</h3>
-                      <p className="text-sm text-gray-600 mb-3">Manage admin users and permissions in Supabase Dashboard.</p>
+                    <div className="bg-background rounded-lg p-4">
+                      <h3 className="font-medium text-foreground mb-2">Admin Access</h3>
+                      <p className="text-sm text-(--color-text-secondary) mb-3">Manage admin users and permissions in Supabase Dashboard.</p>
                       <a
                         href="https://supabase.com/dashboard"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                        className="text-sm text-(--brand-primary) hover:text-(--brand-primary) font-medium"
                       >
                         Open Supabase Dashboard →
                       </a>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      <h3 className="font-medium text-gray-900 mb-2">Hero Slides</h3>
-                      <p className="text-sm text-gray-600 mb-3">Manage homepage banner slides and promotions.</p>
+                    <div className="bg-background rounded-lg p-4">
+                      <h3 className="font-medium text-foreground mb-2">Hero Slides</h3>
+                      <p className="text-sm text-(--color-text-secondary) mb-3">Manage homepage banner slides and promotions.</p>
                       <a
                         href="/admin/hero-slides"
-                        className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                        className="text-sm text-(--brand-primary) hover:text-(--brand-primary) font-medium"
                       >
                         Manage Hero Slides →
                       </a>

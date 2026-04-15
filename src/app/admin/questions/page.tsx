@@ -92,11 +92,11 @@ export default function AdminQuestionsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <MessageCircleQuestion className="h-7 w-7 text-emerald-600" />
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <MessageCircleQuestion className="h-7 w-7 text-(--brand-primary)" />
               Product Q&A
             </h1>
-            <p className="text-gray-500 mt-1">
+            <p className="text-(--color-text-muted) mt-1">
               Manage customer questions and answers
             </p>
           </div>
@@ -104,15 +104,15 @@ export default function AdminQuestionsPage() {
 
         {/* Filters */}
         <div className="flex items-center gap-4">
-          <div className="flex bg-gray-100 rounded-lg p-1">
+          <div className="flex bg-(--color-elevated) rounded-lg p-1">
             {['pending', 'approved', 'answered', 'rejected'].map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   statusFilter === status
-                    ? 'bg-white shadow text-gray-900'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-(--color-surface) shadow text-foreground'
+                    : 'text-(--color-text-secondary) hover:text-foreground'
                 }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -121,13 +121,13 @@ export default function AdminQuestionsPage() {
           </div>
 
           <div className="flex-1 relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search questions..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
             />
           </div>
         </div>
@@ -135,59 +135,59 @@ export default function AdminQuestionsPage() {
         {/* Questions List */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
           </div>
         ) : filteredQuestions.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
-            <MessageCircleQuestion className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500">No questions found</p>
+          <div className="text-center py-12 bg-background rounded-xl">
+            <MessageCircleQuestion className="h-12 w-12 mx-auto text-(--color-text-disabled) mb-4" />
+            <p className="text-(--color-text-muted)">No questions found</p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-(--color-surface) rounded-xl shadow-sm border border-(--color-border) overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-background border-b">
                 <tr>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Question
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Product
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Customer
                   </th>
-                  <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-center px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Answers
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-right px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-(--color-border)">
                 {filteredQuestions.map((question) => (
-                  <tr key={question.id} className="hover:bg-gray-50">
+                  <tr key={question.id} className="hover:bg-background">
                     <td className="px-6 py-4">
-                      <p className="text-gray-900 line-clamp-2">{question.question}</p>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-foreground line-clamp-2">{question.question}</p>
+                      <p className="text-xs text-(--color-text-muted) mt-1">
                         {formatDistanceToNow(new Date(question.created_at))} ago
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-gray-700 line-clamp-1">
+                      <p className="text-sm text-foreground line-clamp-1">
                         {question.product.name}
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-gray-700">
+                      <p className="text-sm text-foreground">
                         {question.user?.full_name || question.guest_name || 'Anonymous'}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-(--color-text-muted)">
                         {question.user?.email || question.guest_email}
                       </p>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <span className="inline-flex items-center gap-1 text-sm text-gray-600">
+                      <span className="inline-flex items-center gap-1 text-sm text-(--color-text-secondary)">
                         <MessageSquare className="h-4 w-4" />
                         {question.answers.length}
                       </span>
@@ -198,14 +198,14 @@ export default function AdminQuestionsPage() {
                           <>
                             <button
                               onClick={() => updateQuestion(question.id, { status: 'approved' })}
-                              className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded"
+                              className="p-1.5 text-(--brand-primary) hover:bg-(--brand-primary-light) rounded"
                               title="Approve"
                             >
                               <Check className="h-4 w-4" />
                             </button>
                             <button
                               onClick={() => updateQuestion(question.id, { status: 'rejected' })}
-                              className="p-1.5 text-red-600 hover:bg-red-50 rounded"
+                              className="p-1.5 text-(--color-error) hover:bg-(--color-error-bg) rounded"
                               title="Reject"
                             >
                               <X className="h-4 w-4" />
@@ -216,8 +216,8 @@ export default function AdminQuestionsPage() {
                           onClick={() => updateQuestion(question.id, { is_featured: !question.is_featured })}
                           className={`p-1.5 rounded ${
                             question.is_featured
-                              ? 'text-amber-500 bg-amber-50'
-                              : 'text-gray-400 hover:bg-gray-100'
+                              ? 'text-(--brand-amber) bg-(--brand-amber-soft)'
+                              : 'text-(--color-text-disabled) hover:bg-(--color-elevated)'
                           }`}
                           title="Feature"
                         >
@@ -225,7 +225,7 @@ export default function AdminQuestionsPage() {
                         </button>
                         <button
                           onClick={() => deleteQuestion(question.id)}
-                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded"
+                          className="p-1.5 text-(--color-text-disabled) hover:text-(--color-error) hover:bg-(--color-error-bg) rounded"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />

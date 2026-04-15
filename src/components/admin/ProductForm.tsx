@@ -183,12 +183,12 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
       )}
 
       {/* Basic Info */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
+      <div className="bg-(--color-surface) rounded-lg shadow p-6 mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">Basic Information</h2>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Product Name *
             </label>
             <input
@@ -197,14 +197,14 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               value={formData.name}
               onChange={handleChange}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
               placeholder="e.g., Organic Bananas"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 URL Slug *
               </label>
               <input
@@ -213,12 +213,12 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
                 value={formData.slug}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
                 placeholder="organic-bananas"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Brand
               </label>
               <input
@@ -226,14 +226,14 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
                 name="brand"
                 value={formData.brand}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
                 placeholder="e.g., Fresh Farm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Short Description
             </label>
             <input
@@ -241,13 +241,13 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               name="short_description"
               value={formData.short_description}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
               placeholder="Brief product description"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Full Description
             </label>
             <textarea
@@ -255,7 +255,7 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               value={formData.description}
               onChange={handleChange}
               rows={4}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
               placeholder="Detailed product description..."
             />
           </div>
@@ -263,16 +263,16 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
       </div>
 
       {/* Pricing */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Pricing</h2>
+      <div className="bg-(--color-surface) rounded-lg shadow p-6 mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">Pricing</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Price (GBP) *
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-2 text-gray-500">£</span>
+              <span className="absolute left-3 top-2 text-(--color-text-muted)">£</span>
               <input
                 type="number"
                 value={penceToPounds(formData.price_pence)}
@@ -280,41 +280,41 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
                 required
                 min="0"
                 step="0.01"
-                className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full pl-8 pr-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
                 placeholder="0.00"
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Compare at Price
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-2 text-gray-500">£</span>
+              <span className="absolute left-3 top-2 text-(--color-text-muted)">£</span>
               <input
                 type="number"
                 value={penceToPounds(formData.compare_at_price_pence)}
                 onChange={(e) => setFormData(prev => ({ ...prev, compare_at_price_pence: e.target.value ? poundsToPence(e.target.value) : null }))}
                 min="0"
                 step="0.01"
-                className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full pl-8 pr-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
                 placeholder="0.00"
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Cost Price
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-2 text-gray-500">£</span>
+              <span className="absolute left-3 top-2 text-(--color-text-muted)">£</span>
               <input
                 type="number"
                 value={penceToPounds(formData.cost_price_pence)}
                 onChange={(e) => setFormData(prev => ({ ...prev, cost_price_pence: e.target.value ? poundsToPence(e.target.value) : null }))}
                 min="0"
                 step="0.01"
-                className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                className="w-full pl-8 pr-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
                 placeholder="0.00"
               />
             </div>
@@ -323,12 +323,12 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
       </div>
 
       {/* Inventory */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Inventory</h2>
+      <div className="bg-(--color-surface) rounded-lg shadow p-6 mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">Inventory</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               SKU
             </label>
             <input
@@ -336,12 +336,12 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               name="sku"
               value={formData.sku}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
               placeholder="e.g., ORG-BAN-001"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Barcode
             </label>
             <input
@@ -349,7 +349,7 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               name="barcode"
               value={formData.barcode}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
               placeholder="e.g., 5012345678901"
             />
           </div>
@@ -357,7 +357,7 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Stock Quantity
             </label>
             <input
@@ -366,11 +366,11 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               value={formData.stock_quantity}
               onChange={handleChange}
               min="0"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Low Stock Threshold
             </label>
             <input
@@ -379,18 +379,18 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               value={formData.low_stock_threshold}
               onChange={handleChange}
               min="0"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
               Unit
             </label>
             <select
               name="unit"
               value={formData.unit}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-(--color-border) rounded-lg focus:outline-none focus:ring-2 focus:ring-(--brand-primary) focus:border-transparent"
             >
               {UNITS.map((unit) => (
                 <option key={unit} value={unit}>
@@ -408,9 +408,9 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               name="track_inventory"
               checked={formData.track_inventory}
               onChange={handleChange}
-              className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
             />
-            <span className="text-sm text-gray-700">Track inventory</span>
+            <span className="text-sm text-foreground">Track inventory</span>
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -418,16 +418,16 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               name="allow_backorder"
               checked={formData.allow_backorder}
               onChange={handleChange}
-              className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
             />
-            <span className="text-sm text-gray-700">Allow backorders</span>
+            <span className="text-sm text-foreground">Allow backorders</span>
           </label>
         </div>
       </div>
 
       {/* Dietary Info */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Dietary Information</h2>
+      <div className="bg-(--color-surface) rounded-lg shadow p-6 mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">Dietary Information</h2>
 
         <div className="flex flex-wrap gap-6">
           <label className="flex items-center gap-2">
@@ -436,9 +436,9 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               name="is_vegan"
               checked={formData.is_vegan}
               onChange={handleChange}
-              className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
             />
-            <span className="text-sm text-gray-700">Vegan</span>
+            <span className="text-sm text-foreground">Vegan</span>
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -446,9 +446,9 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               name="is_vegetarian"
               checked={formData.is_vegetarian}
               onChange={handleChange}
-              className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
             />
-            <span className="text-sm text-gray-700">Vegetarian</span>
+            <span className="text-sm text-foreground">Vegetarian</span>
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -456,9 +456,9 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               name="is_gluten_free"
               checked={formData.is_gluten_free}
               onChange={handleChange}
-              className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
             />
-            <span className="text-sm text-gray-700">Gluten Free</span>
+            <span className="text-sm text-foreground">Gluten Free</span>
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -466,16 +466,16 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               name="is_organic"
               checked={formData.is_organic}
               onChange={handleChange}
-              className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
             />
-            <span className="text-sm text-gray-700">Organic</span>
+            <span className="text-sm text-foreground">Organic</span>
           </label>
         </div>
       </div>
 
       {/* Images */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Images</h2>
+      <div className="bg-(--color-surface) rounded-lg shadow p-6 mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">Images</h2>
         <ImageUploader
           images={formData.images}
           onChange={handleImagesChange}
@@ -484,8 +484,8 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
       </div>
 
       {/* Status */}
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Status</h2>
+      <div className="bg-(--color-surface) rounded-lg shadow p-6 mb-6">
+        <h2 className="text-lg font-semibold text-foreground mb-4">Status</h2>
 
         <div className="flex flex-wrap gap-6">
           <label className="flex items-center gap-2">
@@ -494,9 +494,9 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               name="is_active"
               checked={formData.is_active}
               onChange={handleChange}
-              className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
             />
-            <span className="text-sm text-gray-700">Active (visible on website)</span>
+            <span className="text-sm text-foreground">Active (visible on website)</span>
           </label>
           <label className="flex items-center gap-2">
             <input
@@ -504,9 +504,9 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
               name="is_featured"
               checked={formData.is_featured}
               onChange={handleChange}
-              className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+              className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
             />
-            <span className="text-sm text-gray-700">Featured product</span>
+            <span className="text-sm text-foreground">Featured product</span>
           </label>
         </div>
       </div>
@@ -516,7 +516,7 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="px-6 py-3 bg-(--brand-primary) text-white rounded-lg font-medium hover:bg-(--brand-primary-hover) transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {loading && <Loader2 size={18} className="animate-spin" />}
           {isEditing ? 'Update Product' : 'Add Product'}
@@ -524,7 +524,7 @@ export default function ProductForm({ product, isEditing = false }: ProductFormP
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+          className="px-6 py-3 border border-(--color-border) text-foreground rounded-lg font-medium hover:bg-background transition-colors"
         >
           Cancel
         </button>

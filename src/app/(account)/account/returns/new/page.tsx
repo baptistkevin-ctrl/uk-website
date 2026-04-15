@@ -152,8 +152,8 @@ export default function NewReturnPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-green-500" />
+      <div className="flex items-center justify-center min-h-100">
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -161,19 +161,19 @@ export default function NewReturnPage() {
   if (success) {
     return (
       <div className="max-w-lg mx-auto text-center space-y-4 py-12">
-        <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-        <h2 className="text-2xl font-bold text-gray-900">Return Request Submitted</h2>
-        <p className="text-gray-500">
+        <CheckCircle className="h-16 w-16 text-(--brand-primary) mx-auto" />
+        <h2 className="text-2xl font-bold text-foreground">Return Request Submitted</h2>
+        <p className="text-(--color-text-muted)">
           We&apos;ve received your return request and will review it within 1-2 business days.
           You&apos;ll receive an email with further instructions.
         </p>
         <div className="flex gap-3 justify-center pt-4">
-          <Button asChild>
-            <Link href="/account/returns">View My Returns</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/account/orders">Back to Orders</Link>
-          </Button>
+          <Link href="/account/returns">
+            <Button>View My Returns</Button>
+          </Link>
+          <Link href="/account/orders">
+            <Button variant="outline">Back to Orders</Button>
+          </Link>
         </div>
       </div>
     )
@@ -182,11 +182,11 @@ export default function NewReturnPage() {
   if (!orderId) {
     return (
       <div className="text-center py-12">
-        <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-3" />
-        <p className="text-gray-600 mb-4">No order specified. Please start a return from your order details page.</p>
-        <Button asChild>
-          <Link href="/account/orders">Go to Orders</Link>
-        </Button>
+        <AlertTriangle className="h-12 w-12 text-(--brand-amber) mx-auto mb-3" />
+        <p className="text-(--color-text-secondary) mb-4">No order specified. Please start a return from your order details page.</p>
+        <Link href="/account/orders">
+          <Button>Go to Orders</Button>
+        </Link>
       </div>
     )
   }
@@ -194,11 +194,11 @@ export default function NewReturnPage() {
   if (!order) {
     return (
       <div className="text-center py-12">
-        <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-3" />
-        <p className="text-gray-600 mb-4">{error || 'Order not found'}</p>
-        <Button asChild>
-          <Link href="/account/orders">Go to Orders</Link>
-        </Button>
+        <AlertTriangle className="h-12 w-12 text-(--color-error) mx-auto mb-3" />
+        <p className="text-(--color-text-secondary) mb-4">{error || 'Order not found'}</p>
+        <Link href="/account/orders">
+          <Button>Go to Orders</Button>
+        </Link>
       </div>
     )
   }
@@ -207,22 +207,22 @@ export default function NewReturnPage() {
     <div className="space-y-6 max-w-2xl">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={`/account/orders/${orderId}`}>
+        <Link href={`/account/orders/${orderId}`}>
+          <Button variant="ghost" size="icon">
             <ArrowLeft className="h-5 w-5" />
-          </Link>
-        </Button>
+          </Button>
+        </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Request Return</h1>
-          <p className="text-gray-500">Order {order.order_number}</p>
+          <h1 className="text-2xl font-bold text-foreground">Request Return</h1>
+          <p className="text-(--color-text-muted)">Order {order.order_number}</p>
         </div>
       </div>
 
       {error && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-(--color-error)/20 bg-(--color-error-bg)">
           <CardContent className="p-4 flex gap-3">
-            <AlertTriangle className="h-5 w-5 text-red-600 shrink-0" />
-            <p className="text-sm text-red-800">{error}</p>
+            <AlertTriangle className="h-5 w-5 text-(--color-error) shrink-0" />
+            <p className="text-sm text-(--color-error)">{error}</p>
           </CardContent>
         </Card>
       )}
@@ -239,27 +239,27 @@ export default function NewReturnPage() {
               <div
                 key={item.id}
                 className={`flex items-center gap-4 p-3 rounded-lg border cursor-pointer transition-colors ${
-                  isSelected ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'
+                  isSelected ? 'border-(--brand-primary) bg-(--brand-primary-light)' : 'border-(--color-border) hover:border-(--color-border)'
                 }`}
                 onClick={() => toggleItem(item.id, item.quantity)}
               >
                 <div className="w-5 h-5 rounded border flex items-center justify-center shrink-0">
-                  {isSelected && <CheckCircle className="h-5 w-5 text-green-600" />}
+                  {isSelected && <CheckCircle className="h-5 w-5 text-(--brand-primary)" />}
                 </div>
-                <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
+                <div className="w-12 h-12 bg-(--color-elevated) rounded flex items-center justify-center overflow-hidden">
                   {item.product?.image_url ? (
                     <img src={item.product.image_url} alt="" className="w-full h-full object-cover" />
                   ) : (
-                    <Package className="h-6 w-6 text-gray-400" />
+                    <Package className="h-6 w-6 text-(--color-text-disabled)" />
                   )}
                 </div>
                 <div className="flex-1">
                   <p className="font-medium text-sm">{item.product?.name || item.product_name}</p>
-                  <p className="text-xs text-gray-500">{formatPrice(item.unit_price_pence)} each</p>
+                  <p className="text-xs text-(--color-text-muted)">{formatPrice(item.unit_price_pence)} each</p>
                 </div>
                 {isSelected && item.quantity > 1 && (
                   <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                    <Label className="text-xs text-gray-500">Qty:</Label>
+                    <Label className="text-xs text-(--color-text-muted)">Qty:</Label>
                     <select
                       className="border rounded px-2 py-1 text-sm"
                       value={selectedItems[item.id]}
@@ -289,8 +289,8 @@ export default function NewReturnPage() {
                 key={r.value}
                 className={`text-left p-3 rounded-lg border text-sm transition-colors ${
                   reason === r.value
-                    ? 'border-green-500 bg-green-50 text-green-800'
-                    : 'border-gray-200 hover:border-gray-300 text-gray-700'
+                    ? 'border-(--brand-primary) bg-(--brand-primary-light) text-(--brand-primary)'
+                    : 'border-(--color-border) hover:border-(--color-border) text-(--color-text-secondary)'
                 }`}
                 onClick={() => setReason(r.value)}
               >
@@ -299,9 +299,9 @@ export default function NewReturnPage() {
             ))}
           </div>
           <div>
-            <Label className="text-sm text-gray-600">Additional details (optional)</Label>
+            <Label className="text-sm text-(--color-text-secondary)">Additional details (optional)</Label>
             <textarea
-              className="w-full mt-1 rounded-lg border border-gray-200 p-3 text-sm min-h-[80px]"
+              className="w-full mt-1 rounded-lg border border-(--color-border) p-3 text-sm min-h-20"
               placeholder="Please describe the issue..."
               value={reasonDetails}
               onChange={(e) => setReasonDetails(e.target.value)}
@@ -321,7 +321,7 @@ export default function NewReturnPage() {
             <label
               key={m.value}
               className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                refundMethod === m.value ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-gray-300'
+                refundMethod === m.value ? 'border-(--brand-primary) bg-(--brand-primary-light)' : 'border-(--color-border) hover:border-(--color-border)'
               }`}
             >
               <input
@@ -330,7 +330,7 @@ export default function NewReturnPage() {
                 value={m.value}
                 checked={refundMethod === m.value}
                 onChange={() => setRefundMethod(m.value)}
-                className="accent-green-600"
+                className="accent-(--brand-primary)"
               />
               <span className="text-sm">{m.label}</span>
             </label>
@@ -339,15 +339,15 @@ export default function NewReturnPage() {
       </Card>
 
       {/* Summary & Submit */}
-      <Card className="border-green-200">
+      <Card className="border-(--brand-primary)/20">
         <CardContent className="p-4 space-y-3">
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Items selected</span>
+            <span className="text-(--color-text-muted)">Items selected</span>
             <span className="font-medium">{selectedCount}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-500">Estimated refund</span>
-            <span className="font-medium text-green-700">{formatPrice(estimatedRefund)}</span>
+            <span className="text-(--color-text-muted)">Estimated refund</span>
+            <span className="font-medium text-(--brand-primary)">{formatPrice(estimatedRefund)}</span>
           </div>
           <Button
             className="w-full"
@@ -361,7 +361,7 @@ export default function NewReturnPage() {
             )}
             Submit Return Request
           </Button>
-          <p className="text-xs text-gray-400 text-center">
+          <p className="text-xs text-(--color-text-disabled) text-center">
             Returns are typically processed within 3-5 business days after items are received.
           </p>
         </CardContent>

@@ -108,7 +108,7 @@ export default function SharedWishlistPage() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-(--brand-primary)"></div>
       </div>
     )
   }
@@ -117,14 +117,14 @@ export default function SharedWishlistPage() {
     return (
       <div className="min-h-[60vh] flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Heart className="h-8 w-8 text-gray-400" />
+          <div className="w-16 h-16 bg-(--color-elevated) rounded-full flex items-center justify-center mx-auto mb-4">
+            <Heart className="h-8 w-8 text-(--color-text-disabled)" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Wishlist Not Found</h1>
-          <p className="text-gray-600 mb-6">{error || 'This wishlist may be private or no longer exists.'}</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">Wishlist Not Found</h1>
+          <p className="text-(--color-text-secondary) mb-6">{error || 'This wishlist may be private or no longer exists.'}</p>
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover)"
           >
             <ArrowLeft className="h-4 w-4" />
             Browse Products
@@ -142,7 +142,7 @@ export default function SharedWishlistPage() {
       <div className="mb-8">
         <Link
           href="/products"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4"
+          className="inline-flex items-center gap-2 text-(--color-text-secondary) hover:text-foreground mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
           Continue Shopping
@@ -150,7 +150,7 @@ export default function SharedWishlistPage() {
 
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-(--color-error-bg) rounded-full flex items-center justify-center">
               {wishlist.user?.avatar_url ? (
                 <Image
                   src={wishlist.user.avatar_url}
@@ -160,15 +160,15 @@ export default function SharedWishlistPage() {
                   className="rounded-full"
                 />
               ) : (
-                <User className="h-6 w-6 text-pink-600" />
+                <User className="h-6 w-6 text-(--color-error)" />
               )}
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <Heart className="h-6 w-6 text-pink-600" />
+              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                <Heart className="h-6 w-6 text-(--color-error)" />
                 {wishlist.name}
               </h1>
-              <p className="text-gray-500">
+              <p className="text-(--color-text-muted)">
                 by {wishlist.user?.full_name || 'Someone'} • {validItems.length} items
               </p>
             </div>
@@ -176,7 +176,7 @@ export default function SharedWishlistPage() {
 
           <button
             onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+            className="flex items-center gap-2 px-4 py-2.5 bg-(--color-elevated) text-(--color-text-secondary) rounded-lg hover:bg-(--color-border)"
           >
             <Share2 className="h-4 w-4" />
             {copied ? 'Link Copied!' : 'Share'}
@@ -186,9 +186,9 @@ export default function SharedWishlistPage() {
 
       {/* Items Grid */}
       {validItems.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-xl">
-          <Heart className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">This wishlist is empty</p>
+        <div className="text-center py-12 bg-background rounded-xl">
+          <Heart className="h-16 w-16 text-(--color-text-disabled) mx-auto mb-4" />
+          <p className="text-(--color-text-muted)">This wishlist is empty</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -199,7 +199,7 @@ export default function SharedWishlistPage() {
             const isOutOfStock = product.stock_quantity <= 0
 
             return (
-              <div key={item.id} className="bg-white rounded-xl border overflow-hidden group">
+              <div key={item.id} className="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden group">
                 <Link href={`/products/${product.slug}`} className="block relative aspect-square">
                   {product.image_url ? (
                     <Image
@@ -209,18 +209,18 @@ export default function SharedWishlistPage() {
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                      <ShoppingCart className="h-12 w-12 text-gray-300" />
+                    <div className="w-full h-full bg-(--color-elevated) flex items-center justify-center">
+                      <ShoppingCart className="h-16 w-16 text-(--color-text-disabled)" />
                     </div>
                   )}
                   {hasPriceDrop && (
-                    <div className="absolute top-2 left-2 px-2 py-1 bg-green-600 text-white text-xs font-medium rounded">
+                    <div className="absolute top-2 left-2 px-2 py-1 bg-(--brand-primary) text-white text-xs font-medium rounded">
                       Price Drop!
                     </div>
                   )}
                   {isOutOfStock && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <span className="px-3 py-1 bg-white text-gray-900 text-sm font-medium rounded">
+                      <span className="px-3 py-1 bg-(--color-surface) text-foreground text-sm font-medium rounded">
                         Out of Stock
                       </span>
                     </div>
@@ -229,24 +229,24 @@ export default function SharedWishlistPage() {
 
                 <div className="p-4">
                   <Link href={`/products/${product.slug}`}>
-                    <h3 className="font-medium text-gray-900 line-clamp-2 group-hover:text-green-600">
+                    <h3 className="font-medium text-foreground line-clamp-2 group-hover:text-(--brand-primary)">
                       {product.name}
                     </h3>
                   </Link>
 
                   <div className="mt-2 flex items-center gap-2">
-                    <span className="font-bold text-gray-900">
+                    <span className="font-bold text-foreground">
                       {formatPrice(product.price_pence)}
                     </span>
                     {hasDiscount && (
-                      <span className="text-sm text-gray-500 line-through">
+                      <span className="text-sm text-(--color-text-muted) line-through">
                         {formatPrice(product.compare_at_price_pence!)}
                       </span>
                     )}
                   </div>
 
                   {hasPriceDrop && (
-                    <p className="text-xs text-green-600 mt-1">
+                    <p className="text-xs text-(--brand-primary) mt-1">
                       Was {formatPrice(item.added_price_pence!)} when added
                     </p>
                   )}
@@ -255,16 +255,16 @@ export default function SharedWishlistPage() {
                     <button
                       onClick={() => handleAddToCart(product)}
                       disabled={isOutOfStock}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover) disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     >
                       <ShoppingCart className="h-4 w-4" />
                       Add to Cart
                     </button>
                     <Link
                       href={`/products/${product.slug}`}
-                      className="p-2 border rounded-lg hover:bg-gray-50"
+                      className="p-2 border border-(--color-border) rounded-lg hover:bg-background"
                     >
-                      <ExternalLink className="h-4 w-4 text-gray-600" />
+                      <ExternalLink className="h-4 w-4 text-(--color-text-secondary)" />
                     </Link>
                   </div>
                 </div>

@@ -75,12 +75,12 @@ export default function AdminInvoicesPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'paid': return 'bg-emerald-100 text-emerald-700'
-      case 'pending': return 'bg-amber-100 text-amber-700'
-      case 'issued': return 'bg-blue-100 text-blue-700'
-      case 'cancelled': return 'bg-red-100 text-red-700'
-      case 'overdue': return 'bg-red-100 text-red-700'
-      default: return 'bg-gray-100 text-gray-700'
+      case 'paid': return 'bg-(--brand-primary-light) text-(--brand-primary)'
+      case 'pending': return 'bg-(--brand-amber-soft) text-(--brand-amber)'
+      case 'issued': return 'bg-(--color-info-bg) text-(--color-info)'
+      case 'cancelled': return 'bg-(--color-error-bg) text-(--color-error)'
+      case 'overdue': return 'bg-(--color-error-bg) text-(--color-error)'
+      default: return 'bg-(--color-elevated) text-foreground'
     }
   }
 
@@ -90,11 +90,11 @@ export default function AdminInvoicesPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <FileText className="h-7 w-7 text-emerald-600" />
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <FileText className="h-7 w-7 text-(--brand-primary)" />
               Invoices
             </h1>
-            <p className="text-gray-500 mt-1">
+            <p className="text-(--color-text-muted) mt-1">
               Manage customer invoices and billing
             </p>
           </div>
@@ -103,58 +103,58 @@ export default function AdminInvoicesPage() {
         {/* Stats */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <FileText className="h-5 w-5 text-emerald-600" />
+                <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center">
+                  <FileText className="h-5 w-5 text-(--brand-primary)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total Invoices</p>
-                  <p className="text-xl font-bold text-gray-900">{stats.total_invoices}</p>
+                  <p className="text-sm text-(--color-text-muted)">Total Invoices</p>
+                  <p className="text-xl font-bold text-foreground">{stats.total_invoices}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 text-blue-600" />
+                <div className="w-10 h-10 bg-(--color-info-bg) rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-(--color-info)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total Value</p>
-                  <p className="text-xl font-bold text-gray-900">{formatPrice(stats.total_value_pence)}</p>
+                  <p className="text-sm text-(--color-text-muted)">Total Value</p>
+                  <p className="text-xl font-bold text-foreground">{formatPrice(stats.total_value_pence)}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="h-5 w-5 text-emerald-600" />
+                <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center">
+                  <CheckCircle className="h-5 w-5 text-(--brand-primary)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Paid</p>
-                  <p className="text-xl font-bold text-gray-900">{stats.paid_count}</p>
+                  <p className="text-sm text-(--color-text-muted)">Paid</p>
+                  <p className="text-xl font-bold text-foreground">{stats.paid_count}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 text-purple-600" />
+                <div className="w-10 h-10 bg-(--color-info-bg) rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-(--color-info)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Paid Value</p>
-                  <p className="text-xl font-bold text-gray-900">{formatPrice(stats.paid_value_pence)}</p>
+                  <p className="text-sm text-(--color-text-muted)">Paid Value</p>
+                  <p className="text-xl font-bold text-foreground">{formatPrice(stats.paid_value_pence)}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-amber-600" />
+                <div className="w-10 h-10 bg-(--brand-amber-soft) rounded-lg flex items-center justify-center">
+                  <Clock className="h-5 w-5 text-(--brand-amber)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Pending</p>
-                  <p className="text-xl font-bold text-gray-900">{stats.pending_count}</p>
+                  <p className="text-sm text-(--color-text-muted)">Pending</p>
+                  <p className="text-xl font-bold text-foreground">{stats.pending_count}</p>
                 </div>
               </div>
             </div>
@@ -163,15 +163,15 @@ export default function AdminInvoicesPage() {
 
         {/* Filters */}
         <div className="flex items-center gap-4">
-          <div className="flex bg-gray-100 rounded-lg p-1">
+          <div className="flex bg-(--color-elevated) rounded-lg p-1">
             {['all', 'paid', 'pending', 'issued', 'cancelled'].map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   statusFilter === status
-                    ? 'bg-white shadow text-gray-900'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-(--color-surface) shadow text-foreground'
+                    : 'text-(--color-text-secondary) hover:text-foreground'
                 }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -180,13 +180,13 @@ export default function AdminInvoicesPage() {
           </div>
 
           <div className="flex-1 relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by invoice number or customer..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
             />
           </div>
         </div>
@@ -194,65 +194,65 @@ export default function AdminInvoicesPage() {
         {/* Invoices List */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
           </div>
         ) : filteredInvoices.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
-            <FileText className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500">No invoices found</p>
+          <div className="text-center py-12 bg-background rounded-xl">
+            <FileText className="h-12 w-12 mx-auto text-(--color-text-disabled) mb-4" />
+            <p className="text-(--color-text-muted)">No invoices found</p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-(--color-surface) rounded-xl shadow-sm border border-(--color-border) overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-background border-b">
                 <tr>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Invoice
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Customer
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Order
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-right px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Amount
                   </th>
-                  <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-center px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Status
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Date
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-right px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-(--color-border)">
                 {filteredInvoices.map((invoice) => (
-                  <tr key={invoice.id} className="hover:bg-gray-50">
+                  <tr key={invoice.id} className="hover:bg-background">
                     <td className="px-6 py-4">
-                      <p className="font-mono text-sm font-medium text-gray-900">
+                      <p className="font-mono text-sm font-medium text-foreground">
                         {invoice.invoice_number}
                       </p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-foreground">
                         {invoice.billing_name}
                       </p>
-                      <p className="text-xs text-gray-500">{invoice.billing_email}</p>
+                      <p className="text-xs text-(--color-text-muted)">{invoice.billing_email}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-gray-700">
+                      <p className="text-sm text-foreground">
                         {invoice.order?.order_number || '-'}
                       </p>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <span className="font-medium text-gray-900">
+                      <span className="font-medium text-foreground">
                         {formatPrice(invoice.total_pence)}
                       </span>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-(--color-text-muted)">
                         VAT: {formatPrice(invoice.vat_amount_pence)}
                       </p>
                     </td>
@@ -262,11 +262,11 @@ export default function AdminInvoicesPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-(--color-text-secondary)">
                         {format(new Date(invoice.issue_date), 'dd MMM yyyy')}
                       </span>
                       {invoice.paid_date && (
-                        <p className="text-xs text-emerald-600">
+                        <p className="text-xs text-(--brand-primary)">
                           Paid {formatDistanceToNow(new Date(invoice.paid_date))} ago
                         </p>
                       )}
@@ -275,14 +275,14 @@ export default function AdminInvoicesPage() {
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/account/invoices/${invoice.id}`}
-                          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded"
+                          className="p-1.5 text-(--color-text-secondary) hover:bg-(--color-elevated) rounded"
                           title="View invoice"
                         >
                           <Eye className="h-4 w-4" />
                         </Link>
                         <Link
                           href={`/account/invoices/${invoice.id}`}
-                          className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded"
+                          className="p-1.5 text-(--brand-primary) hover:bg-(--brand-primary-light) rounded"
                           title="Download PDF"
                         >
                           <Download className="h-4 w-4" />

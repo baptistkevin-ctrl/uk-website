@@ -1,18 +1,12 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import {
-  ChevronRight,
-  Grid3X3,
-  Sparkles,
-  Package,
-  ArrowRight,
-  ShoppingBasket,
-  Filter
-} from 'lucide-react'
+import { Package, ArrowRight } from 'lucide-react'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { ProductCard } from '@/components/products/product-card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { Container } from '@/components/layout/Container'
+import { Breadcrumb } from '@/components/ui/Breadcrumb'
+import { CategoryHeroBanner } from '@/components/product/CategoryHeroBanner'
+import { SubcategoryPills } from '@/components/product/SubcategoryPills'
 import type { Metadata } from 'next'
 
 // ISR: revalidate category product pages every 2 minutes
@@ -101,152 +95,123 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     parentCategory = data
   }
 
+  // Build breadcrumb items
+  const breadcrumbItems: { label: string; href?: string }[] = [
+    { label: 'Home', href: '/' },
+    { label: 'Categories', href: '/categories' },
+  ]
+
+  if (parentCategory) {
+    breadcrumbItems.push({
+      label: parentCategory.name,
+      href: `/categories/${parentCategory.slug}`,
+    })
+  }
+
+  breadcrumbItems.push({ label: category.name })
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
-      {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-green-500 via-green-600 to-teal-800 overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,_white_1px,_transparent_1px)] bg-[size:20px_20px]" />
+    <div className="min-h-screen bg-background">
+      <Container size="xl">
+        {/* Breadcrumb */}
+        <div className="pt-4 pb-2">
+          <Breadcrumb items={breadcrumbItems} />
+        </div>
+      </Container>
 
-        {/* Floating Elements */}
-        <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl" />
-        <div className="absolute bottom-10 right-10 w-32 h-32 bg-teal-400/20 rounded-full blur-2xl" />
+      {/* Category Hero Banner */}
+      <CategoryHeroBanner
+        name={category.name}
+        description={category.description}
+        itemCount={products.length}
+        imageUrl={category.image_url}
+      />
 
-        <div className="container mx-auto px-4 py-12 lg:py-16 relative">
-          {/* Breadcrumb */}
-          <nav className="mb-6">
-            <ol className="flex items-center gap-2 text-sm">
-              <li>
-                <Link href="/" className="text-green-200 hover:text-white transition-colors">
-                  Home
-                </Link>
-              </li>
-              <ChevronRight className="h-4 w-4 text-emerald-300" />
-              <li>
-                <Link href="/categories" className="text-green-200 hover:text-white transition-colors">
-                  Categories
-                </Link>
-              </li>
-              {parentCategory && (
-                <>
-                  <ChevronRight className="h-4 w-4 text-emerald-300" />
-                  <li>
-                    <Link
-                      href={`/categories/${parentCategory.slug}`}
-                      className="text-green-200 hover:text-white transition-colors"
-                    >
-                      {parentCategory.name}
-                    </Link>
-                  </li>
-                </>
-              )}
-              <ChevronRight className="h-4 w-4 text-emerald-300" />
-              <li className="text-white font-medium">{category.name}</li>
-            </ol>
-          </nav>
+      <Container size="xl" className="py-6 lg:py-8">
+        {/* Subcategory Pills */}
+        {subcategories && subcategories.length > 0 && (
+          <div className="mb-6 lg:mb-8">
+            <SubcategoryPills
+              items={subcategories}
+              basePath="/categories"
+            />
+          </div>
+        )}
 
-          <div className="max-w-3xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                <Grid3X3 className="h-6 w-6 text-white" />
-              </div>
-              <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
-                <Sparkles className="h-3 w-3 mr-1" />
-                {products.length} Products
-              </Badge>
-            </div>
-
-            <h1 className="text-3xl lg:text-5xl font-bold text-white mb-4">
-              {category.name}
-            </h1>
-            {category.description && (
-              <p className="text-lg text-green-100 max-w-2xl">
-                {category.description}
+        {/* Main Content — 2-column layout */}
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+          {/* Filter Sidebar — desktop only */}
+          <aside className="hidden lg:block w-65 shrink-0">
+            <div
+              className="rounded-xl bg-(--color-surface) border border-(--color-border) p-5 sticky top-24"
+            >
+              <h3 className="text-sm font-semibold text-foreground mb-3">
+                Filters
+              </h3>
+              <p className="text-sm text-(--color-text-muted)">
+                Filters coming soon
               </p>
+            </div>
+          </aside>
+
+          {/* Right Content */}
+          <div className="flex-1 min-w-0">
+            {products.length > 0 ? (
+              <>
+                {/* Toolbar */}
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm text-(--color-text-muted)">
+                    Showing{' '}
+                    <span className="font-semibold text-foreground">
+                      {products.length}
+                    </span>{' '}
+                    {products.length === 1 ? 'product' : 'products'}
+                  </p>
+
+                  <select
+                    className="text-sm bg-(--color-surface) border border-(--color-border) rounded-lg px-3 py-2.5 text-(--color-text-secondary) focus:outline-none focus:ring-2 focus:ring-(--brand-primary)/30"
+                    defaultValue="name"
+                  >
+                    <option value="name">Sort by: Name</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="newest">Newest First</option>
+                    <option value="popular">Most Popular</option>
+                  </select>
+                </div>
+
+                {/* Product Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-4">
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </>
+            ) : (
+              /* Empty State */
+              <div className="text-center py-16 rounded-2xl bg-(--color-surface) border border-(--color-border)">
+                <div className="w-20 h-20 bg-(--color-elevated) rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Package className="h-10 w-10 text-(--color-text-muted)" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  No products yet
+                </h3>
+                <p className="text-(--color-text-muted) mb-6 max-w-sm mx-auto text-sm">
+                  We&apos;re still stocking up this category. Check back soon or
+                  browse our other products.
+                </p>
+                <Link
+                  href="/products"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-(--brand-primary) text-white font-medium text-sm hover:bg-(--brand-dark) transition-colors"
+                >
+                  Browse All Products
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             )}
           </div>
         </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Subcategories */}
-        {subcategories && subcategories.length > 0 && (
-          <div className="mb-10">
-            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Filter className="h-5 w-5 text-green-500" />
-              Subcategories
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              {subcategories.map((sub) => (
-                <Link
-                  key={sub.id}
-                  href={`/categories/${sub.slug}`}
-                  className="group"
-                >
-                  <div className="px-5 py-3 bg-white border-2 border-slate-100 hover:border-green-200 rounded-xl text-sm font-medium text-gray-700 hover:text-green-600 transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md">
-                    <ShoppingBasket className="h-4 w-4 text-gray-400 group-hover:text-green-400" />
-                    {sub.name}
-                    <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-green-400 group-hover:translate-x-0.5 transition-transform" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Products */}
-        {products.length > 0 ? (
-          <>
-            {/* Results count */}
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-sm text-gray-600">
-                Showing <span className="font-semibold text-gray-900">{products.length}</span> products in {category.name}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="text-center py-16 bg-white rounded-2xl border border-slate-100 shadow-sm">
-            <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Package className="h-10 w-10 text-slate-300" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No products yet</h3>
-            <p className="text-gray-500 mb-6 max-w-sm mx-auto">
-              We&apos;re still stocking up this category. Check back soon or browse our other products.
-            </p>
-            <Button asChild className="bg-green-500 hover:bg-green-600">
-              <Link href="/products">
-                Browse All Products
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        )}
-
-        {/* Bottom Navigation */}
-        <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            href="/categories"
-            className="inline-flex items-center gap-2 text-gray-500 hover:text-green-500 font-medium transition-colors"
-          >
-            <Grid3X3 className="h-4 w-4" />
-            View All Categories
-          </Link>
-          <span className="hidden sm:inline text-gray-300">|</span>
-          <Link
-            href="/products"
-            className="inline-flex items-center gap-2 text-green-500 hover:text-green-600 font-medium transition-colors"
-          >
-            Browse All Products
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </div>
+      </Container>
     </div>
   )
 }

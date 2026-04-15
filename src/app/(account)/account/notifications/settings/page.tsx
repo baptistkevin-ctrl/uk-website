@@ -121,11 +121,11 @@ export default function NotificationSettingsPage() {
       onClick={onChange}
       disabled={disabled}
       className={`relative w-12 h-6 rounded-full transition-colors ${
-        checked ? 'bg-green-600' : 'bg-gray-300'
+        checked ? 'bg-(--brand-primary)' : 'bg-(--color-text-disabled)'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     >
       <span
-        className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+        className={`absolute top-1 left-1 w-4 h-4 bg-(--color-surface) rounded-full transition-transform ${
           checked ? 'translate-x-6' : ''
         }`}
       />
@@ -135,8 +135,8 @@ export default function NotificationSettingsPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto p-8 text-center">
-        <Loader2 className="h-8 w-8 animate-spin text-green-600 mx-auto" />
-        <p className="mt-2 text-gray-500">Loading preferences...</p>
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary) mx-auto" />
+        <p className="mt-2 text-(--color-text-muted)">Loading preferences...</p>
       </div>
     )
   }
@@ -147,21 +147,21 @@ export default function NotificationSettingsPage() {
       <div className="mb-6">
         <Link
           href="/account/notifications"
-          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4"
+          className="inline-flex items-center gap-2 text-sm text-(--color-text-secondary) hover:text-foreground mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Notifications
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Bell className="h-6 w-6 text-green-600" />
+        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <Bell className="h-6 w-6 text-(--brand-primary)" />
           Notification Settings
         </h1>
-        <p className="text-gray-500 mt-1">Choose how you want to receive notifications</p>
+        <p className="text-(--color-text-muted) mt-1">Choose how you want to receive notifications</p>
       </div>
 
       {/* Success Message */}
       {success && (
-        <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 mb-6">
+        <div className="flex items-center gap-2 p-4 bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-lg text-(--brand-primary) mb-6">
           <CheckCircle className="h-5 w-5" />
           Notification preferences saved!
         </div>
@@ -169,26 +169,26 @@ export default function NotificationSettingsPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 mb-6">
+        <div className="p-4 bg-(--color-error-bg) border border-(--color-error)/20 rounded-lg text-(--color-error) mb-6">
           {error}
         </div>
       )}
 
       {/* Email Notifications */}
-      <div className="bg-white rounded-xl border mb-6">
+      <div className="bg-(--color-surface) rounded-xl border mb-6">
         <div className="px-6 py-4 border-b">
           <div className="flex items-center gap-2">
-            <Mail className="h-5 w-5 text-gray-600" />
+            <Mail className="h-5 w-5 text-(--color-text-secondary)" />
             <h2 className="text-lg font-semibold">Email Notifications</h2>
           </div>
         </div>
         <div className="p-6 space-y-4">
           <div className="flex items-center justify-between py-3 border-b">
             <div className="flex items-center gap-3">
-              <Package className="h-5 w-5 text-gray-400" />
+              <Package className="h-5 w-5 text-(--color-text-disabled)" />
               <div>
-                <p className="font-medium text-gray-900">Order Updates</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-foreground">Order Updates</p>
+                <p className="text-sm text-(--color-text-muted)">
                   Order confirmations, shipping updates, and delivery notifications
                 </p>
               </div>
@@ -201,10 +201,10 @@ export default function NotificationSettingsPage() {
 
           <div className="flex items-center justify-between py-3 border-b">
             <div className="flex items-center gap-3">
-              <Tag className="h-5 w-5 text-gray-400" />
+              <Tag className="h-5 w-5 text-(--color-text-disabled)" />
               <div>
-                <p className="font-medium text-gray-900">Promotions & Deals</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-foreground">Promotions & Deals</p>
+                <p className="text-sm text-(--color-text-muted)">
                   Special offers, discounts, and flash deals
                 </p>
               </div>
@@ -217,10 +217,10 @@ export default function NotificationSettingsPage() {
 
           <div className="flex items-center justify-between py-3 border-b">
             <div className="flex items-center gap-3">
-              <Heart className="h-5 w-5 text-gray-400" />
+              <Heart className="h-5 w-5 text-(--color-text-disabled)" />
               <div>
-                <p className="font-medium text-gray-900">Price Drop Alerts</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-foreground">Price Drop Alerts</p>
+                <p className="text-sm text-(--color-text-muted)">
                   Get notified when wishlist items go on sale
                 </p>
               </div>
@@ -233,10 +233,10 @@ export default function NotificationSettingsPage() {
 
           <div className="flex items-center justify-between py-3">
             <div className="flex items-center gap-3">
-              <MessageSquare className="h-5 w-5 text-gray-400" />
+              <MessageSquare className="h-5 w-5 text-(--color-text-disabled)" />
               <div>
-                <p className="font-medium text-gray-900">Newsletter</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-foreground">Newsletter</p>
+                <p className="text-sm text-(--color-text-muted)">
                   Weekly updates, new products, and recipes
                 </p>
               </div>
@@ -250,20 +250,20 @@ export default function NotificationSettingsPage() {
       </div>
 
       {/* Push Notifications */}
-      <div className="bg-white rounded-xl border mb-6">
+      <div className="bg-(--color-surface) rounded-xl border mb-6">
         <div className="px-6 py-4 border-b">
           <div className="flex items-center gap-2">
-            <Bell className="h-5 w-5 text-gray-600" />
+            <Bell className="h-5 w-5 text-(--color-text-secondary)" />
             <h2 className="text-lg font-semibold">Push Notifications</h2>
           </div>
         </div>
         <div className="p-6 space-y-4">
           <div className="flex items-center justify-between py-3 border-b">
             <div className="flex items-center gap-3">
-              <Package className="h-5 w-5 text-gray-400" />
+              <Package className="h-5 w-5 text-(--color-text-disabled)" />
               <div>
-                <p className="font-medium text-gray-900">Order Updates</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-foreground">Order Updates</p>
+                <p className="text-sm text-(--color-text-muted)">
                   Real-time push notifications for order updates
                 </p>
               </div>
@@ -276,10 +276,10 @@ export default function NotificationSettingsPage() {
 
           <div className="flex items-center justify-between py-3 border-b">
             <div className="flex items-center gap-3">
-              <Tag className="h-5 w-5 text-gray-400" />
+              <Tag className="h-5 w-5 text-(--color-text-disabled)" />
               <div>
-                <p className="font-medium text-gray-900">Promotions & Deals</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-foreground">Promotions & Deals</p>
+                <p className="text-sm text-(--color-text-muted)">
                   Flash deal alerts and limited-time offers
                 </p>
               </div>
@@ -292,10 +292,10 @@ export default function NotificationSettingsPage() {
 
           <div className="flex items-center justify-between py-3">
             <div className="flex items-center gap-3">
-              <Heart className="h-5 w-5 text-gray-400" />
+              <Heart className="h-5 w-5 text-(--color-text-disabled)" />
               <div>
-                <p className="font-medium text-gray-900">Price Drop Alerts</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-foreground">Price Drop Alerts</p>
+                <p className="text-sm text-(--color-text-muted)">
                   Get notified when wishlist items drop in price
                 </p>
               </div>
@@ -309,20 +309,20 @@ export default function NotificationSettingsPage() {
       </div>
 
       {/* SMS Notifications */}
-      <div className="bg-white rounded-xl border mb-6">
+      <div className="bg-(--color-surface) rounded-xl border mb-6">
         <div className="px-6 py-4 border-b">
           <div className="flex items-center gap-2">
-            <Smartphone className="h-5 w-5 text-gray-600" />
+            <Smartphone className="h-5 w-5 text-(--color-text-secondary)" />
             <h2 className="text-lg font-semibold">SMS Notifications</h2>
           </div>
         </div>
         <div className="p-6 space-y-4">
           <div className="flex items-center justify-between py-3 border-b">
             <div className="flex items-center gap-3">
-              <Package className="h-5 w-5 text-gray-400" />
+              <Package className="h-5 w-5 text-(--color-text-disabled)" />
               <div>
-                <p className="font-medium text-gray-900">Order Updates</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-foreground">Order Updates</p>
+                <p className="text-sm text-(--color-text-muted)">
                   SMS alerts for order status changes and delivery
                 </p>
               </div>
@@ -335,10 +335,10 @@ export default function NotificationSettingsPage() {
 
           <div className="flex items-center justify-between py-3">
             <div className="flex items-center gap-3">
-              <Tag className="h-5 w-5 text-gray-400" />
+              <Tag className="h-5 w-5 text-(--color-text-disabled)" />
               <div>
-                <p className="font-medium text-gray-900">Promotions</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-foreground">Promotions</p>
+                <p className="text-sm text-(--color-text-muted)">
                   Exclusive SMS-only offers and deals
                 </p>
               </div>
@@ -356,7 +356,7 @@ export default function NotificationSettingsPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="px-6 py-2 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover) disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           {saving ? (
             <>
@@ -373,8 +373,8 @@ export default function NotificationSettingsPage() {
       </div>
 
       {/* Info */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <p className="text-sm text-blue-700">
+      <div className="bg-(--color-info-bg) border border-(--color-info)/20 rounded-xl p-4">
+        <p className="text-sm text-(--color-info)">
           <strong>Note:</strong> Some notifications like order confirmations and security alerts
           cannot be disabled as they contain important account information.
         </p>

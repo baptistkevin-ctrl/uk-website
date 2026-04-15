@@ -1,35 +1,56 @@
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@/lib/utils/cn'
+import { cn } from "@/lib/utils";
 
-const badgeVariants = cva(
-  'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2',
-  {
-    variants: {
-      variant: {
-        default: 'border-transparent bg-green-600 text-white',
-        secondary: 'border-transparent bg-gray-100 text-gray-900',
-        destructive: 'border-transparent bg-red-600 text-white',
-        outline: 'text-gray-700 border-gray-300',
-        success: 'border-transparent bg-green-100 text-green-800',
-        warning: 'border-transparent bg-yellow-100 text-yellow-800',
-        info: 'border-transparent bg-blue-100 text-blue-800',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  }
-)
+export type BadgeVariant =
+  | "sale" | "new" | "organic" | "premium" | "out-of-stock"
+  | "info" | "default" | "success" | "warning" | "secondary" | "destructive" | "outline";
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+const styles: Record<BadgeVariant, string> = {
+  sale:           "bg-(--color-sale) text-white",
+  new:            "bg-(--color-info) text-white",
+  organic:        "bg-(--brand-primary) text-white",
+  premium:        "bg-amber-800 text-white",
+  "out-of-stock": "bg-(--color-text) text-white",
+  info:           "bg-(--color-info-bg) text-(--color-info)",
+  default:        "bg-(--color-elevated) text-foreground",
+  success:        "bg-(--color-success-bg) text-(--color-success)",
+  warning:        "bg-(--color-warning-bg) text-(--color-warning)",
+  secondary:      "bg-(--color-elevated) text-(--color-text-secondary)",
+  destructive:    "bg-(--color-error) text-white",
+  outline:        "border border-(--color-border) text-(--color-text-secondary)",
+};
 
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
-  )
+const labels: Record<BadgeVariant, string> = {
+  sale:           "SALE",
+  new:            "NEW",
+  organic:        "ORGANIC",
+  premium:        "PREMIUM",
+  "out-of-stock": "OUT OF STOCK",
+  info:           "INFO",
+  default:        "",
+  success:        "",
+  warning:        "",
+  secondary:      "",
+  destructive:    "",
+  outline:        "",
+};
+
+export interface BadgeProps {
+  variant?: BadgeVariant;
+  label?: string;
+  className?: string;
+  children?: React.ReactNode;
 }
 
-export { Badge, badgeVariants }
+export function Badge({ variant = "default", label, className, children }: BadgeProps) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide",
+        styles[variant],
+        className
+      )}
+    >
+      {children ?? label ?? labels[variant]}
+    </span>
+  );
+}

@@ -123,7 +123,7 @@ export function useRecentlyViewed(
       }
     } catch (error) {
       // Silently fail - server sync is not critical
-      console.debug('Failed to sync with server:', error)
+      console.error('Failed to sync with server:', error)
     }
   }, [syncWithServer, maxProducts])
 
@@ -179,7 +179,7 @@ export function useRecentlyViewed(
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ product_id: product.id }),
-          }).catch(console.debug)
+          }).catch(console.error)
         }, SYNC_DEBOUNCE_MS)
       }
 
@@ -197,7 +197,7 @@ export function useRecentlyViewed(
       if (syncWithServer) {
         fetch(`/api/recently-viewed?product_id=${productId}`, {
           method: 'DELETE',
-        }).catch(console.debug)
+        }).catch(console.error)
       }
 
       return newProducts
@@ -212,7 +212,7 @@ export function useRecentlyViewed(
     if (syncWithServer) {
       fetch('/api/recently-viewed', {
         method: 'DELETE',
-      }).catch(console.debug)
+      }).catch(console.error)
     }
   }, [syncWithServer])
 

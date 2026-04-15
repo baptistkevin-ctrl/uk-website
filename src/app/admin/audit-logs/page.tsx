@@ -65,14 +65,14 @@ interface AuditLog {
 }
 
 const actionColors: Record<string, string> = {
-  create: 'bg-emerald-100 text-emerald-700',
-  update: 'bg-blue-100 text-blue-700',
-  delete: 'bg-red-100 text-red-700',
-  login: 'bg-purple-100 text-purple-700',
-  logout: 'bg-slate-100 text-slate-700',
-  export: 'bg-amber-100 text-amber-700',
-  import: 'bg-cyan-100 text-cyan-700',
-  bulk_update: 'bg-orange-100 text-orange-700',
+  create: 'bg-(--brand-primary-light) text-(--brand-primary)',
+  update: 'bg-(--color-info-bg) text-(--color-info)',
+  delete: 'bg-(--color-error-bg) text-(--color-error)',
+  login: 'bg-(--color-info-bg) text-(--color-info)',
+  logout: 'bg-(--color-elevated) text-foreground',
+  export: 'bg-(--brand-amber-soft) text-(--brand-amber)',
+  import: 'bg-(--color-info-bg) text-(--color-info)',
+  bulk_update: 'bg-(--color-warning-bg) text-(--brand-amber)',
 }
 
 const entityIcons: Record<string, typeof Package> = {
@@ -190,11 +190,11 @@ export default function AuditLogsPage() {
   if (accessDenied) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="p-4 bg-red-100 rounded-full mb-4">
-          <History className="h-8 w-8 text-red-500" />
+        <div className="p-4 bg-(--color-error-bg) rounded-full mb-4">
+          <History className="h-8 w-8 text-(--color-error)" />
         </div>
-        <h2 className="text-xl font-bold text-slate-900 mb-2">Access Denied</h2>
-        <p className="text-slate-600">Activity logs are restricted to Super Admins only.</p>
+        <h2 className="text-xl font-bold text-foreground mb-2">Access Denied</h2>
+        <p className="text-(--color-text-secondary)">Activity logs are restricted to Super Admins only.</p>
       </div>
     )
   }
@@ -204,13 +204,13 @@ export default function AuditLogsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <History className="h-6 w-6 text-purple-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-3">
+            <div className="p-2 bg-(--color-info-bg) rounded-lg">
+              <History className="h-6 w-6 text-(--color-info)" />
             </div>
             Activity Logs
           </h1>
-          <p className="text-slate-600 mt-1">
+          <p className="text-(--color-text-secondary) mt-1">
             Track all admin actions and changes across the platform
           </p>
         </div>
@@ -231,12 +231,12 @@ export default function AuditLogsPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 rounded-lg">
-                <Activity className="h-5 w-5 text-emerald-600" />
+              <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+                <Activity className="h-5 w-5 text-(--brand-primary)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Total Actions</p>
-                <p className="text-xl font-bold text-slate-900">{total.toLocaleString()}</p>
+                <p className="text-sm text-(--color-text-secondary)">Total Actions</p>
+                <p className="text-xl font-bold text-foreground">{total.toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -244,12 +244,12 @@ export default function AuditLogsPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Package className="h-5 w-5 text-blue-600" />
+              <div className="p-2 bg-(--color-info-bg) rounded-lg">
+                <Package className="h-5 w-5 text-(--color-info)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Product Changes</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-sm text-(--color-text-secondary)">Product Changes</p>
+                <p className="text-xl font-bold text-foreground">
                   {logs.filter(l => l.entity_type === 'product').length}
                 </p>
               </div>
@@ -259,12 +259,12 @@ export default function AuditLogsPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <ShoppingCart className="h-5 w-5 text-amber-600" />
+              <div className="p-2 bg-(--brand-amber-soft) rounded-lg">
+                <ShoppingCart className="h-5 w-5 text-(--brand-amber)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Order Actions</p>
-                <p className="text-xl font-bold text-slate-900">
+                <p className="text-sm text-(--color-text-secondary)">Order Actions</p>
+                <p className="text-xl font-bold text-foreground">
                   {logs.filter(l => l.entity_type === 'order').length}
                 </p>
               </div>
@@ -274,12 +274,12 @@ export default function AuditLogsPage() {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Clock className="h-5 w-5 text-purple-600" />
+              <div className="p-2 bg-(--color-info-bg) rounded-lg">
+                <Clock className="h-5 w-5 text-(--color-info)" />
               </div>
               <div>
-                <p className="text-sm text-slate-600">Last Activity</p>
-                <p className="text-sm font-medium text-slate-900">
+                <p className="text-sm text-(--color-text-secondary)">Last Activity</p>
+                <p className="text-sm font-medium text-foreground">
                   {logs[0] ? formatDistanceToNow(new Date(logs[0].created_at), { addSuffix: true }) : 'No activity'}
                 </p>
               </div>
@@ -293,7 +293,7 @@ export default function AuditLogsPage() {
         <CardContent className="p-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
               <Input
                 placeholder="Search by user email or entity name..."
                 value={search}
@@ -342,13 +342,13 @@ export default function AuditLogsPage() {
         <CardContent>
           {loading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+              <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
             </div>
           ) : logs.length === 0 ? (
             <div className="text-center py-12">
-              <History className="h-12 w-12 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-600">No activity logs found</p>
-              <p className="text-sm text-slate-500 mt-1">
+              <History className="h-16 w-16 text-(--color-text-disabled) mx-auto mb-4" />
+              <p className="text-(--color-text-secondary)">No activity logs found</p>
+              <p className="text-sm text-(--color-text-muted) mt-1">
                 Activity will appear here as actions are performed
               </p>
             </div>
@@ -357,27 +357,27 @@ export default function AuditLogsPage() {
               {logs.map((log) => (
                 <div
                   key={log.id}
-                  className="flex items-center gap-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
+                  className="flex items-center gap-4 p-4 bg-background rounded-lg hover:bg-(--color-elevated) transition-colors cursor-pointer"
                   onClick={() => viewDetails(log)}
                 >
-                  <div className="p-2 bg-white rounded-lg shadow-sm">
+                  <div className="p-2 bg-(--color-surface) rounded-lg shadow-sm">
                     {getEntityIcon(log.entity_type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <Badge className={actionColors[log.action] || 'bg-slate-100 text-slate-700'}>
+                      <Badge className={actionColors[log.action] || 'bg-(--color-elevated) text-foreground'}>
                         {log.action}
                       </Badge>
-                      <span className="text-slate-900 font-medium">
+                      <span className="text-foreground font-medium">
                         {log.entity_type}
                       </span>
                       {log.entity_name && (
-                        <span className="text-slate-600 truncate">
+                        <span className="text-(--color-text-secondary) truncate">
                           - {log.entity_name}
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-sm text-slate-500">
+                    <div className="flex items-center gap-2 mt-1 text-sm text-(--color-text-muted)">
                       <User className="h-3 w-3" />
                       <span>{log.user_email || 'System'}</span>
                       {log.user_role && (
@@ -388,10 +388,10 @@ export default function AuditLogsPage() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-(--color-text-secondary)">
                       {formatDistanceToNow(new Date(log.created_at), { addSuffix: true })}
                     </p>
-                    <p className="text-xs text-slate-400">
+                    <p className="text-xs text-(--color-text-disabled)">
                       {format(new Date(log.created_at), 'MMM d, HH:mm')}
                     </p>
                   </div>
@@ -406,7 +406,7 @@ export default function AuditLogsPage() {
           {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-6 pt-4 border-t">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-(--color-text-secondary)">
                 Page {page} of {totalPages} ({total} total logs)
               </p>
               <div className="flex items-center gap-2">
@@ -452,39 +452,39 @@ export default function AuditLogsPage() {
               {/* Basic Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-slate-500">Action</p>
-                  <Badge className={actionColors[selectedLog.action] || 'bg-slate-100 text-slate-700'}>
+                  <p className="text-sm text-(--color-text-muted)">Action</p>
+                  <Badge className={actionColors[selectedLog.action] || 'bg-(--color-elevated) text-foreground'}>
                     {selectedLog.action}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Entity</p>
+                  <p className="text-sm text-(--color-text-muted)">Entity</p>
                   <p className="font-medium capitalize">{selectedLog.entity_type}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Entity Name</p>
+                  <p className="text-sm text-(--color-text-muted)">Entity Name</p>
                   <p className="font-medium">{selectedLog.entity_name || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Entity ID</p>
+                  <p className="text-sm text-(--color-text-muted)">Entity ID</p>
                   <p className="font-mono text-sm">{selectedLog.entity_id || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">User</p>
+                  <p className="text-sm text-(--color-text-muted)">User</p>
                   <p className="font-medium">{selectedLog.user_email || 'System'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Role</p>
+                  <p className="text-sm text-(--color-text-muted)">Role</p>
                   <p className="font-medium capitalize">{selectedLog.user_role || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">Timestamp</p>
+                  <p className="text-sm text-(--color-text-muted)">Timestamp</p>
                   <p className="font-medium">
                     {format(new Date(selectedLog.created_at), 'PPpp')}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-slate-500">IP Address</p>
+                  <p className="text-sm text-(--color-text-muted)">IP Address</p>
                   <p className="font-mono text-sm">{selectedLog.ip_address || '-'}</p>
                 </div>
               </div>
@@ -492,8 +492,8 @@ export default function AuditLogsPage() {
               {/* Old Values */}
               {selectedLog.old_values && Object.keys(selectedLog.old_values).length > 0 && (
                 <div>
-                  <p className="text-sm text-slate-500 mb-2">Previous Values</p>
-                  <pre className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm overflow-auto">
+                  <p className="text-sm text-(--color-text-muted) mb-2">Previous Values</p>
+                  <pre className="bg-(--color-error-bg) border border-(--color-border) rounded-lg p-4 text-sm overflow-auto">
                     {JSON.stringify(selectedLog.old_values, null, 2)}
                   </pre>
                 </div>
@@ -502,8 +502,8 @@ export default function AuditLogsPage() {
               {/* New Values */}
               {selectedLog.new_values && Object.keys(selectedLog.new_values).length > 0 && (
                 <div>
-                  <p className="text-sm text-slate-500 mb-2">New Values</p>
-                  <pre className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-sm overflow-auto">
+                  <p className="text-sm text-(--color-text-muted) mb-2">New Values</p>
+                  <pre className="bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-lg p-4 text-sm overflow-auto">
                     {JSON.stringify(selectedLog.new_values, null, 2)}
                   </pre>
                 </div>
@@ -512,8 +512,8 @@ export default function AuditLogsPage() {
               {/* Metadata */}
               {selectedLog.metadata && Object.keys(selectedLog.metadata).length > 0 && (
                 <div>
-                  <p className="text-sm text-slate-500 mb-2">Additional Metadata</p>
-                  <pre className="bg-slate-50 border rounded-lg p-4 text-sm overflow-auto">
+                  <p className="text-sm text-(--color-text-muted) mb-2">Additional Metadata</p>
+                  <pre className="bg-background border rounded-lg p-4 text-sm overflow-auto">
                     {JSON.stringify(selectedLog.metadata, null, 2)}
                   </pre>
                 </div>
@@ -522,8 +522,8 @@ export default function AuditLogsPage() {
               {/* Notes */}
               {selectedLog.notes && (
                 <div>
-                  <p className="text-sm text-slate-500 mb-2">Notes</p>
-                  <p className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <p className="text-sm text-(--color-text-muted) mb-2">Notes</p>
+                  <p className="bg-(--brand-amber-soft) border border-(--color-border) rounded-lg p-4">
                     {selectedLog.notes}
                   </p>
                 </div>

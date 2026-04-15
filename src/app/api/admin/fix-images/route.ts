@@ -7,11 +7,11 @@ export const dynamic = 'force-dynamic'
 // Grocery-related Unsplash images (free to use)
 const groceryImages: Record<string, string> = {
   // Bread & Bakery
-  'sourdough': 'https://images.unsplash.com/photo-1585478259715-876acc5be8fc?w=400&h=400&fit=crop',
+  'sourdough': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=400&h=400&fit=crop',
   'bread': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop',
   'baguette': 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=400&h=400&fit=crop',
   'croissant': 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=400&h=400&fit=crop',
-  'bagel': 'https://images.unsplash.com/photo-1585535936432-734a9cff5fdb?w=400&h=400&fit=crop',
+  'bagel': 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=400&h=400&fit=crop',
 
   // Dairy & Eggs
   'milk': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=400&fit=crop',
@@ -39,12 +39,12 @@ const groceryImages: Record<string, string> = {
   'orange': 'https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=400&h=400&fit=crop',
   'strawberry': 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400&h=400&fit=crop',
   'grape': 'https://images.unsplash.com/photo-1537640538966-79f369143f8f?w=400&h=400&fit=crop',
-  'lemon': 'https://images.unsplash.com/photo-1582087463261-ddea03f80f5d?w=400&h=400&fit=crop',
+  'lemon': 'https://images.unsplash.com/photo-1582058091505-f87a2e55a40f?w=400&h=400&fit=crop',
   'avocado': 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=400&h=400&fit=crop',
   'mango': 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&h=400&fit=crop',
   'blueberry': 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=400&h=400&fit=crop',
   'raspberry': 'https://images.unsplash.com/photo-1577069861033-55d04cec4ef5?w=400&h=400&fit=crop',
-  'peach': 'https://images.unsplash.com/photo-1629226182277-a07be488b3f2?w=400&h=400&fit=crop',
+  'peach': 'https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=400&h=400&fit=crop',
   'pear': 'https://images.unsplash.com/photo-1514756331096-242fdeb70d4a?w=400&h=400&fit=crop',
   'watermelon': 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=400&fit=crop',
   'pineapple': 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400&h=400&fit=crop',
@@ -52,8 +52,8 @@ const groceryImages: Record<string, string> = {
   // Vegetables
   'broccoli': 'https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=400&h=400&fit=crop',
   'carrot': 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=400&h=400&fit=crop',
-  'tomato': 'https://images.unsplash.com/photo-1546470427-e26264be0b11?w=400&h=400&fit=crop',
-  'potato': 'https://images.unsplash.com/photo-1518977676601-b53f82ber31f?w=400&h=400&fit=crop',
+  'tomato': 'https://images.unsplash.com/photo-1499636136210-6f4ee915583e?w=400&h=400&fit=crop',
+  'potato': 'https://images.unsplash.com/photo-1518977956812-cd3dbadaaf31?w=400&h=400&fit=crop',
   'onion': 'https://images.unsplash.com/photo-1518977956812-cd3dbadaaf31?w=400&h=400&fit=crop',
   'garlic': 'https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?w=400&h=400&fit=crop',
   'spinach': 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=400&fit=crop',
@@ -82,7 +82,7 @@ const groceryImages: Record<string, string> = {
   'cereal': 'https://images.unsplash.com/photo-1521483451569-e33803c0330c?w=400&h=400&fit=crop',
   'oats': 'https://images.unsplash.com/photo-1614961233913-a5113a4a34ed?w=400&h=400&fit=crop',
   'flour': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=400&h=400&fit=crop',
-  'sugar': 'https://images.unsplash.com/photo-1581441117193-63e8f0f7c5e6?w=400&h=400&fit=crop',
+  'sugar': 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&h=400&fit=crop',
   'honey': 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&h=400&fit=crop',
   'oil': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&h=400&fit=crop',
   'olive': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&h=400&fit=crop',
@@ -101,6 +101,24 @@ const groceryImages: Record<string, string> = {
   'ice cream': 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=400&h=400&fit=crop',
   'frozen': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=400&fit=crop',
   'pizza': 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=400&fit=crop',
+
+  // Canned & Tinned
+  'chickpea': 'https://images.unsplash.com/photo-1515471209610-dae1c92d8777?w=400&h=400&fit=crop',
+  'peas': 'https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?w=400&h=400&fit=crop',
+  'beans': 'https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=400&h=400&fit=crop',
+  'lentil': 'https://images.unsplash.com/photo-1614961233913-a5113a4a34ed?w=400&h=400&fit=crop',
+  'soup': 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=400&fit=crop',
+  'tuna': 'https://images.unsplash.com/photo-1574781330855-d0db8cc6a79c?w=400&h=400&fit=crop',
+
+  // Household & Health
+  'shampoo': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop',
+  'soap': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop',
+  'toothpaste': 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=400&fit=crop',
+  'vitamin': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=400&h=400&fit=crop',
+  'nappy': 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&h=400&fit=crop',
+  'diaper': 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400&h=400&fit=crop',
+  'tissue': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400&h=400&fit=crop',
+  'cleaning': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=400&h=400&fit=crop',
 }
 
 // Default grocery image

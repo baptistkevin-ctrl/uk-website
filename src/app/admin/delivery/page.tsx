@@ -291,18 +291,18 @@ export default function AdminDeliveryPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Truck className="h-7 w-7 text-emerald-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <Truck className="h-7 w-7 text-(--brand-primary)" />
             Delivery Slots
           </h1>
-          <p className="text-gray-500 mt-1">Manage delivery time slots and availability</p>
+          <p className="text-(--color-text-muted) mt-1">Manage delivery time slots and availability</p>
         </div>
         <div className="flex gap-3">
           <Button onClick={generateWeekSlots} variant="outline" disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <RefreshCw className="h-4 w-4 mr-2" />}
             Generate Week
           </Button>
-          <Button onClick={handleAddNew} className="bg-emerald-600 hover:bg-emerald-700">
+          <Button onClick={handleAddNew} className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
             <Plus className="h-4 w-4 mr-2" />
             Add Slot
           </Button>
@@ -310,24 +310,24 @@ export default function AdminDeliveryPage() {
       </div>
 
       {/* Week Navigation */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
         <div className="flex items-center justify-between">
           <button
             onClick={() => navigateWeek('prev')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-(--color-elevated) rounded-lg transition-colors"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <div className="text-center">
-            <h2 className="text-lg font-semibold text-gray-900">
+            <h2 className="text-lg font-semibold text-foreground">
               {currentWeekStart.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })} -
               {' '}{new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
             </h2>
-            {isCurrentWeek && <p className="text-sm text-emerald-600">Current Week</p>}
+            {isCurrentWeek && <p className="text-sm text-(--brand-primary)">Current Week</p>}
           </div>
           <button
             onClick={() => navigateWeek('next')}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-(--color-elevated) rounded-lg transition-colors"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -336,51 +336,51 @@ export default function AdminDeliveryPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 rounded-lg">
-              <Calendar className="h-5 w-5 text-emerald-600" />
+            <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+              <Calendar className="h-5 w-5 text-(--brand-primary)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Slots</p>
-              <p className="text-2xl font-bold text-gray-900">{slots.length}</p>
+              <p className="text-sm text-(--color-text-muted)">Total Slots</p>
+              <p className="text-2xl font-bold text-foreground">{slots.length}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Clock className="h-5 w-5 text-blue-600" />
+            <div className="p-2 bg-(--color-info-bg) rounded-lg">
+              <Clock className="h-5 w-5 text-(--color-info)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Available</p>
-              <p className="text-2xl font-bold text-blue-600">
+              <p className="text-sm text-(--color-text-muted)">Available</p>
+              <p className="text-2xl font-bold text-(--color-info)">
                 {slots.filter(s => s.is_available).length}
               </p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Users className="h-5 w-5 text-orange-600" />
+            <div className="p-2 bg-(--color-warning-bg) rounded-lg">
+              <Users className="h-5 w-5 text-(--brand-amber)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Orders</p>
-              <p className="text-2xl font-bold text-orange-600">
+              <p className="text-sm text-(--color-text-muted)">Total Orders</p>
+              <p className="text-2xl font-bold text-(--brand-amber)">
                 {slots.reduce((sum, s) => sum + s.current_orders, 0)}
               </p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <PoundSterling className="h-5 w-5 text-purple-600" />
+            <div className="p-2 bg-(--color-info-bg) rounded-lg">
+              <PoundSterling className="h-5 w-5 text-(--color-info)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Avg Fee</p>
-              <p className="text-2xl font-bold text-purple-600">
+              <p className="text-sm text-(--color-text-muted)">Avg Fee</p>
+              <p className="text-2xl font-bold text-(--color-info)">
                 {slots.length > 0
                   ? formatPrice(Math.round(slots.reduce((sum, s) => sum + s.delivery_fee_pence, 0) / slots.length))
                   : '£0.00'}
@@ -393,7 +393,7 @@ export default function AdminDeliveryPage() {
       {/* Calendar Grid */}
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
@@ -405,29 +405,29 @@ export default function AdminDeliveryPage() {
             return (
               <div
                 key={day.toISOString()}
-                className={`bg-white rounded-xl border ${isToday ? 'border-emerald-300 ring-2 ring-emerald-100' : 'border-gray-200'} overflow-hidden`}
+                className={`bg-(--color-surface) rounded-xl border ${isToday ? 'border-(--brand-primary)/30 ring-2 ring-(--brand-primary)/15' : 'border-(--color-border)'} overflow-hidden`}
               >
-                <div className={`px-4 py-3 ${isToday ? 'bg-emerald-50' : 'bg-gray-50'} border-b border-gray-200`}>
-                  <p className={`text-sm font-medium ${isToday ? 'text-emerald-600' : isPast ? 'text-gray-400' : 'text-gray-600'}`}>
+                <div className={`px-4 py-3 ${isToday ? 'bg-(--brand-primary-light)' : 'bg-background'} border-b border-(--color-border)`}>
+                  <p className={`text-sm font-medium ${isToday ? 'text-(--brand-primary)' : isPast ? 'text-(--color-text-disabled)' : 'text-(--color-text-secondary)'}`}>
                     {day.toLocaleDateString('en-GB', { weekday: 'short' })}
                   </p>
-                  <p className={`text-lg font-bold ${isToday ? 'text-emerald-700' : isPast ? 'text-gray-400' : 'text-gray-900'}`}>
+                  <p className={`text-lg font-bold ${isToday ? 'text-(--brand-primary)' : isPast ? 'text-(--color-text-disabled)' : 'text-foreground'}`}>
                     {day.getDate()}
                   </p>
                 </div>
                 <div className="p-2 space-y-2 max-h-96 overflow-y-auto">
                   {daySlots.length === 0 ? (
-                    <p className="text-xs text-gray-400 text-center py-4">No slots</p>
+                    <p className="text-xs text-(--color-text-disabled) text-center py-4">No slots</p>
                   ) : (
                     daySlots.map((slot) => (
                       <div
                         key={slot.id}
                         className={`p-2 rounded-lg text-xs ${
                           !slot.is_available
-                            ? 'bg-gray-100 text-gray-500'
+                            ? 'bg-(--color-elevated) text-(--color-text-muted)'
                             : slot.current_orders >= slot.max_orders
-                            ? 'bg-red-50 text-red-700 border border-red-200'
-                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            ? 'bg-(--color-error-bg) text-(--color-error) border border-(--color-border)'
+                            : 'bg-(--brand-primary-light) text-(--brand-primary) border border-(--brand-primary)/20'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
@@ -437,14 +437,14 @@ export default function AdminDeliveryPage() {
                           <div className="flex items-center gap-1">
                             <button
                               onClick={() => handleEdit(slot)}
-                              className="p-1 hover:bg-white/50 rounded"
+                              className="p-1 hover:bg-(--color-surface)/50 rounded"
                             >
                               <Pencil className="h-3 w-3" />
                             </button>
                             <button
                               onClick={() => handleDelete(slot.id)}
                               disabled={deleting === slot.id}
-                              className="p-1 hover:bg-white/50 rounded text-red-500"
+                              className="p-1 hover:bg-(--color-surface)/50 rounded text-(--color-error)"
                             >
                               {deleting === slot.id ? (
                                 <Loader2 className="h-3 w-3 animate-spin" />
@@ -486,14 +486,14 @@ export default function AdminDeliveryPage() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900">
+          <div className="relative bg-(--color-surface) rounded-2xl shadow-xl w-full max-w-md mx-4">
+            <div className="flex items-center justify-between p-6 border-b border-(--color-border)">
+              <h2 className="text-xl font-bold text-foreground">
                 {editingSlot ? 'Edit Slot' : 'Add Delivery Slot'}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 text-(--color-text-disabled) hover:text-(--color-text-secondary) hover:bg-(--color-elevated) rounded-lg transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -519,7 +519,7 @@ export default function AdminDeliveryPage() {
                     id="start_time"
                     value={formData.start_time}
                     onChange={(e) => setFormData(prev => ({ ...prev, start_time: e.target.value }))}
-                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm"
+                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) text-sm"
                   >
                     {TIME_OPTIONS.map(time => (
                       <option key={time} value={time}>{time}</option>
@@ -532,7 +532,7 @@ export default function AdminDeliveryPage() {
                     id="end_time"
                     value={formData.end_time}
                     onChange={(e) => setFormData(prev => ({ ...prev, end_time: e.target.value }))}
-                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm"
+                    className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) text-sm"
                   >
                     {TIME_OPTIONS.map(time => (
                       <option key={time} value={time}>{time}</option>
@@ -563,7 +563,7 @@ export default function AdminDeliveryPage() {
                   min={0}
                   className="mt-1"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-(--color-text-muted) mt-1">
                   Display: {formatPrice(formData.delivery_fee_pence)}
                 </p>
               </div>
@@ -574,14 +574,14 @@ export default function AdminDeliveryPage() {
                   type="checkbox"
                   checked={formData.is_available}
                   onChange={(e) => setFormData(prev => ({ ...prev, is_available: e.target.checked }))}
-                  className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  className="h-4 w-4 rounded border-(--color-border) text-(--brand-primary) focus:ring-(--brand-primary)"
                 />
                 <Label htmlFor="is_available" className="cursor-pointer">
                   Available for booking
                 </Label>
               </div>
 
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <div className="flex gap-3 pt-4 border-t border-(--color-border)">
                 <Button
                   type="button"
                   variant="outline"
@@ -593,7 +593,7 @@ export default function AdminDeliveryPage() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                  className="flex-1 bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
                 >
                   {saving ? (
                     <>

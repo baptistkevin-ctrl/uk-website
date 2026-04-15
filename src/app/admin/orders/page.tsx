@@ -154,24 +154,24 @@ export default function AdminOrdersPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-gray-100 text-gray-700'
-      case 'confirmed': return 'bg-blue-100 text-blue-700'
-      case 'processing': return 'bg-yellow-100 text-yellow-700'
-      case 'ready_for_delivery': return 'bg-purple-100 text-purple-700'
-      case 'out_for_delivery': return 'bg-orange-100 text-orange-700'
-      case 'delivered': return 'bg-emerald-100 text-emerald-700'
-      case 'cancelled': return 'bg-red-100 text-red-700'
-      default: return 'bg-gray-100 text-gray-700'
+      case 'pending': return 'bg-(--color-elevated) text-foreground'
+      case 'confirmed': return 'bg-(--color-info-bg) text-(--color-info)'
+      case 'processing': return 'bg-(--color-warning-bg) text-(--color-warning)'
+      case 'ready_for_delivery': return 'bg-(--color-info-bg) text-(--color-info)'
+      case 'out_for_delivery': return 'bg-(--color-warning-bg) text-(--brand-amber)'
+      case 'delivered': return 'bg-(--brand-primary-light) text-(--brand-primary)'
+      case 'cancelled': return 'bg-(--color-error-bg) text-(--color-error)'
+      default: return 'bg-(--color-elevated) text-foreground'
     }
   }
 
   const getPaymentColor = (status: string) => {
     switch (status) {
-      case 'paid': return 'bg-emerald-100 text-emerald-700'
-      case 'pending': return 'bg-yellow-100 text-yellow-700'
-      case 'failed': return 'bg-red-100 text-red-700'
-      case 'refunded': return 'bg-gray-100 text-gray-700'
-      default: return 'bg-gray-100 text-gray-700'
+      case 'paid': return 'bg-(--brand-primary-light) text-(--brand-primary)'
+      case 'pending': return 'bg-(--color-warning-bg) text-(--color-warning)'
+      case 'failed': return 'bg-(--color-error-bg) text-(--color-error)'
+      case 'refunded': return 'bg-(--color-elevated) text-foreground'
+      default: return 'bg-(--color-elevated) text-foreground'
     }
   }
 
@@ -280,11 +280,11 @@ export default function AdminOrdersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <ShoppingCart className="h-7 w-7 text-emerald-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <ShoppingCart className="h-7 w-7 text-(--brand-primary)" />
             Orders
           </h1>
-          <p className="text-gray-500 mt-1">Manage and track customer orders</p>
+          <p className="text-(--color-text-muted) mt-1">Manage and track customer orders</p>
         </div>
         <Button onClick={fetchOrders} variant="outline" className="gap-2">
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -294,51 +294,51 @@ export default function AdminOrdersPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gray-100 rounded-lg">
-              <Package className="h-5 w-5 text-gray-600" />
+            <div className="p-2 bg-(--color-elevated) rounded-lg">
+              <Package className="h-5 w-5 text-(--color-text-secondary)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Orders</p>
-              <p className="text-2xl font-bold text-gray-900">{total}</p>
+              <p className="text-sm text-(--color-text-muted)">Total Orders</p>
+              <p className="text-2xl font-bold text-foreground">{total}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Clock className="h-5 w-5 text-yellow-600" />
+            <div className="p-2 bg-(--color-warning-bg) rounded-lg">
+              <Clock className="h-5 w-5 text-(--color-warning)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Pending</p>
-              <p className="text-2xl font-bold text-yellow-600">
+              <p className="text-sm text-(--color-text-muted)">Pending</p>
+              <p className="text-2xl font-bold text-(--color-warning)">
                 {orders.filter(o => o.status === 'pending').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <Truck className="h-5 w-5 text-orange-600" />
+            <div className="p-2 bg-(--color-warning-bg) rounded-lg">
+              <Truck className="h-5 w-5 text-(--brand-amber)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Out for Delivery</p>
-              <p className="text-2xl font-bold text-orange-600">
+              <p className="text-sm text-(--color-text-muted)">Out for Delivery</p>
+              <p className="text-2xl font-bold text-(--brand-amber)">
                 {orders.filter(o => o.status === 'out_for_delivery').length}
               </p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-emerald-100 rounded-lg">
-              <CheckCircle className="h-5 w-5 text-emerald-600" />
+            <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+              <CheckCircle className="h-5 w-5 text-(--brand-primary)" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Delivered</p>
-              <p className="text-2xl font-bold text-emerald-600">
+              <p className="text-sm text-(--color-text-muted)">Delivered</p>
+              <p className="text-2xl font-bold text-(--brand-primary)">
                 {orders.filter(o => o.status === 'delivered').length}
               </p>
             </div>
@@ -347,10 +347,10 @@ export default function AdminOrdersPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
             <Input
               type="text"
               placeholder="Search by order number, customer name or email..."
@@ -363,7 +363,7 @@ export default function AdminOrdersPage() {
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+              className="px-3 py-2 border border-(--color-border) rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary)"
             >
               {ORDER_STATUSES.map(s => (
                 <option key={s.value} value={s.value}>{s.label}</option>
@@ -372,7 +372,7 @@ export default function AdminOrdersPage() {
             <select
               value={paymentFilter}
               onChange={(e) => { setPaymentFilter(e.target.value); setPage(1); }}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+              className="px-3 py-2 border border-(--color-border) rounded-lg text-sm focus:ring-2 focus:ring-(--brand-primary)"
             >
               <option value="all">All Payments</option>
               {PAYMENT_STATUSES.slice(1).map(s => (
@@ -385,8 +385,8 @@ export default function AdminOrdersPage() {
 
       {/* Bulk Action Bar */}
       {selectedOrders.size > 0 && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center justify-between">
-          <span className="text-sm text-emerald-800">
+        <div className="bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-xl p-4 flex items-center justify-between">
+          <span className="text-sm text-(--brand-primary)">
             <span className="font-semibold">{selectedOrders.size}</span> order(s) selected
           </span>
           <Button
@@ -407,18 +407,18 @@ export default function AdminOrdersPage() {
       )}
 
       {/* Orders Table */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
           </div>
         ) : orders.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Package className="h-8 w-8 text-gray-400" />
+            <div className="w-16 h-16 bg-(--color-elevated) rounded-full flex items-center justify-center mx-auto mb-4">
+              <Package className="h-8 w-8 text-(--color-text-disabled)" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No orders found</h3>
-            <p className="text-gray-500">
+            <h3 className="text-lg font-semibold text-foreground mb-2">No orders found</h3>
+            <p className="text-(--color-text-muted)">
               {searchQuery || statusFilter !== 'all' || paymentFilter !== 'all'
                 ? 'Try adjusting your filters'
                 : 'Orders will appear here when customers make purchases'}
@@ -427,58 +427,58 @@ export default function AdminOrdersPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-background border-b border-(--color-border)">
                 <tr>
                   <th className="w-12 px-4 py-3">
                     <input
                       type="checkbox"
                       checked={isAllPageSelected}
                       onChange={toggleSelectAll}
-                      className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                      className="h-4 w-4 rounded border-(--color-border) text-(--brand-primary) focus:ring-(--brand-primary)"
                     />
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Order
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Customer
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Date
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Total
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Payment
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-(--color-text-muted) uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-(--color-border)">
                 {orders.map((order) => (
                   <tr
                     key={order.id}
-                    className={`hover:bg-gray-50 transition-colors ${selectedOrders.has(order.id) ? 'bg-emerald-50' : ''}`}
+                    className={`hover:bg-background transition-colors ${selectedOrders.has(order.id) ? 'bg-(--brand-primary-light)' : ''}`}
                   >
                     <td className="px-4 py-4">
                       <input
                         type="checkbox"
                         checked={selectedOrders.has(order.id)}
                         onChange={() => toggleOrderSelection(order.id)}
-                        className="h-4 w-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                        className="h-4 w-4 rounded border-(--color-border) text-(--brand-primary) focus:ring-(--brand-primary)"
                       />
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-semibold text-gray-900">{order.order_number}</p>
+                        <p className="font-semibold text-foreground">{order.order_number}</p>
                         {order.delivery_date && (
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-(--color-text-muted) mt-1">
                             Delivery: {new Date(order.delivery_date).toLocaleDateString('en-GB')}
                             {order.delivery_time_start && ` ${order.delivery_time_start.slice(0, 5)}`}
                           </p>
@@ -487,15 +487,15 @@ export default function AdminOrdersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div>
-                        <p className="font-medium text-gray-900">{order.customer_name}</p>
-                        <p className="text-sm text-gray-500">{order.customer_email}</p>
+                        <p className="font-medium text-foreground">{order.customer_name}</p>
+                        <p className="text-sm text-(--color-text-muted)">{order.customer_email}</p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-gray-600">{formatDate(order.created_at)}</p>
+                      <p className="text-sm text-(--color-text-secondary)">{formatDate(order.created_at)}</p>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="font-semibold text-gray-900">{formatPrice(order.total_pence)}</p>
+                      <p className="font-semibold text-foreground">{formatPrice(order.total_pence)}</p>
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${getPaymentColor(order.payment_status)}`}>
@@ -514,7 +514,7 @@ export default function AdminOrdersPage() {
                           <button
                             onClick={() => updateOrderStatus(order.id, getNextStatus(order.status))}
                             disabled={updatingStatus === order.id}
-                            className="p-1 text-emerald-600 hover:bg-emerald-50 rounded transition-colors disabled:opacity-50"
+                            className="p-1 text-(--brand-primary) hover:bg-(--brand-primary-light) rounded transition-colors disabled:opacity-50"
                             title={`Mark as ${getNextStatus(order.status).replace(/_/g, ' ')}`}
                           >
                             {updatingStatus === order.id ? (
@@ -530,7 +530,7 @@ export default function AdminOrdersPage() {
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/admin/orders/${order.id}`}
-                          className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors"
+                          className="p-2 text-(--color-text-disabled) hover:text-(--brand-primary) hover:bg-(--brand-primary-light) rounded-lg transition-colors"
                         >
                           <Eye className="h-4 w-4" />
                         </Link>
@@ -547,13 +547,13 @@ export default function AdminOrdersPage() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             {/* Showing info */}
-            <div className="text-sm text-gray-600">
-              Showing <span className="font-semibold text-gray-900">{((page - 1) * ordersPerPage) + 1}</span> to{' '}
-              <span className="font-semibold text-gray-900">{Math.min(page * ordersPerPage, total)}</span> of{' '}
-              <span className="font-semibold text-gray-900">{total}</span> orders
+            <div className="text-sm text-(--color-text-secondary)">
+              Showing <span className="font-semibold text-foreground">{((page - 1) * ordersPerPage) + 1}</span> to{' '}
+              <span className="font-semibold text-foreground">{Math.min(page * ordersPerPage, total)}</span> of{' '}
+              <span className="font-semibold text-foreground">{total}</span> orders
             </div>
 
             {/* Page navigation */}
@@ -562,7 +562,7 @@ export default function AdminOrdersPage() {
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:hover:bg-gray-100"
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border) disabled:hover:bg-(--color-elevated)"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Previous
@@ -577,10 +577,10 @@ export default function AdminOrdersPage() {
                     disabled={pageNum === '...'}
                     className={`min-w-[40px] h-10 px-3 text-sm font-medium rounded-lg transition-colors ${
                       pageNum === page
-                        ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/25'
+                        ? 'bg-(--brand-primary) text-white shadow-lg shadow-(--shadow-green)'
                         : pageNum === '...'
-                        ? 'bg-transparent text-gray-400 cursor-default'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-transparent text-(--color-text-disabled) cursor-default'
+                        : 'bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border)'
                     }`}
                   >
                     {pageNum}
@@ -589,7 +589,7 @@ export default function AdminOrdersPage() {
               </div>
 
               {/* Mobile page indicator */}
-              <div className="sm:hidden text-sm font-medium text-gray-600">
+              <div className="sm:hidden text-sm font-medium text-(--color-text-secondary)">
                 Page {page} of {totalPages}
               </div>
 
@@ -597,7 +597,7 @@ export default function AdminOrdersPage() {
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:hover:bg-gray-100"
+                className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border) disabled:hover:bg-(--color-elevated)"
               >
                 Next
                 <ChevronRight className="w-4 h-4" />

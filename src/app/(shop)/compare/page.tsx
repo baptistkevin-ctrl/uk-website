@@ -18,7 +18,7 @@ import {
   Wheat,
 } from 'lucide-react'
 import { useCompareStore } from '@/stores/compare-store'
-import { useCartStore } from '@/stores/cart-store'
+import { useCartStore } from '@/hooks/use-cart'
 import { formatPrice } from '@/lib/utils/format'
 
 export default function ComparePage() {
@@ -33,8 +33,8 @@ export default function ComparePage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-pulse text-slate-400">Loading...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-(--color-text-disabled)">Loading...</div>
       </div>
     )
   }
@@ -46,7 +46,6 @@ export default function ComparePage() {
       slug: product.slug,
       price_pence: product.price_pence,
       image_url: product.image_url,
-      quantity: 1,
       unit: product.unit,
       unit_value: product.unit_value || 1,
       stock_quantity: product.stock_quantity,
@@ -67,24 +66,24 @@ export default function ComparePage() {
   const emptySlots = maxProducts - products.length
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200">
+      <div className="bg-(--color-surface) border-b border-(--color-border)">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.back()}
-                className="p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                className="p-2 rounded-lg border border-(--color-border) text-(--color-text-secondary) hover:bg-background transition-colors"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                  <Scale className="w-6 h-6 text-emerald-600" />
+                <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                  <Scale className="w-6 h-6 text-(--brand-primary)" />
                   Compare Products
                 </h1>
-                <p className="text-slate-500 mt-1">
+                <p className="text-(--color-text-muted) mt-1">
                   {products.length} of {maxProducts} products selected
                 </p>
               </div>
@@ -92,7 +91,7 @@ export default function ComparePage() {
             {products.length > 0 && (
               <button
                 onClick={clearAll}
-                className="text-red-600 hover:text-red-700 font-medium"
+                className="text-(--color-error) hover:opacity-80 font-medium"
               >
                 Clear All
               </button>
@@ -104,40 +103,40 @@ export default function ComparePage() {
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {products.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
-            <Scale className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-slate-900 mb-2">No products to compare</h2>
-            <p className="text-slate-500 mb-6">
+          <div className="bg-(--color-surface) rounded-2xl p-12 text-center border border-(--color-border)">
+            <Scale className="w-16 h-16 text-(--color-text-disabled) mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-foreground mb-2">No products to compare</h2>
+            <p className="text-(--color-text-muted) mb-6">
               Add products to compare their features, prices, and specifications
             </p>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-colors"
             >
               Browse Products
             </Link>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="bg-(--color-surface) rounded-2xl border border-(--color-border) overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 {/* Product Headers */}
                 <thead>
-                  <tr className="border-b border-slate-100">
-                    <th className="p-4 text-left text-sm font-semibold text-slate-500 w-40 sticky left-0 bg-white">
+                  <tr className="border-b border-(--color-border)">
+                    <th className="p-3 sm:p-4 text-left text-sm font-semibold text-(--color-text-muted) w-28 sm:w-40 sticky left-0 bg-(--color-surface) z-10">
                       Product
                     </th>
                     {products.map((product) => (
-                      <th key={product.id} className="p-4 min-w-[200px]">
+                      <th key={product.id} className="p-4 min-w-50">
                         <div className="relative">
                           <button
                             onClick={() => removeProduct(product.id)}
-                            className="absolute -top-2 -right-2 p-1 bg-red-100 text-red-600 rounded-full hover:bg-red-200 transition-colors"
+                            className="absolute -top-2 -right-2 p-1 bg-(--color-error-bg) text-(--color-error) rounded-full hover:opacity-80 transition-colors"
                           >
                             <X className="w-4 h-4" />
                           </button>
                           <Link href={`/products/${product.slug}`}>
-                            <div className="w-32 h-32 mx-auto rounded-xl bg-slate-100 overflow-hidden relative mb-3">
+                            <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 mx-auto rounded-xl bg-(--color-elevated) overflow-hidden relative mb-3">
                               {product.image_url ? (
                                 <Image
                                   src={product.image_url}
@@ -147,11 +146,11 @@ export default function ComparePage() {
                                 />
                               ) : (
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                  <Package className="w-8 h-8 text-slate-300" />
+                                  <Package className="w-8 h-8 text-(--color-text-disabled)" />
                                 </div>
                               )}
                             </div>
-                            <h3 className="font-semibold text-slate-900 text-sm hover:text-emerald-600 transition-colors line-clamp-2">
+                            <h3 className="font-semibold text-foreground text-sm hover:text-(--brand-primary) transition-colors line-clamp-2">
                               {product.name}
                             </h3>
                           </Link>
@@ -159,10 +158,10 @@ export default function ComparePage() {
                       </th>
                     ))}
                     {Array.from({ length: emptySlots }).map((_, i) => (
-                      <th key={`empty-${i}`} className="p-4 min-w-[200px]">
+                      <th key={`empty-${i}`} className="p-4 min-w-50">
                         <Link
                           href="/"
-                          className="w-32 h-32 mx-auto rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 hover:border-emerald-300 hover:text-emerald-500 transition-colors"
+                          className="w-32 h-32 mx-auto rounded-xl border-2 border-dashed border-(--color-border) flex flex-col items-center justify-center text-(--color-text-disabled) hover:border-(--brand-primary) hover:text-(--brand-primary) transition-colors"
                         >
                           <Plus className="w-8 h-8 mb-2" />
                           <span className="text-sm">Add Product</span>
@@ -172,26 +171,26 @@ export default function ComparePage() {
                   </tr>
                 </thead>
 
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-(--color-border)">
                   {/* Price */}
                   <tr>
-                    <td className="p-4 text-sm font-medium text-slate-700 sticky left-0 bg-white">
+                    <td className="p-4 text-sm font-medium text-(--color-text-secondary) sticky left-0 bg-(--color-surface)">
                       Price
                     </td>
                     {products.map((product) => {
                       const isLowest = product.price_pence === getLowestPrice()
                       return (
                         <td key={product.id} className="p-4 text-center">
-                          <div className={`text-lg font-bold ${isLowest ? 'text-emerald-600' : 'text-slate-900'}`}>
+                          <div className={`text-lg font-bold ${isLowest ? 'text-(--brand-primary)' : 'text-foreground'}`}>
                             {formatPrice(product.price_pence)}
                             {isLowest && products.length > 1 && (
-                              <span className="ml-2 text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                              <span className="ml-2 text-xs bg-(--brand-primary-light) text-(--brand-primary) px-2 py-0.5 rounded-full">
                                 Lowest
                               </span>
                             )}
                           </div>
                           {product.compare_at_price_pence && (
-                            <div className="text-sm text-slate-400 line-through">
+                            <div className="text-sm text-(--color-text-disabled) line-through">
                               {formatPrice(product.compare_at_price_pence)}
                             </div>
                           )}
@@ -205,20 +204,20 @@ export default function ComparePage() {
 
                   {/* Rating */}
                   <tr>
-                    <td className="p-4 text-sm font-medium text-slate-700 sticky left-0 bg-white">
+                    <td className="p-4 text-sm font-medium text-(--color-text-secondary) sticky left-0 bg-(--color-surface)">
                       Rating
                     </td>
                     {products.map((product) => {
                       const isHighest = (product.avg_rating || 0) === getHighestRating() && getHighestRating()! > 0
                       return (
                         <td key={product.id} className="p-4 text-center">
-                          <div className={`flex items-center justify-center gap-1 ${isHighest ? 'text-amber-500' : 'text-slate-600'}`}>
-                            <Star className={`w-5 h-5 ${product.avg_rating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
+                          <div className={`flex items-center justify-center gap-1 ${isHighest ? 'text-(--brand-amber)' : 'text-(--color-text-secondary)'}`}>
+                            <Star className={`w-5 h-5 ${product.avg_rating ? 'fill-(--brand-amber) text-(--brand-amber)' : 'text-(--color-text-disabled)'}`} />
                             <span className="font-semibold">{product.avg_rating?.toFixed(1) || 'N/A'}</span>
-                            <span className="text-sm text-slate-400">({product.review_count})</span>
+                            <span className="text-sm text-(--color-text-disabled)">({product.review_count})</span>
                           </div>
                           {isHighest && products.length > 1 && (
-                            <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+                            <span className="text-xs bg-(--brand-amber-soft) text-(--brand-amber) px-2 py-0.5 rounded-full">
                               Top Rated
                             </span>
                           )}
@@ -232,11 +231,11 @@ export default function ComparePage() {
 
                   {/* Brand */}
                   <tr>
-                    <td className="p-4 text-sm font-medium text-slate-700 sticky left-0 bg-white">
+                    <td className="p-4 text-sm font-medium text-(--color-text-secondary) sticky left-0 bg-(--color-surface)">
                       Brand
                     </td>
                     {products.map((product) => (
-                      <td key={product.id} className="p-4 text-center text-slate-600">
+                      <td key={product.id} className="p-4 text-center text-(--color-text-secondary)">
                         {product.brand || '-'}
                       </td>
                     ))}
@@ -247,11 +246,11 @@ export default function ComparePage() {
 
                   {/* Unit */}
                   <tr>
-                    <td className="p-4 text-sm font-medium text-slate-700 sticky left-0 bg-white">
+                    <td className="p-4 text-sm font-medium text-(--color-text-secondary) sticky left-0 bg-(--color-surface)">
                       Size/Unit
                     </td>
                     {products.map((product) => (
-                      <td key={product.id} className="p-4 text-center text-slate-600">
+                      <td key={product.id} className="p-4 text-center text-(--color-text-secondary)">
                         {product.unit_value} {product.unit}
                       </td>
                     ))}
@@ -262,18 +261,18 @@ export default function ComparePage() {
 
                   {/* Dietary - Organic */}
                   <tr>
-                    <td className="p-4 text-sm font-medium text-slate-700 sticky left-0 bg-white">
+                    <td className="p-4 text-sm font-medium text-(--color-text-secondary) sticky left-0 bg-(--color-surface)">
                       <div className="flex items-center gap-2">
-                        <Leaf className="w-4 h-4 text-emerald-600" />
+                        <Leaf className="w-4 h-4 text-(--brand-primary)" />
                         Organic
                       </div>
                     </td>
                     {products.map((product) => (
                       <td key={product.id} className="p-4 text-center">
                         {product.is_organic ? (
-                          <Check className="w-5 h-5 text-emerald-600 mx-auto" />
+                          <Check className="w-5 h-5 text-(--brand-primary) mx-auto" />
                         ) : (
-                          <Minus className="w-5 h-5 text-slate-300 mx-auto" />
+                          <Minus className="w-5 h-5 text-(--color-text-disabled) mx-auto" />
                         )}
                       </td>
                     ))}
@@ -284,18 +283,18 @@ export default function ComparePage() {
 
                   {/* Dietary - Vegan */}
                   <tr>
-                    <td className="p-4 text-sm font-medium text-slate-700 sticky left-0 bg-white">
+                    <td className="p-4 text-sm font-medium text-(--color-text-secondary) sticky left-0 bg-(--color-surface)">
                       <div className="flex items-center gap-2">
-                        <span className="text-emerald-600">V</span>
+                        <span className="text-(--brand-primary)">V</span>
                         Vegan
                       </div>
                     </td>
                     {products.map((product) => (
                       <td key={product.id} className="p-4 text-center">
                         {product.is_vegan ? (
-                          <Check className="w-5 h-5 text-emerald-600 mx-auto" />
+                          <Check className="w-5 h-5 text-(--brand-primary) mx-auto" />
                         ) : (
-                          <Minus className="w-5 h-5 text-slate-300 mx-auto" />
+                          <Minus className="w-5 h-5 text-(--color-text-disabled) mx-auto" />
                         )}
                       </td>
                     ))}
@@ -306,15 +305,15 @@ export default function ComparePage() {
 
                   {/* Dietary - Vegetarian */}
                   <tr>
-                    <td className="p-4 text-sm font-medium text-slate-700 sticky left-0 bg-white">
+                    <td className="p-4 text-sm font-medium text-(--color-text-secondary) sticky left-0 bg-(--color-surface)">
                       Vegetarian
                     </td>
                     {products.map((product) => (
                       <td key={product.id} className="p-4 text-center">
                         {product.is_vegetarian ? (
-                          <Check className="w-5 h-5 text-emerald-600 mx-auto" />
+                          <Check className="w-5 h-5 text-(--brand-primary) mx-auto" />
                         ) : (
-                          <Minus className="w-5 h-5 text-slate-300 mx-auto" />
+                          <Minus className="w-5 h-5 text-(--color-text-disabled) mx-auto" />
                         )}
                       </td>
                     ))}
@@ -325,18 +324,18 @@ export default function ComparePage() {
 
                   {/* Dietary - Gluten Free */}
                   <tr>
-                    <td className="p-4 text-sm font-medium text-slate-700 sticky left-0 bg-white">
+                    <td className="p-4 text-sm font-medium text-(--color-text-secondary) sticky left-0 bg-(--color-surface)">
                       <div className="flex items-center gap-2">
-                        <Wheat className="w-4 h-4 text-amber-600" />
+                        <Wheat className="w-4 h-4 text-(--brand-amber)" />
                         Gluten Free
                       </div>
                     </td>
                     {products.map((product) => (
                       <td key={product.id} className="p-4 text-center">
                         {product.is_gluten_free ? (
-                          <Check className="w-5 h-5 text-emerald-600 mx-auto" />
+                          <Check className="w-5 h-5 text-(--brand-primary) mx-auto" />
                         ) : (
-                          <Minus className="w-5 h-5 text-slate-300 mx-auto" />
+                          <Minus className="w-5 h-5 text-(--color-text-disabled) mx-auto" />
                         )}
                       </td>
                     ))}
@@ -347,15 +346,15 @@ export default function ComparePage() {
 
                   {/* Stock */}
                   <tr>
-                    <td className="p-4 text-sm font-medium text-slate-700 sticky left-0 bg-white">
+                    <td className="p-4 text-sm font-medium text-(--color-text-secondary) sticky left-0 bg-(--color-surface)">
                       Availability
                     </td>
                     {products.map((product) => (
                       <td key={product.id} className="p-4 text-center">
                         {product.stock_quantity > 0 ? (
-                          <span className="text-emerald-600 font-medium">In Stock</span>
+                          <span className="text-(--brand-primary) font-medium">In Stock</span>
                         ) : (
-                          <span className="text-red-600 font-medium">Out of Stock</span>
+                          <span className="text-(--color-error) font-medium">Out of Stock</span>
                         )}
                       </td>
                     ))}
@@ -366,15 +365,15 @@ export default function ComparePage() {
 
                   {/* Vendor */}
                   <tr>
-                    <td className="p-4 text-sm font-medium text-slate-700 sticky left-0 bg-white">
+                    <td className="p-4 text-sm font-medium text-(--color-text-secondary) sticky left-0 bg-(--color-surface)">
                       Sold By
                     </td>
                     {products.map((product) => (
-                      <td key={product.id} className="p-4 text-center text-slate-600">
+                      <td key={product.id} className="p-4 text-center text-(--color-text-secondary)">
                         {product.vendor ? (
                           <Link
                             href={`/store/${product.vendor.slug}`}
-                            className="text-emerald-600 hover:underline"
+                            className="text-(--brand-primary) hover:underline"
                           >
                             {product.vendor.business_name}
                           </Link>
@@ -389,14 +388,14 @@ export default function ComparePage() {
                   </tr>
 
                   {/* Add to Cart */}
-                  <tr className="bg-slate-50">
-                    <td className="p-4 sticky left-0 bg-slate-50" />
+                  <tr className="bg-background">
+                    <td className="p-4 sticky left-0 bg-background" />
                     {products.map((product) => (
                       <td key={product.id} className="p-4 text-center">
                         <button
                           onClick={() => handleAddToCart(product)}
                           disabled={product.stock_quantity <= 0}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="inline-flex items-center gap-2 px-4 py-2.5 bg-(--brand-primary) text-white rounded-lg font-medium hover:bg-(--brand-primary-hover) transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <ShoppingCart className="w-4 h-4" />
                           Add to Cart

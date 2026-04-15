@@ -82,7 +82,7 @@ export default function ProfilePage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -91,16 +91,16 @@ export default function ProfilePage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <User className="h-6 w-6 text-emerald-600" />
+        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <User className="h-6 w-6 text-(--brand-primary)" />
           My Profile
         </h1>
-        <p className="text-gray-500 mt-1">Manage your personal information</p>
+        <p className="text-(--color-text-muted) mt-1">Manage your personal information</p>
       </div>
 
       {/* Success Message */}
       {success && (
-        <div className="flex items-center gap-2 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700">
+        <div className="flex items-center gap-2 p-4 bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-lg text-(--brand-primary)">
           <CheckCircle className="h-5 w-5" />
           Profile updated successfully!
         </div>
@@ -108,7 +108,7 @@ export default function ProfilePage() {
 
       {/* Error Message */}
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+        <div className="p-4 bg-(--color-error-bg) border border-(--color-error)/20 rounded-lg text-(--color-error)">
           {error}
         </div>
       )}
@@ -123,20 +123,20 @@ export default function ProfilePage() {
             {/* Avatar Section */}
             <div className="flex items-center gap-6">
               <div className="relative">
-                <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center">
-                  <User className="h-10 w-10 text-emerald-600" />
+                <div className="w-20 h-20 bg-(--brand-primary-light) rounded-full flex items-center justify-center">
+                  <User className="h-10 w-10 text-(--brand-primary)" />
                 </div>
                 <button
                   type="button"
                   aria-label="Change profile photo"
-                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-(--color-surface) border border-(--color-border) rounded-full flex items-center justify-center shadow-sm hover:bg-background transition-colors"
                 >
-                  <Camera className="h-4 w-4 text-gray-600" />
+                  <Camera className="h-4 w-4 text-(--color-text-secondary)" />
                 </button>
               </div>
               <div>
-                <p className="font-medium text-gray-900">{formData.full_name || 'Your Name'}</p>
-                <p className="text-sm text-gray-500">{profile?.email}</p>
+                <p className="font-medium text-foreground">{formData.full_name || 'Your Name'}</p>
+                <p className="text-sm text-(--color-text-muted)">{profile?.email}</p>
               </div>
             </div>
 
@@ -144,7 +144,7 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <Label htmlFor="full_name">Full Name</Label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-(--color-text-disabled)" />
                 <Input
                   id="full_name"
                   type="text"
@@ -160,16 +160,16 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-(--color-text-disabled)" />
                 <Input
                   id="email"
                   type="email"
                   value={profile?.email || ''}
                   disabled
-                  className="pl-10 bg-gray-50"
+                  className="pl-10 bg-background"
                 />
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-(--color-text-muted)">
                 Email cannot be changed. Contact support if you need to update it.
               </p>
             </div>
@@ -178,7 +178,7 @@ export default function ProfilePage() {
             <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-(--color-text-disabled)" />
                 <Input
                   id="phone"
                   type="tel"
@@ -192,11 +192,11 @@ export default function ProfilePage() {
 
             {/* Account Info */}
             <div className="pt-4 border-t">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Account Information</h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <h3 className="text-sm font-medium text-(--color-text-secondary) mb-3">Account Information</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-500">Member since</p>
-                  <p className="font-medium text-gray-900">
+                  <p className="text-(--color-text-muted)">Member since</p>
+                  <p className="font-medium text-foreground">
                     {profile?.created_at
                       ? new Date(profile.created_at).toLocaleDateString('en-GB', {
                           day: 'numeric',
@@ -207,8 +207,8 @@ export default function ProfilePage() {
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-500">Account ID</p>
-                  <p className="font-medium text-gray-900 font-mono text-xs">
+                  <p className="text-(--color-text-muted)">Account ID</p>
+                  <p className="font-medium text-foreground font-mono text-xs">
                     {profile?.id.slice(0, 8)}...
                   </p>
                 </div>
@@ -220,7 +220,7 @@ export default function ProfilePage() {
               <Button
                 type="submit"
                 disabled={isSaving}
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
               >
                 {isSaving ? (
                   <>
@@ -240,19 +240,19 @@ export default function ProfilePage() {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="border-red-200">
+      <Card className="border-(--color-error)/20">
         <CardHeader>
-          <h2 className="text-lg font-semibold text-red-600">Danger Zone</h2>
+          <h2 className="text-lg font-semibold text-(--color-error)">Danger Zone</h2>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-gray-900">Delete Account</p>
-              <p className="text-sm text-gray-500">
+              <p className="font-medium text-foreground">Delete Account</p>
+              <p className="text-sm text-(--color-text-muted)">
                 Permanently delete your account and all associated data
               </p>
             </div>
-            <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+            <Button variant="outline" className="text-(--color-error) border-(--color-error)/20 hover:bg-(--color-error-bg)">
               Delete Account
             </Button>
           </div>

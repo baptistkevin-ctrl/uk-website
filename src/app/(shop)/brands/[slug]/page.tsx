@@ -118,19 +118,19 @@ function BrandPageContent({ slug }: { slug: string }) {
 
   if (loading && !brand) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
 
   if (!brand) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <Building2 className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h1 className="text-xl font-semibold text-slate-900 mb-2">Brand not found</h1>
-          <Link href="/brands" className="text-emerald-600 hover:underline">
+          <Building2 className="w-16 h-16 text-(--color-text-disabled) mx-auto mb-4" />
+          <h1 className="text-xl font-semibold text-foreground mb-2">Brand not found</h1>
+          <Link href="/brands" className="text-(--brand-primary) hover:underline">
             View all brands
           </Link>
         </div>
@@ -139,29 +139,29 @@ function BrandPageContent({ slug }: { slug: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200">
+      <div className="bg-(--color-surface) border-b border-(--color-border)">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-            <Link href="/" className="hover:text-emerald-600">Home</Link>
+          <div className="flex items-center gap-2 text-sm text-(--color-text-muted) mb-4">
+            <Link href="/" className="hover:text-(--brand-primary)">Home</Link>
             <span>/</span>
-            <Link href="/brands" className="hover:text-emerald-600">Brands</Link>
+            <Link href="/brands" className="hover:text-(--brand-primary)">Brands</Link>
             <span>/</span>
-            <span className="text-slate-900">{brand.name}</span>
+            <span className="text-foreground">{brand.name}</span>
           </div>
 
           <div className="flex items-center gap-4">
             <Link
               href="/brands"
-              className="p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+              className="p-2 rounded-lg border border-(--color-border) text-(--color-text-secondary) hover:bg-background transition-colors"
             >
               <ChevronLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900">{brand.name}</h1>
-              <p className="text-slate-500 mt-1">{total} products</p>
+              <h1 className="text-3xl font-bold text-foreground">{brand.name}</h1>
+              <p className="text-(--color-text-muted) mt-1">{total} products</p>
             </div>
           </div>
         </div>
@@ -171,7 +171,7 @@ function BrandPageContent({ slug }: { slug: string }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Toolbar */}
         <div className="flex items-center justify-between mb-6">
-          <p className="text-slate-600">
+          <p className="text-(--color-text-secondary)">
             Showing {products.length} of {total} products
           </p>
 
@@ -180,7 +180,7 @@ function BrandPageContent({ slug }: { slug: string }) {
             <div className="relative">
               <button
                 onClick={() => setShowSortDropdown(!showSortDropdown)}
-                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-(--color-text-secondary) hover:bg-background transition-colors"
               >
                 <SlidersHorizontal className="w-4 h-4" />
                 <span className="hidden sm:inline">
@@ -194,13 +194,13 @@ function BrandPageContent({ slug }: { slug: string }) {
                     className="fixed inset-0 z-10"
                     onClick={() => setShowSortDropdown(false)}
                   />
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-20">
+                  <div className="absolute right-0 mt-2 w-48 bg-(--color-surface) rounded-xl shadow-lg border border-(--color-border) py-1 z-20">
                     {sortOptions.map((option) => (
                       <button
                         key={option.value}
                         onClick={() => handleSort(option.value)}
-                        className={`w-full px-4 py-2 text-left text-sm hover:bg-slate-50 ${
-                          sort === option.value ? 'text-emerald-600 font-medium' : 'text-slate-700'
+                        className={`w-full px-4 py-2 text-left text-sm hover:bg-background ${
+                          sort === option.value ? 'text-(--brand-primary) font-medium' : 'text-(--color-text-secondary)'
                         }`}
                       >
                         {option.label}
@@ -212,16 +212,16 @@ function BrandPageContent({ slug }: { slug: string }) {
             </div>
 
             {/* View Mode */}
-            <div className="flex border border-slate-200 rounded-lg overflow-hidden">
+            <div className="flex border border-(--color-border) rounded-lg overflow-hidden">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 ${viewMode === 'grid' ? 'bg-emerald-50 text-emerald-600' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+                className={`p-2 ${viewMode === 'grid' ? 'bg-(--brand-primary-light) text-(--brand-primary)' : 'bg-(--color-surface) text-(--color-text-secondary) hover:bg-background'}`}
               >
                 <Grid className="w-5 h-5" />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 ${viewMode === 'list' ? 'bg-emerald-50 text-emerald-600' : 'bg-white text-slate-600 hover:bg-slate-50'}`}
+                className={`p-2 ${viewMode === 'list' ? 'bg-(--brand-primary-light) text-(--brand-primary)' : 'bg-(--color-surface) text-(--color-text-secondary) hover:bg-background'}`}
               >
                 <List className="w-5 h-5" />
               </button>
@@ -232,13 +232,13 @@ function BrandPageContent({ slug }: { slug: string }) {
         {/* Products */}
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+            <Loader2 className="w-8 h-8 animate-spin text-(--brand-primary)" />
           </div>
         ) : products.length === 0 ? (
-          <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
-            <Building2 className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">No products found</h3>
-            <p className="text-slate-500">This brand currently has no available products</p>
+          <div className="bg-(--color-surface) rounded-2xl p-12 text-center border border-(--color-border)">
+            <Building2 className="w-16 h-16 text-(--color-text-disabled) mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-foreground mb-2">No products found</h3>
+            <p className="text-(--color-text-muted)">This brand currently has no available products</p>
           </div>
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -260,7 +260,7 @@ function BrandPageContent({ slug }: { slug: string }) {
             <button
               onClick={() => updateParams('page', (page - 1).toString())}
               disabled={page === 1}
-              className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-(--color-text-secondary) hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
@@ -282,8 +282,8 @@ function BrandPageContent({ slug }: { slug: string }) {
                     onClick={() => updateParams('page', pageNum.toString())}
                     className={`w-10 h-10 rounded-lg font-medium ${
                       page === pageNum
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
+                        ? 'bg-(--brand-primary) text-white'
+                        : 'bg-(--color-surface) border border-(--color-border) text-(--color-text-secondary) hover:bg-background'
                     }`}
                   >
                     {pageNum}
@@ -294,7 +294,7 @@ function BrandPageContent({ slug }: { slug: string }) {
             <button
               onClick={() => updateParams('page', (page + 1).toString())}
               disabled={page === totalPages}
-              className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2.5 bg-(--color-surface) border border-(--color-border) rounded-lg text-(--color-text-secondary) hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
             </button>
@@ -307,8 +307,8 @@ function BrandPageContent({ slug }: { slug: string }) {
 
 function BrandPageLoading() {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <Loader2 className="w-8 h-8 animate-spin text-(--brand-primary)" />
     </div>
   )
 }

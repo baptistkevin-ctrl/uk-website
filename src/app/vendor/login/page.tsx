@@ -119,61 +119,61 @@ function VendorLoginTab() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm flex items-start gap-3">
+        <div className="p-4 rounded-xl bg-(--color-error-bg) border border-red-100 text-(--color-error) text-sm flex items-start gap-3">
           <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
           {error}
         </div>
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="login-email" className="text-gray-700 font-medium">Email Address</Label>
+        <Label htmlFor="login-email" className="text-foreground font-medium">Email Address</Label>
         <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-disabled)">
             <Mail className="h-5 w-5" />
           </div>
           <Input
             id="login-email"
             type="email"
             placeholder="vendor@example.com"
-            className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+            className="pl-10 h-12 border-(--color-border) focus:border-purple-500 focus:ring-purple-500"
             {...register('email')}
           />
         </div>
-        {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+        {errors.email && <p className="text-sm text-(--color-error)">{errors.email.message}</p>}
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label htmlFor="login-password" className="text-gray-700 font-medium">Password</Label>
-          <Link href="/forgot-password" className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+          <Label htmlFor="login-password" className="text-foreground font-medium">Password</Label>
+          <Link href="/forgot-password" className="text-sm text-(--color-info) hover:text-(--color-info) font-medium">
             Forgot password?
           </Link>
         </div>
         <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-disabled)">
             <Lock className="h-5 w-5" />
           </div>
           <Input
             id="login-password"
             type={showPassword ? 'text' : 'password'}
             placeholder="Enter your password"
-            className="pl-10 pr-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+            className="pl-10 pr-10 h-12 border-(--color-border) focus:border-purple-500 focus:ring-purple-500"
             {...register('password')}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-(--color-text-disabled) hover:text-(--color-text-secondary)"
           >
             {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
           </button>
         </div>
-        {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+        {errors.password && <p className="text-sm text-(--color-error)">{errors.password.message}</p>}
       </div>
 
       <Button
         type="submit"
-        className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shadow-lg shadow-purple-500/25"
+        className="w-full h-12 text-base font-semibold bg-linear-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shadow-lg shadow-purple-500/25"
         disabled={isSubmitting}
       >
         {isSubmitting ? (
@@ -255,17 +255,17 @@ function VendorRegisterTab() {
   if (success) {
     return (
       <div className="text-center py-6">
-        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <CheckCircle className="h-8 w-8 text-emerald-600" />
+        <div className="w-16 h-16 bg-(--brand-primary-light) rounded-full flex items-center justify-center mx-auto mb-4">
+          <CheckCircle className="h-8 w-8 text-(--brand-primary)" />
         </div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Application Submitted!</h3>
-        <p className="text-gray-600 mb-2">
+        <h3 className="text-xl font-bold text-foreground mb-2">Application Submitted!</h3>
+        <p className="text-(--color-text-secondary) mb-2">
           Please check your email to verify your account.
         </p>
-        <p className="text-gray-500 text-sm mb-6">
+        <p className="text-(--color-text-muted) text-sm mb-6">
           Our team will review your vendor application and notify you once it's approved. This usually takes 1-2 business days.
         </p>
-        <div className="p-4 bg-purple-50 border border-purple-100 rounded-xl text-sm text-purple-700">
+        <div className="p-4 bg-(--color-info-bg) border border-purple-100 rounded-xl text-sm text-(--color-info)">
           <strong>What happens next?</strong>
           <ol className="mt-2 text-left space-y-1 list-decimal list-inside">
             <li>Verify your email address</li>
@@ -281,89 +281,89 @@ function VendorRegisterTab() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {error && (
-        <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm flex items-start gap-3">
+        <div className="p-4 rounded-xl bg-(--color-error-bg) border border-red-100 text-(--color-error) text-sm flex items-start gap-3">
           <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
           {error}
         </div>
       )}
 
       {/* ── Account Details ── */}
-      <div className="pb-4 border-b border-gray-100">
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Account Details</h3>
+      <div className="pb-4 border-b border-(--color-border)">
+        <h3 className="text-sm font-semibold text-(--color-text-muted) uppercase tracking-wide mb-4">Account Details</h3>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="reg-name" className="text-gray-700 font-medium">Full Name *</Label>
+            <Label htmlFor="reg-name" className="text-foreground font-medium">Full Name *</Label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-disabled)">
                 <User className="h-5 w-5" />
               </div>
               <Input
                 id="reg-name"
                 placeholder="John Smith"
-                className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                className="pl-10 h-12 border-(--color-border) focus:border-purple-500 focus:ring-purple-500"
                 {...register('full_name')}
               />
             </div>
-            {errors.full_name && <p className="text-sm text-red-500">{errors.full_name.message}</p>}
+            {errors.full_name && <p className="text-sm text-(--color-error)">{errors.full_name.message}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reg-email" className="text-gray-700 font-medium">Email Address *</Label>
+            <Label htmlFor="reg-email" className="text-foreground font-medium">Email Address *</Label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-disabled)">
                 <Mail className="h-5 w-5" />
               </div>
               <Input
                 id="reg-email"
                 type="email"
                 placeholder="vendor@example.com"
-                className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                className="pl-10 h-12 border-(--color-border) focus:border-purple-500 focus:ring-purple-500"
                 {...register('email')}
               />
             </div>
-            {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+            {errors.email && <p className="text-sm text-(--color-error)">{errors.email.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="reg-password" className="text-gray-700 font-medium">Password *</Label>
+              <Label htmlFor="reg-password" className="text-foreground font-medium">Password *</Label>
               <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-disabled)">
                   <Lock className="h-5 w-5" />
                 </div>
                 <Input
                   id="reg-password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Min 8 characters"
-                  className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                  className="pl-10 h-12 border-(--color-border) focus:border-purple-500 focus:ring-purple-500"
                   {...register('password')}
                 />
               </div>
-              {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+              {errors.password && <p className="text-sm text-(--color-error)">{errors.password.message}</p>}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="reg-confirm" className="text-gray-700 font-medium">Confirm Password *</Label>
+              <Label htmlFor="reg-confirm" className="text-foreground font-medium">Confirm Password *</Label>
               <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-disabled)">
                   <Lock className="h-5 w-5" />
                 </div>
                 <Input
                   id="reg-confirm"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Confirm password"
-                  className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                  className="pl-10 h-12 border-(--color-border) focus:border-purple-500 focus:ring-purple-500"
                   {...register('confirm_password')}
                 />
               </div>
-              {errors.confirm_password && <p className="text-sm text-red-500">{errors.confirm_password.message}</p>}
+              {errors.confirm_password && <p className="text-sm text-(--color-error)">{errors.confirm_password.message}</p>}
             </div>
           </div>
 
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="text-xs text-gray-500 hover:text-gray-700"
+            className="text-xs text-(--color-text-muted) hover:text-foreground"
           >
             {showPassword ? 'Hide' : 'Show'} passwords
           </button>
@@ -371,35 +371,35 @@ function VendorRegisterTab() {
       </div>
 
       {/* ── Business Details ── */}
-      <div className="pb-4 border-b border-gray-100">
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Business Details</h3>
+      <div className="pb-4 border-b border-(--color-border)">
+        <h3 className="text-sm font-semibold text-(--color-text-muted) uppercase tracking-wide mb-4">Business Details</h3>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="reg-business" className="text-gray-700 font-medium">Business Name *</Label>
+            <Label htmlFor="reg-business" className="text-foreground font-medium">Business Name *</Label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-(--color-text-disabled)">
                 <Building2 className="h-5 w-5" />
               </div>
               <Input
                 id="reg-business"
                 placeholder="Your business or store name"
-                className="pl-10 h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                className="pl-10 h-12 border-(--color-border) focus:border-purple-500 focus:ring-purple-500"
                 {...register('business_name')}
               />
             </div>
-            {errors.business_name && <p className="text-sm text-red-500">{errors.business_name.message}</p>}
+            {errors.business_name && <p className="text-sm text-(--color-error)">{errors.business_name.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="reg-type" className="text-gray-700 font-medium">
+              <Label htmlFor="reg-type" className="text-foreground font-medium">
                 <Briefcase className="h-4 w-4 inline mr-1" />
                 Business Type
               </Label>
               <select
                 id="reg-type"
-                className="w-full h-12 px-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                className="w-full h-12 px-3 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 {...register('business_type')}
               >
                 <option value="sole_trader">Sole Trader</option>
@@ -409,7 +409,7 @@ function VendorRegisterTab() {
               </select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="reg-phone" className="text-gray-700 font-medium">
+              <Label htmlFor="reg-phone" className="text-foreground font-medium">
                 <Phone className="h-4 w-4 inline mr-1" />
                 Phone Number
               </Label>
@@ -417,25 +417,25 @@ function VendorRegisterTab() {
                 id="reg-phone"
                 type="tel"
                 placeholder="+44 7XXX XXXXXX"
-                className="h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+                className="h-12 border-(--color-border) focus:border-purple-500 focus:ring-purple-500"
                 {...register('phone')}
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reg-desc" className="text-gray-700 font-medium">About Your Business</Label>
+            <Label htmlFor="reg-desc" className="text-foreground font-medium">About Your Business</Label>
             <textarea
               id="reg-desc"
               placeholder="What products do you sell? What makes your business unique?"
               rows={3}
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
+              className="w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-sm"
               {...register('description')}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reg-website" className="text-gray-700 font-medium">
+            <Label htmlFor="reg-website" className="text-foreground font-medium">
               <Globe className="h-4 w-4 inline mr-1" />
               Website (optional)
             </Label>
@@ -443,7 +443,7 @@ function VendorRegisterTab() {
               id="reg-website"
               type="url"
               placeholder="https://yourwebsite.com"
-              className="h-12 border-slate-200 focus:border-purple-500 focus:ring-purple-500"
+              className="h-12 border-(--color-border) focus:border-purple-500 focus:ring-purple-500"
               {...register('website_url')}
             />
           </div>
@@ -452,7 +452,7 @@ function VendorRegisterTab() {
 
       {/* ── Product Categories ── */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">What will you sell?</h3>
+        <h3 className="text-sm font-semibold text-(--color-text-muted) uppercase tracking-wide mb-3">What will you sell?</h3>
         <div className="flex flex-wrap gap-2">
           {productCategories.map((category) => (
             <button
@@ -461,8 +461,8 @@ function VendorRegisterTab() {
               onClick={() => toggleCategory(category)}
               className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 selectedCategories.includes(category)
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-(--color-info) text-white'
+                  : 'bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border)'
               }`}
             >
               {category}
@@ -473,7 +473,7 @@ function VendorRegisterTab() {
 
       <Button
         type="submit"
-        className="w-full h-12 text-base font-semibold bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shadow-lg shadow-purple-500/25"
+        className="w-full h-12 text-base font-semibold bg-linear-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 shadow-lg shadow-purple-500/25"
         disabled={isSubmitting}
       >
         {isSubmitting ? (
@@ -489,7 +489,7 @@ function VendorRegisterTab() {
         )}
       </Button>
 
-      <p className="text-xs text-gray-500 text-center">
+      <p className="text-xs text-(--color-text-muted) text-center">
         By registering, you agree to our seller terms and conditions.
       </p>
     </form>
@@ -504,28 +504,28 @@ export default function VendorLoginPage() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 bg-white">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 bg-(--color-surface)">
         <div className="w-full max-w-lg">
           {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25 group-hover:shadow-purple-500/40 transition-shadow">
+              <div className="w-12 h-12 bg-linear-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25 group-hover:shadow-purple-500/40 transition-shadow">
                 <Store className="h-6 w-6 text-white" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-linear-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
                 Vendor Portal
               </span>
             </Link>
           </div>
 
           {/* Tabs */}
-          <div className="flex mb-6 bg-gray-100 rounded-xl p-1">
+          <div className="flex mb-6 bg-(--color-elevated) rounded-xl p-1">
             <button
               onClick={() => setActiveTab('login')}
               className={`flex-1 py-3 text-sm font-semibold rounded-lg transition-all ${
                 activeTab === 'login'
-                  ? 'bg-white text-purple-700 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-(--color-surface) text-(--color-info) shadow-sm'
+                  : 'text-(--color-text-muted) hover:text-foreground'
               }`}
             >
               Sign In
@@ -534,8 +534,8 @@ export default function VendorLoginPage() {
               onClick={() => setActiveTab('register')}
               className={`flex-1 py-3 text-sm font-semibold rounded-lg transition-all ${
                 activeTab === 'register'
-                  ? 'bg-white text-purple-700 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'bg-(--color-surface) text-(--color-info) shadow-sm'
+                  : 'text-(--color-text-muted) hover:text-foreground'
               }`}
             >
               Register as Vendor
@@ -543,16 +543,16 @@ export default function VendorLoginPage() {
           </div>
 
           {/* Tab Content */}
-          <Card className="border-slate-200 shadow-xl shadow-slate-200/50">
+          <Card className="border-(--color-border) shadow-xl shadow-(--shadow-sm)">
             <CardContent className="p-6 sm:p-8">
               {activeTab === 'login' ? <VendorLoginTab /> : <VendorRegisterTab />}
             </CardContent>
           </Card>
 
           {/* Customer login link */}
-          <p className="text-center text-sm text-gray-500 mt-6">
+          <p className="text-center text-sm text-(--color-text-muted) mt-6">
             Looking for customer login?{' '}
-            <Link href="/login" className="text-purple-600 hover:text-purple-700 font-medium">
+            <Link href="/login" className="text-(--color-info) hover:text-(--color-info) font-medium">
               Sign in here
             </Link>
           </p>
@@ -560,7 +560,7 @@ export default function VendorLoginPage() {
       </div>
 
       {/* Right Side - Benefits */}
-      <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-purple-600 via-indigo-700 to-purple-800 relative overflow-hidden">
+      <div className="hidden lg:flex lg:flex-1 bg-linear-to-br from-purple-600 via-indigo-700 to-purple-800 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0" style={{
@@ -569,7 +569,7 @@ export default function VendorLoginPage() {
         </div>
 
         {/* Floating Elements */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
+        <div className="absolute top-20 left-20 w-32 h-32 bg-(--color-surface)/10 rounded-full blur-3xl" />
         <div className="absolute bottom-20 right-20 w-40 h-40 bg-indigo-400/20 rounded-full blur-3xl" />
         <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-purple-300/10 rounded-full blur-2xl" />
 
@@ -589,9 +589,9 @@ export default function VendorLoginPage() {
               {vendorBenefits.map((benefit, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20"
+                  className="flex items-start gap-4 p-4 bg-(--color-surface)/10 backdrop-blur-sm rounded-xl border border-white/20"
                 >
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 bg-(--color-surface)/20 rounded-xl flex items-center justify-center shrink-0">
                     <benefit.icon className="h-6 w-6 text-white" />
                   </div>
                   <div>
@@ -604,15 +604,15 @@ export default function VendorLoginPage() {
 
             {/* Stats */}
             <div className="mt-8 grid grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-white/10 rounded-xl">
+              <div className="text-center p-4 bg-(--color-surface)/10 rounded-xl">
                 <p className="text-2xl font-bold text-white">500+</p>
                 <p className="text-sm text-purple-200">Active Vendors</p>
               </div>
-              <div className="text-center p-4 bg-white/10 rounded-xl">
+              <div className="text-center p-4 bg-(--color-surface)/10 rounded-xl">
                 <p className="text-2xl font-bold text-white">10K+</p>
                 <p className="text-sm text-purple-200">Products</p>
               </div>
-              <div className="text-center p-4 bg-white/10 rounded-xl">
+              <div className="text-center p-4 bg-(--color-surface)/10 rounded-xl">
                 <p className="text-2xl font-bold text-white">15%</p>
                 <p className="text-sm text-purple-200">Commission</p>
               </div>

@@ -26,7 +26,7 @@ export function SortSelect({ options, currentSort }: SortSelectProps) {
   return (
     <select
       defaultValue={currentSort}
-      className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+      className="text-sm border border-(--color-border) rounded-lg px-3 py-2 focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
       onChange={handleChange}
     >
       {options.map((option) => (

@@ -55,12 +55,12 @@ export function GiftCardBalance() {
           onChange={(e) => setCode(formatCode(e.target.value))}
           placeholder="XXXX-XXXX-XXXX-XXXX"
           maxLength={19}
-          className="flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-mono text-center uppercase"
+          className="flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary) font-mono text-center uppercase"
         />
         <button
           onClick={checkBalance}
           disabled={loading || !code.trim()}
-          className="px-4 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+          className="px-4 py-3 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-dark) disabled:opacity-50"
         >
           {loading ? (
             <Loader2 className="h-5 w-5 animate-spin" />
@@ -71,26 +71,26 @@ export function GiftCardBalance() {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
-          <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
-          <p className="text-red-700 text-sm">{error}</p>
+        <div className="p-4 bg-(--color-error-light) border border-(--color-error) rounded-lg flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-(--color-error) shrink-0" />
+          <p className="text-(--color-error) text-sm">{error}</p>
         </div>
       )}
 
       {result && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+        <div className="p-4 bg-(--brand-primary-light) border border-(--brand-primary) rounded-lg">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
-              <Gift className="h-5 w-5 text-emerald-600" />
+            <div className="w-10 h-10 bg-(--brand-primary-light) rounded-full flex items-center justify-center">
+              <Gift className="h-5 w-5 text-(--brand-primary)" />
             </div>
             <div>
-              <p className="text-sm text-emerald-600 font-medium">Available Balance</p>
-              <p className="text-2xl font-bold text-emerald-800">
+              <p className="text-sm text-(--brand-primary) font-medium">Available Balance</p>
+              <p className="text-2xl font-bold text-(--brand-primary)">
                 {formatPrice(result.balance_pence)}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm text-emerald-600">
+          <div className="flex items-center gap-2 text-sm text-(--brand-primary)">
             <Calendar className="h-4 w-4" />
             <span>
               Valid until {format(new Date(result.expires_at), 'dd MMM yyyy')}

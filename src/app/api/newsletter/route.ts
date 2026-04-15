@@ -99,13 +99,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Get user's email from profile
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('profiles')
       .select('email')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (!profile?.email) {
+    if (profileError || !profile?.email) {
       return NextResponse.json({ subscribed: false })
     }
 
@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
       .from('newsletter_subscribers')
       .select('id, status, preferences, created_at')
       .eq('email', profile.email)
-      .single()
+      .maybeSingle()
 
     if (!subscriber || subscriber.status !== 'active') {
       return NextResponse.json({ subscribed: false })
@@ -149,7 +149,7 @@ export async function PUT(request: NextRequest) {
       .from('profiles')
       .select('email')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
 
     if (!profile?.email) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })

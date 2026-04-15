@@ -71,11 +71,11 @@ export default function AdminStockAlertsPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-amber-100 text-amber-700'
-      case 'notified': return 'bg-emerald-100 text-emerald-700'
-      case 'purchased': return 'bg-blue-100 text-blue-700'
-      case 'cancelled': return 'bg-gray-100 text-gray-700'
-      default: return 'bg-gray-100 text-gray-700'
+      case 'active': return 'bg-(--brand-amber-soft) text-(--brand-amber)'
+      case 'notified': return 'bg-(--brand-primary-light) text-(--brand-primary)'
+      case 'purchased': return 'bg-(--color-info-bg) text-(--color-info)'
+      case 'cancelled': return 'bg-(--color-elevated) text-foreground'
+      default: return 'bg-(--color-elevated) text-foreground'
     }
   }
 
@@ -85,11 +85,11 @@ export default function AdminStockAlertsPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Bell className="h-7 w-7 text-emerald-600" />
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <Bell className="h-7 w-7 text-(--brand-primary)" />
               Stock Alerts
             </h1>
-            <p className="text-gray-500 mt-1">
+            <p className="text-(--color-text-muted) mt-1">
               Manage back-in-stock notification subscriptions
             </p>
           </div>
@@ -98,47 +98,47 @@ export default function AdminStockAlertsPage() {
         {/* Stats */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <Bell className="h-5 w-5 text-emerald-600" />
+                <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center">
+                  <Bell className="h-5 w-5 text-(--brand-primary)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Total Alerts</p>
-                  <p className="text-xl font-bold text-gray-900">{stats.total_alerts}</p>
+                  <p className="text-sm text-(--color-text-muted)">Total Alerts</p>
+                  <p className="text-xl font-bold text-foreground">{stats.total_alerts}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-                  <AlertCircle className="h-5 w-5 text-amber-600" />
+                <div className="w-10 h-10 bg-(--brand-amber-soft) rounded-lg flex items-center justify-center">
+                  <AlertCircle className="h-5 w-5 text-(--brand-amber)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Pending</p>
-                  <p className="text-xl font-bold text-gray-900">{stats.pending_alerts}</p>
+                  <p className="text-sm text-(--color-text-muted)">Pending</p>
+                  <p className="text-xl font-bold text-foreground">{stats.pending_alerts}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="h-5 w-5 text-blue-600" />
+                <div className="w-10 h-10 bg-(--color-info-bg) rounded-lg flex items-center justify-center">
+                  <CheckCircle className="h-5 w-5 text-(--color-info)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Notified</p>
-                  <p className="text-xl font-bold text-gray-900">{stats.notified_alerts}</p>
+                  <p className="text-sm text-(--color-text-muted)">Notified</p>
+                  <p className="text-xl font-bold text-foreground">{stats.notified_alerts}</p>
                 </div>
               </div>
             </div>
-            <div className="bg-white rounded-xl p-4 border border-gray-200">
+            <div className="bg-(--color-surface) rounded-xl p-4 border border-(--color-border)">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <Package className="h-5 w-5 text-purple-600" />
+                <div className="w-10 h-10 bg-(--color-info-bg) rounded-lg flex items-center justify-center">
+                  <Package className="h-5 w-5 text-(--color-info)" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Unique Products</p>
-                  <p className="text-xl font-bold text-gray-900">{stats.unique_products}</p>
+                  <p className="text-sm text-(--color-text-muted)">Unique Products</p>
+                  <p className="text-xl font-bold text-foreground">{stats.unique_products}</p>
                 </div>
               </div>
             </div>
@@ -147,15 +147,15 @@ export default function AdminStockAlertsPage() {
 
         {/* Filters */}
         <div className="flex items-center gap-4">
-          <div className="flex bg-gray-100 rounded-lg p-1">
+          <div className="flex bg-(--color-elevated) rounded-lg p-1">
             {['all', 'active', 'notified', 'purchased'].map((status) => (
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   statusFilter === status
-                    ? 'bg-white shadow text-gray-900'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-(--color-surface) shadow text-foreground'
+                    : 'text-(--color-text-secondary) hover:text-foreground'
                 }`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -164,13 +164,13 @@ export default function AdminStockAlertsPage() {
           </div>
 
           <div className="flex-1 relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by product or email..."
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
             />
           </div>
         </div>
@@ -178,41 +178,41 @@ export default function AdminStockAlertsPage() {
         {/* Alerts List */}
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
           </div>
         ) : filteredAlerts.length === 0 ? (
-          <div className="text-center py-12 bg-gray-50 rounded-xl">
-            <Bell className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-            <p className="text-gray-500">No stock alerts found</p>
+          <div className="text-center py-12 bg-background rounded-xl">
+            <Bell className="h-12 w-12 mx-auto text-(--color-text-disabled) mb-4" />
+            <p className="text-(--color-text-muted)">No stock alerts found</p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="bg-(--color-surface) rounded-xl shadow-sm border border-(--color-border) overflow-hidden">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-background border-b">
                 <tr>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Product
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Customer
                   </th>
-                  <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-center px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Stock
                   </th>
-                  <th className="text-center px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-center px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Status
                   </th>
-                  <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase">
+                  <th className="text-left px-6 py-3 text-xs font-medium text-(--color-text-muted) uppercase">
                     Subscribed
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-(--color-border)">
                 {filteredAlerts.map((alert) => (
-                  <tr key={alert.id} className="hover:bg-gray-50">
+                  <tr key={alert.id} className="hover:bg-background">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden">
+                        <div className="w-12 h-12 bg-(--color-elevated) rounded-lg overflow-hidden">
                           {alert.product.image_url ? (
                             <Image
                               src={alert.product.image_url}
@@ -223,26 +223,26 @@ export default function AdminStockAlertsPage() {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">
-                              <Package className="h-6 w-6 text-gray-300" />
+                              <Package className="h-6 w-6 text-(--color-text-disabled)" />
                             </div>
                           )}
                         </div>
-                        <p className="text-sm font-medium text-gray-900 line-clamp-2">
+                        <p className="text-sm font-medium text-foreground line-clamp-2">
                           {alert.product.name}
                         </p>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="text-sm text-gray-900">
+                      <p className="text-sm text-foreground">
                         {alert.user?.full_name || 'Guest'}
                       </p>
-                      <p className="text-xs text-gray-500">{alert.email}</p>
+                      <p className="text-xs text-(--color-text-muted)">{alert.email}</p>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                         alert.product.stock_quantity > 0
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-red-100 text-red-700'
+                          ? 'bg-(--brand-primary-light) text-(--brand-primary)'
+                          : 'bg-(--color-error-bg) text-(--color-error)'
                       }`}>
                         {alert.product.stock_quantity > 0
                           ? `${alert.product.stock_quantity} in stock`
@@ -255,11 +255,11 @@ export default function AdminStockAlertsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-(--color-text-secondary)">
                         {formatDistanceToNow(new Date(alert.created_at))} ago
                       </span>
                       {alert.notified_at && (
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-(--color-text-muted)">
                           Notified {formatDistanceToNow(new Date(alert.notified_at))} ago
                         </p>
                       )}

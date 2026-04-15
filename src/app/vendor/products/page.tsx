@@ -110,7 +110,7 @@ export default function VendorProducts() {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -120,11 +120,11 @@ export default function VendorProducts() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Products</h1>
-          <p className="text-gray-600">{products.length} total products</p>
+          <h1 className="text-2xl font-bold text-foreground">Products</h1>
+          <p className="text-(--color-text-secondary)">{products.length} total products</p>
         </div>
         <Link href="/vendor/products/new">
-          <Button className="bg-emerald-600 hover:bg-emerald-700">
+          <Button className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
             <Plus className="h-4 w-4 mr-2" />
             Add Product
           </Button>
@@ -132,10 +132,10 @@ export default function VendorProducts() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+      <div className="bg-(--color-surface) rounded-xl shadow-sm p-4 mb-6">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
             <Input
               placeholder="Search products..."
               value={search}
@@ -146,7 +146,7 @@ export default function VendorProducts() {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+            className="px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
           >
             <option value="all">All Products</option>
             <option value="active">Active</option>
@@ -158,36 +158,36 @@ export default function VendorProducts() {
 
       {/* Products Table */}
       {filteredProducts.length > 0 ? (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm overflow-hidden">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b">
+            <thead className="bg-background border-b">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+                <th className="px-6 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wider hidden md:table-cell">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wider">
                   Price
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
+                <th className="px-6 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wider hidden sm:table-cell">
                   Stock
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-(--color-text-muted) uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-right text-xs font-medium text-(--color-text-muted) uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-(--color-border)">
               {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
+                <tr key={product.id} className="hover:bg-background">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                      <div className="h-10 w-10 bg-(--color-elevated) rounded-lg overflow-hidden shrink-0">
                         {product.image_url ? (
                           <Image
                             src={product.image_url}
@@ -198,17 +198,17 @@ export default function VendorProducts() {
                           />
                         ) : (
                           <div className="h-full w-full flex items-center justify-center">
-                            <Package className="h-5 w-5 text-gray-400" />
+                            <Package className="h-5 w-5 text-(--color-text-disabled)" />
                           </div>
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-medium text-gray-900 truncate">{product.name}</p>
+                        <p className="font-medium text-foreground truncate">{product.name}</p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap hidden md:table-cell">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-(--color-text-secondary)">
                       {product.product_categories?.[0]?.categories?.name || 'Uncategorized'}
                     </span>
                   </td>
@@ -216,15 +216,15 @@ export default function VendorProducts() {
                     <div>
                       {product.compare_at_price_pence ? (
                         <>
-                          <span className="font-medium text-emerald-600">
+                          <span className="font-medium text-(--brand-primary)">
                             {formatPrice(product.price_pence)}
                           </span>
-                          <span className="text-sm text-gray-400 line-through ml-2">
+                          <span className="text-sm text-(--color-text-disabled) line-through ml-2">
                             {formatPrice(product.compare_at_price_pence)}
                           </span>
                         </>
                       ) : (
-                        <span className="font-medium text-gray-900">
+                        <span className="font-medium text-foreground">
                           {formatPrice(product.price_pence)}
                         </span>
                       )}
@@ -232,9 +232,9 @@ export default function VendorProducts() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                     <span className={`text-sm ${
-                      product.stock_quantity === 0 ? 'text-red-600 font-medium' :
-                      product.stock_quantity < 10 ? 'text-yellow-600' :
-                      'text-gray-600'
+                      product.stock_quantity === 0 ? 'text-(--color-error) font-medium' :
+                      product.stock_quantity < 10 ? 'text-(--color-warning)' :
+                      'text-(--color-text-secondary)'
                     }`}>
                       {product.stock_quantity}
                       {product.stock_quantity < 10 && product.stock_quantity > 0 && (
@@ -248,8 +248,8 @@ export default function VendorProducts() {
                       disabled={actionLoading === product.id}
                       className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
                         product.is_active
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-gray-100 text-gray-600'
+                          ? 'bg-(--brand-primary-light) text-(--brand-primary)'
+                          : 'bg-(--color-elevated) text-(--color-text-secondary)'
                       }`}
                     >
                       {actionLoading === product.id ? (
@@ -266,14 +266,14 @@ export default function VendorProducts() {
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/vendor/products/${product.id}/edit`}
-                        className="p-2 text-gray-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg"
+                        className="p-2 text-(--color-text-secondary) hover:text-(--brand-primary) hover:bg-(--brand-primary-light) rounded-lg"
                       >
                         <Edit className="h-4 w-4" />
                       </Link>
                       <button
                         onClick={() => deleteProduct(product.id)}
                         disabled={actionLoading === product.id}
-                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg"
+                        className="p-2 text-(--color-text-secondary) hover:text-(--color-error) hover:bg-(--color-error-bg) rounded-lg"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -285,14 +285,14 @@ export default function VendorProducts() {
           </table>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm p-12 text-center">
-          <Package className="h-16 w-16 mx-auto text-gray-300 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Products Yet</h3>
-          <p className="text-gray-600 mb-6">
+        <div className="bg-(--color-surface) rounded-xl shadow-sm p-12 text-center">
+          <Package className="h-16 w-16 mx-auto text-(--color-text-disabled) mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">No Products Yet</h3>
+          <p className="text-(--color-text-secondary) mb-6">
             Start adding products to your store to reach customers.
           </p>
           <Link href="/vendor/products/new">
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors">
               <Plus className="h-4 w-4 mr-2" />
               Add Your First Product
             </Button>

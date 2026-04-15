@@ -5,75 +5,109 @@ test.describe('Homepage', () => {
     await page.goto('/')
   })
 
-  test('has correct title', async ({ page }) => {
-    await expect(page).toHaveTitle(/FreshMart|UK Grocery|Grocery/)
+  test('renders hero section with CTA', async ({ page }) => {
+    await expect(page.locator('h1')).toBeVisible()
+    const shopLink = page.getByRole('link', { name: /shop/i }).first()
+    await expect(shopLink).toBeVisible()
   })
 
-  test('displays navigation header', async ({ page }) => {
-    const header = page.locator('header')
-    await expect(header).toBeVisible()
-  })
-
-  test('displays hero section', async ({ page }) => {
-    // Hero section should be visible
-    const heroSection = page.locator('[data-testid="hero-section"], section').first()
-    await expect(heroSection).toBeVisible()
-  })
-
-  test('has working search functionality', async ({ page }) => {
-    // Find search input
-    const searchInput = page.locator('input[type="search"], input[placeholder*="Search"], [data-testid="search-input"]').first()
-
-    if (await searchInput.isVisible()) {
-      await searchInput.fill('banana')
-      await searchInput.press('Enter')
-
-      // Should navigate to search results
-      await expect(page).toHaveURL(/search|products/)
+  test('renders category grid', async ({ page }) => {
+    const categorySection = page.locator(
+      'text=/shop by category|categories|browse/i'
+    ).first()
+    if (await categorySection.isVisible()) {
+      await expect(categorySection).toBeVisible()
     }
-  })
 
-  test('displays category navigation', async ({ page }) => {
-    // Should have links to categories
+    // Category links should exist somewhere on the page
     const categoryLinks = page.locator('a[href*="categories"], a[href*="category"]')
     const count = await categoryLinks.count()
     expect(count).toBeGreaterThan(0)
   })
 
-  test('has working cart button', async ({ page }) => {
-    const cartButton = page.locator('[data-testid="cart-button"], button:has-text("Cart"), a[href*="cart"], [aria-label*="cart" i]').first()
+  test('renders trust bar', async ({ page }) => {
+    // Look for trust indicators (delivery, freshness, support, etc.)
+    const trustIndicators = page.locator(
+      'text=/free delivery|freshness|fresh|guarantee|support|quality/i'
+    )
+    const count = await trustIndicators.count()
+    expect(count).toBeGreaterThan(0)
+  })
 
-    // Cart button should exist and be clickable
-    if (await cartButton.isVisible()) {
-      await expect(cartButton).toBeEnabled()
-      // Just verify the button is interactive - cart behavior varies by implementation
-      await cartButton.click()
-      // Wait briefly for any reaction
-      await page.waitForTimeout(500)
+  test('renders newsletter signup', async ({ page }) => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await page.waitForTimeout(500)
+
+    const emailInput = page.getByPlaceholder(/email/i).first()
+    if (await emailInput.isVisible()) {
+      await expect(emailInput).toBeVisible()
     }
   })
 
-  test('displays footer', async ({ page }) => {
-    const footer = page.locator('footer')
-    await expect(footer).toBeVisible()
+  test('header is sticky on scroll', async ({ page }) => {
+    await page.evaluate(() => window.scrollTo(0, 500))
+    await page.waitForTimeout(300)
+    await expect(page.locator('header')).toBeVisible()
   })
 
-  test('footer has important links', async ({ page }) => {
+  test('announcement bar is dismissible', async ({ page }) => {
+    const dismissBtn = page.getByLabel(/dismiss/i).first()
+    if (await dismissBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await dismissBtn.click()
+      await page.waitForTimeout(300)
+    }
+  })
+
+  test('footer renders all sections', async ({ page }) => {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
+    await page.waitForTimeout(300)
+
     const footer = page.locator('footer')
     await expect(footer).toBeVisible()
 
-    // Check for common footer links
-    const importantLinks = [
+    // Footer should contain important links
+    const footerLinks = [
       'a[href*="privacy"]',
       'a[href*="terms"]',
       'a[href*="contact"]',
     ]
-
-    for (const selector of importantLinks) {
+    for (const selector of footerLinks) {
       const link = page.locator(selector).first()
       if (await link.isVisible()) {
         await expect(link).toBeVisible()
       }
+    }
+  })
+
+  test('has correct title', async ({ page }) => {
+    await expect(page).toHaveTitle(/FreshMart|UK Grocery|Grocery/)
+  })
+
+  test('has working search functionality', async ({ page }) => {
+    const searchInput = page
+      .locator(
+        'input[type="search"], input[placeholder*="Search"], [data-testid="search-input"]'
+      )
+      .first()
+
+    if (await searchInput.isVisible()) {
+      await searchInput.fill('banana')
+      await searchInput.press('Enter')
+      await expect(page).toHaveURL(/search|products/)
+    }
+  })
+
+  test('has working cart button', async ({ page }) => {
+    const cartButton = page
+      .locator(
+        '[data-testid="cart-button"], button:has-text("Cart"), a[href*="cart"], [aria-label*="cart" i]'
+      )
+      .first()
+
+    if (await cartButton.isVisible()) {
+      await expect(cartButton).toBeEnabled()
+      await cartButton.click()
+      await page.waitForTimeout(500)
     }
   })
 })
@@ -83,12 +117,8 @@ test.describe('Homepage Responsiveness', () => {
     await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/')
 
-    // Page should still load
-    await expect(page.locator('body')).toBeVisible()
-
-    // Either mobile menu button exists or header is visible
-    const hasHeader = await page.locator('header').first().isVisible()
-    expect(hasHeader).toBe(true)
+    await expect(page.locator('header').first()).toBeVisible()
+    await expect(page.locator('footer')).toBeVisible()
   })
 
   test('renders correctly on tablet', async ({ page }) => {
@@ -96,6 +126,7 @@ test.describe('Homepage Responsiveness', () => {
     await page.goto('/')
 
     await expect(page.locator('body')).toBeVisible()
+    await expect(page.locator('header').first()).toBeVisible()
   })
 
   test('renders correctly on desktop', async ({ page }) => {
@@ -103,5 +134,6 @@ test.describe('Homepage Responsiveness', () => {
     await page.goto('/')
 
     await expect(page.locator('body')).toBeVisible()
+    await expect(page.locator('header').first()).toBeVisible()
   })
 })

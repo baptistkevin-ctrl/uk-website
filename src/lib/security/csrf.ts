@@ -199,11 +199,6 @@ export const csrfExemptRoutes = [
   '/api/webhooks/stripe', // Stripe webhooks use signature verification
   '/api/webhooks/supabase', // Supabase webhooks
   '/api/cron/', // Cron jobs
-  '/api/admin/seed-products', // Database seeding
-  '/api/admin/seed-categories', // Database seeding
-  '/api/admin/seed-accounts', // Account seeding
-  '/api/admin/fix-products', // Product category fix
-  '/api/setup/', // Setup endpoints
   '/api/chat', // Chat uses session-based auth
   '/api/chat/', // Chat message endpoints
   '/api/vendor/stripe/', // Stripe Connect endpoints use Stripe auth

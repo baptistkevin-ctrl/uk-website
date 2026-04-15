@@ -108,12 +108,12 @@ export function ReviewForm({ productId, productName, onSuccess, onCancel }: Revi
 
   if (success) {
     return (
-      <div className="bg-green-50 rounded-xl p-6 text-center">
-        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Check className="h-6 w-6 text-green-600" />
+      <div className="bg-(--brand-primary-light) rounded-xl p-6 text-center">
+        <div className="w-12 h-12 bg-(--brand-primary-light) rounded-full flex items-center justify-center mx-auto mb-4">
+          <Check className="h-6 w-6 text-(--brand-primary)" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Thank You!</h3>
-        <p className="text-gray-600">
+        <h3 className="text-lg font-semibold text-foreground mb-2">Thank You!</h3>
+        <p className="text-(--color-text-secondary)">
           Your review has been submitted and is pending approval.
         </p>
       </div>
@@ -123,13 +123,13 @@ export function ReviewForm({ productId, productName, onSuccess, onCancel }: Revi
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Write a Review</h3>
-        <p className="text-sm text-gray-500">Share your experience with {productName}</p>
+        <h3 className="text-lg font-semibold text-foreground mb-2">Write a Review</h3>
+        <p className="text-sm text-(--color-text-muted)">Share your experience with {productName}</p>
       </div>
 
       {/* Rating */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-(--color-text-secondary) mb-2">
           Your Rating *
         </label>
         <div className="flex gap-1">
@@ -146,12 +146,12 @@ export function ReviewForm({ productId, productName, onSuccess, onCancel }: Revi
                 className={`h-8 w-8 ${
                   star <= (hoveredRating || rating)
                     ? 'fill-yellow-400 text-yellow-400'
-                    : 'text-gray-300'
+                    : 'text-(--color-text-disabled)'
                 } transition-colors`}
               />
             </button>
           ))}
-          <span className="ml-2 text-sm text-gray-500 self-center">
+          <span className="ml-2 text-sm text-(--color-text-muted) self-center">
             {rating > 0 && (
               <>
                 {rating === 1 && 'Poor'}
@@ -167,7 +167,7 @@ export function ReviewForm({ productId, productName, onSuccess, onCancel }: Revi
 
       {/* Title */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-(--color-text-secondary) mb-1">
           Review Title
         </label>
         <input
@@ -175,14 +175,14 @@ export function ReviewForm({ productId, productName, onSuccess, onCancel }: Revi
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Sum up your experience in a few words"
-          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
           maxLength={100}
         />
       </div>
 
       {/* Content */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-(--color-text-secondary) mb-1">
           Your Review
         </label>
         <textarea
@@ -190,15 +190,15 @@ export function ReviewForm({ productId, productName, onSuccess, onCancel }: Revi
           onChange={(e) => setContent(e.target.value)}
           placeholder="What did you like or dislike? How did you use the product?"
           rows={4}
-          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary) resize-none"
           maxLength={1000}
         />
-        <p className="text-xs text-gray-400 mt-1">{content.length}/1000 characters</p>
+        <p className="text-xs text-(--color-text-disabled) mt-1">{content.length}/1000 characters</p>
       </div>
 
       {/* Image Upload */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-(--color-text-secondary) mb-2">
           Add Photos (optional)
         </label>
         <div className="flex flex-wrap gap-3">
@@ -213,7 +213,7 @@ export function ReviewForm({ productId, productName, onSuccess, onCancel }: Revi
               <button
                 type="button"
                 onClick={() => removeImage(index)}
-                className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute -top-2 -right-2 w-6 h-6 bg-(--color-error) text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -221,7 +221,7 @@ export function ReviewForm({ productId, productName, onSuccess, onCancel }: Revi
           ))}
 
           {images.length < 5 && (
-            <label className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition-colors">
+            <label className="w-20 h-20 border-2 border-dashed border-(--color-border) rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-(--brand-primary) hover:bg-(--brand-primary-light) transition-colors">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -232,24 +232,24 @@ export function ReviewForm({ productId, productName, onSuccess, onCancel }: Revi
                 disabled={uploading}
               />
               {uploading ? (
-                <Loader2 className="h-6 w-6 text-gray-400 animate-spin" />
+                <Loader2 className="h-6 w-6 text-(--color-text-disabled) animate-spin" />
               ) : (
                 <>
-                  <Camera className="h-6 w-6 text-gray-400" />
-                  <span className="text-xs text-gray-500 mt-1">Add</span>
+                  <Camera className="h-6 w-6 text-(--color-text-disabled)" />
+                  <span className="text-xs text-(--color-text-muted) mt-1">Add</span>
                 </>
               )}
             </label>
           )}
         </div>
-        <p className="text-xs text-gray-400 mt-2">
+        <p className="text-xs text-(--color-text-disabled) mt-2">
           Upload up to 5 images. Max 5MB each. JPEG, PNG, WebP, or GIF.
         </p>
       </div>
 
       {/* Error */}
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="p-3 bg-(--color-error)/5 border border-(--color-error)/20 rounded-lg text-(--color-error) text-sm">
           {error}
         </div>
       )}
@@ -260,7 +260,7 @@ export function ReviewForm({ productId, productName, onSuccess, onCancel }: Revi
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+            className="flex-1 px-4 py-2 border border-(--color-border) text-(--color-text-secondary) rounded-lg hover:bg-background"
           >
             Cancel
           </button>
@@ -268,7 +268,7 @@ export function ReviewForm({ productId, productName, onSuccess, onCancel }: Revi
         <button
           type="submit"
           disabled={submitting || rating === 0}
-          className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="flex-1 px-4 py-2.5 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover) disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {submitting ? (
             <>

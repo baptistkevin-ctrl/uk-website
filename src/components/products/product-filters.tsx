@@ -120,10 +120,10 @@ function ProductFiltersContent() {
   const FiltersContent = () => (
     <div className="space-y-6">
       {/* Search */}
-      <Card className="border-slate-200 shadow-sm">
+      <Card className="border-(--color-border) shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Search className="h-4 w-4 text-emerald-600" />
+            <Search className="h-4 w-4 text-(--brand-primary)" />
             Search Products
           </CardTitle>
         </CardHeader>
@@ -141,13 +141,13 @@ function ProductFiltersContent() {
                 <button
                   type="button"
                   onClick={() => setSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-(--color-text-disabled) hover:text-(--color-text-secondary)"
                 >
                   <X className="h-4 w-4" />
                 </button>
               )}
             </div>
-            <Button type="submit" size="icon" className="bg-emerald-600 hover:bg-emerald-700 shrink-0">
+            <Button type="submit" size="icon" className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) shrink-0">
               <Search className="h-4 w-4" />
             </Button>
           </form>
@@ -155,10 +155,10 @@ function ProductFiltersContent() {
       </Card>
 
       {/* Sort */}
-      <Card className="border-slate-200 shadow-sm">
+      <Card className="border-(--color-border) shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <ArrowUpDown className="h-4 w-4 text-emerald-600" />
+            <ArrowUpDown className="h-4 w-4 text-(--brand-primary)" />
             Sort By
           </CardTitle>
         </CardHeader>
@@ -174,7 +174,7 @@ function ProductFiltersContent() {
               {sortOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   <div className="flex items-center gap-2">
-                    <option.icon className="h-4 w-4 text-gray-400" />
+                    <option.icon className="h-4 w-4 text-(--color-text-disabled)" />
                     {option.label}
                   </div>
                 </SelectItem>
@@ -185,10 +185,10 @@ function ProductFiltersContent() {
       </Card>
 
       {/* Dietary Filters */}
-      <Card className="border-slate-200 shadow-sm">
+      <Card className="border-(--color-border) shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Filter className="h-4 w-4 text-emerald-600" />
+            <Filter className="h-4 w-4 text-(--brand-primary)" />
             Dietary Preferences
           </CardTitle>
         </CardHeader>
@@ -203,25 +203,25 @@ function ProductFiltersContent() {
                   onClick={() => handleDietaryFilter(filter.key, !isActive)}
                   className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all duration-200 ${
                     isActive
-                      ? 'border-emerald-500 bg-emerald-50'
-                      : 'border-slate-100 bg-slate-50 hover:border-slate-200 hover:bg-slate-100'
+                      ? 'border-(--brand-primary) bg-(--brand-primary-light)'
+                      : 'border-(--color-border) bg-background hover:border-(--color-border) hover:bg-(--color-elevated)'
                   }`}
                 >
                   <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    isActive ? 'bg-emerald-500 text-white' : 'bg-white text-gray-400'
+                    isActive ? 'bg-(--brand-primary) text-white' : 'bg-(--color-surface) text-(--color-text-disabled)'
                   }`}>
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="flex-1 text-left">
-                    <p className={`text-sm font-medium ${isActive ? 'text-emerald-700' : 'text-gray-700'}`}>
+                    <p className={`text-sm font-medium ${isActive ? 'text-(--brand-primary)' : 'text-(--color-text-secondary)'}`}>
                       {filter.label}
                     </p>
-                    <p className="text-xs text-gray-500">{filter.description}</p>
+                    <p className="text-xs text-(--color-text-muted)">{filter.description}</p>
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                     isActive
-                      ? 'border-emerald-500 bg-emerald-500'
-                      : 'border-gray-300'
+                      ? 'border-(--brand-primary) bg-(--brand-primary)'
+                      : 'border-(--color-border)'
                   }`}>
                     {isActive && <Check className="h-3 w-3 text-white" />}
                   </div>
@@ -235,7 +235,7 @@ function ProductFiltersContent() {
       {hasActiveFilters && (
         <Button
           variant="outline"
-          className="w-full border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+          className="w-full border-(--color-error) text-(--color-error) hover:bg-(--color-error)/5 hover:text-(--color-error)"
           onClick={clearFilters}
         >
           <X className="h-4 w-4 mr-2" />
@@ -250,12 +250,12 @@ function ProductFiltersContent() {
       {/* Desktop Filters */}
       <div className="hidden lg:block">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-gray-900 flex items-center gap-2">
-            <SlidersHorizontal className="h-5 w-5 text-emerald-600" />
+          <h2 className="font-bold text-foreground flex items-center gap-2">
+            <SlidersHorizontal className="h-5 w-5 text-(--brand-primary)" />
             Filters
           </h2>
           {activeFilterCount > 0 && (
-            <Badge className="bg-emerald-100 text-emerald-700">
+            <Badge className="bg-(--brand-primary-light) text-(--brand-primary)">
               {activeFilterCount} active
             </Badge>
           )}
@@ -265,12 +265,12 @@ function ProductFiltersContent() {
 
       {/* Mobile Filters */}
       <div className="lg:hidden">
-        <Card className="border-slate-200 shadow-sm mb-4">
+        <Card className="border-(--color-border) shadow-sm mb-4">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <form onSubmit={handleSearch} className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
                   <Input
                     type="search"
                     placeholder="Search products..."
@@ -287,7 +287,7 @@ function ProductFiltersContent() {
                     <SlidersHorizontal className="h-4 w-4 mr-2" />
                     Filters
                     {activeFilterCount > 0 && (
-                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-emerald-600">
+                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center bg-(--brand-primary)">
                         {activeFilterCount}
                       </Badge>
                     )}
@@ -296,10 +296,10 @@ function ProductFiltersContent() {
                 <SheetContent side="left" className="w-full sm:max-w-md overflow-y-auto">
                   <SheetHeader className="mb-6">
                     <SheetTitle className="flex items-center gap-2">
-                      <SlidersHorizontal className="h-5 w-5 text-emerald-600" />
+                      <SlidersHorizontal className="h-5 w-5 text-(--brand-primary)" />
                       Filters
                       {activeFilterCount > 0 && (
-                        <Badge className="bg-emerald-100 text-emerald-700">
+                        <Badge className="bg-(--brand-primary-light) text-(--brand-primary)">
                           {activeFilterCount} active
                         </Badge>
                       )}
@@ -319,7 +319,7 @@ function ProductFiltersContent() {
 function FiltersSkeleton() {
   return (
     <div className="space-y-6">
-      <Card className="border-slate-200">
+      <Card className="border-(--color-border)">
         <CardHeader className="pb-3">
           <Skeleton className="h-5 w-32" />
         </CardHeader>
@@ -327,7 +327,7 @@ function FiltersSkeleton() {
           <Skeleton className="h-10 w-full" />
         </CardContent>
       </Card>
-      <Card className="border-slate-200">
+      <Card className="border-(--color-border)">
         <CardHeader className="pb-3">
           <Skeleton className="h-5 w-24" />
         </CardHeader>
@@ -335,7 +335,7 @@ function FiltersSkeleton() {
           <Skeleton className="h-10 w-full" />
         </CardContent>
       </Card>
-      <Card className="border-slate-200">
+      <Card className="border-(--color-border)">
         <CardHeader className="pb-3">
           <Skeleton className="h-5 w-36" />
         </CardHeader>

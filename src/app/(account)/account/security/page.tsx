@@ -101,25 +101,25 @@ export default function SecurityPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Shield className="h-6 w-6 text-emerald-600" />
+        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <Shield className="h-6 w-6 text-(--brand-primary)" />
           Security Settings
         </h1>
-        <p className="text-gray-500 mt-1">Manage your account security and password</p>
+        <p className="text-(--color-text-muted) mt-1">Manage your account security and password</p>
       </div>
 
       {/* Change Password */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Lock className="h-5 w-5 text-gray-600" />
+            <Lock className="h-5 w-5 text-(--color-text-secondary)" />
             <h2 className="text-lg font-semibold">Change Password</h2>
           </div>
         </CardHeader>
         <CardContent>
           {/* Success Message */}
           {passwordSuccess && (
-            <div className="mb-6 flex items-center gap-2 p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700">
+            <div className="mb-6 flex items-center gap-2 p-4 bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-lg text-(--brand-primary)">
               <CheckCircle className="h-5 w-5" />
               Password changed successfully!
             </div>
@@ -127,7 +127,7 @@ export default function SecurityPage() {
 
           {/* Error Message */}
           {passwordError && (
-            <div className="mb-6 flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+            <div className="mb-6 flex items-center gap-2 p-4 bg-(--color-error-bg) border border-(--color-error)/20 rounded-lg text-(--color-error)">
               <AlertTriangle className="h-5 w-5" />
               {passwordError}
             </div>
@@ -151,7 +151,7 @@ export default function SecurityPage() {
                 <button
                   type="button"
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-md text-(--color-text-muted) hover:text-(--color-text-secondary) hover:bg-(--color-elevated) transition-colors"
                 >
                   {showCurrentPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -175,7 +175,7 @@ export default function SecurityPage() {
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-md text-(--color-text-muted) hover:text-(--color-text-secondary) hover:bg-(--color-elevated) transition-colors"
                 >
                   {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
@@ -188,7 +188,7 @@ export default function SecurityPage() {
                     <div
                       key={index}
                       className={`flex items-center gap-2 text-sm ${
-                        req.test ? 'text-emerald-600' : 'text-gray-500'
+                        req.test ? 'text-(--brand-primary)' : 'text-(--color-text-muted)'
                       }`}
                     >
                       <CheckCircle
@@ -218,7 +218,7 @@ export default function SecurityPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-md text-(--color-text-muted) hover:text-(--color-text-secondary) hover:bg-(--color-elevated) transition-colors"
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -229,14 +229,14 @@ export default function SecurityPage() {
               </div>
               {passwordForm.confirmPassword &&
                 passwordForm.newPassword !== passwordForm.confirmPassword && (
-                  <p className="text-sm text-red-600">Passwords do not match</p>
+                  <p className="text-sm text-(--color-error)">Passwords do not match</p>
                 )}
             </div>
 
             <Button
               type="submit"
               disabled={isChangingPassword || !isPasswordValid}
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
             >
               {isChangingPassword ? (
                 <>
@@ -258,15 +258,15 @@ export default function SecurityPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Smartphone className="h-5 w-5 text-gray-600" />
+            <Smartphone className="h-5 w-5 text-(--color-text-secondary)" />
             <h2 className="text-lg font-semibold">Two-Factor Authentication</h2>
           </div>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-gray-900">Authenticator App</p>
-              <p className="text-sm text-gray-500">
+              <p className="font-medium text-foreground">Authenticator App</p>
+              <p className="text-sm text-(--color-text-muted)">
                 Add an extra layer of security using an authenticator app
               </p>
             </div>
@@ -281,21 +281,21 @@ export default function SecurityPage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Monitor className="h-5 w-5 text-gray-600" />
+            <Monitor className="h-5 w-5 text-(--color-text-secondary)" />
             <h2 className="text-lg font-semibold">Active Sessions</h2>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Current Session */}
-          <div className="flex items-center justify-between p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-(--brand-primary-light) border border-(--brand-primary)/20 rounded-lg">
             <div className="flex items-center gap-3">
-              <Monitor className="h-8 w-8 text-emerald-600" />
+              <Monitor className="h-8 w-8 text-(--brand-primary)" />
               <div>
-                <p className="font-medium text-gray-900">Current Session</p>
-                <p className="text-sm text-gray-500">This device</p>
+                <p className="font-medium text-foreground">Current Session</p>
+                <p className="text-sm text-(--color-text-muted)">This device</p>
               </div>
             </div>
-            <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
+            <span className="px-2 py-1 bg-(--brand-primary-light) text-(--brand-primary) text-xs font-medium rounded-full">
               Active
             </span>
           </div>
@@ -304,15 +304,15 @@ export default function SecurityPage() {
           <div className="pt-4 border-t">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium text-gray-900">Sign out of all devices</p>
-                <p className="text-sm text-gray-500">
+                <p className="font-medium text-foreground">Sign out of all devices</p>
+                <p className="text-sm text-(--color-text-muted)">
                   This will sign you out of all devices including this one
                 </p>
               </div>
               <Button
                 variant="outline"
                 onClick={handleSignOutAllDevices}
-                className="text-red-600 border-red-200 hover:bg-red-50"
+                className="text-(--color-error) border-(--color-error)/20 hover:bg-(--color-error-bg)"
               >
                 <LogOut className="h-4 w-4 mr-2" />
                 Sign Out All
@@ -328,7 +328,7 @@ export default function SecurityPage() {
           <h2 className="text-lg font-semibold">Recent Login Activity</h2>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-(--color-text-muted)">
             Login history tracking will be available in a future update.
           </p>
         </CardContent>

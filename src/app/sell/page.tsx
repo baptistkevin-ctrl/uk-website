@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import {
   Store,
@@ -16,7 +17,12 @@ import {
   Building2,
   Briefcase,
   Globe,
-  Phone
+  Phone,
+  Zap,
+  BarChart3,
+  Truck,
+  Star,
+  ChevronRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,51 +30,25 @@ import { Label } from '@/components/ui/label'
 import { useAuth } from '@/hooks/use-auth'
 
 const benefits = [
-  {
-    icon: Users,
-    title: 'Reach Millions',
-    description: 'Access our growing customer base across the UK'
-  },
-  {
-    icon: CreditCard,
-    title: 'Easy Payments',
-    description: 'Get paid directly via Stripe with automatic payouts'
-  },
-  {
-    icon: Package,
-    title: 'Simple Management',
-    description: 'Powerful dashboard to manage products and orders'
-  },
-  {
-    icon: TrendingUp,
-    title: 'Grow Your Business',
-    description: 'Analytics and insights to optimize your sales'
-  },
-  {
-    icon: Shield,
-    title: 'Secure Platform',
-    description: 'Trusted by thousands of sellers and buyers'
-  },
-  {
-    icon: Store,
-    title: 'Your Own Storefront',
-    description: 'Customizable store page with your branding'
-  }
+  { icon: Users, title: 'Reach Thousands', desc: 'Access our growing customer base across the UK', stat: '50K+', statLabel: 'Active Shoppers' },
+  { icon: CreditCard, title: 'Fast Payouts', desc: 'Get paid weekly via Stripe with automatic transfers', stat: '£0', statLabel: 'Monthly Fees' },
+  { icon: Package, title: 'Easy Management', desc: 'Powerful vendor dashboard for products & orders', stat: '5min', statLabel: 'Setup Time' },
+  { icon: TrendingUp, title: 'Grow Revenue', desc: 'Analytics and insights to optimize your sales', stat: '85%', statLabel: 'Seller Satisfaction' },
+  { icon: Shield, title: 'Trusted Platform', desc: 'Secure payments and buyer protection built in', stat: '99.9%', statLabel: 'Uptime' },
+  { icon: BarChart3, title: 'Real Analytics', desc: 'Track sales, views, and trends in real-time', stat: '24/7', statLabel: 'Support' },
+]
+
+const steps = [
+  { num: '01', title: 'Apply', desc: 'Fill out a quick application with your business details' },
+  { num: '02', title: 'Get Approved', desc: 'Our team reviews your application within 24 hours' },
+  { num: '03', title: 'List Products', desc: 'Upload your products with photos and pricing' },
+  { num: '04', title: 'Start Selling', desc: 'Orders come in and you get paid weekly' },
 ]
 
 const categories = [
-  'Fruits & Vegetables',
-  'Meat & Poultry',
-  'Fish & Seafood',
-  'Dairy & Eggs',
-  'Bakery',
-  'Frozen Foods',
-  'Pantry',
-  'Drinks',
-  'Snacks & Sweets',
-  'Health & Beauty',
-  'Household',
-  'Other'
+  'Fruits & Vegetables', 'Meat & Poultry', 'Fish & Seafood', 'Dairy & Eggs',
+  'Bakery', 'Frozen Foods', 'Pantry', 'Drinks',
+  'Snacks & Sweets', 'Health & Beauty', 'Household', 'Other'
 ]
 
 export default function SellPage() {
@@ -92,54 +72,40 @@ export default function SellPage() {
     phone: ''
   })
 
-  // Check existing status
   useEffect(() => {
     const checkStatus = async () => {
-      if (!user) {
-        setChecking(false)
-        return
-      }
-
+      if (!user) { setChecking(false); return }
       try {
         const res = await fetch('/api/vendor/register')
         const data = await res.json()
         setExistingStatus(data)
-      } catch (error) {
-        console.error('Status check error:', error)
+      } catch {
+        // silently fail
       } finally {
         setChecking(false)
       }
     }
-
     checkStatus()
   }, [user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!user) {
-      router.push('/vendor/login')
-      return
-    }
-
+    if (!user) { router.push('/vendor/login'); return }
     setLoading(true)
-
     try {
       const res = await fetch('/api/vendor/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       })
-
       const data = await res.json()
-
       if (res.ok) {
         alert('Application submitted successfully! We will review it shortly.')
         router.push('/account')
       } else {
         alert(data.error || 'Failed to submit application')
       }
-    } catch (error) {
+    } catch {
       alert('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
@@ -155,11 +121,16 @@ export default function SellPage() {
     }))
   }
 
-  // Show loading state
+  const handleStartSelling = () => {
+    if (!user) { router.push('/vendor/login'); return }
+    setShowForm(true)
+    setTimeout(() => document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' }), 100)
+  }
+
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -167,309 +138,347 @@ export default function SellPage() {
   // Already a vendor
   if (existingStatus?.isVendor) {
     return (
-      <div className="min-h-screen bg-gray-50 py-20">
-        <div className="container mx-auto px-4 max-w-lg text-center">
-          <div className="bg-white rounded-2xl p-8 shadow-sm">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="h-8 w-8 text-emerald-600" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">You're Already a Vendor!</h1>
-            <p className="text-gray-600 mb-6">Access your vendor dashboard to manage your store.</p>
-            <Link href="/vendor/dashboard">
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
-                Go to Dashboard
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+      <div className="min-h-screen bg-background flex items-center justify-center py-20 px-4">
+        <div className="max-w-md w-full bg-(--color-surface) rounded-2xl p-8 shadow-lg text-center border border-(--color-border)">
+          <div className="w-16 h-16 bg-(--color-success-bg) rounded-2xl flex items-center justify-center mx-auto mb-5">
+            <CheckCircle className="h-8 w-8 text-(--color-success)" />
           </div>
+          <h1 className="text-2xl font-bold text-foreground mb-2">You're Already a Vendor!</h1>
+          <p className="text-(--color-text-muted) mb-6">Access your dashboard to manage products and orders.</p>
+          <Link href="/vendor/dashboard">
+            <Button size="lg" className="w-full">
+              Go to Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     )
   }
 
-  // Has pending application
+  // Pending application
   if (existingStatus?.application) {
     const status = existingStatus.application.status
     return (
-      <div className="min-h-screen bg-gray-50 py-20">
-        <div className="container mx-auto px-4 max-w-lg text-center">
-          <div className="bg-white rounded-2xl p-8 shadow-sm">
-            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-              status === 'approved' ? 'bg-emerald-100' :
-              status === 'rejected' ? 'bg-red-100' : 'bg-yellow-100'
-            }`}>
-              {status === 'approved' ? (
-                <CheckCircle className="h-8 w-8 text-emerald-600" />
-              ) : status === 'rejected' ? (
-                <Shield className="h-8 w-8 text-red-600" />
-              ) : (
-                <Loader2 className="h-8 w-8 text-yellow-600" />
-              )}
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {status === 'approved' ? 'Application Approved!' :
-               status === 'rejected' ? 'Application Not Approved' :
-               'Application Under Review'}
-            </h1>
-            <p className="text-gray-600 mb-6">
-              {status === 'approved' ? 'Your vendor account is ready. Set up your store now!' :
-               status === 'rejected' ? 'Unfortunately your application was not approved. Please contact support for more information.' :
-               'We are reviewing your application. You will be notified once it\'s processed.'}
-            </p>
-            {status === 'approved' && (
-              <Link href="/vendor/onboarding">
-                <Button className="bg-emerald-600 hover:bg-emerald-700">
-                  Complete Setup
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            )}
+      <div className="min-h-screen bg-background flex items-center justify-center py-20 px-4">
+        <div className="max-w-md w-full bg-(--color-surface) rounded-2xl p-8 shadow-lg text-center border border-(--color-border)">
+          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 ${
+            status === 'approved' ? 'bg-(--color-success-bg)' :
+            status === 'rejected' ? 'bg-(--color-error-bg)' : 'bg-(--color-warning-bg)'
+          }`}>
+            {status === 'approved' ? <CheckCircle className="h-8 w-8 text-(--color-success)" /> :
+             status === 'rejected' ? <Shield className="h-8 w-8 text-(--color-error)" /> :
+             <Loader2 className="h-8 w-8 text-(--color-warning) animate-spin" />}
           </div>
+          <h1 className="text-2xl font-bold text-foreground mb-2">
+            {status === 'approved' ? 'Application Approved!' :
+             status === 'rejected' ? 'Application Not Approved' : 'Application Under Review'}
+          </h1>
+          <p className="text-(--color-text-muted) mb-6">
+            {status === 'approved' ? 'Your vendor account is ready. Complete your store setup now.' :
+             status === 'rejected' ? 'Unfortunately your application was not approved. Contact support for details.' :
+             'We\'re reviewing your application. You\'ll be notified once it\'s processed.'}
+          </p>
+          {status === 'approved' && (
+            <Link href="/vendor/onboarding">
+              <Button size="lg" className="w-full">Complete Setup <ArrowRight className="ml-2 h-4 w-4" /></Button>
+            </Link>
+          )}
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 text-white py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Sell on MegaMart UK
-            </h1>
-            <p className="text-xl text-emerald-100 mb-8">
-              Join thousands of sellers reaching millions of customers.
-              Start selling today with our easy-to-use marketplace.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                size="lg"
-                onClick={() => {
-                  if (!user) {
-                    router.push('/vendor/login')
-                  } else {
-                    setShowForm(true)
-                  }
-                }}
-                className="bg-white text-emerald-700 hover:bg-emerald-50 text-lg px-8"
-              >
-                Start Selling
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+    <div className="min-h-screen bg-background">
+      {/* ─── Hero ─── */}
+      <section className="relative overflow-hidden bg-(--brand-dark)">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_50%,rgba(27,107,58,0.4),transparent_60%),radial-gradient(circle_at_70%_80%,rgba(232,134,26,0.3),transparent_50%)]" />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left */}
+            <div>
+              <div className="inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 mb-6">
+                <Zap className="h-4 w-4 text-(--brand-amber)" />
+                <span className="text-sm font-medium text-white/80">Now accepting new sellers</span>
+              </div>
+
+              <h1 className="font-display text-3xl sm:text-4xl lg:text-6xl font-bold text-white leading-tight">
+                Sell Fresh on
+                <br />
+                <span className="text-(--brand-amber)">UK Grocery</span>
+              </h1>
+
+              <p className="mt-4 sm:mt-5 text-base sm:text-lg text-white/60 max-w-lg">
+                Join our marketplace and reach thousands of customers across the UK.
+                No monthly fees — just 15% commission on sales.
+              </p>
+
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={handleStartSelling}
+                  className="inline-flex items-center justify-center gap-2.5 h-14 px-8 rounded-2xl bg-white text-(--brand-dark) text-base font-bold shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                >
+                  Start Selling <ArrowRight className="h-5 w-5" />
+                </button>
+                <Link
+                  href="/vendor/login"
+                  className="inline-flex items-center justify-center gap-2.5 h-14 px-8 rounded-2xl bg-white/10 backdrop-blur-sm text-white text-base font-semibold hover:bg-white/20 transition-all"
+                >
+                  Vendor Login <ChevronRight className="h-5 w-5" />
+                </Link>
+              </div>
+
+              {/* Trust strip */}
+              <div className="mt-8 sm:mt-10 flex flex-wrap gap-4 sm:gap-6">
+                {[
+                  { icon: CreditCard, text: 'Weekly payouts' },
+                  { icon: Truck, text: 'We handle delivery' },
+                  { icon: Shield, text: 'Seller protection' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-2 text-white/50">
+                    <item.icon className="h-4 w-4" />
+                    <span className="text-sm">{item.text}</span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <p className="mt-6 text-emerald-200 text-sm">
-              Only 15% commission • No monthly fees • Get paid weekly
-            </p>
+
+            {/* Mobile stats strip */}
+            <div className="lg:hidden mt-8 grid grid-cols-2 gap-3">
+              {[
+                { value: '500+', label: 'Sellers' },
+                { value: '50K+', label: 'Orders/mo' },
+                { value: '£0', label: 'Monthly fee' },
+                { value: '4.8★', label: 'Rating' },
+              ].map((s, i) => (
+                <div key={i} className="bg-white/5 rounded-xl p-3 text-center">
+                  <p className="text-lg font-bold text-white">{s.value}</p>
+                  <p className="text-[11px] text-white/40">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Right — Stats card (desktop) */}
+            <div className="hidden lg:block">
+              <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
+                <div className="grid grid-cols-2 gap-6">
+                  {[
+                    { value: '500+', label: 'Active Sellers', icon: Store },
+                    { value: '50K+', label: 'Monthly Orders', icon: Package },
+                    { value: '£2M+', label: 'Seller Revenue', icon: TrendingUp },
+                    { value: '4.8★', label: 'Seller Rating', icon: Star },
+                  ].map((stat, i) => (
+                    <div key={i} className="text-center p-4 rounded-2xl bg-white/5">
+                      <stat.icon className="h-6 w-6 text-(--brand-amber) mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-white">{stat.value}</p>
+                      <p className="text-xs text-white/50 mt-1">{stat.label}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-6 p-4 rounded-xl bg-(--brand-amber)/10 border border-(--brand-amber)/20">
+                  <p className="text-sm text-(--brand-amber) font-semibold text-center">
+                    Average seller earns £3,500/month
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Benefits */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
-            Why Sell With Us?
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {benefits.map((benefit, index) => (
-              <div key={index} className="text-center p-6">
-                <div className="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center mx-auto mb-4">
-                  <benefit.icon className="h-7 w-7 text-emerald-600" />
+      {/* ─── Benefits ─── */}
+      <section className="py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
+              Why sellers choose <span className="text-(--brand-primary)">UK Grocery</span>
+            </h2>
+            <p className="mt-3 text-(--color-text-muted) max-w-xl mx-auto">
+              Everything you need to succeed as a grocery seller, built right in.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {benefits.map((b, i) => (
+              <div
+                key={i}
+                className="group bg-(--color-surface) border border-(--color-border) rounded-2xl p-6 hover:shadow-lg hover:border-(--brand-primary)/20 transition-all"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="h-12 w-12 rounded-xl bg-(--brand-primary)/10 flex items-center justify-center group-hover:bg-(--brand-primary)/15 transition-colors">
+                    <b.icon className="h-6 w-6 text-(--brand-primary)" />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xl font-bold text-foreground">{b.stat}</p>
+                    <p className="text-[11px] text-(--color-text-muted)">{b.statLabel}</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.description}</p>
+                <h3 className="text-lg font-bold text-foreground mb-1">{b.title}</h3>
+                <p className="text-sm text-(--color-text-muted)">{b.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Registration Form */}
-      {showForm && (
-        <section className="py-20 bg-gray-50" id="register">
-          <div className="container mx-auto px-4">
-            <div className="max-w-2xl mx-auto">
-              <div className="bg-white rounded-2xl shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                  Seller Application
-                </h2>
+      {/* ─── How It Works ─── */}
+      <section className="py-16 lg:py-24 bg-(--color-surface)">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <h2 className="font-display text-3xl sm:text-4xl font-bold text-foreground">
+              Start selling in <span className="text-(--brand-amber)">4 easy steps</span>
+            </h2>
+          </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Business Name */}
-                  <div>
-                    <Label htmlFor="business_name" className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4" />
-                      Business Name *
-                    </Label>
-                    <Input
-                      id="business_name"
-                      value={formData.business_name}
-                      onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
-                      placeholder="Your business or store name"
-                      required
-                      className="mt-1"
-                    />
-                  </div>
-
-                  {/* Business Type */}
-                  <div>
-                    <Label htmlFor="business_type" className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4" />
-                      Business Type *
-                    </Label>
-                    <select
-                      id="business_type"
-                      value={formData.business_type}
-                      onChange={(e) => setFormData({ ...formData, business_type: e.target.value })}
-                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="sole_trader">Sole Trader</option>
-                      <option value="limited_company">Limited Company</option>
-                      <option value="partnership">Partnership</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  {/* Description */}
-                  <div>
-                    <Label htmlFor="description">Tell us about your business</Label>
-                    <textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="What products do you sell? What makes your business unique?"
-                      rows={3}
-                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-
-                  {/* Product Categories */}
-                  <div>
-                    <Label>What will you sell? (Select all that apply)</Label>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {categories.map((category) => (
-                        <button
-                          key={category}
-                          type="button"
-                          onClick={() => toggleCategory(category)}
-                          className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                            formData.product_categories.includes(category)
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                          }`}
-                        >
-                          {category}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Expected Sales */}
-                  <div>
-                    <Label htmlFor="expected_monthly_sales">Expected Monthly Sales</Label>
-                    <select
-                      id="expected_monthly_sales"
-                      value={formData.expected_monthly_sales}
-                      onChange={(e) => setFormData({ ...formData, expected_monthly_sales: e.target.value })}
-                      className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                    >
-                      <option value="">Select range</option>
-                      <option value="under_1000">Under £1,000</option>
-                      <option value="1000_5000">£1,000 - £5,000</option>
-                      <option value="5000_10000">£5,000 - £10,000</option>
-                      <option value="10000_50000">£10,000 - £50,000</option>
-                      <option value="over_50000">Over £50,000</option>
-                    </select>
-                  </div>
-
-                  {/* Contact */}
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="phone" className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        Phone Number
-                      </Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="+44 7XXX XXXXXX"
-                        className="mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="website_url" className="flex items-center gap-2">
-                        <Globe className="h-4 w-4" />
-                        Website (optional)
-                      </Label>
-                      <Input
-                        id="website_url"
-                        type="url"
-                        value={formData.website_url}
-                        onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-                        placeholder="https://yourwebsite.com"
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={loading || !formData.business_name}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 h-12 text-lg"
-                  >
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        Submit Application
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </>
-                    )}
-                  </Button>
-
-                  <p className="text-sm text-gray-500 text-center">
-                    By submitting, you agree to our seller terms and conditions.
-                  </p>
-                </form>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {steps.map((step, i) => (
+              <div key={i} className="relative">
+                <div className="bg-background border border-(--color-border) rounded-2xl p-6 text-center h-full">
+                  <span className="font-display text-4xl font-bold text-(--brand-primary)/15">{step.num}</span>
+                  <h3 className="text-lg font-bold text-foreground mt-2 mb-2">{step.title}</h3>
+                  <p className="text-sm text-(--color-text-muted)">{step.desc}</p>
+                </div>
+                {i < 3 && (
+                  <ChevronRight className="hidden lg:block absolute top-1/2 -right-3 h-6 w-6 text-(--color-border) -translate-y-1/2" />
+                )}
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Application Form ─── */}
+      {showForm && (
+        <section className="py-16 lg:py-24 bg-background" id="register">
+          <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
+            <div className="bg-(--color-surface) rounded-2xl shadow-xl border border-(--color-border) overflow-hidden">
+              <div className="bg-(--brand-dark) p-6 text-center">
+                <Store className="h-8 w-8 text-(--brand-amber) mx-auto mb-2" />
+                <h2 className="text-xl font-bold text-white">Seller Application</h2>
+                <p className="text-sm text-white/50 mt-1">Takes less than 5 minutes</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5">
+                <div>
+                  <Label htmlFor="business_name" className="flex items-center gap-2 mb-1.5">
+                    <Building2 className="h-4 w-4" /> Business Name *
+                  </Label>
+                  <Input id="business_name" value={formData.business_name}
+                    onChange={(e) => setFormData({ ...formData, business_name: e.target.value })}
+                    placeholder="Your business or store name" required className="h-12" />
+                </div>
+
+                <div>
+                  <Label htmlFor="business_type" className="flex items-center gap-2 mb-1.5">
+                    <Briefcase className="h-4 w-4" /> Business Type *
+                  </Label>
+                  <select id="business_type" value={formData.business_type}
+                    onChange={(e) => setFormData({ ...formData, business_type: e.target.value })}
+                    className="w-full h-12 px-3 border border-(--color-border) rounded-xl bg-(--color-surface) text-sm focus:ring-2 focus:ring-(--brand-primary)/30 focus:border-(--brand-primary) outline-none"
+                  >
+                    <option value="sole_trader">Sole Trader</option>
+                    <option value="limited_company">Limited Company</option>
+                    <option value="partnership">Partnership</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <Label htmlFor="description" className="mb-1.5">Tell us about your business</Label>
+                  <textarea id="description" value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="What products do you sell? What makes your business unique?"
+                    rows={3}
+                    className="w-full px-3 py-3 border border-(--color-border) rounded-xl bg-(--color-surface) text-sm focus:ring-2 focus:ring-(--brand-primary)/30 focus:border-(--brand-primary) outline-none resize-none"
+                  />
+                </div>
+
+                <div>
+                  <Label className="mb-2">What will you sell?</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map((cat) => (
+                      <button key={cat} type="button" onClick={() => toggleCategory(cat)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          formData.product_categories.includes(cat)
+                            ? 'bg-(--brand-primary) text-white'
+                            : 'bg-(--color-elevated) text-(--color-text-secondary) hover:bg-(--color-border)'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="expected_monthly_sales" className="mb-1.5">Expected Monthly Sales</Label>
+                  <select id="expected_monthly_sales" value={formData.expected_monthly_sales}
+                    onChange={(e) => setFormData({ ...formData, expected_monthly_sales: e.target.value })}
+                    className="w-full h-12 px-3 border border-(--color-border) rounded-xl bg-(--color-surface) text-sm focus:ring-2 focus:ring-(--brand-primary)/30 focus:border-(--brand-primary) outline-none"
+                  >
+                    <option value="">Select range</option>
+                    <option value="under_1000">Under £1,000</option>
+                    <option value="1000_5000">£1,000 - £5,000</option>
+                    <option value="5000_10000">£5,000 - £10,000</option>
+                    <option value="10000_50000">£10,000 - £50,000</option>
+                    <option value="over_50000">Over £50,000</option>
+                  </select>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="phone" className="flex items-center gap-2 mb-1.5">
+                      <Phone className="h-4 w-4" /> Phone
+                    </Label>
+                    <Input id="phone" type="tel" value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="+44 7XXX XXXXXX" className="h-12" />
+                  </div>
+                  <div>
+                    <Label htmlFor="website_url" className="flex items-center gap-2 mb-1.5">
+                      <Globe className="h-4 w-4" /> Website
+                    </Label>
+                    <Input id="website_url" type="url" value={formData.website_url}
+                      onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
+                      placeholder="https://yoursite.com" className="h-12" />
+                  </div>
+                </div>
+
+                <button type="submit" disabled={loading || !formData.business_name}
+                  className="w-full h-12 rounded-xl bg-(--brand-primary) text-white font-bold text-sm shadow-[0_4px_16px_rgba(27,107,58,0.3)] hover:bg-(--brand-primary-hover) active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {loading ? <><Loader2 className="h-5 w-5 animate-spin" /> Submitting...</> :
+                   <><Store className="h-5 w-5" /> Submit Application</>}
+                </button>
+
+                <p className="text-xs text-(--color-text-muted) text-center">
+                  By submitting, you agree to our seller terms and conditions.
+                </p>
+              </form>
             </div>
           </div>
         </section>
       )}
 
-      {/* CTA */}
+      {/* ─── CTA ─── */}
       {!showForm && (
-        <section className="py-20 bg-gray-900 text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to Start Selling?</h2>
-            <p className="text-gray-400 mb-8 max-w-xl mx-auto">
-              Join our marketplace and start reaching thousands of customers today.
-              No upfront costs, just results.
+        <section className="py-16 lg:py-24 bg-(--brand-dark)">
+          <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 text-center">
+            <h2 className="font-display text-2xl sm:text-3xl lg:text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">
+              Ready to grow your business?
+            </h2>
+            <p className="text-white/50 mb-8 max-w-xl mx-auto text-sm sm:text-base">
+              Join hundreds of sellers already thriving on UK Grocery.
+              No upfront costs — start free today.
             </p>
-            <Button
-              size="lg"
-              onClick={() => {
-                if (!user) {
-                  router.push('/vendor/login')
-                } else {
-                  setShowForm(true)
-                  setTimeout(() => {
-                    document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' })
-                  }, 100)
-                }
-              }}
-              className="bg-emerald-600 hover:bg-emerald-700 text-lg px-8"
+            <button
+              onClick={handleStartSelling}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 h-14 px-8 rounded-2xl bg-white text-(--brand-dark) text-base font-bold shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0 transition-all"
             >
-              Apply Now
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+              Apply Now <ArrowRight className="h-5 w-5" />
+            </button>
           </div>
         </section>
       )}

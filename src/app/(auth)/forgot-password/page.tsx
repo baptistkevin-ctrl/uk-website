@@ -38,28 +38,28 @@ export default function ForgotPasswordPage() {
 
   if (isSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="h-8 w-8 text-emerald-600" />
+          <div className="bg-(--color-surface) rounded-2xl shadow-xl p-8 text-center">
+            <div className="w-16 h-16 bg-(--brand-primary-light) rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="h-8 w-8 text-(--brand-primary)" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h1>
-            <p className="text-gray-600 mb-6">
+            <h1 className="text-2xl font-bold text-foreground mb-2">Check your email</h1>
+            <p className="text-(--color-text-secondary) mb-6">
               If an account exists with that email, you'll receive a password reset link.
             </p>
-            <p className="text-sm text-gray-500 mb-6">
+            <p className="text-sm text-(--color-text-muted) mb-6">
               Didn't receive the email? Check your spam folder or{' '}
               <button
                 onClick={() => setIsSuccess(false)}
-                className="text-emerald-600 hover:text-emerald-700 font-medium"
+                className="text-(--brand-primary) hover:text-(--brand-primary-hover) font-medium"
               >
                 try again
               </button>
             </p>
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-medium"
+              className="inline-flex items-center gap-2 text-(--brand-primary) hover:text-(--brand-primary-hover) font-medium"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to login
@@ -71,23 +71,23 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
+        <div className="bg-(--color-surface) rounded-2xl shadow-xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Mail className="h-8 w-8 text-emerald-600" />
+            <div className="w-16 h-16 bg-(--brand-primary-light) rounded-full flex items-center justify-center mx-auto mb-4">
+              <Mail className="h-8 w-8 text-(--brand-primary)" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Forgot your password?</h1>
-            <p className="text-gray-600 mt-2">
+            <h1 className="text-2xl font-bold text-foreground">Forgot your password?</h1>
+            <p className="text-(--color-text-secondary) mt-2">
               No worries! Enter your email and we'll send you a reset link.
             </p>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            <div className="mb-6 p-4 bg-(--color-error-bg) border border-(--color-error-border) rounded-lg text-(--color-error) text-sm">
               {error}
             </div>
           )}
@@ -95,7 +95,7 @@ export default function ForgotPasswordPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-(--color-text-secondary) mb-2">
                 Email address
               </label>
               <input
@@ -105,14 +105,14 @@ export default function ForgotPasswordPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="Enter your email"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+                className="w-full h-11 px-4 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary)/30 focus:border-(--brand-primary) transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-emerald-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full h-11 bg-(--brand-primary) text-white px-4 rounded-lg font-medium hover:bg-(--brand-primary-hover) focus:ring-2 focus:ring-(--brand-primary)/30 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               {isLoading ? (
                 <>
@@ -129,7 +129,7 @@ export default function ForgotPasswordPage() {
           <div className="mt-6 text-center">
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 text-gray-600 hover:text-emerald-600 transition-colors"
+              className="inline-flex items-center gap-2 text-(--color-text-secondary) hover:text-(--brand-primary) transition-colors"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to login

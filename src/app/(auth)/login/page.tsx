@@ -10,20 +10,15 @@ import {
   Eye,
   EyeOff,
   Loader2,
-  ShoppingBag,
   Truck,
   Shield,
   Clock,
   Sparkles,
   Mail,
   Lock,
+  ShoppingCart,
   ArrowRight,
-  CheckCircle2
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent } from '@/components/ui/card'
 import { useAuth } from '@/hooks/use-auth'
 import { SocialLoginButtons } from '@/components/auth/social-login-buttons'
 
@@ -35,10 +30,10 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>
 
 const benefits = [
-  { icon: Clock, title: 'Order History', description: 'Track all your orders in one place' },
-  { icon: Truck, title: 'Fast Checkout', description: 'Saved addresses for quick ordering' },
-  { icon: Shield, title: 'Exclusive Deals', description: 'Member-only discounts and offers' },
-  { icon: Sparkles, title: 'Priority Support', description: 'Get help faster with your orders' },
+  { icon: Clock, title: 'Order History', desc: 'Track all your orders' },
+  { icon: Truck, title: 'Fast Checkout', desc: 'Saved addresses & payments' },
+  { icon: Shield, title: 'Exclusive Deals', desc: 'Member-only offers' },
+  { icon: Sparkles, title: 'Priority Support', desc: 'Faster help with orders' },
 ]
 
 function LoginFormContent() {
@@ -61,14 +56,12 @@ function LoginFormContent() {
       setError(null)
       const { user } = await signIn(data.email, data.password)
 
-      // Check user role to determine redirect
       const redirectParam = searchParams.get('redirectTo')
       if (redirectParam && redirectParam.startsWith('/') && !redirectParam.startsWith('//')) {
         window.location.href = redirectParam
         return
       }
 
-      // Fetch user profile to check role
       const res = await fetch('/api/user/profile')
       if (res.ok) {
         const profile = await res.json()
@@ -89,176 +82,195 @@ function LoginFormContent() {
   }
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Side - Form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12 bg-white">
-        <div className="w-full max-w-md">
+    <div className="min-h-screen bg-background flex">
+      {/* ─── Left Panel — Desktop Only ─── */}
+      <div className="hidden lg:flex lg:w-[45%] bg-(--brand-dark) relative overflow-hidden">
+        {/* Decorative blurs */}
+        <div className="absolute top-20 -left-20 w-60 h-60 bg-(--brand-primary)/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-40 h-40 bg-(--brand-amber)/15 rounded-full blur-2xl" />
+
+        <div className="relative z-10 flex flex-col justify-center px-12 xl:px-16 w-full">
           {/* Logo */}
-          <div className="text-center mb-8">
-            <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-green-400/25 group-hover:shadow-green-400/40 transition-shadow">
-                <ShoppingBag className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-green-500 to-teal-600 bg-clip-text text-transparent">
-                Fresh Groceries
-              </span>
-            </Link>
-          </div>
+          <Link href="/" className="flex items-center gap-3 mb-12">
+            <div className="h-10 w-10 rounded-xl bg-(--brand-primary) flex items-center justify-center">
+              <ShoppingCart className="h-5 w-5 text-white" />
+            </div>
+            <span className="font-display text-xl font-bold text-white">UK Grocery</span>
+          </Link>
 
-          {/* Welcome Text */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
-            <p className="text-gray-500">Sign in to your account to continue shopping</p>
-          </div>
-
-          {/* Form */}
-          <Card className="border-slate-200 shadow-xl shadow-slate-200/50">
-            <CardContent className="p-6 sm:p-8">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                {error && (
-                  <div className="p-4 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm flex items-start gap-3">
-                    <div className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-red-500 text-xs font-bold">!</span>
-                    </div>
-                    {error}
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-gray-700 font-medium">
-                    Email Address
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                      <Mail className="h-5 w-5" />
-                    </div>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      className="pl-10 h-12 border-slate-200 focus:border-green-400 focus:ring-green-400"
-                      {...register('email')}
-                    />
-                  </div>
-                  {errors.email && (
-                    <p className="text-sm text-red-500">{errors.email.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-gray-700 font-medium">
-                      Password
-                    </Label>
-                    <Link
-                      href="/forgot-password"
-                      className="text-sm text-green-500 hover:text-green-600 font-medium"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                      <Lock className="h-5 w-5" />
-                    </div>
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      className="pl-10 pr-10 h-12 border-slate-200 focus:border-green-400 focus:ring-green-400"
-                      {...register('password')}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                    </button>
-                  </div>
-                  {errors.password && (
-                    <p className="text-sm text-red-500">{errors.password.message}</p>
-                  )}
-                </div>
-
-                <Button
-                  type="submit"
-                  className="w-full h-12 text-base font-semibold bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 shadow-lg shadow-green-400/25"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    <>
-                      Sign In
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </>
-                  )}
-                </Button>
-              </form>
-
-              <div className="mt-6 text-center">
-                <span className="text-gray-500">Don&apos;t have an account? </span>
-                <Link
-                  href="/register"
-                  className="text-green-500 hover:text-green-600 font-semibold transition-colors"
-                >
-                  Create one
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Guest checkout link */}
-          <p className="text-center text-sm text-gray-500 mt-6">
-            Or continue as a{' '}
-            <Link href="/products" className="text-green-500 hover:text-green-600 font-medium">
-              guest
-            </Link>
+          <h2 className="font-display text-3xl xl:text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
+            Welcome back,
+            <br />
+            <span className="text-(--brand-amber)">let&apos;s shop fresh.</span>
+          </h2>
+          <p className="mt-4 text-white/50 text-sm max-w-sm">
+            Sign in to access your orders, saved lists, and exclusive member deals.
           </p>
+
+          {/* Benefits grid */}
+          <div className="mt-10 grid grid-cols-2 gap-4">
+            {benefits.map((b, i) => (
+              <div key={i} className="flex items-start gap-3 bg-white/5 rounded-xl p-4">
+                <b.icon className="h-5 w-5 text-(--brand-amber) shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-white">{b.title}</p>
+                  <p className="text-xs text-white/40 mt-0.5">{b.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Right Side - Benefits */}
-      <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-green-500 via-green-600 to-teal-800 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }} />
-        </div>
+      {/* ─── Right Panel — Form ─── */}
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-8 py-10">
+        <div className="w-full max-w-105">
+          {/* Mobile header with brand */}
+          <div className="lg:hidden mb-8 text-center">
+            <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
+              <div className="h-10 w-10 rounded-xl bg-(--brand-primary) flex items-center justify-center shadow-md">
+                <ShoppingCart className="h-5 w-5 text-white" />
+              </div>
+              <span className="font-display text-xl font-bold text-(--brand-dark)">UK Grocery</span>
+            </Link>
+          </div>
 
-        {/* Floating Elements */}
-        <div className="absolute top-20 left-20 w-32 h-32 bg-white/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-20 w-40 h-40 bg-teal-400/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-emerald-300/10 rounded-full blur-2xl" />
-
-        {/* Content */}
-        <div className="relative z-10 flex items-center justify-center w-full px-12">
-          <div className="max-w-md">
-            <h2 className="text-3xl font-bold text-white mb-4">
-              Member Benefits
-            </h2>
-            <p className="text-green-100 text-lg mb-8">
-              Sign in to unlock exclusive features and enjoy a seamless shopping experience.
+          {/* Desktop header */}
+          <div className="hidden lg:block mb-8">
+            <h1 className="text-2xl font-bold text-foreground">Sign in</h1>
+            <p className="mt-1 text-sm text-(--color-text-muted)">
+              Welcome back — pick up where you left off.
             </p>
+          </div>
 
-            <div className="space-y-4">
-              {benefits.map((benefit, index) => (
-                <div
-                  key={index}
-                  className="flex items-start gap-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20"
+          {/* Mobile header */}
+          <div className="lg:hidden mb-6">
+            <h1 className="text-xl font-bold text-foreground">Sign in to your account</h1>
+            <p className="mt-1 text-sm text-(--color-text-muted)">
+              Welcome back — pick up where you left off.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            {error && (
+              <div className="text-sm text-(--color-error) bg-(--color-error-bg) rounded-xl p-3.5 flex items-center gap-2.5 border border-(--color-error)/10">
+                <div className="h-6 w-6 rounded-full bg-(--color-error)/10 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-(--color-error)">!</span>
+                </div>
+                {error}
+              </div>
+            )}
+
+            {/* Email */}
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-medium text-foreground">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-(--color-text-muted)" />
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  className="w-full h-12 rounded-xl border border-(--color-border) bg-(--color-surface) pl-11 pr-4 text-sm text-foreground placeholder:text-(--color-text-muted) outline-none focus:border-(--brand-primary) focus:ring-2 focus:ring-(--brand-primary)/20 transition-all"
+                  {...register('email')}
+                />
+              </div>
+              {errors.email && (
+                <p className="text-xs text-(--color-error)">{errors.email.message}</p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="block text-sm font-medium text-foreground">
+                  Password
+                </label>
+                <Link
+                  href="/forgot-password"
+                  className="text-xs font-medium text-(--brand-primary) hover:underline"
                 >
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
-                    <benefit.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-white mb-1">{benefit.title}</h3>
-                    <p className="text-sm text-green-100">{benefit.description}</p>
-                  </div>
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-(--color-text-muted)" />
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  autoComplete="current-password"
+                  className="w-full h-12 rounded-xl border border-(--color-border) bg-(--color-surface) pl-11 pr-12 text-sm text-foreground placeholder:text-(--color-text-muted) outline-none focus:border-(--brand-primary) focus:ring-2 focus:ring-(--brand-primary)/20 transition-all"
+                  {...register('password')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-lg text-(--color-text-muted) hover:text-foreground hover:bg-(--color-elevated) transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-xs text-(--color-error)">{errors.password.message}</p>
+              )}
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full h-12 rounded-xl bg-(--brand-primary) hover:bg-(--brand-primary-hover) text-white font-semibold text-sm shadow-[0_4px_16px_rgba(27,107,58,0.3)] hover:shadow-[0_8px_24px_rgba(27,107,58,0.4)] active:scale-[0.98] transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  Sign In
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-(--color-border)" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-background px-4 text-(--color-text-muted)">
+                or continue with
+              </span>
+            </div>
+          </div>
+
+          {/* Social Login */}
+          <SocialLoginButtons />
+
+          {/* Register link */}
+          <p className="mt-8 text-center text-sm text-(--color-text-muted)">
+            Don&apos;t have an account?{' '}
+            <Link
+              href="/register"
+              className="text-(--brand-primary) font-semibold hover:underline"
+            >
+              Create account
+            </Link>
+          </p>
+
+          {/* Mobile benefits strip */}
+          <div className="lg:hidden mt-8 pt-6 border-t border-(--color-border)">
+            <div className="grid grid-cols-2 gap-3">
+              {benefits.map((b, i) => (
+                <div key={i} className="flex items-center gap-2 text-xs text-(--color-text-muted)">
+                  <b.icon className="h-4 w-4 text-(--brand-primary) shrink-0" />
+                  <span>{b.title}</span>
                 </div>
               ))}
             </div>
@@ -272,11 +284,8 @@ function LoginFormContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <Loader2 className="h-10 w-10 animate-spin mx-auto text-green-500 mb-4" />
-          <p className="text-gray-500">Loading...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     }>
       <LoginFormContent />

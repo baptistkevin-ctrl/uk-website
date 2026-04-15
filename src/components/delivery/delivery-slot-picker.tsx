@@ -194,10 +194,10 @@ export function DeliverySlotPicker({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border p-6">
+      <div className="bg-(--color-surface) rounded-xl border p-6">
         <div className="flex items-center justify-center gap-3">
-          <Loader2 className="h-5 w-5 animate-spin text-green-600" />
-          <span className="text-gray-600">Checking delivery availability...</span>
+          <Loader2 className="h-5 w-5 animate-spin text-(--brand-primary)" />
+          <span className="text-(--color-text-secondary)">Checking delivery availability...</span>
         </div>
       </div>
     )
@@ -205,15 +205,15 @@ export function DeliverySlotPicker({
 
   if (error && !zone) {
     return (
-      <div className="bg-white rounded-xl border p-6">
-        <div className="flex items-center gap-3 text-red-600 mb-4">
+      <div className="bg-(--color-surface) rounded-xl border p-6">
+        <div className="flex items-center gap-3 text-(--color-error) mb-4">
           <AlertCircle className="h-5 w-5" />
           <span>{error}</span>
         </div>
         {onPostcodeChange && (
           <button
             onClick={onPostcodeChange}
-            className="text-green-600 hover:text-green-700 text-sm font-medium"
+            className="text-(--brand-primary) hover:text-(--brand-primary-hover) text-sm font-medium"
           >
             Change delivery address
           </button>
@@ -223,15 +223,15 @@ export function DeliverySlotPicker({
   }
 
   return (
-    <div className="bg-white rounded-xl border overflow-hidden">
+    <div className="bg-(--color-surface) rounded-xl border overflow-hidden">
       {/* Header */}
-      <div className="px-6 py-4 border-b bg-gray-50">
+      <div className="px-6 py-4 border-b bg-background">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Truck className="h-5 w-5 text-green-600" />
+            <Truck className="h-5 w-5 text-(--brand-primary)" />
             <div>
-              <h3 className="font-semibold text-gray-900">Choose Delivery Slot</h3>
-              <p className="text-sm text-gray-500">
+              <h3 className="font-semibold text-foreground">Choose Delivery Slot</h3>
+              <p className="text-sm text-(--color-text-muted)">
                 <MapPin className="h-3 w-3 inline mr-1" />
                 Delivering to {postcode} ({zone?.name})
               </p>
@@ -240,7 +240,7 @@ export function DeliverySlotPicker({
           {onPostcodeChange && (
             <button
               onClick={onPostcodeChange}
-              className="text-sm text-green-600 hover:text-green-700"
+              className="text-sm text-(--brand-primary) hover:text-(--brand-primary-hover)"
             >
               Change
             </button>
@@ -249,19 +249,19 @@ export function DeliverySlotPicker({
 
         {/* Delivery fee info */}
         {zone && (
-          <div className="mt-3 p-3 bg-white rounded-lg border">
+          <div className="mt-3 p-3 bg-(--color-surface) rounded-lg border">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">Delivery fee:</span>
+              <span className="text-(--color-text-secondary)">Delivery fee:</span>
               <span className="font-medium">
                 {getDeliveryFee() === 0 ? (
-                  <span className="text-green-600">FREE</span>
+                  <span className="text-(--brand-primary)">FREE</span>
                 ) : (
                   `£${(getDeliveryFee() / 100).toFixed(2)}`
                 )}
               </span>
             </div>
             {getAmountForFreeDelivery() !== null && getAmountForFreeDelivery()! > 0 && (
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-(--color-text-muted) mt-1">
                 Add £{(getAmountForFreeDelivery()! / 100).toFixed(2)} more for free delivery
               </p>
             )}
@@ -271,8 +271,8 @@ export function DeliverySlotPicker({
 
       {/* Error message */}
       {error && (
-        <div className="px-6 py-3 bg-red-50 border-b border-red-100">
-          <p className="text-sm text-red-600">{error}</p>
+        <div className="px-6 py-3 bg-(--color-error)/5 border-b border-(--color-error)/20">
+          <p className="text-sm text-(--color-error)">{error}</p>
         </div>
       )}
 
@@ -290,22 +290,22 @@ export function DeliverySlotPicker({
       {/* Date Selection */}
       <div className="px-6 py-4 border-b">
         <div className="flex items-center justify-between mb-3">
-          <h4 className="font-medium text-gray-900 flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-gray-400" />
+          <h4 className="font-medium text-foreground flex items-center gap-2">
+            <Calendar className="h-4 w-4 text-(--color-text-disabled)" />
             Select Date
           </h4>
           <div className="flex gap-1">
             <button
               onClick={() => setDateOffset(Math.max(0, dateOffset - datesPerView))}
               disabled={dateOffset === 0}
-              className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"
+              className="p-1 rounded hover:bg-(--color-elevated) disabled:opacity-30"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={() => setDateOffset(Math.min(availableDates.length - datesPerView, dateOffset + datesPerView))}
               disabled={dateOffset >= availableDates.length - datesPerView}
-              className="p-1 rounded hover:bg-gray-100 disabled:opacity-30"
+              className="p-1 rounded hover:bg-(--color-elevated) disabled:opacity-30"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -326,10 +326,10 @@ export function DeliverySlotPicker({
                 disabled={!hasSlots}
                 className={`p-2 rounded-lg text-center transition-all ${
                   isSelected
-                    ? 'bg-green-600 text-white'
+                    ? 'bg-(--brand-primary) text-white'
                     : hasSlots
-                    ? 'bg-gray-50 hover:bg-gray-100 text-gray-900'
-                    : 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                    ? 'bg-background hover:bg-(--color-elevated) text-foreground'
+                    : 'bg-background text-(--color-text-disabled) cursor-not-allowed'
                 }`}
               >
                 <div className="text-xs font-medium">
@@ -350,8 +350,8 @@ export function DeliverySlotPicker({
       {/* Time Slots */}
       {selectedDate && (
         <div className="px-6 py-4">
-          <h4 className="font-medium text-gray-900 flex items-center gap-2 mb-3">
-            <Clock className="h-4 w-4 text-gray-400" />
+          <h4 className="font-medium text-foreground flex items-center gap-2 mb-3">
+            <Clock className="h-4 w-4 text-(--color-text-disabled)" />
             Select Time - {formatDateLabel(selectedDate)}
           </h4>
 
@@ -367,10 +367,10 @@ export function DeliverySlotPicker({
                   disabled={isDisabled || reserving}
                   className={`relative p-3 rounded-lg border text-left transition-all ${
                     isSelected
-                      ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
+                      ? 'border-(--brand-primary) bg-(--brand-primary-light) ring-2 ring-(--brand-primary-light)'
                       : isDisabled
-                      ? 'border-gray-100 bg-gray-50 cursor-not-allowed opacity-50'
-                      : 'border-gray-200 hover:border-green-300 hover:bg-green-50/50'
+                      ? 'border-(--color-border) bg-background cursor-not-allowed opacity-50'
+                      : 'border-(--color-border) hover:border-(--brand-primary) hover:bg-(--brand-primary-light)/50'
                   }`}
                 >
                   {/* Express badge */}
@@ -389,16 +389,16 @@ export function DeliverySlotPicker({
                   )}
 
                   <div className="flex items-center justify-between">
-                    <span className={`font-medium ${isSelected ? 'text-green-700' : 'text-gray-900'}`}>
+                    <span className={`font-medium ${isSelected ? 'text-(--brand-primary)' : 'text-foreground'}`}>
                       {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
                     </span>
                     {isSelected && (
-                      <Check className="h-4 w-4 text-green-600" />
+                      <Check className="h-4 w-4 text-(--brand-primary)" />
                     )}
                   </div>
 
                   <div className="flex items-center justify-between mt-1">
-                    <span className={`text-sm ${isDisabled ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <span className={`text-sm ${isDisabled ? 'text-(--color-text-disabled)' : 'text-(--color-text-muted)'}`}>
                       {isDisabled
                         ? 'Fully booked'
                         : `${slot.available_capacity} slots left`}
@@ -415,7 +415,7 @@ export function DeliverySlotPicker({
           </div>
 
           {(slotsByDate[selectedDate] || []).length === 0 && (
-            <p className="text-center text-gray-500 py-8">
+            <p className="text-center text-(--color-text-muted) py-8">
               No delivery slots available for this date
             </p>
           )}
@@ -424,8 +424,8 @@ export function DeliverySlotPicker({
 
       {/* Loading overlay for reservation */}
       {reserving && (
-        <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-green-600" />
+        <div className="absolute inset-0 bg-(--color-surface)/80 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-(--brand-primary)" />
         </div>
       )}
     </div>

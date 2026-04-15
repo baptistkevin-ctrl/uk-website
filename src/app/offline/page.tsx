@@ -27,11 +27,11 @@ export default function OfflinePage() {
 
   if (isOnline) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 flex items-center justify-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-(--brand-primary-light) flex items-center justify-center">
             <svg
-              className="w-10 h-10 text-green-600"
+              className="w-10 h-10 text-(--brand-primary)"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -44,15 +44,15 @@ export default function OfflinePage() {
               />
             </svg>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl font-bold text-foreground mb-2">
             You&apos;re back online!
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-(--color-text-secondary) mb-6">
             Your connection has been restored. Click below to continue shopping.
           </p>
           <Link
             href="/"
-            className="inline-flex items-center justify-center px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors"
+            className="inline-flex items-center justify-center px-6 py-3 bg-(--brand-primary) text-white font-medium rounded-lg hover:bg-(--brand-primary-hover) transition-colors"
           >
             Continue Shopping
           </Link>
@@ -62,7 +62,7 @@ export default function OfflinePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
         {/* Offline Icon */}
         <div className="w-24 h-24 mx-auto mb-6">
@@ -91,19 +91,19 @@ export default function OfflinePage() {
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl font-bold text-foreground mb-2">
           You&apos;re Offline
         </h1>
 
         {/* Description */}
-        <p className="text-gray-600 mb-6">
+        <p className="text-(--color-text-secondary) mb-6">
           It looks like you&apos;ve lost your internet connection. Don&apos;t worry, you can
           still browse some of our previously viewed products.
         </p>
 
-        {/* MegaMart UK Branding */}
+        {/* UK Grocery Store Branding */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-(--brand-primary) rounded-lg flex items-center justify-center">
             <svg
               className="w-5 h-5 text-white"
               fill="currentColor"
@@ -112,14 +112,14 @@ export default function OfflinePage() {
               <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
             </svg>
           </div>
-          <span className="text-xl font-bold text-green-600">MegaMart UK</span>
+          <span className="text-xl font-bold text-(--brand-primary)">UK Grocery Store</span>
         </div>
 
         {/* Action Buttons */}
         <div className="space-y-3">
           <button
             onClick={handleRetry}
-            className="w-full px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+            className="w-full px-6 py-3 bg-(--brand-primary) text-white font-medium rounded-lg hover:bg-(--brand-primary-hover) transition-colors flex items-center justify-center gap-2"
           >
             <svg
               className="w-5 h-5"
@@ -139,7 +139,7 @@ export default function OfflinePage() {
 
           <Link
             href="/"
-            className="w-full px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors inline-flex items-center justify-center gap-2"
+            className="w-full px-6 py-3 border border-(--color-border) text-foreground font-medium rounded-lg hover:bg-(--color-elevated) transition-colors inline-flex items-center justify-center gap-2"
           >
             <svg
               className="w-5 h-5"
@@ -159,29 +159,29 @@ export default function OfflinePage() {
         </div>
 
         {/* Helpful Tips */}
-        <div className="mt-8 p-4 bg-blue-50 rounded-lg text-left">
-          <h2 className="font-semibold text-blue-900 mb-2">Tips while offline:</h2>
-          <ul className="text-sm text-blue-800 space-y-1">
+        <div className="mt-8 p-4 bg-(--color-elevated) rounded-lg text-left">
+          <h2 className="font-semibold text-foreground mb-2">Tips while offline:</h2>
+          <ul className="text-sm text-(--color-text-secondary) space-y-1">
             <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-0.5">•</span>
+              <span className="text-(--brand-primary) mt-0.5">•</span>
               Check your Wi-Fi or mobile data connection
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-0.5">•</span>
+              <span className="text-(--brand-primary) mt-0.5">•</span>
               Your cart items are saved and will sync when you reconnect
             </li>
             <li className="flex items-start gap-2">
-              <span className="text-blue-500 mt-0.5">•</span>
+              <span className="text-(--brand-primary) mt-0.5">•</span>
               Previously viewed products may still be available offline
             </li>
           </ul>
         </div>
 
         {/* Connection Status Indicator */}
-        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-gray-500">
+        <div className="mt-6 flex items-center justify-center gap-2 text-sm text-(--color-text-muted)">
           <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-(--color-error) opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-(--color-error)"></span>
           </span>
           Waiting for connection...
         </div>

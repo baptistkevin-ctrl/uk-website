@@ -1,24 +1,92 @@
-import * as React from 'react'
-import { cn } from '@/lib/utils/cn'
+"use client";
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {}
+import {
+  forwardRef,
+  useId,
+  type ComponentPropsWithoutRef,
+} from "react";
+import { Search } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, ...props }, ref) => {
+interface InputProps extends ComponentPropsWithoutRef<"input"> {
+  label?: string;
+  error?: string;
+  helpText?: string;
+  type?: "text" | "email" | "password" | "search" | "number" | "tel" | "url" | "date" | "time" | "file" | "hidden" | "datetime-local" | "color" | "range" | "month" | "week";
+}
+
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ label, error, helpText, type = "text", className, id, ...props }, ref) => {
+    const generatedId = useId();
+    const inputId = id ?? generatedId;
+    const isSearch = type === "search";
+
     return (
-      <input
-        type={type}
-        className={cn(
-          'flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-          className
+      <div className="flex flex-col gap-1.5">
+        {label && (
+          <label
+            htmlFor={inputId}
+            className="text-sm font-medium text-foreground"
+          >
+            {label}
+          </label>
         )}
-        ref={ref}
-        {...props}
-      />
-    )
-  }
-)
-Input.displayName = 'Input'
 
-export { Input }
+        <div className="relative">
+          {isSearch && (
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-(--color-text-muted)"
+              aria-hidden="true"
+            />
+          )}
+
+          <input
+            ref={ref}
+            id={inputId}
+            type={type}
+            aria-invalid={!!error}
+            aria-describedby={
+              error
+                ? `${inputId}-error`
+                : helpText
+                  ? `${inputId}-help`
+                  : undefined
+            }
+            className={cn(
+              "flex h-12 w-full rounded-lg border border-(--color-border) bg-(--color-surface) px-3 text-sm text-foreground placeholder:text-(--color-text-muted) transition-colors duration-(--duration-fast) ease-(--ease-out)",
+              "focus:border-(--brand-primary) focus:ring-2 focus:ring-(--brand-primary)/30 focus:outline-none",
+              "disabled:cursor-not-allowed disabled:opacity-50",
+              isSearch && "pl-10",
+              error && "border-(--color-error) focus:border-(--color-error) focus:ring-(--color-error)/15",
+              className,
+            )}
+            {...props}
+          />
+        </div>
+
+        {error && (
+          <p
+            id={`${inputId}-error`}
+            className="text-xs text-(--color-error)"
+            role="alert"
+          >
+            {error}
+          </p>
+        )}
+
+        {!error && helpText && (
+          <p
+            id={`${inputId}-help`}
+            className="text-xs text-(--color-text-muted)"
+          >
+            {helpText}
+          </p>
+        )}
+      </div>
+    );
+  },
+);
+
+Input.displayName = "Input";
+
+export { Input, type InputProps };

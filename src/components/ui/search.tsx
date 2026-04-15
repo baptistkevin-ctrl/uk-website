@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Search, X, Loader2, Package } from 'lucide-react'
+import { Search, X, Loader2, Package, Mic, MicOff } from 'lucide-react'
 import { formatPrice } from '@/lib/utils/format'
+import { useVoiceSearch } from '@/hooks/use-voice-search'
 
 interface Product {
   id: string
@@ -22,14 +23,28 @@ interface GlobalSearchProps {
   placeholder?: string
 }
 
-export function GlobalSearch({ variant = 'header', placeholder = 'Search products...' }: GlobalSearchProps) {
+export function GlobalSearch({ variant = 'header', placeholder = 'Search fresh produce, snacks, drinks...' }: GlobalSearchProps) {
   const router = useRouter()
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<Product[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => setMounted(true), [])
+
+  const handleVoiceResult = useCallback((transcript: string) => {
+    setQuery(transcript)
+    setIsOpen(true)
+    router.push(`/products?search=${encodeURIComponent(transcript)}`)
+  }, [router])
+
+  const { isListening, isSupported: voiceSupported, startListening, stopListening } = useVoiceSearch(handleVoiceResult)
+
+  // Only show voice button after hydration to prevent mismatch
+  const showVoice = mounted && voiceSupported
 
   // Debounced search
   useEffect(() => {
@@ -102,10 +117,10 @@ export function GlobalSearch({ variant = 'header', placeholder = 'Search product
       <form onSubmit={handleSubmit}>
         <div className={`relative flex items-center ${
           variant === 'header'
-            ? 'bg-slate-100 rounded-xl'
-            : 'bg-white border border-slate-200 rounded-xl shadow-sm'
+            ? 'rounded-lg border border-(--color-border) bg-(--color-elevated) transition-all duration-(--duration-fast) focus-within:bg-(--color-surface) focus-within:border-(--brand-primary) focus-within:shadow-[0_0_0_3px_rgba(27,107,58,0.1)]'
+            : 'rounded-lg border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm)'
         }`}>
-          <Search className="absolute left-3 w-5 h-5 text-slate-400" />
+          <Search className="absolute left-3.5 w-[17px] h-[17px] text-(--color-text-muted) pointer-events-none" />
           <input
             ref={inputRef}
             type="text"
@@ -115,10 +130,10 @@ export function GlobalSearch({ variant = 'header', placeholder = 'Search product
               setIsOpen(true)
             }}
             onFocus={() => setIsOpen(true)}
-            placeholder={placeholder}
-            className={`w-full bg-transparent border-none outline-none text-sm text-slate-600 placeholder:text-slate-400 ${
+            placeholder={isListening ? 'Listening...' : placeholder}
+            className={`w-full bg-transparent border-none outline-none text-sm text-foreground placeholder:text-(--color-text-muted) ${
               variant === 'header'
-                ? 'pl-10 pr-16 py-2.5 w-64 lg:w-80'
+                ? 'pl-10 pr-16 py-2.5 w-full'
                 : 'pl-10 pr-16 py-3 w-full'
             }`}
           />
@@ -129,12 +144,28 @@ export function GlobalSearch({ variant = 'header', placeholder = 'Search product
                 setQuery('')
                 setResults([])
               }}
-              className="absolute right-10 p-1 text-slate-400 hover:text-slate-600"
+              className="absolute right-10 p-1 text-(--color-text-muted) hover:text-foreground transition-colors"
+              aria-label="Clear search"
             >
               <X className="w-4 h-4" />
             </button>
           )}
-          <kbd className="absolute right-3 hidden md:inline-flex items-center px-2 py-0.5 text-xs font-medium text-slate-400 bg-white rounded border border-slate-200">
+          {/* Voice search button — renders only after hydration */}
+          {showVoice && (
+            <button
+              type="button"
+              onClick={isListening ? stopListening : startListening}
+              className={`absolute right-3 md:right-12 p-1.5 rounded-full transition-colors ${
+                isListening
+                  ? 'text-white bg-(--color-error) animate-pulse'
+                  : 'text-(--color-text-muted) hover:text-(--brand-primary) hover:bg-(--color-elevated)'
+              }`}
+              aria-label={isListening ? 'Stop listening' : 'Voice search'}
+            >
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </button>
+          )}
+          <kbd className="absolute right-3 hidden md:inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium text-(--color-text-muted) bg-(--color-surface) rounded-sm border border-(--color-border)">
             ⌘K
           </kbd>
         </div>
@@ -142,10 +173,10 @@ export function GlobalSearch({ variant = 'header', placeholder = 'Search product
 
       {/* Dropdown results */}
       {isOpen && (query.length >= 2 || results.length > 0) && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-50">
+        <div className="absolute top-full left-0 right-0 mt-1.5 rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-xl) overflow-hidden z-[var(--z-dropdown)]">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 animate-spin text-emerald-600" />
+              <Loader2 className="w-5 h-5 animate-spin text-(--brand-primary)" />
             </div>
           ) : results.length > 0 ? (
             <>
@@ -154,49 +185,49 @@ export function GlobalSearch({ variant = 'header', placeholder = 'Search product
                   <li key={product.id}>
                     <button
                       onClick={() => handleProductClick(product.slug)}
-                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-(--color-elevated) transition-colors text-left"
                     >
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 flex-shrink-0">
+                      <div className="w-10 h-10 rounded-md overflow-hidden bg-(--color-elevated) shrink-0">
                         {product.image_url ? (
                           <Image
                             src={product.image_url}
                             alt={product.name}
-                            width={48}
-                            height={48}
+                            width={40}
+                            height={40}
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-300">
-                            <Package className="w-5 h-5" />
+                          <div className="w-full h-full flex items-center justify-center text-(--color-text-disabled)">
+                            <Package className="w-4 h-4" />
                           </div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-slate-900 truncate">{product.name}</p>
+                        <p className="text-sm font-medium text-foreground truncate">{product.name}</p>
                         {product.category && (
-                          <p className="text-xs text-slate-500">{product.category.name}</p>
+                          <p className="text-xs text-(--color-text-muted)">{product.category.name}</p>
                         )}
                       </div>
-                      <span className="text-sm font-semibold text-emerald-600">
+                      <span className="text-sm font-semibold font-mono text-foreground">
                         {formatPrice(product.price_pence)}
                       </span>
                     </button>
                   </li>
                 ))}
               </ul>
-              <div className="border-t border-slate-100 px-4 py-3 bg-slate-50">
+              <div className="border-t border-(--color-border) px-4 py-2.5">
                 <button
                   onClick={handleSubmit}
-                  className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                  className="text-sm font-medium text-(--brand-primary) hover:underline"
                 >
-                  View all results for "{query}" →
+                  See all results for &ldquo;{query}&rdquo; →
                 </button>
               </div>
             </>
           ) : query.length >= 2 ? (
             <div className="py-8 text-center">
-              <Package className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-slate-500">No products found for "{query}"</p>
+              <Package className="w-10 h-10 text-(--color-text-disabled) mx-auto mb-2" />
+              <p className="text-sm text-(--color-text-muted)">No results for &ldquo;{query}&rdquo;</p>
             </div>
           ) : null}
         </div>

@@ -105,8 +105,8 @@ export function ProductQuickViewModal() {
   }
 
   const dietaryBadges = []
-  if (product.is_organic) dietaryBadges.push({ label: 'Organic', color: 'bg-green-100 text-green-700 border-green-200' })
-  if (product.is_vegan) dietaryBadges.push({ label: 'Vegan', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' })
+  if (product.is_organic) dietaryBadges.push({ label: 'Organic', color: 'bg-(--brand-primary-light) text-(--brand-primary) border-(--brand-primary)' })
+  if (product.is_vegan) dietaryBadges.push({ label: 'Vegan', color: 'bg-(--brand-primary-light) text-(--brand-primary) border-(--brand-primary)' })
   if (product.is_vegetarian) dietaryBadges.push({ label: 'Vegetarian', color: 'bg-lime-100 text-lime-700 border-lime-200' })
   if (product.is_gluten_free) dietaryBadges.push({ label: 'Gluten Free', color: 'bg-amber-100 text-amber-700 border-amber-200' })
 
@@ -138,15 +138,15 @@ export function ProductQuickViewModal() {
 
         {/* Mobile drag handle */}
         <div className="lg:hidden flex justify-center pt-2 pb-1">
-          <div className="w-10 h-1 bg-gray-300 rounded-full" />
+          <div className="w-12 h-1.5 bg-(--color-text-disabled) rounded-full" />
         </div>
 
         <div className="flex flex-col lg:flex-row">
           {/* ===== LEFT: Product Image ===== */}
-          <div className="relative w-full lg:w-[380px] xl:w-[420px] shrink-0 bg-gray-50">
+          <div className="relative w-full lg:w-[380px] xl:w-[420px] shrink-0 bg-background">
             {/* Mobile: compact horizontal layout with image + name/price side by side */}
             <div className="lg:hidden flex gap-3 p-3">
-              <div className="relative w-28 h-28 shrink-0 rounded-lg overflow-hidden bg-gray-100">
+              <div className="relative w-28 h-28 shrink-0 rounded-lg overflow-hidden bg-(--color-elevated)">
                 {product.image_url ? (
                   <Image
                     src={product.image_url}
@@ -162,34 +162,34 @@ export function ProductQuickViewModal() {
                   </div>
                 )}
                 {hasDiscount && (
-                  <span className="absolute top-1 left-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
+                  <span className="absolute top-1 left-1 bg-(--color-error) text-white text-[11px] font-bold px-1.5 py-0.5 rounded">
                     {discountPercentage}% OFF
                   </span>
                 )}
               </div>
               <div className="flex-1 min-w-0 py-0.5">
-                <h2 className="text-sm font-bold text-gray-900 leading-snug line-clamp-2 mb-1.5">
+                <h2 className="text-sm font-bold text-foreground leading-snug line-clamp-2 mb-1.5">
                   {product.name}
                 </h2>
                 <div className="flex items-center gap-1 mb-1.5">
                   <div className="flex items-center gap-[1px]">
                     {renderStars(12)}
                   </div>
-                  <span className="text-xs font-semibold text-gray-700">{rating.toFixed(1)}</span>
-                  <span className="text-xs text-gray-400">({reviewCount.toLocaleString()})</span>
+                  <span className="text-xs font-semibold text-(--color-text-secondary)">{rating.toFixed(1)}</span>
+                  <span className="text-xs text-(--color-text-disabled)">({reviewCount.toLocaleString()})</span>
                 </div>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-xl font-bold text-gray-900">
+                  <span className="text-xl font-bold text-foreground">
                     {formatPrice(product.price_pence)}
                   </span>
                   {hasDiscount && (
-                    <span className="text-xs text-gray-400 line-through">
+                    <span className="text-xs text-(--color-text-disabled) line-through">
                       {formatPrice(product.compare_at_price_pence!)}
                     </span>
                   )}
                 </div>
                 {hasDiscount && (
-                  <span className="text-xs font-semibold text-red-500">
+                  <span className="text-xs font-semibold text-(--color-error)">
                     Save {formatPrice(product.compare_at_price_pence! - product.price_pence)}
                   </span>
                 )}
@@ -216,7 +216,7 @@ export function ProductQuickViewModal() {
               {/* Discount badge on image */}
               {hasDiscount && (
                 <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                  <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded">
+                  <span className="bg-(--color-error) text-white text-xs font-bold px-2.5 py-1 rounded">
                     {discountPercentage}% OFF
                   </span>
                 </div>
@@ -233,10 +233,10 @@ export function ProductQuickViewModal() {
           </div>
 
           {/* ===== CENTER: Product Details ===== */}
-          <div className="flex-1 min-w-0 lg:border-r border-gray-100">
+          <div className="flex-1 min-w-0 lg:border-r border-(--color-border)">
             <div className="px-3 pb-3 lg:p-6">
               {/* Product Name - desktop only (shown in mobile image section) */}
-              <h2 className="hidden lg:block text-lg lg:text-xl font-bold text-gray-900 leading-snug mb-3">
+              <h2 className="hidden lg:block text-lg lg:text-xl font-bold text-foreground leading-snug mb-3">
                 {product.name}
               </h2>
 
@@ -246,12 +246,12 @@ export function ProductQuickViewModal() {
                   <div className="flex items-center gap-[1px]">
                     {renderStars(14)}
                   </div>
-                  <span className="text-sm font-semibold text-gray-800 ml-0.5">{rating.toFixed(1)}</span>
+                  <span className="text-sm font-semibold text-foreground ml-0.5">{rating.toFixed(1)}</span>
                 </div>
-                <span className="text-sm text-gray-400">|</span>
-                <span className="text-sm text-gray-500">{reviewCount.toLocaleString()} Reviews</span>
-                <span className="text-sm text-gray-400">|</span>
-                <span className="text-sm text-gray-500">{soldCount.toLocaleString()}+ sold</span>
+                <span className="text-sm text-(--color-text-disabled)">|</span>
+                <span className="text-sm text-(--color-text-muted)">{reviewCount.toLocaleString()} Reviews</span>
+                <span className="text-sm text-(--color-text-disabled)">|</span>
+                <span className="text-sm text-(--color-text-muted)">{soldCount.toLocaleString()}+ sold</span>
               </div>
 
               {/* Dietary badges */}
@@ -260,7 +260,7 @@ export function ProductQuickViewModal() {
                   {dietaryBadges.map((badge) => (
                     <span
                       key={badge.label}
-                      className={`text-[10px] lg:text-xs font-medium px-2 lg:px-2.5 py-0.5 lg:py-1 rounded-full border ${badge.color}`}
+                      className={`text-[11px] lg:text-xs font-medium px-2 lg:px-2.5 py-0.5 lg:py-1 rounded-full border ${badge.color}`}
                     >
                       {badge.label}
                     </span>
@@ -269,24 +269,24 @@ export function ProductQuickViewModal() {
               )}
 
               {/* Price Section - desktop only (shown in mobile image section) */}
-              <div className="hidden lg:block bg-gray-50 rounded-lg p-4 mb-4">
+              <div className="hidden lg:block bg-background rounded-lg p-4 mb-4">
                 <div className="flex items-baseline gap-3">
-                  <span className="text-2xl lg:text-3xl font-bold text-gray-900">
+                  <span className="text-2xl lg:text-3xl font-bold text-foreground">
                     {formatPrice(product.price_pence)}
                   </span>
                   {hasDiscount && (
-                    <span className="text-base text-gray-400 line-through">
+                    <span className="text-base text-(--color-text-disabled) line-through">
                       {formatPrice(product.compare_at_price_pence!)}
                     </span>
                   )}
                   {hasDiscount && (
-                    <span className="text-sm font-semibold text-red-500">
+                    <span className="text-sm font-semibold text-(--color-error)">
                       Save {formatPrice(product.compare_at_price_pence! - product.price_pence)}
                     </span>
                   )}
                 </div>
                 {product.unit && (
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-(--color-text-muted) mt-1">
                     Price per {product.unit_value && product.unit_value !== 1 ? `${product.unit_value} ` : ''}{product.unit}
                   </p>
                 )}
@@ -294,21 +294,21 @@ export function ProductQuickViewModal() {
 
               {/* Description */}
               {product.short_description && (
-                <p className="text-xs lg:text-sm text-gray-600 leading-relaxed mb-3 lg:mb-4 line-clamp-2 lg:line-clamp-none">
+                <p className="text-xs lg:text-sm text-(--color-text-secondary) leading-relaxed mb-3 lg:mb-4 line-clamp-2 lg:line-clamp-none">
                   {product.short_description}
                 </p>
               )}
 
               {/* Mobile: Shipping info row */}
-              <div className="lg:hidden flex items-center gap-4 mb-3 text-xs text-gray-500">
+              <div className="lg:hidden flex items-center gap-4 mb-3 text-xs text-(--color-text-muted)">
                 <span className="flex items-center gap-1">
-                  <svg className="w-3.5 h-3.5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg className="w-3.5 h-3.5 text-(--brand-primary)" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M1 3H16V16H1V3Z"/><path d="M16 8H20L23 11V16H16V8Z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
                   </svg>
                   {hasFreeShipping ? 'Free Shipping' : 'Standard Delivery'}
                 </span>
                 <span className="flex items-center gap-1">
-                  <svg className="w-3.5 h-3.5 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg className="w-3.5 h-3.5 text-(--brand-primary)" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z"/>
                   </svg>
                   Quality Guaranteed
@@ -318,26 +318,26 @@ export function ProductQuickViewModal() {
               {/* Mobile: Quantity + Add to Cart inline */}
               <div className="lg:hidden">
                 {isOutOfStock ? (
-                  <div className="px-4 py-2.5 bg-gray-100 rounded-lg text-center">
-                    <p className="text-sm font-semibold text-gray-500">Out of Stock</p>
+                  <div className="px-4 py-2.5 bg-(--color-elevated) rounded-lg text-center">
+                    <p className="text-sm font-semibold text-(--color-text-muted)">Out of Stock</p>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
                     {/* Quantity selector */}
-                    <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                    <div className="flex items-center border border-(--color-border) rounded-lg overflow-hidden">
                       <button
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
                         disabled={quantity <= 1}
-                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 disabled:opacity-40 transition-colors"
+                        className="w-10 h-10 sm:w-9 sm:h-9 flex items-center justify-center text-(--color-text-secondary) hover:bg-(--color-elevated) disabled:opacity-40 transition-colors"
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
-                      <span className="w-8 h-8 flex items-center justify-center text-sm font-semibold text-gray-900 border-x border-gray-300">
+                      <span className="w-10 h-10 sm:w-9 sm:h-9 flex items-center justify-center text-sm font-semibold text-foreground border-x border-(--color-border)">
                         {quantity}
                       </span>
                       <button
                         onClick={() => setQuantity(quantity + 1)}
-                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
+                        className="w-10 h-10 sm:w-9 sm:h-9 flex items-center justify-center text-(--color-text-secondary) hover:bg-(--color-elevated) transition-colors"
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
@@ -347,10 +347,10 @@ export function ProductQuickViewModal() {
                     <Button
                       onClick={handleAddToCart}
                       disabled={isAdding || justAdded}
-                      className={`flex-1 h-10 text-sm font-semibold rounded-lg shadow-sm transition-all duration-300 ${
+                      className={`flex-1 h-11 text-sm font-semibold rounded-lg shadow-sm transition-all duration-300 ${
                         justAdded
-                          ? 'bg-emerald-500 hover:bg-emerald-500'
-                          : 'bg-green-600 hover:bg-green-700'
+                          ? 'bg-(--brand-primary) hover:bg-(--brand-primary)'
+                          : 'bg-(--brand-primary) hover:bg-(--brand-primary-hover)'
                       }`}
                     >
                       {isAdding ? (
@@ -375,7 +375,7 @@ export function ProductQuickViewModal() {
 
                 {/* Stock warning */}
                 {isLowStock && (
-                  <p className="text-xs font-medium text-orange-600 mt-1.5">
+                  <p className="text-xs font-medium text-(--brand-amber) mt-1.5">
                     Only {product.stock_quantity} left
                   </p>
                 )}
@@ -384,21 +384,21 @@ export function ProductQuickViewModal() {
                 <Link
                   href={`/products/${product.slug}`}
                   onClick={handleClose}
-                  className="block text-center text-xs text-green-600 hover:text-green-700 font-semibold hover:underline transition-colors mt-3 pb-1"
+                  className="block text-center text-xs text-(--brand-primary) hover:text-(--brand-primary-hover) font-semibold hover:underline transition-colors mt-3 pb-1"
                 >
                   View Full Details &rarr;
                 </Link>
               </div>
 
               {/* ===== Customer Reviews Breakdown - desktop only ===== */}
-              <div className="hidden lg:block border-t border-gray-100 pt-4">
-                <h3 className="text-sm font-semibold text-gray-900 mb-3">
+              <div className="hidden lg:block border-t border-(--color-border) pt-4">
+                <h3 className="text-sm font-semibold text-foreground mb-3">
                   Customer Reviews ({reviewCount.toLocaleString()})
                 </h3>
                 <div className="flex items-start gap-6">
                   {/* Big rating number */}
                   <div className="text-center shrink-0">
-                    <div className="text-4xl font-bold text-gray-900">{rating.toFixed(1)}</div>
+                    <div className="text-4xl font-bold text-foreground">{rating.toFixed(1)}</div>
                     <div className="flex items-center gap-[2px] mt-1 justify-center">
                       {renderStars(14)}
                     </div>
@@ -408,14 +408,14 @@ export function ProductQuickViewModal() {
                   <div className="flex-1 space-y-1.5">
                     {reviewBreakdown.map((row) => (
                       <div key={row.stars} className="flex items-center gap-2 text-xs">
-                        <span className="text-gray-500 w-10 text-right shrink-0">{row.stars} stars</span>
-                        <div className="flex-1 h-2.5 bg-gray-200 rounded-full overflow-hidden">
+                        <span className="text-(--color-text-muted) w-10 text-right shrink-0">{row.stars} stars</span>
+                        <div className="flex-1 h-2.5 bg-(--color-elevated) rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gray-800 rounded-full transition-all"
+                            className="h-full bg-(--color-text) rounded-full transition-all"
                             style={{ width: `${row.percentage}%` }}
                           />
                         </div>
-                        <span className="text-gray-500 w-10 shrink-0">{row.count}</span>
+                        <span className="text-(--color-text-muted) w-10 shrink-0">{row.count}</span>
                       </div>
                     ))}
                   </div>
@@ -425,16 +425,16 @@ export function ProductQuickViewModal() {
           </div>
 
           {/* ===== RIGHT: Seller Info & Actions Sidebar - desktop only ===== */}
-          <div className="hidden lg:block w-full lg:w-[280px] xl:w-[300px] shrink-0 bg-white">
+          <div className="hidden lg:block w-full lg:w-[280px] xl:w-[300px] shrink-0 bg-(--color-surface)">
             <div className="p-5 lg:p-5 space-y-4">
               {/* Sold by */}
               {product.vendor && (
-                <div className="pb-4 border-b border-gray-100">
-                  <p className="text-xs text-gray-500 mb-1">Sold by</p>
+                <div className="pb-4 border-b border-(--color-border)">
+                  <p className="text-xs text-(--color-text-muted) mb-1">Sold by</p>
                   <Link
                     href={`/store/${product.vendor.slug}`}
                     onClick={handleClose}
-                    className="text-sm font-semibold text-green-700 hover:text-green-800 hover:underline"
+                    className="text-sm font-semibold text-(--brand-primary) hover:text-(--brand-primary-hover) hover:underline"
                   >
                     {product.vendor.business_name}
                     {product.vendor.is_verified && (
@@ -447,58 +447,58 @@ export function ProductQuickViewModal() {
               )}
 
               {/* Commitment / Shipping */}
-              <div className="space-y-3 pb-4 border-b border-gray-100">
+              <div className="space-y-3 pb-4 border-b border-(--color-border)">
                 <div className="flex items-start gap-2.5">
-                  <svg className="w-4 h-4 text-green-600 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg className="w-4 h-4 text-(--brand-primary) mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M1 3H16V16H1V3Z"/><path d="M16 8H20L23 11V16H16V8Z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
                   </svg>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-foreground">
                       {hasFreeShipping ? 'Free Shipping' : 'Standard Delivery'}
                     </p>
-                    <p className="text-xs text-gray-500">Estimated 1-3 business days</p>
+                    <p className="text-xs text-(--color-text-muted)">Estimated 1-3 business days</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-2.5">
-                  <svg className="w-4 h-4 text-green-600 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg className="w-4 h-4 text-(--brand-primary) mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z"/><polyline points="9,22 9,12 15,12 15,22"/>
                   </svg>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Return & Refund</p>
-                    <p className="text-xs text-gray-500">30-day return policy</p>
+                    <p className="text-sm font-medium text-foreground">Return & Refund</p>
+                    <p className="text-xs text-(--color-text-muted)">30-day return policy</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-2.5">
-                  <svg className="w-4 h-4 text-green-600 mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg className="w-4 h-4 text-(--brand-primary) mt-0.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z"/>
                   </svg>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">Quality Guaranteed</p>
-                    <p className="text-xs text-gray-500">Fresh or your money back</p>
+                    <p className="text-sm font-medium text-foreground">Quality Guaranteed</p>
+                    <p className="text-xs text-(--color-text-muted)">Fresh or your money back</p>
                   </div>
                 </div>
               </div>
 
               {/* Quantity */}
               {!isOutOfStock && (
-                <div className="pb-4 border-b border-gray-100">
-                  <p className="text-sm font-medium text-gray-900 mb-2">Quantity</p>
-                  <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden w-fit">
+                <div className="pb-4 border-b border-(--color-border)">
+                  <p className="text-sm font-medium text-foreground mb-2">Quantity</p>
+                  <div className="flex items-center border border-(--color-border) rounded-lg overflow-hidden w-fit">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       disabled={quantity <= 1}
-                      className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      className="w-9 h-9 flex items-center justify-center text-(--color-text-secondary) hover:bg-(--color-elevated) disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <span className="w-10 h-9 flex items-center justify-center text-sm font-semibold text-gray-900 border-x border-gray-300">
+                    <span className="w-10 h-9 flex items-center justify-center text-sm font-semibold text-foreground border-x border-(--color-border)">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 transition-colors"
+                      className="w-9 h-9 flex items-center justify-center text-(--color-text-secondary) hover:bg-(--color-elevated) transition-colors"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -515,9 +515,9 @@ export function ProductQuickViewModal() {
 
               {/* Add to Cart Button */}
               {isOutOfStock ? (
-                <div className="px-4 py-3 bg-gray-100 rounded-lg text-center">
-                  <p className="text-sm font-semibold text-gray-500">Out of Stock</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Check back soon</p>
+                <div className="px-4 py-3 bg-(--color-elevated) rounded-lg text-center">
+                  <p className="text-sm font-semibold text-(--color-text-muted)">Out of Stock</p>
+                  <p className="text-xs text-(--color-text-disabled) mt-0.5">Check back soon</p>
                 </div>
               ) : (
                 <Button
@@ -525,8 +525,8 @@ export function ProductQuickViewModal() {
                   disabled={isAdding || justAdded}
                   className={`w-full h-12 text-base font-semibold rounded-lg shadow-md transition-all duration-300 ${
                     justAdded
-                      ? 'bg-emerald-500 hover:bg-emerald-500'
-                      : 'bg-green-600 hover:bg-green-700'
+                      ? 'bg-(--brand-primary) hover:bg-(--brand-primary)'
+                      : 'bg-(--brand-primary) hover:bg-(--brand-primary-hover)'
                   }`}
                 >
                   {isAdding ? (
@@ -552,7 +552,7 @@ export function ProductQuickViewModal() {
               <Link
                 href={`/products/${product.slug}`}
                 onClick={handleClose}
-                className="block text-center text-sm text-green-600 hover:text-green-700 font-semibold hover:underline transition-colors pt-1"
+                className="block text-center text-sm text-(--brand-primary) hover:text-(--brand-primary-hover) font-semibold hover:underline transition-colors pt-1"
               >
                 View Full Details &rarr;
               </Link>

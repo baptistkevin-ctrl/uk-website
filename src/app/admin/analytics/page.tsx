@@ -155,12 +155,12 @@ export default function AdminAnalyticsPage() {
   const maxRevenue = Math.max(...data.revenueByDay.map(d => d.revenue), 1)
 
   const statusColors: Record<string, string> = {
-    pending: 'bg-gray-200',
+    pending: 'bg-(--color-border)',
     confirmed: 'bg-blue-200',
     processing: 'bg-yellow-200',
     ready_for_delivery: 'bg-purple-200',
     out_for_delivery: 'bg-orange-200',
-    delivered: 'bg-emerald-200',
+    delivered: 'bg-(--brand-primary-light)',
     cancelled: 'bg-red-200',
   }
 
@@ -169,22 +169,22 @@ export default function AdminAnalyticsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <BarChart3 className="h-7 w-7 text-emerald-600" />
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <BarChart3 className="h-7 w-7 text-(--brand-primary)" />
             Analytics
           </h1>
-          <p className="text-gray-500 mt-1">Track your store performance and insights</p>
+          <p className="text-(--color-text-muted) mt-1">Track your store performance and insights</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex bg-gray-100 rounded-lg p-1">
+          <div className="flex bg-(--color-elevated) rounded-lg p-1">
             {(['7d', '30d', '90d'] as const).map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`px-4 py-2.5 rounded-md text-sm font-medium transition-colors ${
                   period === p
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'bg-(--color-surface) text-foreground shadow-sm'
+                    : 'text-(--color-text-secondary) hover:text-foreground'
                 }`}
               >
                 {p === '7d' ? 'Week' : p === '30d' ? 'Month' : 'Quarter'}
@@ -199,19 +199,19 @@ export default function AdminAnalyticsPage() {
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
         </div>
       ) : (
         <>
           {/* Key Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-emerald-100 rounded-xl">
-                  <PoundSterling className="h-6 w-6 text-emerald-600" />
+                <div className="p-3 bg-(--brand-primary-light) rounded-xl">
+                  <PoundSterling className="h-6 w-6 text-(--brand-primary)" />
                 </div>
                 <div className={`flex items-center gap-1 text-sm font-medium ${
-                  data.revenueGrowth >= 0 ? 'text-emerald-600' : 'text-red-600'
+                  data.revenueGrowth >= 0 ? 'text-(--brand-primary)' : 'text-(--color-error)'
                 }`}>
                   {data.revenueGrowth >= 0 ? (
                     <ArrowUpRight className="h-4 w-4" />
@@ -221,17 +221,17 @@ export default function AdminAnalyticsPage() {
                   {Math.abs(data.revenueGrowth).toFixed(1)}%
                 </div>
               </div>
-              <p className="text-sm text-gray-500 mb-1">Total Revenue</p>
-              <p className="text-3xl font-bold text-gray-900">{formatLargePrice(data.totalRevenue)}</p>
+              <p className="text-sm text-(--color-text-muted) mb-1">Total Revenue</p>
+              <p className="text-3xl font-bold text-foreground">{formatLargePrice(data.totalRevenue)}</p>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-blue-100 rounded-xl">
-                  <ShoppingCart className="h-6 w-6 text-blue-600" />
+                <div className="p-3 bg-(--color-info-bg) rounded-xl">
+                  <ShoppingCart className="h-6 w-6 text-(--color-info)" />
                 </div>
                 <div className={`flex items-center gap-1 text-sm font-medium ${
-                  data.ordersGrowth >= 0 ? 'text-emerald-600' : 'text-red-600'
+                  data.ordersGrowth >= 0 ? 'text-(--brand-primary)' : 'text-(--color-error)'
                 }`}>
                   {data.ordersGrowth >= 0 ? (
                     <ArrowUpRight className="h-4 w-4" />
@@ -241,36 +241,36 @@ export default function AdminAnalyticsPage() {
                   {Math.abs(data.ordersGrowth).toFixed(1)}%
                 </div>
               </div>
-              <p className="text-sm text-gray-500 mb-1">Total Orders</p>
-              <p className="text-3xl font-bold text-gray-900">{data.totalOrders}</p>
+              <p className="text-sm text-(--color-text-muted) mb-1">Total Orders</p>
+              <p className="text-3xl font-bold text-foreground">{data.totalOrders}</p>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-purple-100 rounded-xl">
-                  <TrendingUp className="h-6 w-6 text-purple-600" />
+                <div className="p-3 bg-(--color-info-bg) rounded-xl">
+                  <TrendingUp className="h-6 w-6 text-(--color-info)" />
                 </div>
               </div>
-              <p className="text-sm text-gray-500 mb-1">Avg Order Value</p>
-              <p className="text-3xl font-bold text-gray-900">{formatPrice(data.avgOrderValue)}</p>
+              <p className="text-sm text-(--color-text-muted) mb-1">Avg Order Value</p>
+              <p className="text-3xl font-bold text-foreground">{formatPrice(data.avgOrderValue)}</p>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-orange-100 rounded-xl">
-                  <Users className="h-6 w-6 text-orange-600" />
+                <div className="p-3 bg-(--color-warning-bg) rounded-xl">
+                  <Users className="h-6 w-6 text-(--brand-amber)" />
                 </div>
               </div>
-              <p className="text-sm text-gray-500 mb-1">Total Customers</p>
-              <p className="text-3xl font-bold text-gray-900">{data.totalCustomers}</p>
+              <p className="text-sm text-(--color-text-muted) mb-1">Total Customers</p>
+              <p className="text-3xl font-bold text-foreground">{data.totalCustomers}</p>
             </div>
           </div>
 
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Revenue Chart */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Revenue Over Time</h2>
+            <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-4">Revenue Over Time</h2>
               <div className="h-64 flex items-end gap-1">
                 {data.revenueByDay.slice(-30).map((day, index) => {
                   const height = maxRevenue > 0 ? (day.revenue / maxRevenue) * 100 : 0
@@ -283,7 +283,7 @@ export default function AdminAnalyticsPage() {
                       className="flex-1 flex flex-col items-center group relative"
                     >
                       <div className="absolute bottom-full mb-2 hidden group-hover:block z-10">
-                        <div className="bg-gray-900 text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap">
+                        <div className="bg-(--color-text) text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap">
                           {formatPrice(day.revenue)}
                           <br />
                           {date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
@@ -291,7 +291,7 @@ export default function AdminAnalyticsPage() {
                       </div>
                       <div
                         className={`w-full rounded-t transition-all ${
-                          isWeekend ? 'bg-emerald-200' : 'bg-emerald-500'
+                          isWeekend ? 'bg-(--brand-primary-light)' : 'bg-(--brand-primary)'
                         } hover:opacity-80`}
                         style={{ height: `${Math.max(height, 2)}%` }}
                       />
@@ -299,18 +299,18 @@ export default function AdminAnalyticsPage() {
                   )
                 })}
               </div>
-              <div className="flex justify-between mt-4 text-xs text-gray-500">
+              <div className="flex justify-between mt-4 text-xs text-(--color-text-muted)">
                 <span>{period === '7d' ? '7 days ago' : period === '30d' ? '30 days ago' : '90 days ago'}</span>
                 <span>Today</span>
               </div>
             </div>
 
             {/* Orders by Status */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Orders by Status</h2>
+            <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
+              <h2 className="text-lg font-semibold text-foreground mb-4">Orders by Status</h2>
               <div className="space-y-4">
                 {Object.entries(data.ordersByStatus).length === 0 ? (
-                  <p className="text-gray-500 text-center py-8">No orders in this period</p>
+                  <p className="text-(--color-text-muted) text-center py-8">No orders in this period</p>
                 ) : (
                   Object.entries(data.ordersByStatus).map(([status, count]) => {
                     const total = Object.values(data.ordersByStatus).reduce((a, b) => a + b, 0)
@@ -319,14 +319,14 @@ export default function AdminAnalyticsPage() {
                     return (
                       <div key={status}>
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-medium text-gray-700 capitalize">
+                          <span className="text-sm font-medium text-foreground capitalize">
                             {status.replace(/_/g, ' ')}
                           </span>
-                          <span className="text-sm text-gray-500">{count} ({percentage.toFixed(0)}%)</span>
+                          <span className="text-sm text-(--color-text-muted)">{count} ({percentage.toFixed(0)}%)</span>
                         </div>
-                        <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-3 bg-(--color-elevated) rounded-full overflow-hidden">
                           <div
-                            className={`h-full rounded-full ${statusColors[status] || 'bg-gray-300'}`}
+                            className={`h-full rounded-full ${statusColors[status] || 'bg-(--color-border-strong)'}`}
                             style={{ width: `${percentage}%` }}
                           />
                         </div>
@@ -340,47 +340,47 @@ export default function AdminAnalyticsPage() {
 
           {/* Additional Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-emerald-100 rounded-lg">
-                  <Package className="h-5 w-5 text-emerald-600" />
+                <div className="p-2 bg-(--brand-primary-light) rounded-lg">
+                  <Package className="h-5 w-5 text-(--brand-primary)" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Products</h3>
+                <h3 className="font-semibold text-foreground">Products</h3>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Total Products</span>
+                  <span className="text-(--color-text-muted)">Total Products</span>
                   <span className="font-medium">{data.totalProducts}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Active Products</span>
-                  <span className="font-medium text-emerald-600">—</span>
+                  <span className="text-(--color-text-muted)">Active Products</span>
+                  <span className="font-medium text-(--brand-primary)">—</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Out of Stock</span>
-                  <span className="font-medium text-red-600">—</span>
+                  <span className="text-(--color-text-muted)">Out of Stock</span>
+                  <span className="font-medium text-(--color-error)">—</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Calendar className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-(--color-info-bg) rounded-lg">
+                  <Calendar className="h-5 w-5 text-(--color-info)" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Period Summary</h3>
+                <h3 className="font-semibold text-foreground">Period Summary</h3>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Orders</span>
+                  <span className="text-(--color-text-muted)">Orders</span>
                   <span className="font-medium">{data.totalOrders}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Revenue</span>
-                  <span className="font-medium text-emerald-600">{formatLargePrice(data.totalRevenue)}</span>
+                  <span className="text-(--color-text-muted)">Revenue</span>
+                  <span className="font-medium text-(--brand-primary)">{formatLargePrice(data.totalRevenue)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Avg Daily Revenue</span>
+                  <span className="text-(--color-text-muted)">Avg Daily Revenue</span>
                   <span className="font-medium">
                     {formatPrice(data.totalRevenue / (period === '7d' ? 7 : period === '30d' ? 30 : 90))}
                   </span>
@@ -388,28 +388,28 @@ export default function AdminAnalyticsPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
+            <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <TrendingUp className="h-5 w-5 text-purple-600" />
+                <div className="p-2 bg-(--color-info-bg) rounded-lg">
+                  <TrendingUp className="h-5 w-5 text-(--color-info)" />
                 </div>
-                <h3 className="font-semibold text-gray-900">Performance</h3>
+                <h3 className="font-semibold text-foreground">Performance</h3>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Revenue Growth</span>
-                  <span className={`font-medium ${data.revenueGrowth >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <span className="text-(--color-text-muted)">Revenue Growth</span>
+                  <span className={`font-medium ${data.revenueGrowth >= 0 ? 'text-(--brand-primary)' : 'text-(--color-error)'}`}>
                     {data.revenueGrowth >= 0 ? '+' : ''}{data.revenueGrowth.toFixed(1)}%
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-500">Orders Growth</span>
-                  <span className={`font-medium ${data.ordersGrowth >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                  <span className="text-(--color-text-muted)">Orders Growth</span>
+                  <span className={`font-medium ${data.ordersGrowth >= 0 ? 'text-(--brand-primary)' : 'text-(--color-error)'}`}>
                     {data.ordersGrowth >= 0 ? '+' : ''}{data.ordersGrowth.toFixed(1)}%
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Conversion Rate</span>
+                  <span className="text-(--color-text-muted)">Conversion Rate</span>
                   <span className="font-medium">—</span>
                 </div>
               </div>

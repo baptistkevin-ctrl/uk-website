@@ -1,8 +1,6 @@
 import Link from 'next/link'
 import { Package, ArrowRight, Store, MessageCircle } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { formatPrice, formatDate } from '@/lib/utils/format'
 import { OrderChatButton } from '@/components/chat/order-chat-button'
@@ -53,16 +51,18 @@ export default async function OrdersPage() {
     }
   })
 
-  const getStatusColor = (status: string) => {
+  const getStatusVariant = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'secondary'
+        return 'warning'
       case 'confirmed':
       case 'processing':
         return 'info'
       case 'ready_for_delivery':
       case 'out_for_delivery':
         return 'warning'
+      case 'dispatched':
+        return 'organic'
       case 'delivered':
         return 'success'
       case 'cancelled':
@@ -74,60 +74,58 @@ export default async function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
-        <p className="text-gray-500 mt-1">View and track your orders</p>
-      </div>
+      <h1 className="font-display text-2xl font-semibold text-foreground">
+        My Orders
+      </h1>
 
       {orders && orders.length > 0 ? (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {orders.map((order) => {
             const vendors = orderVendorsMap.get(order.id) || []
             return (
-              <Card key={order.id} className="overflow-hidden">
-                {/* Order Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3 bg-gray-50 border-b">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white rounded-lg border">
-                      <Package className="h-5 w-5 text-gray-600" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900 text-sm">{order.order_number}</p>
-                      <p className="text-xs text-gray-500">{formatDate(order.created_at)}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge variant={getStatusColor(order.status) as 'default'}>
-                      {order.status.replace(/_/g, ' ')}
-                    </Badge>
-                    <p className="text-base font-bold">{formatPrice(order.total_pence)}</p>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/account/orders/${order.id}`}>
-                        View Details
-                        <ArrowRight className="ml-1 h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
+              <div
+                key={order.id}
+                className="rounded-xl border border-(--color-border) bg-(--color-surface) p-4 lg:p-5 hover:border-(--color-border-strong) transition-colors duration-200"
+                style={{ transitionTimingFunction: 'var(--ease-premium)' }}
+              >
+                {/* Top row: order number + status */}
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-sm font-medium text-foreground">
+                    {order.order_number}
+                  </span>
+                  <Badge variant={getStatusVariant(order.status) as 'default'}>
+                    {order.status.replace(/_/g, ' ')}
+                  </Badge>
                 </div>
 
-                {/* Vendor Stores — AliExpress style contact per seller */}
+                {/* Middle: items + total */}
+                <div className="mt-2 flex items-center justify-between text-sm text-(--color-text-secondary)">
+                  <span>
+                    {order.item_count ?? ''} {order.item_count === 1 ? 'item' : 'items'}
+                  </span>
+                  <span className="font-mono font-semibold text-foreground">
+                    {formatPrice(order.total_pence)}
+                  </span>
+                </div>
+
+                {/* Vendor stores */}
                 {vendors.length > 0 && (
-                  <CardContent className="p-0 divide-y">
+                  <div className="mt-3 space-y-2 border-t border-(--color-border) pt-3">
                     {vendors.map((vendor) => (
-                      <div key={vendor.id} className="flex items-center justify-between px-5 py-3">
-                        <div className="flex items-center gap-3 min-w-0">
+                      <div key={vendor.id} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
                           {vendor.logo_url ? (
                             <img
                               src={vendor.logo_url}
                               alt={vendor.business_name}
-                              className="w-8 h-8 rounded-full object-cover ring-1 ring-gray-200"
+                              className="w-6 h-6 rounded-full object-cover ring-1 ring-(--color-border)"
                             />
                           ) : (
-                            <div className="w-8 h-8 bg-emerald-50 rounded-full flex items-center justify-center ring-1 ring-emerald-200">
-                              <Store className="h-4 w-4 text-emerald-600" />
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center bg-(--color-elevated) ring-1 ring-(--color-border)">
+                              <Store className="h-3 w-3 text-(--color-text-muted)" />
                             </div>
                           )}
-                          <span className="text-sm font-medium text-gray-900 truncate">
+                          <span className="text-xs font-medium text-(--color-text-secondary) truncate">
                             {vendor.business_name}
                           </span>
                         </div>
@@ -139,32 +137,46 @@ export default async function OrdersPage() {
                         />
                       </div>
                     ))}
-                  </CardContent>
-                )}
-
-                {/* Delivery info */}
-                {order.delivery_date && (
-                  <div className="px-5 py-2 bg-gray-50 border-t text-xs text-gray-500">
-                    Delivery: {formatDate(order.delivery_date)}
                   </div>
                 )}
-              </Card>
+
+                {/* Bottom: date + view details */}
+                <div className="mt-3 flex items-center justify-between">
+                  <span className="text-xs text-(--color-text-muted)">
+                    {formatDate(order.created_at)}
+                    {order.delivery_date && (
+                      <> &middot; Delivery: {formatDate(order.delivery_date)}</>
+                    )}
+                  </span>
+                  <Link
+                    href={`/account/orders/${order.id}`}
+                    className="text-sm font-medium text-(--brand-primary) hover:underline inline-flex items-center gap-1"
+                  >
+                    View Details
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </div>
             )
           })}
         </div>
       ) : (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">No orders yet</h2>
-            <p className="text-gray-500 mb-6">
-              When you place an order, it will appear here.
-            </p>
-            <Button asChild>
-              <Link href="/products">Start Shopping</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col items-center justify-center rounded-xl border border-(--color-border) bg-(--color-surface) py-16 px-6">
+          <Package className="h-16 w-16 text-(--color-text-muted) mb-4" />
+          <h2 className="font-display text-lg font-semibold text-foreground mb-1">
+            No orders yet
+          </h2>
+          <p className="text-sm text-(--color-text-muted) mb-6 text-center max-w-xs">
+            When you place an order, it will appear here.
+          </p>
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-2 rounded-lg bg-(--brand-amber) px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+          >
+            Start Shopping
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
       )}
     </div>
   )

@@ -46,7 +46,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: typeof 
   items_received: { label: 'Items Received', color: 'bg-indigo-100 text-indigo-800', icon: Package },
   inspecting: { label: 'Inspecting', color: 'bg-purple-100 text-purple-800', icon: AlertTriangle },
   refund_processing: { label: 'Processing Refund', color: 'bg-cyan-100 text-cyan-800', icon: RotateCcw },
-  refunded: { label: 'Refunded', color: 'bg-green-100 text-green-800', icon: CheckCircle },
+  refunded: { label: 'Refunded', color: 'bg-(--brand-primary-light) text-(--brand-primary)', icon: CheckCircle },
 }
 
 export default function VendorReturnsPage() {
@@ -115,8 +115,8 @@ export default function VendorReturnsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+      <div className="flex items-center justify-center min-h-100">
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -125,18 +125,18 @@ export default function VendorReturnsPage() {
     <div className="p-6 lg:p-8 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Returns</h1>
-        <p className="text-gray-500">Manage return requests for your products</p>
+        <h1 className="text-2xl font-bold text-foreground">Returns</h1>
+        <p className="text-(--color-text-muted)">Manage return requests for your products</p>
       </div>
 
       {/* Error banner */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
-          <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0" />
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="bg-(--color-error-bg) border border-(--color-border) rounded-lg p-4 flex items-center gap-3">
+          <AlertTriangle className="h-5 w-5 text-(--color-error) shrink-0" />
+          <p className="text-sm text-(--color-error)">{error}</p>
           <button
             onClick={() => setError(null)}
-            className="ml-auto text-red-400 hover:text-red-600"
+            className="ml-auto text-red-400 hover:text-(--color-error)"
           >
             <XCircle className="h-4 w-4" />
           </button>
@@ -145,58 +145,58 @@ export default function VendorReturnsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-white">
+        <Card className="bg-(--color-surface)">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center">
-              <Clock className="h-5 w-5 text-amber-600" />
+            <div className="w-10 h-10 bg-(--brand-amber-soft) rounded-lg flex items-center justify-center">
+              <Clock className="h-5 w-5 text-(--brand-amber)" />
             </div>
             <div>
               <p className="text-2xl font-bold">{counts.pending}</p>
-              <p className="text-xs text-gray-500">Pending</p>
+              <p className="text-xs text-(--color-text-muted)">Pending</p>
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-white">
+        <Card className="bg-(--color-surface)">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <CheckCircle className="h-5 w-5 text-blue-600" />
+            <div className="w-10 h-10 bg-(--color-info-bg) rounded-lg flex items-center justify-center">
+              <CheckCircle className="h-5 w-5 text-(--color-info)" />
             </div>
             <div>
               <p className="text-2xl font-bold">{counts.approved}</p>
-              <p className="text-xs text-gray-500">Approved</p>
+              <p className="text-xs text-(--color-text-muted)">Approved</p>
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-white">
+        <Card className="bg-(--color-surface)">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-              <XCircle className="h-5 w-5 text-red-600" />
+            <div className="w-10 h-10 bg-(--color-error-bg) rounded-lg flex items-center justify-center">
+              <XCircle className="h-5 w-5 text-(--color-error)" />
             </div>
             <div>
               <p className="text-2xl font-bold">{counts.rejected}</p>
-              <p className="text-xs text-gray-500">Rejected</p>
+              <p className="text-xs text-(--color-text-muted)">Rejected</p>
             </div>
           </CardContent>
         </Card>
-        <Card className="bg-white">
+        <Card className="bg-(--color-surface)">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-              <Package className="h-5 w-5 text-gray-600" />
+            <div className="w-10 h-10 bg-(--color-elevated) rounded-lg flex items-center justify-center">
+              <Package className="h-5 w-5 text-(--color-text-secondary)" />
             </div>
             <div>
               <p className="text-2xl font-bold">{counts.all}</p>
-              <p className="text-xs text-gray-500">Total</p>
+              <p className="text-xs text-(--color-text-muted)">Total</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters */}
-      <Card className="bg-white">
+      <Card className="bg-(--color-surface)">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-(--color-text-disabled)" />
               <Input
                 placeholder="Search returns..."
                 value={searchQuery}
@@ -213,7 +213,7 @@ export default function VendorReturnsPage() {
                   key={s}
                   size="sm"
                   variant={statusFilter === s ? 'default' : 'outline'}
-                  className={statusFilter === s ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+                  className={statusFilter === s ? 'bg-(--brand-primary) hover:bg-(--brand-primary-hover)' : ''}
                   onClick={() => setStatusFilter(s)}
                 >
                   {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
@@ -232,9 +232,9 @@ export default function VendorReturnsPage() {
       {/* Returns List */}
       <div className="space-y-3">
         {returns.length === 0 ? (
-          <Card className="bg-white">
-            <CardContent className="p-12 text-center text-gray-500">
-              <RotateCcw className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+          <Card className="bg-(--color-surface)">
+            <CardContent className="p-12 text-center text-(--color-text-muted)">
+              <RotateCcw className="h-12 w-12 mx-auto mb-3 text-(--color-text-disabled)" />
               <p className="text-lg font-medium">No return requests</p>
               <p className="text-sm mt-1">
                 {statusFilter !== 'all'
@@ -249,13 +249,13 @@ export default function VendorReturnsPage() {
             const StatusIcon = config.icon
 
             return (
-              <Card key={returnReq.id} className="bg-white">
+              <Card key={returnReq.id} className="bg-(--color-surface)">
                 <CardContent className="p-5">
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                     {/* Return details */}
                     <div className="space-y-2 flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-gray-900">
+                        <span className="font-semibold text-foreground">
                           {returnReq.orders?.order_number || returnReq.order_id.slice(0, 8)}
                         </span>
                         <Badge className={config.color}>
@@ -264,33 +264,33 @@ export default function VendorReturnsPage() {
                         </Badge>
                       </div>
 
-                      <p className="text-sm text-gray-600">
-                        <span className="text-gray-500">Customer:</span>{' '}
+                      <p className="text-sm text-(--color-text-secondary)">
+                        <span className="text-(--color-text-muted)">Customer:</span>{' '}
                         {returnReq.orders?.customer_name || 'Unknown'}
                       </p>
 
-                      <p className="text-sm text-gray-600">
-                        <span className="text-gray-500">Reason:</span>{' '}
+                      <p className="text-sm text-(--color-text-secondary)">
+                        <span className="text-(--color-text-muted)">Reason:</span>{' '}
                         {returnReq.reason.replace(/_/g, ' ')}
                         {returnReq.reason_detail && (
-                          <span className="text-gray-400"> &mdash; {returnReq.reason_detail}</span>
+                          <span className="text-(--color-text-disabled)"> &mdash; {returnReq.reason_detail}</span>
                         )}
                       </p>
 
                       {/* Products in this return (vendor's products only) */}
                       {returnReq.return_items && returnReq.return_items.length > 0 && (
                         <div className="mt-2">
-                          <p className="text-xs text-gray-500 mb-1">Your products in this return:</p>
+                          <p className="text-xs text-(--color-text-muted) mb-1">Your products in this return:</p>
                           <div className="flex flex-wrap gap-2">
                             {returnReq.return_items.map((item) => (
                               <span
                                 key={item.id}
-                                className="inline-flex items-center gap-1.5 text-xs bg-gray-50 border border-gray-200 rounded-md px-2 py-1"
+                                className="inline-flex items-center gap-1.5 text-xs bg-background border border-(--color-border) rounded-md px-2 py-1"
                               >
                                 {item.products?.name || 'Unknown product'}
-                                <span className="text-gray-400">x{item.quantity}</span>
+                                <span className="text-(--color-text-disabled)">x{item.quantity}</span>
                                 {item.refund_amount_pence > 0 && (
-                                  <span className="text-emerald-600 font-medium">
+                                  <span className="text-(--brand-primary) font-medium">
                                     {formatPrice(item.refund_amount_pence)}
                                   </span>
                                 )}
@@ -301,17 +301,17 @@ export default function VendorReturnsPage() {
                       )}
 
                       <div className="flex items-center gap-4 text-sm">
-                        <span className="text-gray-500">
-                          Refund: <span className="font-medium text-gray-900">{formatPrice(returnReq.refund_amount_pence)}</span>
+                        <span className="text-(--color-text-muted)">
+                          Refund: <span className="font-medium text-foreground">{formatPrice(returnReq.refund_amount_pence)}</span>
                           {returnReq.refund_method && (
-                            <span className="text-gray-400">
+                            <span className="text-(--color-text-disabled)">
                               {' '}via {returnReq.refund_method.replace(/_/g, ' ')}
                             </span>
                           )}
                         </span>
                       </div>
 
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-(--color-text-disabled)">
                         Submitted {new Date(returnReq.created_at).toLocaleDateString('en-GB', {
                           day: 'numeric',
                           month: 'short',
@@ -320,7 +320,7 @@ export default function VendorReturnsPage() {
                       </p>
 
                       {returnReq.admin_notes && (
-                        <p className="text-xs text-gray-500 bg-gray-50 rounded px-2 py-1 mt-1">
+                        <p className="text-xs text-(--color-text-muted) bg-background rounded px-2 py-1 mt-1">
                           <span className="font-medium">Notes:</span> {returnReq.admin_notes}
                         </p>
                       )}
@@ -328,10 +328,10 @@ export default function VendorReturnsPage() {
 
                     {/* Actions - only for pending returns */}
                     {returnReq.status === 'pending' && (
-                      <div className="flex gap-2 flex-shrink-0">
+                      <div className="flex gap-2 shrink-0">
                         <Button
                           size="sm"
-                          className="bg-emerald-600 hover:bg-emerald-700"
+                          className="bg-(--brand-primary) hover:bg-(--brand-primary-hover) transition-colors"
                           onClick={() => handleUpdateStatus(returnReq.id, 'approved')}
                           disabled={updatingId === returnReq.id}
                         >
@@ -347,7 +347,7 @@ export default function VendorReturnsPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                          className="border-(--color-border) text-(--color-error) hover:bg-(--color-error-bg) hover:text-(--color-error)"
                           onClick={() => handleUpdateStatus(returnReq.id, 'rejected')}
                           disabled={updatingId === returnReq.id}
                         >

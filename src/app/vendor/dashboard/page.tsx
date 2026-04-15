@@ -16,6 +16,8 @@ import {
   Clock
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Spinner } from '@/components/ui/Spinner'
 import { formatPrice } from '@/lib/utils/format'
 
 interface VendorStats {
@@ -34,6 +36,33 @@ interface RecentOrder {
   status: string
   total_amount: number
   customer_name: string
+}
+
+function getOrderBadgeVariant(status: string) {
+  switch (status) {
+    case 'delivered':
+    case 'transferred':
+      return 'success' as const
+    case 'pending':
+      return 'warning' as const
+    case 'pending_payout':
+      return 'warning' as const
+    case 'cancelled':
+      return 'destructive' as const
+    default:
+      return 'info' as const
+  }
+}
+
+function getOrderStatusLabel(status: string) {
+  switch (status) {
+    case 'transferred':
+      return 'Paid'
+    case 'pending_payout':
+      return 'Pending Payout'
+    default:
+      return status
+  }
 }
 
 export default function VendorDashboard() {
@@ -115,7 +144,7 @@ export default function VendorDashboard() {
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center min-h-[50vh]">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Spinner size="lg" />
       </div>
     )
   }
@@ -126,27 +155,27 @@ export default function VendorDashboard() {
     <div className="p-6 lg:p-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Welcome back, {vendor?.business_name}</p>
+        <h1 className="font-display text-2xl font-semibold text-foreground">Dashboard</h1>
+        <p className="text-(--color-text-secondary) mt-1">Welcome back, {vendor?.business_name}</p>
       </div>
 
       {/* Stripe Setup Alert */}
       {needsStripeSetup && (
-        <div className="mb-8 bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+        <div className="mb-8 bg-(--color-warning-bg) border border-(--color-warning)/30 rounded-xl p-6">
           <div className="flex items-start gap-4">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <AlertCircle className="h-6 w-6 text-yellow-600" />
+            <div className="h-10 w-10 rounded-lg bg-(--color-warning)/15 flex items-center justify-center shrink-0">
+              <AlertCircle className="h-5 w-5 text-(--color-warning)" />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-yellow-800 mb-1">Complete Your Stripe Setup</h3>
-              <p className="text-yellow-700 text-sm mb-4">
+              <h3 className="font-semibold text-foreground mb-1">Complete Your Stripe Setup</h3>
+              <p className="text-(--color-text-secondary) text-sm mb-4">
                 To receive payments for your sales, you need to complete your Stripe account setup.
                 This only takes a few minutes.
               </p>
               <Button
                 onClick={handleStripeOnboarding}
                 disabled={stripeLoading}
-                className="bg-yellow-600 hover:bg-yellow-700"
+                className="bg-(--brand-amber) hover:bg-(--brand-amber-hover) text-white"
               >
                 {stripeLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -162,15 +191,15 @@ export default function VendorDashboard() {
 
       {/* Stripe Connected */}
       {vendor?.stripe_onboarding_complete && (
-        <div className="mb-8 bg-emerald-50 border border-emerald-200 rounded-xl p-6">
+        <div className="mb-8 bg-(--color-success-bg) border border-(--color-success)/30 rounded-xl p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="p-2 bg-emerald-100 rounded-lg">
-                <CheckCircle className="h-6 w-6 text-emerald-600" />
+              <div className="h-10 w-10 rounded-lg bg-(--color-success)/15 flex items-center justify-center shrink-0">
+                <CheckCircle className="h-5 w-5 text-(--color-success)" />
               </div>
               <div>
-                <h3 className="font-semibold text-emerald-800">Stripe Connected</h3>
-                <p className="text-emerald-700 text-sm">
+                <h3 className="font-semibold text-foreground">Stripe Connected</h3>
+                <p className="text-(--color-text-secondary) text-sm">
                   {vendor.stripe_payouts_enabled
                     ? 'Your account is ready to receive payouts'
                     : 'Payouts pending - complete any remaining requirements in Stripe'}
@@ -181,7 +210,7 @@ export default function VendorDashboard() {
               variant="outline"
               onClick={handleStripeDashboard}
               disabled={stripeLoading}
-              className="border-emerald-300 text-emerald-700 hover:bg-emerald-100"
+              className="border-(--color-success)/30 text-(--color-success) hover:bg-(--color-success)/10"
             >
               {stripeLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -197,152 +226,166 @@ export default function VendorDashboard() {
       )}
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {/* Total Products */}
+        <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Package className="h-6 w-6 text-blue-600" />
+            <div className="h-10 w-10 rounded-lg bg-(--brand-primary-light) text-(--brand-primary) flex items-center justify-center">
+              <Package className="h-5 w-5" />
             </div>
-            <Link href="/vendor/products" className="text-sm text-blue-600 hover:underline">
+            <Link href="/vendor/products" className="text-xs text-(--brand-primary) hover:underline font-medium">
               View all
             </Link>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats?.totalProducts || 0}</p>
-          <p className="text-sm text-gray-600">Total Products</p>
-          <p className="text-xs text-gray-500 mt-1">{stats?.activeProducts || 0} active</p>
+          <p className="text-2xl font-semibold font-mono text-foreground">{stats?.totalProducts || 0}</p>
+          <p className="text-sm text-(--color-text-muted) mt-0.5">Total Products</p>
+          <p className="text-xs text-(--color-text-muted) mt-1">{stats?.activeProducts || 0} active</p>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+        {/* Total Orders */}
+        <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-emerald-100 rounded-lg">
-              <ShoppingCart className="h-6 w-6 text-emerald-600" />
+            <div className="h-10 w-10 rounded-lg bg-(--color-info-bg) text-(--color-info) flex items-center justify-center">
+              <ShoppingCart className="h-5 w-5" />
             </div>
-            <Link href="/vendor/orders" className="text-sm text-emerald-600 hover:underline">
+            <Link href="/vendor/orders" className="text-xs text-(--color-info) hover:underline font-medium">
               View all
             </Link>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{stats?.totalOrders || 0}</p>
-          <p className="text-sm text-gray-600">Total Orders</p>
-          <p className="text-xs text-gray-500 mt-1">{stats?.pendingOrders || 0} pending</p>
+          <p className="text-2xl font-semibold font-mono text-foreground">{stats?.totalOrders || 0}</p>
+          <p className="text-sm text-(--color-text-muted) mt-0.5">Total Orders</p>
+          <p className="text-xs text-(--color-text-muted) mt-1">{stats?.pendingOrders || 0} pending</p>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+        {/* Total Revenue */}
+        <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <TrendingUp className="h-6 w-6 text-purple-600" />
+            <div className="h-10 w-10 rounded-lg bg-(--color-success-bg) text-(--color-success) flex items-center justify-center">
+              <TrendingUp className="h-5 w-5" />
             </div>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatPrice(stats?.totalRevenue || 0)}</p>
-          <p className="text-sm text-gray-600">Total Revenue</p>
-          <p className="text-xs text-gray-500 mt-1">All time</p>
+          <p className="text-2xl font-semibold font-mono text-foreground">{formatPrice(stats?.totalRevenue || 0)}</p>
+          <p className="text-sm text-(--color-text-muted) mt-0.5">Total Revenue</p>
+          <p className="text-xs text-(--color-text-muted) mt-1">All time</p>
         </div>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm">
+        {/* Pending Orders */}
+        <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <DollarSign className="h-6 w-6 text-orange-600" />
+            <div className="h-10 w-10 rounded-lg bg-(--color-warning-bg) text-(--color-warning) flex items-center justify-center">
+              <Clock className="h-5 w-5" />
             </div>
-            <Link href="/vendor/payouts" className="text-sm text-orange-600 hover:underline">
+            <Link href="/vendor/orders?status=pending" className="text-xs text-(--color-warning) hover:underline font-medium">
+              View
+            </Link>
+          </div>
+          <p className="text-2xl font-semibold font-mono text-foreground">{stats?.pendingOrders || 0}</p>
+          <p className="text-sm text-(--color-text-muted) mt-0.5">Pending Orders</p>
+        </div>
+
+        {/* Pending Payout */}
+        <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-4">
+            <div className="h-10 w-10 rounded-lg bg-(--brand-amber-soft) text-(--brand-amber) flex items-center justify-center">
+              <DollarSign className="h-5 w-5" />
+            </div>
+            <Link href="/vendor/payouts" className="text-xs text-(--brand-amber) hover:underline font-medium">
               View all
             </Link>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatPrice(stats?.pendingPayout || 0)}</p>
-          <p className="text-sm text-gray-600">Pending Payout</p>
-          <p className="text-xs text-gray-500 mt-1">After {vendor?.commission_rate || 12.5}% commission</p>
+          <p className="text-2xl font-semibold font-mono text-foreground">{formatPrice(stats?.pendingPayout || 0)}</p>
+          <p className="text-sm text-(--color-text-muted) mt-0.5">Pending Payout</p>
+          <p className="text-xs text-(--color-text-muted) mt-1">After {vendor?.commission_rate || 12.5}% commission</p>
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h2 className="font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="space-y-3">
+      {/* Quick Actions + Recent Orders */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+        {/* Quick Actions */}
+        <div className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-sm hover:shadow-md transition-shadow">
+          <h2 className="font-display text-lg font-semibold text-foreground mb-4">Quick Actions</h2>
+          <div className="space-y-2">
             <Link
               href="/vendor/products/new"
-              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center justify-between p-4 bg-background rounded-lg hover:bg-(--color-elevated) transition-colors duration-(--duration-fast)"
             >
               <div className="flex items-center gap-3">
-                <Package className="h-5 w-5 text-gray-600" />
-                <span className="text-gray-900">Add New Product</span>
+                <Package className="h-4 w-4 text-(--color-text-muted)" />
+                <span className="text-sm font-medium text-foreground">Add New Product</span>
               </div>
-              <ArrowRight className="h-5 w-5 text-gray-400" />
+              <ArrowRight className="h-4 w-4 text-(--color-text-muted)" />
             </Link>
             <Link
               href="/vendor/orders?status=pending"
-              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center justify-between p-4 bg-background rounded-lg hover:bg-(--color-elevated) transition-colors duration-(--duration-fast)"
             >
               <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-gray-600" />
-                <span className="text-gray-900">View Pending Orders</span>
+                <Clock className="h-4 w-4 text-(--color-text-muted)" />
+                <span className="text-sm font-medium text-foreground">View Pending Orders</span>
               </div>
-              <ArrowRight className="h-5 w-5 text-gray-400" />
+              <ArrowRight className="h-4 w-4 text-(--color-text-muted)" />
             </Link>
             <Link
               href="/vendor/settings"
-              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center justify-between p-4 bg-background rounded-lg hover:bg-(--color-elevated) transition-colors duration-(--duration-fast)"
             >
               <div className="flex items-center gap-3">
-                <CreditCard className="h-5 w-5 text-gray-600" />
-                <span className="text-gray-900">Manage Store Settings</span>
+                <CreditCard className="h-4 w-4 text-(--color-text-muted)" />
+                <span className="text-sm font-medium text-foreground">Manage Store Settings</span>
               </div>
-              <ArrowRight className="h-5 w-5 text-gray-400" />
+              <ArrowRight className="h-4 w-4 text-(--color-text-muted)" />
             </Link>
           </div>
         </div>
 
         {/* Recent Orders */}
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-900">Recent Orders</h2>
-            <Link href="/vendor/orders" className="text-sm text-emerald-600 hover:underline">
+        <div className="rounded-xl border border-(--color-border) bg-(--color-surface) overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-(--color-border)">
+            <h2 className="font-display text-lg font-semibold text-foreground">Recent Orders</h2>
+            <Link href="/vendor/orders" className="text-xs text-(--brand-primary) hover:underline font-medium">
               View all
             </Link>
           </div>
           {recentOrders.length > 0 ? (
-            <div className="space-y-3">
-              {recentOrders.map((order) => (
+            <div>
+              {recentOrders.map((order, index) => (
                 <div
                   key={order.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  className={`flex items-center justify-between px-5 py-4 ${
+                    index < recentOrders.length - 1 ? 'border-b border-(--color-border)' : ''
+                  }`}
                 >
                   <div>
-                    <p className="font-medium text-gray-900">#{order.order_number}</p>
-                    <p className="text-sm text-gray-500">{order.customer_name}</p>
+                    <p className="font-mono text-sm font-medium text-foreground">#{order.order_number}</p>
+                    <p className="text-xs text-(--color-text-muted) mt-0.5">{order.customer_name}</p>
                   </div>
-                  <div className="text-right">
-                    <p className="font-medium text-gray-900">{formatPrice(order.total_amount)}</p>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      order.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' :
-                      order.status === 'transferred' ? 'bg-emerald-100 text-emerald-700' :
-                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                      order.status === 'pending_payout' ? 'bg-orange-100 text-orange-700' :
-                      order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                      'bg-blue-100 text-blue-700'
-                    }`}>
-                      {order.status === 'transferred' ? 'Paid' : order.status === 'pending_payout' ? 'Pending Payout' : order.status}
-                    </span>
+                  <div className="text-right flex flex-col items-end gap-1.5">
+                    <p className="font-mono font-semibold text-sm text-foreground">{formatPrice(order.total_amount)}</p>
+                    <Badge variant={getOrderBadgeVariant(order.status)}>
+                      {getOrderStatusLabel(order.status)}
+                    </Badge>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              <ShoppingCart className="h-12 w-12 mx-auto mb-3 text-gray-300" />
-              <p>No orders yet</p>
-              <p className="text-sm">Orders will appear here once customers purchase your products</p>
+            <div className="text-center py-10 px-5">
+              <ShoppingCart className="h-10 w-10 mx-auto mb-3 text-(--color-border-strong)" />
+              <p className="text-sm font-medium text-(--color-text-secondary)">No orders yet</p>
+              <p className="text-xs text-(--color-text-muted) mt-1">Orders will appear here once customers purchase your products</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Tips */}
-      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl p-6 text-white">
-        <h2 className="font-semibold mb-2">Tips to Increase Sales</h2>
-        <ul className="space-y-2 text-emerald-100 text-sm">
-          <li>• Add high-quality images to your products</li>
-          <li>• Keep your inventory up to date</li>
-          <li>• Respond to orders quickly for better ratings</li>
-          <li>• Offer competitive pricing within your category</li>
+      <div className="bg-(--brand-dark) rounded-xl p-6">
+        <h2 className="font-display font-semibold text-white mb-3">Tips to Increase Sales</h2>
+        <ul className="space-y-2 text-white/70 text-sm">
+          <li>Add high-quality images to your products</li>
+          <li>Keep your inventory up to date</li>
+          <li>Respond to orders quickly for better ratings</li>
+          <li>Offer competitive pricing within your category</li>
         </ul>
       </div>
     </div>

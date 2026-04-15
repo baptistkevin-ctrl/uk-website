@@ -260,16 +260,16 @@ export default function SuperAdminSupportPortal() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-900 via-purple-800 to-indigo-900 rounded-2xl p-8 text-white">
+      <div className="bg-linear-to-r from-purple-900 via-purple-800 to-indigo-900 rounded-2xl p-8 text-white">
         <div className="max-w-3xl">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-14 h-14 bg-amber-500/20 rounded-xl flex items-center justify-center text-amber-400">
+            <div className="w-14 h-14 bg-(--brand-amber)/20 rounded-xl flex items-center justify-center text-(--brand-amber)">
               <ShieldIcon />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-3xl font-bold">Super Admin Portal</h1>
-                <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 text-xs font-semibold rounded-full">
+                <span className="px-2 py-0.5 bg-(--brand-amber)/20 text-amber-300 text-xs font-semibold rounded-full">
                   ELEVATED ACCESS
                 </span>
               </div>
@@ -294,29 +294,29 @@ export default function SuperAdminSupportPortal() {
       </div>
 
       {/* System Status - Detailed */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600">
+            <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center text-(--brand-primary)">
               <ServerIcon />
             </div>
-            <h2 className="font-semibold text-slate-900">System Health</h2>
+            <h2 className="font-semibold text-foreground">System Health</h2>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-            <span className="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-medium rounded-full">
+            <div className="w-2 h-2 bg-(--brand-primary) rounded-full animate-pulse"></div>
+            <span className="px-3 py-1 bg-(--brand-primary-light) text-(--brand-primary) text-sm font-medium rounded-full">
               All Systems Operational
             </span>
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {systemStatus.map((system) => (
-            <div key={system.name} className="p-3 bg-slate-50 rounded-lg">
+            <div key={system.name} className="p-3 bg-background rounded-lg">
               <div className="flex items-center gap-2 mb-1">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                <span className="text-sm font-medium text-slate-700">{system.name}</span>
+                <div className="w-2 h-2 bg-(--brand-primary) rounded-full"></div>
+                <span className="text-sm font-medium text-foreground">{system.name}</span>
               </div>
-              <div className="text-xs text-slate-500">Latency: {system.latency}</div>
+              <div className="text-xs text-(--color-text-muted)">Latency: {system.latency}</div>
             </div>
           ))}
         </div>
@@ -326,61 +326,61 @@ export default function SuperAdminSupportPortal() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <a
           href="mailto:tech@ukgrocery.com"
-          className="flex items-center gap-4 p-5 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-200 hover:border-purple-400 hover:shadow-md transition-all group"
+          className="flex items-center gap-4 p-5 bg-linear-to-r from-purple-50 to-indigo-50 rounded-xl border border-(--color-border) hover:border-purple-400 hover:shadow-md transition-all group"
         >
-          <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+          <div className="w-12 h-12 bg-(--color-info-bg) rounded-xl flex items-center justify-center text-(--color-info) group-hover:bg-(--color-info) group-hover:text-white transition-colors">
             <MailIcon />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Technical Team</h3>
-            <p className="text-sm text-slate-500">tech@ukgrocery.com</p>
+            <h3 className="font-semibold text-foreground">Technical Team</h3>
+            <p className="text-sm text-(--color-text-muted)">tech@ukgrocery.com</p>
           </div>
         </a>
 
         <a
           href="tel:+441234567899"
-          className="flex items-center gap-4 p-5 bg-gradient-to-r from-red-50 to-orange-50 rounded-xl border border-red-200 hover:border-red-400 hover:shadow-md transition-all group"
+          className="flex items-center gap-4 p-5 bg-linear-to-r from-red-50 to-orange-50 rounded-xl border border-(--color-border) hover:border-red-400 hover:shadow-md transition-all group"
         >
-          <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center text-red-600 group-hover:bg-red-600 group-hover:text-white transition-colors">
+          <div className="w-12 h-12 bg-(--color-error-bg) rounded-xl flex items-center justify-center text-(--color-error) group-hover:bg-(--color-error) group-hover:text-white transition-colors">
             <PhoneIcon />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Emergency Hotline</h3>
-            <p className="text-sm text-slate-500">+44 (0) 123 456 7899</p>
+            <h3 className="font-semibold text-foreground">Emergency Hotline</h3>
+            <p className="text-sm text-(--color-text-muted)">+44 (0) 123 456 7899</p>
           </div>
         </a>
 
         <a
           href="#"
-          className="flex items-center gap-4 p-5 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border border-blue-200 hover:border-blue-400 hover:shadow-md transition-all group"
+          className="flex items-center gap-4 p-5 bg-linear-to-r from-blue-50 to-cyan-50 rounded-xl border border-(--color-border) hover:border-blue-400 hover:shadow-md transition-all group"
         >
-          <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+          <div className="w-12 h-12 bg-(--color-info-bg) rounded-xl flex items-center justify-center text-(--color-info) group-hover:bg-(--color-info) group-hover:text-white transition-colors">
             <SlackIcon />
           </div>
           <div>
-            <h3 className="font-semibold text-slate-900">Slack Channel</h3>
-            <p className="text-sm text-slate-500">#super-admin-support</p>
+            <h3 className="font-semibold text-foreground">Slack Channel</h3>
+            <p className="text-sm text-(--color-text-muted)">#super-admin-support</p>
           </div>
         </a>
       </div>
 
       {/* Quick Actions */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+      <div className="bg-(--brand-amber-soft) border border-(--color-border) rounded-xl p-4">
         <h3 className="font-semibold text-amber-900 mb-3">Quick Actions</h3>
         <div className="flex flex-wrap gap-2">
-          <a href="#" className="px-4 py-2 bg-white border border-amber-300 rounded-lg text-sm font-medium text-amber-800 hover:bg-amber-100 transition-colors">
+          <a href="#" className="px-4 py-2.5 bg-(--color-surface) border border-amber-300 rounded-lg text-sm font-medium text-amber-800 hover:bg-amber-100 transition-colors">
             View Audit Logs
           </a>
-          <a href="#" className="px-4 py-2 bg-white border border-amber-300 rounded-lg text-sm font-medium text-amber-800 hover:bg-amber-100 transition-colors">
+          <a href="#" className="px-4 py-2.5 bg-(--color-surface) border border-amber-300 rounded-lg text-sm font-medium text-amber-800 hover:bg-amber-100 transition-colors">
             Database Console
           </a>
-          <a href="#" className="px-4 py-2 bg-white border border-amber-300 rounded-lg text-sm font-medium text-amber-800 hover:bg-amber-100 transition-colors">
+          <a href="#" className="px-4 py-2.5 bg-(--color-surface) border border-amber-300 rounded-lg text-sm font-medium text-amber-800 hover:bg-amber-100 transition-colors">
             Deployment Status
           </a>
-          <a href="#" className="px-4 py-2 bg-white border border-amber-300 rounded-lg text-sm font-medium text-amber-800 hover:bg-amber-100 transition-colors">
+          <a href="#" className="px-4 py-2.5 bg-(--color-surface) border border-amber-300 rounded-lg text-sm font-medium text-amber-800 hover:bg-amber-100 transition-colors">
             Error Tracking
           </a>
-          <a href="#" className="px-4 py-2 bg-white border border-amber-300 rounded-lg text-sm font-medium text-amber-800 hover:bg-amber-100 transition-colors">
+          <a href="#" className="px-4 py-2.5 bg-(--color-surface) border border-amber-300 rounded-lg text-sm font-medium text-amber-800 hover:bg-amber-100 transition-colors">
             Feature Flags
           </a>
         </div>
@@ -388,34 +388,34 @@ export default function SuperAdminSupportPortal() {
 
       {/* Technical Documentation Categories */}
       <div>
-        <h2 className="text-xl font-bold text-slate-900 mb-4">Technical Documentation</h2>
+        <h2 className="text-xl font-bold text-foreground mb-4">Technical Documentation</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredCategories.map((category) => (
             <div
               key={category.id}
-              className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-lg transition-shadow"
+              className="bg-(--color-surface) rounded-xl border border-(--color-border) p-5 hover:shadow-lg transition-shadow"
             >
               <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${
-                category.color === 'emerald' ? 'bg-emerald-100 text-emerald-600' :
-                category.color === 'blue' ? 'bg-blue-100 text-blue-600' :
-                category.color === 'purple' ? 'bg-purple-100 text-purple-600' :
-                category.color === 'orange' ? 'bg-orange-100 text-orange-600' :
-                category.color === 'red' ? 'bg-red-100 text-red-600' :
-                category.color === 'pink' ? 'bg-pink-100 text-pink-600' :
-                category.color === 'cyan' ? 'bg-cyan-100 text-cyan-600' :
-                category.color === 'amber' ? 'bg-amber-100 text-amber-600' :
-                'bg-slate-100 text-slate-600'
+                category.color === 'emerald' ? 'bg-(--brand-primary-light) text-(--brand-primary)' :
+                category.color === 'blue' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                category.color === 'purple' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                category.color === 'orange' ? 'bg-(--color-warning-bg) text-(--brand-amber)' :
+                category.color === 'red' ? 'bg-(--color-error-bg) text-(--color-error)' :
+                category.color === 'pink' ? 'bg-(--color-error-bg) text-(--color-error)' :
+                category.color === 'cyan' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                category.color === 'amber' ? 'bg-(--brand-amber-soft) text-(--brand-amber)' :
+                'bg-(--color-elevated) text-(--color-text-secondary)'
               }`}>
                 {category.icon}
               </div>
-              <h3 className="font-semibold text-slate-900 mb-1">{category.title}</h3>
-              <p className="text-xs text-slate-500 mb-3">{category.description}</p>
+              <h3 className="font-semibold text-foreground mb-1">{category.title}</h3>
+              <p className="text-xs text-(--color-text-muted) mb-3">{category.description}</p>
               <ul className="space-y-1.5">
                 {category.articles.map((article, idx) => (
                   <li key={idx}>
                     <a
                       href="#"
-                      className="text-xs text-slate-600 hover:text-purple-600 flex items-center gap-1.5 group"
+                      className="text-xs text-(--color-text-secondary) hover:text-(--color-info) flex items-center gap-1.5 group"
                     >
                       <ArrowRightIcon />
                       <span className="group-hover:underline">{article}</span>
@@ -429,27 +429,27 @@ export default function SuperAdminSupportPortal() {
       </div>
 
       {/* FAQs */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
+      <div className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center text-purple-600">
+          <div className="w-10 h-10 bg-(--color-info-bg) rounded-lg flex items-center justify-center text-(--color-info)">
             <QuestionIcon />
           </div>
-          <h2 className="text-xl font-bold text-slate-900">Technical FAQs</h2>
+          <h2 className="text-xl font-bold text-foreground">Technical FAQs</h2>
         </div>
 
         <div className="space-y-3">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="border border-slate-200 rounded-lg overflow-hidden"
+              className="border border-(--color-border) rounded-lg overflow-hidden"
             >
               <button
                 onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-colors"
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-background transition-colors"
               >
-                <span className="font-medium text-slate-900">{faq.question}</span>
+                <span className="font-medium text-foreground">{faq.question}</span>
                 <svg
-                  className={`w-5 h-5 text-slate-400 transition-transform ${expandedFaq === index ? 'rotate-180' : ''}`}
+                  className={`w-5 h-5 text-(--color-text-disabled) transition-transform ${expandedFaq === index ? 'rotate-180' : ''}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -459,7 +459,7 @@ export default function SuperAdminSupportPortal() {
                 </svg>
               </button>
               {expandedFaq === index && (
-                <div className="px-4 pb-4 text-slate-600 text-sm">
+                <div className="px-4 pb-4 text-(--color-text-secondary) text-sm">
                   {faq.answer}
                 </div>
               )}
@@ -469,7 +469,7 @@ export default function SuperAdminSupportPortal() {
       </div>
 
       {/* Links Section */}
-      <div className="bg-gradient-to-r from-purple-900 to-indigo-900 rounded-xl p-8 text-center">
+      <div className="bg-linear-to-r from-purple-900 to-indigo-900 rounded-xl p-8 text-center">
         <h2 className="text-2xl font-bold text-white mb-2">Additional Resources</h2>
         <p className="text-purple-300 mb-6">
           Access platform documentation and standard admin guides.
@@ -477,14 +477,14 @@ export default function SuperAdminSupportPortal() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/admin/support"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-purple-700 rounded-xl font-medium hover:bg-purple-50 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-(--color-surface) text-(--color-info) rounded-xl font-medium hover:bg-(--color-info-bg) transition-colors"
           >
             <BookIcon />
             Admin Support Portal
           </Link>
           <Link
             href="/help/admin-guide"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-700 text-white rounded-xl font-medium hover:bg-purple-600 transition-colors"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-purple-700 text-white rounded-xl font-medium hover:bg-(--color-info) transition-colors"
           >
             <QuestionIcon />
             Full Admin Guide

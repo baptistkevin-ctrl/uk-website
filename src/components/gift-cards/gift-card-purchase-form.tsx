@@ -87,16 +87,16 @@ export function GiftCardPurchaseForm({
   if (success) {
     return (
       <div className="text-center py-12">
-        <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Check className="h-8 w-8 text-emerald-600" />
+        <div className="w-16 h-16 bg-(--brand-primary-light) rounded-full flex items-center justify-center mx-auto mb-4">
+          <Check className="h-8 w-8 text-(--brand-primary)" />
         </div>
-        <h3 className="text-xl font-bold text-gray-900 mb-2">Gift Card Created!</h3>
-        <p className="text-gray-500 mb-6">
+        <h3 className="text-xl font-bold text-foreground mb-2">Gift Card Created!</h3>
+        <p className="text-(--color-text-muted) mb-6">
           Complete the payment to send your gift card.
         </p>
         <button
           onClick={() => setSuccess(false)}
-          className="text-emerald-600 hover:text-emerald-700 font-medium"
+          className="text-(--brand-primary) hover:text-(--brand-primary-dark) font-medium"
         >
           Create Another Gift Card
         </button>
@@ -108,7 +108,7 @@ export function GiftCardPurchaseForm({
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Design Selection */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
+        <label className="block text-sm font-medium text-foreground mb-3">
           Choose a Design
         </label>
         <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
@@ -117,10 +117,10 @@ export function GiftCardPurchaseForm({
               key={design.slug}
               type="button"
               onClick={() => setSelectedDesign(design.slug)}
-              className={`relative aspect-[3/2] rounded-lg overflow-hidden border-2 transition-all ${
+              className={`relative aspect-3/2 rounded-lg overflow-hidden border-2 transition-all ${
                 selectedDesign === design.slug
-                  ? 'border-emerald-500 ring-2 ring-emerald-200'
-                  : 'border-gray-200 hover:border-gray-300'
+                  ? 'border-(--brand-primary) ring-2 ring-(--brand-primary-light)'
+                  : 'border-(--color-border) hover:border-(--color-border)'
               }`}
               style={{ backgroundColor: design.background_color }}
             >
@@ -136,7 +136,7 @@ export function GiftCardPurchaseForm({
                 <Gift className="h-6 w-6 text-white/80" />
               </div>
               {selectedDesign === design.slug && (
-                <div className="absolute top-1 right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
+                <div className="absolute top-1 right-1 w-5 h-5 bg-(--brand-primary) rounded-full flex items-center justify-center">
                   <Check className="h-3 w-3 text-white" />
                 </div>
               )}
@@ -147,7 +147,7 @@ export function GiftCardPurchaseForm({
 
       {/* Amount Selection */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-3">
+        <label className="block text-sm font-medium text-foreground mb-3">
           Select Amount
         </label>
         <div className="grid grid-cols-3 gap-3 mb-3">
@@ -158,8 +158,8 @@ export function GiftCardPurchaseForm({
               onClick={() => handleAmountSelect(value)}
               className={`py-3 rounded-lg font-semibold transition-all ${
                 amount === value && !customAmount
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-(--brand-primary) text-white'
+                  : 'bg-background text-foreground hover:bg-(--color-elevated)'
               }`}
             >
               {formatPrice(value)}
@@ -167,7 +167,7 @@ export function GiftCardPurchaseForm({
           ))}
         </div>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500">
+          <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-(--color-text-muted)">
             £
           </span>
           <input
@@ -178,35 +178,35 @@ export function GiftCardPurchaseForm({
             min="5"
             max="500"
             step="0.01"
-            className="w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full pl-8 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
           />
         </div>
       </div>
 
       {/* Recipient Details */}
       <div className="space-y-4">
-        <h3 className="font-medium text-gray-900">Recipient Details</h3>
+        <h3 className="font-medium text-foreground">Recipient Details</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="relative">
-            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-(--color-text-muted)" />
             <input
               type="text"
               value={recipientName}
               onChange={(e) => setRecipientName(e.target.value)}
               placeholder="Recipient's name"
               required
-              className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
             />
           </div>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-(--color-text-muted)" />
             <input
               type="email"
               value={recipientEmail}
               onChange={(e) => setRecipientEmail(e.target.value)}
               placeholder="Recipient's email"
               required
-              className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
             />
           </div>
         </div>
@@ -215,41 +215,41 @@ export function GiftCardPurchaseForm({
       {/* Your Email */}
       {!isLoggedIn && (
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-(--color-text-muted)" />
           <input
             type="email"
             value={senderEmail}
             onChange={(e) => setSenderEmail(e.target.value)}
             placeholder="Your email"
             required
-            className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
           />
         </div>
       )}
 
       {/* Gift Message */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-foreground mb-2">
           Add a Personal Message (Optional)
         </label>
         <div className="relative">
-          <MessageSquare className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+          <MessageSquare className="absolute left-3 top-3 h-5 w-5 text-(--color-text-muted)" />
           <textarea
             value={giftMessage}
             onChange={(e) => setGiftMessage(e.target.value)}
             placeholder="Write a message to include with the gift card..."
             rows={3}
             maxLength={200}
-            className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
+            className="w-full pl-10 pr-4 py-3 border rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary) resize-none"
           />
-          <span className="absolute bottom-2 right-3 text-xs text-gray-400">
+          <span className="absolute bottom-2 right-3 text-xs text-(--color-text-muted)">
             {giftMessage.length}/200
           </span>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+        <div className="p-4 bg-(--color-error-light) border border-(--color-error) rounded-lg text-(--color-error)">
           {error}
         </div>
       )}
@@ -257,13 +257,13 @@ export function GiftCardPurchaseForm({
       {/* Submit */}
       <div className="flex items-center justify-between pt-4 border-t">
         <div>
-          <p className="text-sm text-gray-500">Total</p>
-          <p className="text-2xl font-bold text-gray-900">{formatPrice(amount)}</p>
+          <p className="text-sm text-(--color-text-muted)">Total</p>
+          <p className="text-2xl font-bold text-foreground">{formatPrice(amount)}</p>
         </div>
         <button
           type="submit"
           disabled={loading || !recipientEmail || !recipientName}
-          className="px-8 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="px-8 py-3 bg-(--brand-primary) text-white rounded-lg font-semibold hover:bg-(--brand-primary-dark) disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           {loading ? (
             <>

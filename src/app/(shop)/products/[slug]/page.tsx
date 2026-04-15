@@ -119,24 +119,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
   ].filter(d => d.active)
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Breadcrumb */}
         <nav className="mb-8">
           <ol className="flex items-center gap-2 text-sm">
             <li>
-              <Link href="/" className="text-gray-500 hover:text-green-500 transition-colors">
+              <Link href="/" className="text-(--color-text-muted) hover:text-(--brand-primary) transition-colors">
                 Home
               </Link>
             </li>
-            <ChevronRight className="h-4 w-4 text-gray-300" />
+            <ChevronRight className="h-4 w-4 text-(--color-text-disabled)" />
             <li>
-              <Link href="/products" className="text-gray-500 hover:text-green-500 transition-colors">
+              <Link href="/products" className="text-(--color-text-muted) hover:text-(--brand-primary) transition-colors">
                 Products
               </Link>
             </li>
-            <ChevronRight className="h-4 w-4 text-gray-300" />
-            <li className="text-gray-900 font-medium truncate max-w-[200px]">
+            <ChevronRight className="h-4 w-4 text-(--color-text-disabled)" />
+            <li className="text-foreground font-medium truncate max-w-50">
               {product.name}
             </li>
           </ol>
@@ -161,12 +161,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
               {/* Badges Overlay */}
               <div className="absolute top-4 left-4 flex flex-col gap-2 z-10 pointer-events-none">
                 {hasDiscount && (
-                  <Badge className="bg-red-500 hover:bg-red-600 text-white shadow-lg text-sm font-bold px-3 py-1">
+                  <Badge className="bg-(--color-error) hover:bg-(--color-error) text-white shadow-lg text-sm font-bold px-3 py-1">
                     -{discountPercentage}% OFF
                   </Badge>
                 )}
                 {product.is_featured && (
-                  <Badge className="bg-amber-500 hover:bg-amber-600 text-white shadow-lg text-sm font-bold px-3 py-1">
+                  <Badge className="bg-(--brand-amber) hover:bg-(--brand-amber) text-white shadow-lg text-sm font-bold px-3 py-1">
                     <Star className="h-4 w-4 mr-1 fill-current" />
                     Featured
                   </Badge>
@@ -175,12 +175,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
               {/* Stock Status Overlay */}
               {isOutOfStock && (
-                <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center z-20 rounded-2xl">
+                <div className="absolute inset-0 bg-(--color-surface)/90 backdrop-blur-sm flex items-center justify-center z-20 rounded-2xl">
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Package className="h-8 w-8 text-slate-400" />
+                    <div className="w-16 h-16 bg-(--color-elevated) rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Package className="h-8 w-8 text-(--color-text-disabled)" />
                     </div>
-                    <Badge className="bg-slate-900 text-white text-lg px-4 py-2">
+                    <Badge className="bg-(--color-text) text-white text-lg px-4 py-2">
                       Out of Stock
                     </Badge>
                   </div>
@@ -189,9 +189,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
               {isLowStock && !isOutOfStock && (
                 <div className="absolute bottom-4 left-4 right-4 z-10">
-                  <div className="bg-amber-100 border border-amber-200 rounded-xl px-4 py-3 flex items-center gap-3 shadow-lg">
-                    <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
-                    <span className="text-sm font-medium text-amber-800">
+                  <div className="bg-(--brand-amber-soft) border border-(--brand-amber) rounded-xl px-4 py-3 flex items-center gap-3 shadow-lg">
+                    <AlertTriangle className="h-5 w-5 text-(--brand-amber) shrink-0" />
+                    <span className="text-sm font-medium text-(--brand-amber)">
                       Only {product.stock_quantity} left in stock - order soon!
                     </span>
                   </div>
@@ -203,7 +203,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {dietaryInfo.length > 0 && (
               <div className="lg:hidden flex flex-wrap gap-2">
                 {dietaryInfo.map(({ key, label, icon: Icon }) => (
-                  <Badge key={key} variant="outline" className="bg-white border-green-200 text-green-600 px-3 py-1.5">
+                  <Badge key={key} variant="outline" className="bg-(--color-surface) border-(--brand-primary) text-(--brand-primary) px-3 py-1.5">
                     <Icon className="h-4 w-4 mr-1.5" />
                     {label}
                   </Badge>
@@ -217,25 +217,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Brand & Vendor */}
             <div className="flex items-center gap-3 mb-2 flex-wrap">
               {product.brand && (
-                <span className="text-green-500 font-medium">{product.brand}</span>
+                <span className="text-(--brand-primary) font-medium">{product.brand}</span>
               )}
               {vendor && (
                 <>
-                  {product.brand && <span className="text-gray-300">•</span>}
+                  {product.brand && <span className="text-(--color-text-disabled)">•</span>}
                   <VendorBadge vendor={vendor} />
-                  <span className="text-gray-300">•</span>
+                  <span className="text-(--color-text-disabled)">•</span>
                   <VendorChatButton
                     vendorId={vendor.id}
                     vendorName={vendor.business_name}
                     productSlug={product.slug}
-                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md hover:bg-emerald-100 transition-colors"
+                    className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-(--brand-primary) bg-(--brand-primary-light) border border-(--brand-primary) rounded-md hover:opacity-80 transition-colors"
                   />
                 </>
               )}
             </div>
 
             {/* Product Name */}
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2 leading-tight">
+            <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2 leading-tight">
               {product.name}
             </h1>
 
@@ -252,33 +252,33 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             {/* Short Description */}
             {product.short_description && (
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-lg text-(--color-text-secondary) mb-6">
                 {product.short_description}
               </p>
             )}
 
             {/* Price Card */}
-            <Card className="border-slate-200 shadow-lg mb-6 overflow-hidden">
+            <Card className="border-(--color-border) shadow-lg mb-6 overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <div className="flex items-baseline gap-3">
-                      <span className="text-4xl font-bold text-gray-900">
+                      <span className="text-4xl font-bold text-foreground">
                         {formatPrice(product.price_pence)}
                       </span>
                       {hasDiscount && (
-                        <span className="text-xl text-gray-400 line-through">
+                        <span className="text-xl text-(--color-text-disabled) line-through">
                           {formatPrice(product.compare_at_price_pence!)}
                         </span>
                       )}
                     </div>
                     {hasDiscount && (
-                      <p className="text-green-500 font-semibold mt-1">
+                      <p className="text-(--brand-primary) font-semibold mt-1">
                         You save {formatPrice(savingsAmount)}
                       </p>
                     )}
                     {product.unit && product.unit !== 'each' && (
-                      <p className="text-gray-500 text-sm mt-1">
+                      <p className="text-(--color-text-muted) text-sm mt-1">
                         {product.unit_value} {product.unit}
                       </p>
                     )}
@@ -290,7 +290,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                       {dietaryInfo.map(({ key, label, icon: Icon }) => (
                         <div
                           key={key}
-                          className="flex items-center gap-1.5 bg-green-50 text-green-600 px-3 py-1.5 rounded-full text-sm font-medium"
+                          className="flex items-center gap-1.5 bg-(--brand-primary-light) text-(--brand-primary) px-3 py-1.5 rounded-full text-sm font-medium"
                         >
                           <Icon className="h-4 w-4" />
                           {label}
@@ -328,27 +328,27 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
 
             {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
-              <div className="text-center p-4 bg-slate-50 rounded-xl">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Truck className="h-5 w-5 text-green-500" />
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-8">
+              <div className="text-center p-4 bg-(--color-elevated) rounded-xl">
+                <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Truck className="h-5 w-5 text-(--brand-primary)" />
                 </div>
-                <p className="text-xs font-medium text-gray-700">Free Delivery</p>
-                <p className="text-xs text-gray-500">Over £50</p>
+                <p className="text-xs font-medium text-(--color-text-secondary)">Free Delivery</p>
+                <p className="text-xs text-(--color-text-muted)">Over £50</p>
               </div>
-              <div className="text-center p-4 bg-slate-50 rounded-xl">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Shield className="h-5 w-5 text-green-500" />
+              <div className="text-center p-4 bg-(--color-elevated) rounded-xl">
+                <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Shield className="h-5 w-5 text-(--brand-primary)" />
                 </div>
-                <p className="text-xs font-medium text-gray-700">Quality</p>
-                <p className="text-xs text-gray-500">Guaranteed</p>
+                <p className="text-xs font-medium text-(--color-text-secondary)">Quality</p>
+                <p className="text-xs text-(--color-text-muted)">Guaranteed</p>
               </div>
-              <div className="text-center p-4 bg-slate-50 rounded-xl">
-                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Clock className="h-5 w-5 text-green-500" />
+              <div className="text-center p-4 bg-(--color-elevated) rounded-xl">
+                <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center mx-auto mb-2">
+                  <Clock className="h-5 w-5 text-(--brand-primary)" />
                 </div>
-                <p className="text-xs font-medium text-gray-700">Same Day</p>
-                <p className="text-xs text-gray-500">Delivery</p>
+                <p className="text-xs font-medium text-(--color-text-secondary)">Same Day</p>
+                <p className="text-xs text-(--color-text-muted)">Delivery</p>
               </div>
             </div>
 
@@ -357,14 +357,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Description */}
             {product.description && (
               <div className="mb-8">
-                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Package className="h-4 w-4 text-green-500" />
+                <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-(--brand-primary-light) rounded-lg flex items-center justify-center">
+                    <Package className="h-4 w-4 text-(--brand-primary)" />
                   </div>
                   Product Description
                 </h2>
                 <div className="prose prose-gray max-w-none">
-                  <p className="text-gray-600 whitespace-pre-line leading-relaxed">
+                  <p className="text-(--color-text-secondary) whitespace-pre-line leading-relaxed">
                     {product.description}
                   </p>
                 </div>
@@ -374,9 +374,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Dietary Information */}
             {dietaryInfo.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                    <Check className="h-4 w-4 text-green-500" />
+                <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-(--brand-primary-light) rounded-lg flex items-center justify-center">
+                    <Check className="h-4 w-4 text-(--brand-primary)" />
                   </div>
                   Dietary Information
                 </h2>
@@ -384,14 +384,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
                   {dietaryInfo.map(({ key, label, icon: Icon }) => (
                     <div
                       key={key}
-                      className="flex items-center gap-3 p-3 bg-green-50 rounded-xl border border-green-100"
+                      className="flex items-center gap-3 p-3 bg-(--brand-primary-light) rounded-xl border border-(--brand-primary)"
                     >
-                      <div className="w-10 h-10 bg-green-400 rounded-lg flex items-center justify-center">
+                      <div className="w-10 h-10 bg-(--brand-primary) rounded-lg flex items-center justify-center">
                         <Icon className="h-5 w-5 text-white" />
                       </div>
                       <div>
-                        <p className="font-medium text-green-900">{label}</p>
-                        <p className="text-xs text-green-500">Certified</p>
+                        <p className="font-medium text-foreground">{label}</p>
+                        <p className="text-xs text-(--brand-primary)">Certified</p>
                       </div>
                     </div>
                   ))}
@@ -402,14 +402,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
             {/* Allergens */}
             {product.allergens && product.allergens.length > 0 && (
               <div className="mb-8">
-                <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                  <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center">
-                    <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <h2 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
+                  <div className="w-8 h-8 bg-(--brand-amber-soft) rounded-lg flex items-center justify-center">
+                    <AlertTriangle className="h-4 w-4 text-(--brand-amber)" />
                   </div>
                   Allergen Information
                 </h2>
-                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                  <p className="text-amber-800">
+                <div className="bg-(--brand-amber-soft) border border-(--brand-amber) rounded-xl p-4">
+                  <p className="text-(--brand-amber)">
                     <span className="font-semibold">Contains:</span>{' '}
                     {product.allergens.join(', ')}
                   </p>
@@ -419,7 +419,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
             {/* SKU */}
             {product.sku && (
-              <p className="text-sm text-gray-400">
+              <p className="text-sm text-(--color-text-disabled)">
                 SKU: {product.sku}
               </p>
             )}
@@ -450,7 +450,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="mt-12 text-center">
           <Link
             href="/products"
-            className="inline-flex items-center gap-2 text-green-500 hover:text-green-600 font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-(--brand-primary) hover:text-(--brand-primary-hover) font-medium transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to All Products

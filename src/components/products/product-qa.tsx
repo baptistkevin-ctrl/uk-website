@@ -155,7 +155,7 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -163,19 +163,21 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <MessageCircleQuestion className="h-6 w-6 text-emerald-600" />
-          Customer Questions & Answers
-          {questions.length > 0 && (
-            <span className="text-sm font-normal text-gray-500">
-              ({questions.length})
-            </span>
-          )}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h2 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
+          <MessageCircleQuestion className="h-5 w-5 sm:h-6 sm:w-6 text-(--brand-primary) shrink-0" />
+          <span>
+            Customer Questions & Answers
+            {questions.length > 0 && (
+              <span className="text-sm font-normal text-(--color-text-muted) ml-1">
+                ({questions.length})
+              </span>
+            )}
+          </span>
         </h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center gap-2"
+          className="shrink-0 h-10 px-4 bg-(--brand-primary) text-white text-sm font-semibold rounded-lg hover:bg-(--brand-primary-hover) transition-colors flex items-center justify-center gap-2"
         >
           <HelpCircle className="h-4 w-4" />
           Ask a Question
@@ -184,21 +186,21 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
 
       {/* Success Message */}
       {successMessage && (
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700">
+        <div className="p-4 bg-(--brand-primary-light) border border-(--brand-primary) rounded-lg text-(--brand-primary)">
           {successMessage}
         </div>
       )}
 
       {/* Question Form */}
       {showForm && (
-        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-          <h3 className="font-semibold text-gray-900 mb-4">Ask about this product</h3>
+        <div className="bg-background rounded-xl p-6 border border-(--color-border)">
+          <h3 className="font-semibold text-foreground mb-4">Ask about this product</h3>
           <textarea
             value={newQuestion}
             onChange={(e) => setNewQuestion(e.target.value)}
             placeholder="What would you like to know about this product?"
             rows={3}
-            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none"
+            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary) resize-none"
           />
 
           {!isLoggedIn && (
@@ -208,14 +210,14 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
                 placeholder="Your name (optional)"
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
               />
               <input
                 type="email"
                 value={guestEmail}
                 onChange={(e) => setGuestEmail(e.target.value)}
                 placeholder="Your email (for notifications)"
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500"
+                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary)"
               />
             </div>
           )}
@@ -223,14 +225,14 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
           <div className="flex justify-end gap-3 mt-4">
             <button
               onClick={() => setShowForm(false)}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="px-4 py-2 border border-(--color-border) rounded-lg hover:bg-background"
             >
               Cancel
             </button>
             <button
               onClick={submitQuestion}
               disabled={!newQuestion.trim() || submitting}
-              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2.5 bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover) disabled:opacity-50 flex items-center gap-2"
             >
               {submitting ? (
                 <>
@@ -250,9 +252,9 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
 
       {/* Questions List */}
       {questions.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-xl">
-          <MessageCircleQuestion className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500">No questions yet. Be the first to ask!</p>
+        <div className="text-center py-12 bg-background rounded-xl">
+          <MessageCircleQuestion className="h-12 w-12 mx-auto text-(--color-text-disabled) mb-4" />
+          <p className="text-(--color-text-muted)">No questions yet. Be the first to ask!</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -260,18 +262,18 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
             <div
               key={question.id}
               className={`border rounded-xl overflow-hidden ${
-                question.is_featured ? 'border-emerald-200 bg-emerald-50/30' : 'border-gray-200'
+                question.is_featured ? 'border-(--brand-primary) bg-(--brand-primary-light)/30' : 'border-(--color-border)'
               }`}
             >
               {/* Question */}
               <div className="p-4">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-emerald-600 font-bold text-sm">Q</span>
+                  <div className="w-8 h-8 bg-(--brand-primary-light) rounded-full flex items-center justify-center shrink-0">
+                    <span className="text-(--brand-primary) font-bold text-sm">Q</span>
                   </div>
                   <div className="flex-1">
-                    <p className="text-gray-900 font-medium">{question.question}</p>
-                    <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
+                    <p className="text-foreground font-medium">{question.question}</p>
+                    <div className="flex items-center gap-3 mt-2 text-sm text-(--color-text-muted)">
                       <span>
                         {question.user?.full_name || question.guest_name || 'Customer'}
                       </span>
@@ -280,7 +282,7 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
                       {question.is_featured && (
                         <>
                           <span>•</span>
-                          <span className="text-emerald-600 font-medium">Featured</span>
+                          <span className="text-(--brand-primary) font-medium">Featured</span>
                         </>
                       )}
                     </div>
@@ -288,7 +290,7 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
                   {question.answers.length > 0 && (
                     <button
                       onClick={() => toggleExpanded(question.id)}
-                      className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+                      className="flex items-center gap-1 text-sm text-(--color-text-muted) hover:text-foreground"
                     >
                       {question.answers.length} answer{question.answers.length > 1 ? 's' : ''}
                       {expandedQuestions.has(question.id) ? (
@@ -303,23 +305,23 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
 
               {/* Answers */}
               {(expandedQuestions.has(question.id) || question.answers.length === 1) && question.answers.length > 0 && (
-                <div className="border-t bg-gray-50 p-4 space-y-4">
+                <div className="border-t bg-background p-4 space-y-4">
                   {question.answers.map((answer) => (
                     <div key={answer.id} className="flex items-start gap-3">
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                        answer.is_official ? 'bg-blue-100' : 'bg-gray-100'
+                        answer.is_official ? 'bg-blue-100' : 'bg-(--color-elevated)'
                       }`}>
                         {answer.vendor ? (
                           <Store className="h-4 w-4 text-blue-600" />
                         ) : answer.is_official ? (
                           <Shield className="h-4 w-4 text-blue-600" />
                         ) : (
-                          <User className="h-4 w-4 text-gray-500" />
+                          <User className="h-4 w-4 text-(--color-text-muted)" />
                         )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-gray-900">
+                          <span className="font-medium text-foreground">
                             {answer.vendor?.business_name || answer.user?.full_name || 'User'}
                           </span>
                           {answer.is_official && (
@@ -328,10 +330,10 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
                             </span>
                           )}
                         </div>
-                        <p className="text-gray-700">{answer.answer}</p>
-                        <div className="flex items-center gap-3 mt-2 text-sm text-gray-500">
+                        <p className="text-(--color-text-secondary)">{answer.answer}</p>
+                        <div className="flex items-center gap-3 mt-2 text-sm text-(--color-text-muted)">
                           <span>{formatDistanceToNow(new Date(answer.created_at))} ago</span>
-                          <button className="flex items-center gap-1 hover:text-emerald-600">
+                          <button className="flex items-center gap-1 hover:text-(--brand-primary)">
                             <ThumbsUp className="h-3 w-3" />
                             Helpful ({answer.helpful_count})
                           </button>
@@ -344,7 +346,7 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
 
               {/* Answer Form */}
               {isLoggedIn && (
-                <div className="border-t p-4 bg-white">
+                <div className="border-t p-4 bg-(--color-surface)">
                   {answeringQuestion === question.id ? (
                     <div className="space-y-3">
                       <textarea
@@ -352,7 +354,7 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
                         onChange={(e) => setNewAnswer(e.target.value)}
                         placeholder="Write your answer..."
                         rows={2}
-                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm resize-none"
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-(--brand-primary) text-sm resize-none"
                       />
                       <div className="flex justify-end gap-2">
                         <button
@@ -360,14 +362,14 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
                             setAnsweringQuestion(null)
                             setNewAnswer('')
                           }}
-                          className="px-3 py-1.5 text-sm border rounded-lg hover:bg-gray-50"
+                          className="px-3 py-2.5 text-sm border rounded-lg hover:bg-background"
                         >
                           Cancel
                         </button>
                         <button
                           onClick={() => submitAnswer(question.id)}
                           disabled={!newAnswer.trim() || submitting}
-                          className="px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50"
+                          className="px-3 py-2.5 text-sm bg-(--brand-primary) text-white rounded-lg hover:bg-(--brand-primary-hover) disabled:opacity-50"
                         >
                           {submitting ? 'Submitting...' : 'Submit Answer'}
                         </button>
@@ -376,7 +378,7 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
                   ) : (
                     <button
                       onClick={() => setAnsweringQuestion(question.id)}
-                      className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                      className="text-sm text-(--brand-primary) hover:text-(--brand-primary-hover) font-medium"
                     >
                       Answer this question
                     </button>
@@ -393,7 +395,7 @@ export function ProductQA({ productSlug, isLoggedIn }: ProductQAProps) {
         <div className="text-center">
           <button
             onClick={() => setPage(p => p + 1)}
-            className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-gray-700"
+            className="px-6 py-2 border border-(--color-border) rounded-lg hover:bg-background text-(--color-text-secondary)"
           >
             Load More Questions
           </button>

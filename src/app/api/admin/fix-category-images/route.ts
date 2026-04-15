@@ -13,7 +13,7 @@ const categoryImages: Record<string, string> = {
   'dairy-eggs': 'https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=800&q=80',
   'bakery': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&q=80',
   'frozen': 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=800&q=80',
-  'pantry': 'https://images.unsplash.com/photo-1584473457493-a2c8a5d22d93?w=800&q=80',
+  'pantry': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80',
   'drinks': 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=800&q=80',
   'snacks-sweets': 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=800&q=80',
   'alcohol': 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=800&q=80',
@@ -32,7 +32,7 @@ const categoryImages: Record<string, string> = {
   'rice-pasta-noodles': 'https://images.unsplash.com/photo-1551462147-ff29053bfc14?w=800&q=80',
   'tinned-food': 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=800&q=80',
   'world-foods': 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80',
-  'home-baking': 'https://images.unsplash.com/photo-1486427944544-d2c6128c5c92?w=800&q=80',
+  'home-baking': 'https://images.unsplash.com/photo-1498557850523-fd3d118b962e?w=800&q=80',
   'fizzy-drinks': 'https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=800&q=80',
   'fruit-juice-smoothies': 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=800&q=80',
   'squash-cordials': 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?w=800&q=80',
@@ -43,12 +43,12 @@ const categoryImages: Record<string, string> = {
   'baby-products': 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=800&q=80',
   'toiletries-skincare': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&q=80',
   'haircare': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80',
-  'dental-care': 'https://images.unsplash.com/photo-1559467274-3fbf663c4a73?w=800&q=80',
+  'dental-care': 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=80',
   'cleaning-household': 'https://images.unsplash.com/photo-1563453392212-326f5e854473?w=800&q=80',
   'kitchen-accessories': 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80',
   'fresh-meat': 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=800&q=80',
   'cooked-meats': 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=800&q=80',
-  'fresh-seafood': 'https://images.unsplash.com/photo-1534422298391-e4f8c172789a?w=800&q=80',
+  'fresh-seafood': 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=800&q=80',
 
   // Subcategories - Fruits & Vegetables
   'fresh-fruits': 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=800&q=80',
@@ -63,7 +63,7 @@ const categoryImages: Record<string, string> = {
   'lamb': 'https://images.unsplash.com/photo-1603048297172-c92544798d5a?w=800&q=80',
 
   // Subcategories - Fish & Seafood
-  'fresh-fish': 'https://images.unsplash.com/photo-1534422298391-e4f8c172789a?w=800&q=80',
+  'fresh-fish': 'https://images.unsplash.com/photo-1534353473418-4cfa6c56fd38?w=800&q=80',
   'shellfish': 'https://images.unsplash.com/photo-1565680018434-b513d5e5fd47?w=800&q=80',
   'smoked-fish': 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&q=80',
 
@@ -102,7 +102,7 @@ const categoryImages: Record<string, string> = {
   'crisps': 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=800&q=80',
   'chocolate': 'https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=800&q=80',
   'biscuits': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=800&q=80',
-  'nuts-dried-fruits': 'https://images.unsplash.com/photo-1536591375620-9acd47cde682?w=800&q=80',
+  'nuts-dried-fruits': 'https://images.unsplash.com/photo-1534483509719-3feaee7c30da?w=800&q=80',
 
   // Subcategories - Alcohol
   'beer': 'https://images.unsplash.com/photo-1535958636474-b021ee887b13?w=800&q=80',

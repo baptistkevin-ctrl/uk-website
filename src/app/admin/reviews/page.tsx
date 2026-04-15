@@ -55,9 +55,9 @@ interface ReviewCounts {
 }
 
 const statusConfig = {
-  pending: { label: 'Pending', icon: Clock, color: 'bg-amber-100 text-amber-700' },
-  approved: { label: 'Approved', icon: CheckCircle, color: 'bg-emerald-100 text-emerald-700' },
-  rejected: { label: 'Rejected', icon: XCircle, color: 'bg-red-100 text-red-700' },
+  pending: { label: 'Pending', icon: Clock, color: 'bg-(--brand-amber-soft) text-(--brand-amber)' },
+  approved: { label: 'Approved', icon: CheckCircle, color: 'bg-(--brand-primary-light) text-(--brand-primary)' },
+  rejected: { label: 'Rejected', icon: XCircle, color: 'bg-(--color-error-bg) text-(--color-error)' },
 }
 
 export default function AdminReviewsPage() {
@@ -166,7 +166,7 @@ export default function AdminReviewsPage() {
           <Star
             key={star}
             className={`w-4 h-4 ${
-              star <= rating ? 'fill-amber-400 text-amber-400' : 'fill-slate-200 text-slate-200'
+              star <= rating ? 'fill-(--brand-amber) text-(--brand-amber)' : 'fill-(--color-border) text-white/80'
             }`}
           />
         ))}
@@ -187,7 +187,7 @@ export default function AdminReviewsPage() {
   if (loading && reviews.length === 0) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -196,8 +196,8 @@ export default function AdminReviewsPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">Review Moderation</h1>
-        <p className="text-slate-500 mt-1">Approve, reject, or delete customer reviews</p>
+        <h1 className="text-3xl font-bold text-foreground">Review Moderation</h1>
+        <p className="text-(--color-text-muted) mt-1">Approve, reject, or delete customer reviews</p>
       </div>
 
       {/* Stats Tabs */}
@@ -212,16 +212,16 @@ export default function AdminReviewsPage() {
               onClick={() => { setStatusFilter(status); setPage(1) }}
               className={`flex items-center gap-3 px-5 py-3 rounded-xl border-2 transition-all ${
                 statusFilter === status
-                  ? 'border-emerald-500 bg-emerald-50'
-                  : 'border-slate-200 hover:border-slate-300 bg-white'
+                  ? 'border-(--brand-primary) bg-(--brand-primary-light)'
+                  : 'border-(--color-border) hover:border-(--color-border) bg-(--color-surface)'
               }`}
             >
               <div className={`p-2 rounded-lg ${config.color}`}>
                 <Icon className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <p className="text-2xl font-bold text-slate-900">{count}</p>
-                <p className="text-sm text-slate-500">{config.label}</p>
+                <p className="text-2xl font-bold text-foreground">{count}</p>
+                <p className="text-sm text-(--color-text-muted)">{config.label}</p>
               </div>
             </button>
           )
@@ -230,10 +230,10 @@ export default function AdminReviewsPage() {
 
       {/* Reviews List */}
       {reviews.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
-          <MessageSquare className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">No {statusFilter} reviews</h3>
-          <p className="text-slate-500">
+        <div className="bg-(--color-surface) rounded-2xl p-12 text-center border border-(--color-border)">
+          <MessageSquare className="w-16 h-16 text-(--color-text-disabled) mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">No {statusFilter} reviews</h3>
+          <p className="text-(--color-text-muted)">
             {statusFilter === 'pending'
               ? 'All reviews have been moderated'
               : `No reviews with ${statusFilter} status`}
@@ -244,11 +244,11 @@ export default function AdminReviewsPage() {
           {reviews.map((review) => (
             <div
               key={review.id}
-              className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg transition-shadow"
+              className="bg-(--color-surface) rounded-2xl border border-(--color-border) p-6 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-start gap-4">
                 {/* Product Image */}
-                <div className="flex-shrink-0">
+                <div className="shrink-0">
                   {review.products?.image_url ? (
                     <Image
                       src={review.products.image_url}
@@ -258,8 +258,8 @@ export default function AdminReviewsPage() {
                       className="w-20 h-20 rounded-xl object-cover"
                     />
                   ) : (
-                    <div className="w-20 h-20 rounded-xl bg-slate-100 flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-slate-300" />
+                    <div className="w-20 h-20 rounded-xl bg-(--color-elevated) flex items-center justify-center">
+                      <ImageIcon className="w-8 h-8 text-(--color-text-disabled)" />
                     </div>
                   )}
                 </div>
@@ -272,7 +272,7 @@ export default function AdminReviewsPage() {
                       <Link
                         href={`/products/${review.products?.slug}`}
                         target="_blank"
-                        className="font-semibold text-slate-900 hover:text-emerald-600 flex items-center gap-1"
+                        className="font-semibold text-foreground hover:text-(--brand-primary) flex items-center gap-1"
                       >
                         {review.products?.name || 'Unknown Product'}
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -280,7 +280,7 @@ export default function AdminReviewsPage() {
                       <div className="flex items-center gap-3 mt-1">
                         {renderStars(review.rating)}
                         {review.is_verified_purchase && (
-                          <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium">
+                          <span className="inline-flex items-center gap-1 text-xs text-(--brand-primary) font-medium">
                             <CheckCircle className="w-3.5 h-3.5" />
                             Verified Purchase
                           </span>
@@ -293,7 +293,7 @@ export default function AdminReviewsPage() {
                           <button
                             onClick={() => moderateReview(review.id, 'approved')}
                             disabled={moderating === review.id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-lg text-sm font-medium hover:bg-emerald-200 transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-(--brand-primary-light) text-(--brand-primary) rounded-lg text-sm font-medium hover:bg-(--brand-primary-light) transition-colors disabled:opacity-50"
                           >
                             {moderating === review.id ? (
                               <Loader2 className="w-4 h-4 animate-spin" />
@@ -305,7 +305,7 @@ export default function AdminReviewsPage() {
                           <button
                             onClick={() => moderateReview(review.id, 'rejected')}
                             disabled={moderating === review.id}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors disabled:opacity-50"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-(--color-error-bg) text-(--color-error) rounded-lg text-sm font-medium hover:bg-red-200 transition-colors disabled:opacity-50"
                           >
                             <X className="w-4 h-4" />
                             Reject
@@ -318,7 +318,7 @@ export default function AdminReviewsPage() {
                       )}
                       <button
                         onClick={() => openReviewDetail(review)}
-                        className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                        className="p-2 text-(--color-text-disabled) hover:text-(--color-text-secondary) hover:bg-(--color-elevated) rounded-lg transition-colors"
                       >
                         <Eye className="w-4 h-4" />
                       </button>
@@ -327,9 +327,9 @@ export default function AdminReviewsPage() {
 
                   {/* Review Title & Content */}
                   {review.title && (
-                    <h4 className="font-medium text-slate-900 mb-1">{review.title}</h4>
+                    <h4 className="font-medium text-foreground mb-1">{review.title}</h4>
                   )}
-                  <p className="text-slate-600 text-sm line-clamp-2">{review.content}</p>
+                  <p className="text-(--color-text-secondary) text-sm line-clamp-2">{review.content}</p>
 
                   {/* Review Images */}
                   {review.images && review.images.length > 0 && (
@@ -345,7 +345,7 @@ export default function AdminReviewsPage() {
                         />
                       ))}
                       {review.images.length > 4 && (
-                        <div className="w-15 h-15 rounded-lg bg-slate-100 flex items-center justify-center text-sm font-medium text-slate-500">
+                        <div className="w-15 h-15 rounded-lg bg-(--color-elevated) flex items-center justify-center text-sm font-medium text-(--color-text-muted)">
                           +{review.images.length - 4}
                         </div>
                       )}
@@ -353,7 +353,7 @@ export default function AdminReviewsPage() {
                   )}
 
                   {/* Footer */}
-                  <div className="flex items-center gap-4 mt-3 text-sm text-slate-500">
+                  <div className="flex items-center gap-4 mt-3 text-sm text-(--color-text-muted)">
                     <div className="flex items-center gap-1">
                       <User className="w-4 h-4" />
                       <span>{review.profiles?.full_name || review.profiles?.email || 'Anonymous'}</span>
@@ -379,14 +379,14 @@ export default function AdminReviewsPage() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-(--color-text-muted)">
             Page {page} of {totalPages}
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => setPage(page - 1)}
               disabled={page === 1}
-              className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1 px-4 py-2.5 text-sm font-medium text-(--color-text-secondary) bg-(--color-surface) border border-(--color-border) rounded-lg hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-4 h-4" />
               Previous
@@ -394,7 +394,7 @@ export default function AdminReviewsPage() {
             <button
               onClick={() => setPage(page + 1)}
               disabled={page === totalPages}
-              className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-1 px-4 py-2.5 text-sm font-medium text-(--color-text-secondary) bg-(--color-surface) border border-(--color-border) rounded-lg hover:bg-background disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
               <ChevronRight className="w-4 h-4" />
@@ -406,12 +406,12 @@ export default function AdminReviewsPage() {
       {/* Review Detail Modal */}
       {showDetailModal && selectedReview && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
-            <div className="flex items-center justify-between p-6 border-b border-slate-200">
-              <h2 className="text-xl font-bold text-slate-900">Review Details</h2>
+          <div className="bg-(--color-surface) rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl">
+            <div className="flex items-center justify-between p-6 border-b border-(--color-border)">
+              <h2 className="text-xl font-bold text-foreground">Review Details</h2>
               <button
                 onClick={() => { setShowDetailModal(false); setSelectedReview(null); setAdminNotes('') }}
-                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
+                className="p-2 text-(--color-text-disabled) hover:text-(--color-text-secondary) rounded-lg hover:bg-(--color-elevated)"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -419,7 +419,7 @@ export default function AdminReviewsPage() {
 
             <div className="p-6 space-y-6">
               {/* Product */}
-              <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-xl">
+              <div className="flex items-center gap-4 p-4 bg-background rounded-xl">
                 {selectedReview.products?.image_url ? (
                   <Image
                     src={selectedReview.products.image_url}
@@ -429,16 +429,16 @@ export default function AdminReviewsPage() {
                     className="w-15 h-15 rounded-lg object-cover"
                   />
                 ) : (
-                  <div className="w-15 h-15 rounded-lg bg-slate-200 flex items-center justify-center">
-                    <ImageIcon className="w-6 h-6 text-slate-400" />
+                  <div className="w-15 h-15 rounded-lg bg-(--color-border) flex items-center justify-center">
+                    <ImageIcon className="w-6 h-6 text-(--color-text-disabled)" />
                   </div>
                 )}
                 <div>
-                  <p className="font-semibold text-slate-900">{selectedReview.products?.name}</p>
+                  <p className="font-semibold text-foreground">{selectedReview.products?.name}</p>
                   <Link
                     href={`/products/${selectedReview.products?.slug}`}
                     target="_blank"
-                    className="text-sm text-emerald-600 hover:underline flex items-center gap-1"
+                    className="text-sm text-(--brand-primary) hover:underline flex items-center gap-1"
                   >
                     View Product <ExternalLink className="w-3 h-3" />
                   </Link>
@@ -446,22 +446,22 @@ export default function AdminReviewsPage() {
               </div>
 
               {/* Reviewer Info */}
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+              <div className="flex items-center justify-between p-4 bg-background rounded-xl">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
-                    <User className="w-5 h-5 text-slate-400" />
+                  <div className="w-10 h-10 rounded-full bg-(--color-border) flex items-center justify-center">
+                    <User className="w-5 h-5 text-(--color-text-disabled)" />
                   </div>
                   <div>
-                    <p className="font-medium text-slate-900">
+                    <p className="font-medium text-foreground">
                       {selectedReview.profiles?.full_name || 'No name'}
                     </p>
-                    <p className="text-sm text-slate-500">{selectedReview.profiles?.email}</p>
+                    <p className="text-sm text-(--color-text-muted)">{selectedReview.profiles?.email}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-slate-500">{formatDate(selectedReview.created_at)}</p>
+                  <p className="text-sm text-(--color-text-muted)">{formatDate(selectedReview.created_at)}</p>
                   {selectedReview.is_verified_purchase && (
-                    <span className="inline-flex items-center gap-1 text-xs text-emerald-600 font-medium">
+                    <span className="inline-flex items-center gap-1 text-xs text-(--brand-primary) font-medium">
                       <CheckCircle className="w-3.5 h-3.5" />
                       Verified Purchase
                     </span>
@@ -473,7 +473,7 @@ export default function AdminReviewsPage() {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   {renderStars(selectedReview.rating)}
-                  <span className="font-semibold text-slate-900">{selectedReview.rating}/5</span>
+                  <span className="font-semibold text-foreground">{selectedReview.rating}/5</span>
                 </div>
                 <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusConfig[selectedReview.status].color}`}>
                   {statusConfig[selectedReview.status].label}
@@ -482,14 +482,14 @@ export default function AdminReviewsPage() {
 
               {/* Review Content */}
               {selectedReview.title && (
-                <h3 className="text-lg font-semibold text-slate-900">{selectedReview.title}</h3>
+                <h3 className="text-lg font-semibold text-foreground">{selectedReview.title}</h3>
               )}
-              <p className="text-slate-600 whitespace-pre-wrap">{selectedReview.content}</p>
+              <p className="text-(--color-text-secondary) whitespace-pre-wrap">{selectedReview.content}</p>
 
               {/* Review Images */}
               {selectedReview.images && selectedReview.images.length > 0 && (
                 <div>
-                  <h4 className="font-medium text-slate-700 mb-2">Attached Images</h4>
+                  <h4 className="font-medium text-foreground mb-2">Attached Images</h4>
                   <div className="grid grid-cols-4 gap-2">
                     {selectedReview.images.map((img, idx) => (
                       <Image
@@ -507,35 +507,35 @@ export default function AdminReviewsPage() {
 
               {/* Admin Notes */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Admin Notes (internal)
                 </label>
                 <textarea
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
                   rows={3}
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-3 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                   placeholder="Add notes about this review (only visible to admins)..."
                 />
               </div>
 
               {/* Warning for flagged content */}
               {selectedReview.content.length < 20 && (
-                <div className="flex items-start gap-3 p-4 bg-amber-50 rounded-xl border border-amber-200">
-                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="flex items-start gap-3 p-4 bg-(--brand-amber-soft) rounded-xl border border-(--color-border)">
+                  <AlertCircle className="w-5 h-5 text-(--brand-amber) shrink-0 mt-0.5" />
                   <div>
                     <p className="font-medium text-amber-800">Short Review</p>
-                    <p className="text-sm text-amber-700">This review has very little content. Consider whether it provides value.</p>
+                    <p className="text-sm text-(--brand-amber)">This review has very little content. Consider whether it provides value.</p>
                   </div>
                 </div>
               )}
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-between p-6 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+            <div className="flex items-center justify-between p-6 border-t border-(--color-border) bg-background rounded-b-2xl">
               <button
                 onClick={() => deleteReview(selectedReview.id)}
-                className="inline-flex items-center gap-2 px-4 py-2.5 text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-(--color-error) hover:bg-(--color-error-bg) rounded-xl transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete Review
@@ -546,7 +546,7 @@ export default function AdminReviewsPage() {
                     <button
                       onClick={() => moderateReview(selectedReview.id, 'rejected')}
                       disabled={moderating === selectedReview.id}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 border border-slate-200 rounded-xl text-slate-700 font-medium hover:bg-slate-100 transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 border border-(--color-border) rounded-xl text-foreground font-medium hover:bg-(--color-elevated) transition-colors disabled:opacity-50"
                     >
                       <X className="w-4 h-4" />
                       Reject
@@ -554,7 +554,7 @@ export default function AdminReviewsPage() {
                     <button
                       onClick={() => moderateReview(selectedReview.id, 'approved')}
                       disabled={moderating === selectedReview.id}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-colors disabled:opacity-50"
                     >
                       {moderating === selectedReview.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -567,7 +567,7 @@ export default function AdminReviewsPage() {
                 ) : (
                   <button
                     onClick={() => { setShowDetailModal(false); setSelectedReview(null); setAdminNotes('') }}
-                    className="px-5 py-2.5 bg-slate-200 text-slate-700 rounded-xl font-medium hover:bg-slate-300 transition-colors"
+                    className="px-5 py-2.5 bg-(--color-border) text-foreground rounded-xl font-medium hover:bg-(--color-border-strong) transition-colors"
                   >
                     Close
                   </button>

@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams
-  const page = parseInt(searchParams.get('page') || '1')
+  const page = Math.max(1, parseInt(searchParams.get('page') || '1') || 1)
   const limit = parseInt(searchParams.get('limit') || '12')
   const search = searchParams.get('search') || ''
   const sort = searchParams.get('sort') || 'popular'

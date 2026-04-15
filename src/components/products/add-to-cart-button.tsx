@@ -2,10 +2,9 @@
 
 import { useState } from 'react'
 import { Minus, Plus, ShoppingCart, Check, Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { useCart } from '@/hooks/use-cart'
+import { cn } from '@/lib/utils/cn'
 
-// Simplified product type for adding to cart
 export interface CartableProduct {
   id: string
   name: string
@@ -47,69 +46,61 @@ export function AddToCartButton({ product, disabled }: AddToCartButtonProps) {
     openCart()
   }
 
-  const decrementQuantity = () => {
-    if (quantity > 1) {
-      setQuantity(quantity - 1)
-    }
-  }
-
-  const incrementQuantity = () => {
-    setQuantity(quantity + 1)
-  }
-
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+    <div className="flex items-center gap-3">
       {/* Quantity selector */}
-      <div className="flex items-center border-2 border-slate-200 rounded-xl overflow-hidden bg-white shadow-sm">
+      <div className="flex items-center border border-(--color-border) rounded-xl overflow-hidden bg-(--color-surface)">
         <button
-          onClick={decrementQuantity}
+          onClick={() => quantity > 1 && setQuantity(quantity - 1)}
           disabled={quantity <= 1 || isAdding}
           aria-label="Decrease quantity"
-          className="p-4 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center justify-center h-12 w-12 hover:bg-(--color-elevated) disabled:opacity-40 transition-colors"
         >
-          <Minus className="h-5 w-5 text-gray-600" />
+          <Minus className="h-4 w-4 text-(--color-text-secondary)" />
         </button>
-        <span className="w-16 text-center font-bold text-lg text-gray-900">
+        <span className="w-10 text-center font-bold text-base text-foreground tabular-nums select-none">
           {quantity}
         </span>
         <button
-          onClick={incrementQuantity}
+          onClick={() => setQuantity(quantity + 1)}
           disabled={isAdding}
           aria-label="Increase quantity"
-          className="p-4 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center justify-center h-12 w-12 hover:bg-(--color-elevated) disabled:opacity-40 transition-colors"
         >
-          <Plus className="h-5 w-5 text-gray-600" />
+          <Plus className="h-4 w-4 text-(--color-text-secondary)" />
         </button>
       </div>
 
       {/* Add to cart button */}
-      <Button
-        size="lg"
+      <button
         onClick={handleAddToCart}
         disabled={disabled || isAdding}
-        className={`flex-1 h-14 text-base font-semibold rounded-xl shadow-lg transition-all duration-300 ${
+        className={cn(
+          'flex-1 flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-bold text-white transition-all duration-300',
+          'disabled:opacity-50 disabled:cursor-not-allowed',
+          'active:scale-[0.98]',
           justAdded
-            ? 'bg-green-400 hover:bg-green-500 shadow-green-400/25'
-            : 'bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 shadow-green-400/25'
-        }`}
+            ? 'bg-(--color-success) shadow-[0_4px_16px_rgba(22,163,74,0.3)]'
+            : 'bg-(--brand-primary) hover:bg-(--brand-primary-hover) shadow-[0_4px_16px_rgba(27,107,58,0.3)] hover:shadow-[0_8px_24px_rgba(27,107,58,0.4)]'
+        )}
       >
         {isAdding ? (
           <>
-            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+            <Loader2 className="h-5 w-5 animate-spin" />
             Adding...
           </>
         ) : justAdded ? (
           <>
-            <Check className="h-5 w-5 mr-2" />
-            Added to Cart!
+            <Check className="h-5 w-5" />
+            Added!
           </>
         ) : (
           <>
-            <ShoppingCart className="h-5 w-5 mr-2" />
+            <ShoppingCart className="h-5 w-5" />
             Add to Cart
           </>
         )}
-      </Button>
+      </button>
     </div>
   )
 }

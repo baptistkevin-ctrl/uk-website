@@ -74,7 +74,7 @@ export function StarRating({
                   sizeClasses[size],
                   filled
                     ? 'fill-yellow-400 text-yellow-400'
-                    : 'text-gray-300'
+                    : 'text-(--color-text-disabled)'
                 )}
               />
               {partial && (
@@ -95,7 +95,7 @@ export function StarRating({
         })}
       </div>
       {showValue && (
-        <span className={cn('text-gray-600 ml-1', textClasses[size])}>
+        <span className={cn('text-(--color-text-secondary) ml-1', textClasses[size])}>
           {rating.toFixed(1)}
         </span>
       )}
@@ -129,7 +129,7 @@ export function StarRatingCompact({
     <div className={cn('flex items-center gap-1', className)}>
       <Star className={cn(sizeClasses[size], 'fill-yellow-400 text-yellow-400')} />
       <span className={cn('font-medium', textClasses[size])}>{rating.toFixed(1)}</span>
-      <span className={cn('text-gray-500', textClasses[size])}>
+      <span className={cn('text-(--color-text-muted)', textClasses[size])}>
         ({reviewCount.toLocaleString()})
       </span>
     </div>

@@ -18,7 +18,7 @@ export function VendorChatButton({ vendorId, vendorName, productSlug, className 
           detail: { vendorId, vendorName, productSlug }
         }))
       }}
-      className={className || 'flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors'}
+      className={className || 'flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-(--brand-primary) bg-(--brand-primary-light) border border-(--brand-primary) rounded-lg hover:bg-(--brand-primary-light) transition-colors'}
     >
       <MessageCircle className="h-4 w-4" />
       Chat with Seller

@@ -74,11 +74,11 @@ export function ZillyProductCard({ product, categoryName }: ZillyProductCardProp
   const displayCategory = categoryName || getCategoryFromId(product.category_id)
 
   return (
-    <div className="group bg-white border border-gray-100 rounded-lg overflow-hidden hover:shadow-lg hover:border-gray-200 transition-all duration-300">
+    <div className="group bg-(--color-surface) border border-(--color-border) rounded-lg overflow-hidden hover:shadow-lg hover:border-(--color-border) transition-all duration-300">
       <Link href={`/products/${product.slug}`} className="block">
         {/* Top Section - Category & Actions */}
         <div className="flex items-center justify-between px-3 pt-3">
-          <span className="text-[10px] text-gray-500 uppercase tracking-wide">
+          <span className="text-[11px] text-(--color-text-muted) uppercase tracking-wide">
             {displayCategory}
           </span>
           <div className="flex items-center gap-1">
@@ -87,7 +87,7 @@ export function ZillyProductCard({ product, categoryName }: ZillyProductCardProp
               className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
                 isInWatchlist
                   ? 'text-blue-500 bg-blue-50'
-                  : 'text-gray-400 hover:text-blue-500 hover:bg-blue-50'
+                  : 'text-(--color-text-muted) hover:text-blue-500 hover:bg-blue-50'
               }`}
               title={isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'}
             >
@@ -101,8 +101,8 @@ export function ZillyProductCard({ product, categoryName }: ZillyProductCardProp
               onClick={handleWishlistToggle}
               className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
                 isInWishlist
-                  ? 'text-red-500 bg-red-50'
-                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+                  ? 'text-(--color-error) bg-(--color-error-light)'
+                  : 'text-(--color-text-muted) hover:text-(--color-error) hover:bg-(--color-error-light)'
               }`}
               title={isInWishlist ? 'Remove from liked' : 'Like this product'}
             >
@@ -121,19 +121,19 @@ export function ZillyProductCard({ product, categoryName }: ZillyProductCardProp
               className="object-contain p-2 group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded-lg">
-              <ShoppingBag className="h-12 w-12 text-gray-300" />
+            <div className="w-full h-full flex items-center justify-center bg-background rounded-lg">
+              <ShoppingBag className="h-12 w-12 text-(--color-text-muted)" />
             </div>
           )}
         </div>
 
         {/* Weight/Size Options */}
         <div className="px-3 pb-2">
-          <div className="flex items-center gap-2 text-[10px]">
-            <span className="px-2 py-0.5 bg-gray-100 rounded text-gray-600">
+          <div className="flex items-center gap-2 text-[11px]">
+            <span className="px-2 py-0.5 bg-background rounded text-(--color-text-secondary)">
               {product.unit_value || 100}{product.unit || 'gm'}
             </span>
-            <span className="px-2 py-0.5 bg-gray-50 rounded text-gray-400">
+            <span className="px-2 py-0.5 bg-background rounded text-(--color-text-muted)">
               500gm
             </span>
           </div>
@@ -142,15 +142,15 @@ export function ZillyProductCard({ product, categoryName }: ZillyProductCardProp
         {/* Price Section */}
         <div className="px-3 pb-2">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-gray-900">
+            <span className="text-sm font-bold text-foreground">
               {formatPrice(product.price_pence)}
             </span>
             {hasDiscount && (
               <>
-                <span className="text-xs text-gray-400 line-through">
+                <span className="text-xs text-(--color-text-muted) line-through">
                   {formatPrice(product.compare_at_price_pence!)}
                 </span>
-                <span className="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded">
+                <span className="text-[11px] font-bold text-(--color-error) bg-(--color-error-light) px-1.5 py-0.5 rounded">
                   -{discountPercentage}%
                 </span>
               </>
@@ -160,7 +160,7 @@ export function ZillyProductCard({ product, categoryName }: ZillyProductCardProp
 
         {/* Product Name */}
         <div className="px-3 pb-3">
-          <h3 className="text-xs text-gray-600 line-clamp-2 leading-relaxed group-hover:text-green-500 transition-colors">
+          <h3 className="text-xs text-(--color-text-secondary) line-clamp-2 leading-relaxed group-hover:text-(--brand-primary) transition-colors">
             {product.name}
           </h3>
         </div>

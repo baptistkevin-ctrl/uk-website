@@ -156,7 +156,7 @@ export default function HeroSlidesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-(--brand-primary)" />
       </div>
     )
   }
@@ -166,12 +166,12 @@ export default function HeroSlidesPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Hero Slides</h1>
-          <p className="text-slate-500 mt-1">Manage homepage banner slides</p>
+          <h1 className="text-3xl font-bold text-foreground">Hero Slides</h1>
+          <p className="text-(--color-text-muted) mt-1">Manage homepage banner slides</p>
         </div>
         <button
           onClick={openAddModal}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-medium hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-lg shadow-emerald-500/25"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-all shadow-lg shadow-(--shadow-green)"
         >
           <Plus className="w-5 h-5" />
           Add Slide
@@ -180,13 +180,13 @@ export default function HeroSlidesPage() {
 
       {/* Slides Grid */}
       {slides.length === 0 ? (
-        <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
-          <ImageIcon className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">No slides yet</h3>
-          <p className="text-slate-500 mb-6">Create your first hero slide to display on the homepage</p>
+        <div className="bg-(--color-surface) rounded-2xl p-12 text-center border border-(--color-border)">
+          <ImageIcon className="w-16 h-16 text-(--color-text-disabled) mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">No slides yet</h3>
+          <p className="text-(--color-text-muted) mb-6">Create your first hero slide to display on the homepage</p>
           <button
             onClick={openAddModal}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-colors"
           >
             <Plus className="w-5 h-5" />
             Add First Slide
@@ -197,12 +197,12 @@ export default function HeroSlidesPage() {
           {slides.map((slide, index) => (
             <div
               key={slide.id}
-              className={`bg-white rounded-2xl overflow-hidden border ${
-                slide.is_active ? 'border-emerald-200' : 'border-slate-200'
+              className={`bg-(--color-surface) rounded-2xl overflow-hidden border ${
+                slide.is_active ? 'border-(--brand-primary)/20' : 'border-(--color-border)'
               } shadow-sm hover:shadow-lg transition-all group`}
             >
               {/* Image Preview */}
-              <div className="relative h-48 bg-slate-100">
+              <div className="relative h-48 bg-(--color-elevated)">
                 <Image
                   src={slide.image_url}
                   alt={slide.title}
@@ -214,8 +214,8 @@ export default function HeroSlidesPage() {
                   <span
                     className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
                       slide.is_active
-                        ? 'bg-emerald-100 text-emerald-700'
-                        : 'bg-slate-100 text-slate-600'
+                        ? 'bg-(--brand-primary-light) text-(--brand-primary)'
+                        : 'bg-(--color-elevated) text-(--color-text-secondary)'
                     }`}
                   >
                     {slide.is_active ? (
@@ -242,25 +242,25 @@ export default function HeroSlidesPage() {
 
               {/* Content */}
               <div className="p-4">
-                <h3 className="font-semibold text-slate-900 mb-1 truncate">{slide.title}</h3>
+                <h3 className="font-semibold text-foreground mb-1 truncate">{slide.title}</h3>
                 {slide.subtitle && (
-                  <p className="text-sm text-slate-500 mb-3 line-clamp-2">{slide.subtitle}</p>
+                  <p className="text-sm text-(--color-text-muted) mb-3 line-clamp-2">{slide.subtitle}</p>
                 )}
                 {slide.button_text && slide.button_link && (
-                  <div className="flex items-center gap-1 text-xs text-emerald-600 mb-3">
+                  <div className="flex items-center gap-1 text-xs text-(--brand-primary) mb-3">
                     <ExternalLink className="w-3 h-3" />
                     <span className="truncate">{slide.button_text} → {slide.button_link}</span>
                   </div>
                 )}
 
                 {/* Actions */}
-                <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
+                <div className="flex items-center gap-2 pt-3 border-t border-(--color-border)">
                   <button
                     onClick={() => toggleActive(slide)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                       slide.is_active
-                        ? 'bg-amber-50 text-amber-600 hover:bg-amber-100'
-                        : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'
+                        ? 'bg-(--brand-amber-soft) text-(--brand-amber) hover:bg-amber-100'
+                        : 'bg-(--brand-primary-light) text-(--brand-primary) hover:bg-(--brand-primary-light)'
                     }`}
                   >
                     {slide.is_active ? (
@@ -277,13 +277,13 @@ export default function HeroSlidesPage() {
                   </button>
                   <button
                     onClick={() => openEditModal(slide)}
-                    className="p-2 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="p-2 text-(--color-text-muted) hover:text-(--color-info) hover:bg-(--color-info-bg) rounded-lg transition-colors"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDelete(slide.id)}
-                    className="p-2 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-(--color-text-muted) hover:text-(--color-error) hover:bg-(--color-error-bg) rounded-lg transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -297,14 +297,14 @@ export default function HeroSlidesPage() {
       {/* Add/Edit Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
-            <div className="flex items-center justify-between p-6 border-b border-slate-200">
-              <h2 className="text-xl font-bold text-slate-900">
+          <div className="bg-(--color-surface) rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
+            <div className="flex items-center justify-between p-6 border-b border-(--color-border)">
+              <h2 className="text-xl font-bold text-foreground">
                 {editingSlide ? 'Edit Slide' : 'Add New Slide'}
               </h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100"
+                className="p-2 text-(--color-text-disabled) hover:text-(--color-text-secondary) rounded-lg hover:bg-(--color-elevated)"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -313,7 +313,7 @@ export default function HeroSlidesPage() {
             <div className="p-6 space-y-4">
               {/* Image Preview */}
               {formData.image_url && (
-                <div className="relative h-48 bg-slate-100 rounded-xl overflow-hidden">
+                <div className="relative h-48 bg-(--color-elevated) rounded-xl overflow-hidden">
                   <Image
                     src={formData.image_url}
                     alt="Preview"
@@ -324,66 +324,66 @@ export default function HeroSlidesPage() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Title *
                 </label>
                 <input
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                   placeholder="e.g., Fresh Groceries Delivered"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Subtitle
                 </label>
                 <input
                   type="text"
                   value={formData.subtitle}
                   onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                   placeholder="e.g., Get 20% off your first order"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1">
                   Image URL *
                 </label>
                 <input
                   type="url"
                   value={formData.image_url}
                   onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Button Text
                   </label>
                   <input
                     type="text"
                     value={formData.button_text}
                     onChange={(e) => setFormData({ ...formData, button_text: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                     placeholder="e.g., Shop Now"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1">
                     Button Link
                   </label>
                   <input
                     type="text"
                     value={formData.button_link}
                     onChange={(e) => setFormData({ ...formData, button_link: e.target.value })}
-                    className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-4 py-2.5 border border-(--color-border) rounded-xl focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
                     placeholder="e.g., /products"
                   />
                 </div>
@@ -395,25 +395,25 @@ export default function HeroSlidesPage() {
                   id="is_active"
                   checked={formData.is_active}
                   onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  className="w-4 h-4 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500"
+                  className="w-4 h-4 text-(--brand-primary) border-(--color-border) rounded focus:ring-(--brand-primary)"
                 />
-                <label htmlFor="is_active" className="text-sm text-slate-700">
+                <label htmlFor="is_active" className="text-sm text-foreground">
                   Show this slide on the homepage
                 </label>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-6 border-t border-slate-200 bg-slate-50 rounded-b-2xl">
+            <div className="flex items-center gap-3 p-6 border-t border-(--color-border) bg-background rounded-b-2xl">
               <button
                 onClick={() => setShowModal(false)}
-                className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-slate-700 font-medium hover:bg-slate-100 transition-colors"
+                className="flex-1 px-4 py-2.5 border border-(--color-border) rounded-xl text-foreground font-medium hover:bg-(--color-elevated) transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-colors disabled:opacity-50"
               >
                 {saving ? (
                   <>

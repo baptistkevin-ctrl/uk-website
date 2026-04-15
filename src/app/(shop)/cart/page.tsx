@@ -1,304 +1,116 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
-import {
-  Minus,
-  Plus,
-  Trash2,
-  ShoppingBag,
-  ArrowRight,
-  ArrowLeft,
-  Truck,
-  Shield,
-  Clock,
-  Tag,
-  AlertTriangle,
-} from 'lucide-react'
+import { ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Container } from '@/components/layout/Container'
+import { Breadcrumb } from '@/components/ui/Breadcrumb'
+import { CartItem } from '@/components/cart/CartItem'
+import { OrderSummary } from '@/components/cart/OrderSummary'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/hooks/use-cart'
 import { formatPrice } from '@/lib/utils/format'
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, subtotal, itemCount, clearCart } = useCart()
+  const { itemsWithSavings, removeItem, updateQuantity, subtotal, itemCount, totalSavings } = useCart()
 
-  const deliveryFee = subtotal >= 5000 ? 0 : 399 // Free delivery over £50
-  const total = subtotal + deliveryFee
-  const amountUntilFreeDelivery = 5000 - subtotal
-  const freeDeliveryProgress = Math.min((subtotal / 5000) * 100, 100)
+  const deliveryFee = subtotal >= 4000 ? 0 : 399
+  const discount = totalSavings > 0 ? totalSavings : undefined
 
-  if (items.length === 0) {
+  if (itemsWithSavings.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-md mx-auto text-center">
-            <div className="w-24 h-24 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center mx-auto mb-6">
-              <ShoppingBag className="h-12 w-12 text-slate-400" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Your cart is empty</h1>
-            <p className="text-gray-500 mb-8">
-              Looks like you haven&apos;t added any items to your cart yet.
-            </p>
-            <Button
-              size="lg"
-              asChild
-              className="bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 shadow-lg shadow-green-400/25"
-            >
+      <div className="bg-background min-h-screen">
+        <Container size="xl">
+          <div className="py-6 lg:py-8">
+            <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Your Basket' }]} />
+
+            <div className="flex flex-col items-center justify-center py-24 text-center">
+              <div className="flex h-24 w-24 items-center justify-center rounded-full bg-(--color-surface) mb-6">
+                <ShoppingBag className="h-16 w-16 text-(--color-text-muted)" />
+              </div>
+              <h1 className="font-display text-2xl lg:text-3xl font-semibold text-foreground mb-2">
+                Your basket is empty
+              </h1>
+              <p className="text-(--color-text-muted) max-w-sm mb-8">
+                Browse our fresh picks and fill it up
+              </p>
               <Link href="/products">
-                Start Shopping
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <Button
+                  size="lg"
+                  className="bg-(--brand-amber) hover:bg-(--brand-amber)/90 text-white shadow-(--shadow-amber)"
+                >
+                  Start Shopping
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
               </Link>
-            </Button>
+            </div>
           </div>
-        </div>
+        </Container>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      <div className="container mx-auto px-4 py-8">
-        <Link
-          href="/products"
-          className="inline-flex items-center text-sm text-gray-500 hover:text-green-500 mb-6 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Continue Shopping
-        </Link>
+    <div className="bg-background min-h-screen">
+      <Container size="xl">
+        <div className="py-6 lg:py-8">
+          <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Your Basket' }]} />
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
-            <p className="text-gray-500 mt-1">{itemCount} items in your cart</p>
-          </div>
-          <Button
-            variant="ghost"
-            className="text-red-500 hover:text-red-600 hover:bg-red-50 self-start"
-            onClick={clearCart}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Clear Cart
-          </Button>
-        </div>
-
-        {/* Free Delivery Progress */}
-        {amountUntilFreeDelivery > 0 && (
-          <Card className="mb-8 border-green-200 bg-gradient-to-r from-green-50 to-teal-50">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center shrink-0">
-                  <Truck className="h-5 w-5 text-green-500" />
-                </div>
-                <div className="flex-1">
-                  <p className="font-medium text-green-900">
-                    Add {formatPrice(amountUntilFreeDelivery)} more for FREE delivery!
-                  </p>
-                  <p className="text-sm text-green-600">Free delivery on orders over £50</p>
-                </div>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="font-display text-2xl lg:text-3xl font-semibold text-foreground">
+                Your Basket
+              </h1>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-(--color-text-muted) text-sm">
+                  {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                </span>
+                <span className="text-(--color-border)">&middot;</span>
+                <Link
+                  href="/products"
+                  className="text-sm text-(--brand-primary) hover:text-(--brand-amber) transition-colors"
+                >
+                  Continue Shopping
+                </Link>
               </div>
-              <div className="h-2 bg-green-100 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-green-300 to-green-500 rounded-full transition-all duration-500"
-                  style={{ width: `${freeDeliveryProgress}%` }}
+            </div>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+            {/* Cart Items */}
+            <div className="lg:flex-1 space-y-3">
+              {itemsWithSavings.map((item) => (
+                <CartItem
+                  key={item.product.id}
+                  item={item}
+                  onRemove={(productId) => removeItem(productId)}
+                  onUpdateQty={(productId, qty) => updateQuantity(productId, qty)}
+                />
+              ))}
+
+              <Link
+                href="/products"
+                className="inline-flex items-center gap-1.5 text-sm text-(--color-text-muted) hover:text-(--brand-primary) transition-colors mt-4"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Continue Shopping
+              </Link>
+            </div>
+
+            {/* Order Summary */}
+            <div className="lg:w-[380px] lg:shrink-0">
+              <div className="lg:sticky lg:top-24">
+                <OrderSummary
+                  subtotal={subtotal}
+                  deliveryFee={deliveryFee}
+                  discount={discount}
+                  showCheckoutButton
+                  showPromoInput
                 />
               </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {amountUntilFreeDelivery <= 0 && (
-          <Card className="mb-8 border-green-200 bg-green-50">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shrink-0">
-                  <Truck className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <p className="font-semibold text-green-900">
-                    You&apos;ve unlocked FREE delivery!
-                  </p>
-                  <p className="text-sm text-green-600">
-                    Your order qualifies for free delivery
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Cart Items */}
-          <div className="lg:col-span-2">
-            <Card className="shadow-sm">
-              <CardContent className="p-0">
-                <ul className="divide-y">
-                  {items.map((item) => (
-                    <li key={item.product.id} className="p-6">
-                      <div className="flex gap-4">
-                        {/* Product Image */}
-                        <Link
-                          href={`/products/${item.product.slug}`}
-                          className="relative h-24 w-24 rounded-xl overflow-hidden bg-gray-100 shrink-0 group"
-                        >
-                          {item.product.image_url ? (
-                            <Image
-                              src={item.product.image_url}
-                              alt={item.product.name}
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-300">
-                              <ShoppingBag className="h-8 w-8" />
-                            </div>
-                          )}
-                        </Link>
-
-                        {/* Product Details */}
-                        <div className="flex-1 min-w-0">
-                          <Link
-                            href={`/products/${item.product.slug}`}
-                            className="font-semibold text-gray-900 hover:text-green-500 transition-colors line-clamp-2"
-                          >
-                            {item.product.name}
-                          </Link>
-                          <p className="text-sm text-gray-500 mt-1">
-                            {formatPrice(item.product.price_pence)} each
-                          </p>
-                          {item.product.track_inventory && item.product.stock_quantity !== undefined && item.product.stock_quantity !== null && item.product.stock_quantity > 0 && item.product.stock_quantity <= (item.product.low_stock_threshold ?? 5) && (
-                            <p className="flex items-center gap-1 text-xs text-amber-600 font-medium mt-1">
-                              <AlertTriangle className="h-3 w-3" />
-                              Only {item.product.stock_quantity} left in stock
-                            </p>
-                          )}
-
-                          {/* Quantity controls */}
-                          <div className="flex items-center gap-4 mt-4">
-                            {(() => {
-                              const maxQty = item.product.track_inventory && item.product.stock_quantity !== undefined && item.product.stock_quantity !== null && !item.product.allow_backorder
-                                ? item.product.stock_quantity : Infinity
-                              const atMax = item.quantity >= maxQty
-                              return (
-                            <div className="flex items-center border rounded-xl overflow-hidden">
-                              <button
-                                onClick={() =>
-                                  updateQuantity(item.product.id, item.quantity - 1)
-                                }
-                                aria-label="Decrease quantity"
-                                className="p-2.5 hover:bg-gray-100 transition-colors"
-                              >
-                                <Minus className="h-4 w-4" />
-                              </button>
-                              <span className="w-12 text-center text-sm font-semibold">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() => {
-                                  if (!atMax) updateQuantity(item.product.id, item.quantity + 1)
-                                }}
-                                disabled={atMax}
-                                aria-label="Increase quantity"
-                                className={`p-2.5 transition-colors ${atMax ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100'}`}
-                              >
-                                <Plus className="h-4 w-4" />
-                              </button>
-                            </div>
-                              )
-                            })()}
-                            <button
-                              onClick={() => removeItem(item.product.id)}
-                              aria-label="Remove item"
-                              className="p-2 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 transition-colors"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Line Total */}
-                        <div className="text-right">
-                          <p className="text-lg font-bold text-gray-900">
-                            {formatPrice(item.product.price_pence * item.quantity)}
-                          </p>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Order Summary */}
-          <div>
-            <Card className="sticky top-24 shadow-lg">
-              <CardHeader className="bg-slate-50 rounded-t-xl">
-                <CardTitle className="flex items-center gap-2">
-                  <Tag className="h-5 w-5 text-green-500" />
-                  Order Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 pt-6">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal ({itemCount} items)</span>
-                  <span>{formatPrice(subtotal)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Delivery</span>
-                  <span>
-                    {deliveryFee === 0 ? (
-                      <span className="text-green-500 font-semibold">FREE</span>
-                    ) : (
-                      formatPrice(deliveryFee)
-                    )}
-                  </span>
-                </div>
-
-                <Separator />
-
-                <div className="flex justify-between text-xl font-bold">
-                  <span>Total</span>
-                  <span className="text-green-500">{formatPrice(total)}</span>
-                </div>
-
-                <Button
-                  className="w-full h-12 text-base bg-gradient-to-r from-green-400 to-green-500 hover:from-green-500 hover:to-green-600 shadow-lg shadow-green-400/25"
-                  size="lg"
-                  asChild
-                >
-                  <Link href="/checkout">
-                    Proceed to Checkout
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-
-                <Button variant="outline" className="w-full" asChild>
-                  <Link href="/products">Continue Shopping</Link>
-                </Button>
-
-                {/* Trust badges */}
-                <div className="pt-4 space-y-3">
-                  <Separator />
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <Shield className="h-4 w-4 text-green-500" />
-                    <span>Secure checkout</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <Truck className="h-4 w-4 text-green-500" />
-                    <span>Same-day delivery available</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-sm text-gray-600">
-                    <Clock className="h-4 w-4 text-green-500" />
-                    <span>Fresh products guaranteed</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            </div>
           </div>
         </div>
-      </div>
+      </Container>
     </div>
   )
 }

@@ -306,22 +306,22 @@ const guideCategories = [
 
 export default function VendorGuidePage() {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className="bg-gradient-to-r from-emerald-600 to-teal-700 text-white">
+      <div className="bg-(--brand-dark) text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center gap-2 text-emerald-200 text-sm mb-4">
+          <div className="flex items-center gap-2 text-white/50 text-sm mb-4">
             <Link href="/help" className="hover:text-white">Help Center</Link>
             <ArrowRight className="w-4 h-4" />
             <span>Seller Guide</span>
           </div>
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center">
+            <div className="w-16 h-16 bg-(--color-surface)/20 rounded-2xl flex items-center justify-center">
               <BookOpen className="w-8 h-8" />
             </div>
             <div>
               <h1 className="text-3xl md:text-4xl font-bold">Seller Guide</h1>
-              <p className="text-emerald-100 mt-2">
+              <p className="text-white/70 mt-2">
                 Everything you need to know to succeed as a vendor on our platform
               </p>
             </div>
@@ -336,19 +336,19 @@ export default function VendorGuidePage() {
             <a
               key={category.id}
               href={`#${category.id}`}
-              className="bg-white rounded-xl border border-slate-200 p-4 text-center hover:border-emerald-300 hover:shadow-md transition-all"
+              className="bg-(--color-surface) rounded-xl border border-(--color-border) p-4 text-center hover:border-(--brand-primary) hover:shadow-md transition-all"
             >
               <div className={`w-10 h-10 mx-auto mb-2 rounded-lg flex items-center justify-center ${
-                category.color === 'emerald' ? 'bg-emerald-100 text-emerald-600' :
-                category.color === 'blue' ? 'bg-blue-100 text-blue-600' :
-                category.color === 'purple' ? 'bg-purple-100 text-purple-600' :
-                category.color === 'orange' ? 'bg-orange-100 text-orange-600' :
-                category.color === 'green' ? 'bg-green-100 text-green-600' :
-                'bg-pink-100 text-pink-600'
+                category.color === 'emerald' ? 'bg-(--brand-primary-light) text-(--brand-primary)' :
+                category.color === 'blue' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                category.color === 'purple' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                category.color === 'orange' ? 'bg-(--brand-amber-soft) text-(--brand-amber)' :
+                category.color === 'green' ? 'bg-(--brand-primary-light) text-(--brand-primary)' :
+                'bg-(--color-error-bg) text-(--color-error)'
               }`}>
                 {category.icon}
               </div>
-              <span className="text-sm font-medium text-slate-700">{category.title}</span>
+              <span className="text-sm font-medium text-(--color-text-secondary)">{category.title}</span>
             </a>
           ))}
         </div>
@@ -359,30 +359,30 @@ export default function VendorGuidePage() {
             <section key={category.id} id={category.id} className="scroll-mt-8">
               <div className="flex items-center gap-3 mb-6">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                  category.color === 'emerald' ? 'bg-emerald-100 text-emerald-600' :
-                  category.color === 'blue' ? 'bg-blue-100 text-blue-600' :
-                  category.color === 'purple' ? 'bg-purple-100 text-purple-600' :
-                  category.color === 'orange' ? 'bg-orange-100 text-orange-600' :
-                  category.color === 'green' ? 'bg-green-100 text-green-600' :
-                  'bg-pink-100 text-pink-600'
+                  category.color === 'emerald' ? 'bg-(--brand-primary-light) text-(--brand-primary)' :
+                  category.color === 'blue' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                  category.color === 'purple' ? 'bg-(--color-info-bg) text-(--color-info)' :
+                  category.color === 'orange' ? 'bg-(--brand-amber-soft) text-(--brand-amber)' :
+                  category.color === 'green' ? 'bg-(--brand-primary-light) text-(--brand-primary)' :
+                  'bg-(--color-error-bg) text-(--color-error)'
                 }`}>
                   {category.icon}
                 </div>
-                <h2 className="text-2xl font-bold text-slate-900">{category.title}</h2>
+                <h2 className="text-2xl font-bold text-foreground">{category.title}</h2>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {category.articles.map((article, index) => (
                   <div
                     key={index}
-                    className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-md transition-shadow"
+                    className="bg-(--color-surface) rounded-xl border border-(--color-border) p-6 hover:shadow-md transition-shadow"
                   >
-                    <h3 className="font-semibold text-slate-900 mb-3">{article.title}</h3>
+                    <h3 className="font-semibold text-foreground mb-3">{article.title}</h3>
                     <div
-                      className="text-sm text-slate-600 prose prose-sm prose-slate max-w-none
+                      className="text-sm text-(--color-text-secondary) prose prose-sm max-w-none
                         [&>p]:mb-3 [&>ul]:list-disc [&>ul]:pl-4 [&>ul]:space-y-1
                         [&>ol]:list-decimal [&>ol]:pl-4 [&>ol]:space-y-1
-                        [&_strong]:text-slate-700"
+                        [&_strong]:text-(--color-text-secondary)"
                       dangerouslySetInnerHTML={{ __html: article.content }}
                     />
                   </div>
@@ -393,22 +393,22 @@ export default function VendorGuidePage() {
         </div>
 
         {/* Need Help Section */}
-        <div className="mt-16 bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-8 text-center text-white">
+        <div className="mt-16 bg-(--brand-dark) rounded-2xl p-8 text-center text-white">
           <h2 className="text-2xl font-bold mb-3">Need More Help?</h2>
-          <p className="text-emerald-100 mb-6 max-w-xl mx-auto">
+          <p className="text-white/70 mb-6 max-w-xl mx-auto">
             Our vendor support team is here to help you succeed. Reach out anytime.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/contact?from=vendor"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-emerald-700 rounded-xl font-medium hover:bg-emerald-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-(--color-surface) text-(--brand-primary) rounded-xl font-medium hover:bg-(--color-surface)/90 transition-colors"
             >
               <MessageCircle className="w-5 h-5" />
               Contact Vendor Support
             </Link>
             <Link
               href="/help"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-xl font-medium hover:bg-emerald-400 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-(--brand-primary) text-white rounded-xl font-medium hover:bg-(--brand-primary-hover) transition-colors"
             >
               <HelpCircle className="w-5 h-5" />
               Visit Help Center
