@@ -91,6 +91,7 @@ const sidebarSections: SidebarSection[] = [
   {
     title: 'Support',
     items: [
+      { href: '/admin/complaints', label: 'Complaints', icon: AlertTriangle },
       { href: '/admin/live-support', label: 'Live Support', icon: Headphones },
       { href: '/admin/support-analytics', label: 'Support Analytics', icon: BarChart3 },
       { href: '/admin/chatbot', label: 'Chatbot', icon: Bot },
@@ -171,6 +172,7 @@ export default function AdminLayout({
               setAlertCounts({
                 '/admin/orders': dashData.pendingOrders || 0,
                 '/admin/vendor-applications': dashData.pendingApplications || 0,
+                '/admin/complaints': dashData.openTickets || 0,
                 '/admin/returns': dashData.pendingReturns || 0,
                 '/admin/reviews': dashData.pendingReviews || 0,
                 '/admin/stock-alerts': dashData.lowStockProducts || 0,
