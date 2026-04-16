@@ -64,7 +64,7 @@ function encodeCode128B(data: string): number[][] {
   values.push(checksum % 103)
   values.push(CODE128_STOP)
 
-  return values.map((v) => CODE128_PATTERNS[v])
+  return values.map((v) => CODE128_PATTERNS[v] || [1,1,1,1,1,1])
 }
 
 function calculateEan13CheckDigit(digits: number[]): number {
@@ -271,6 +271,7 @@ export function BarcodeGenerator({
     let xPos = 10
 
     for (const pattern of patterns) {
+      if (!pattern || !Array.isArray(pattern)) continue
       let isBar = true
       for (const width of pattern) {
         if (isBar) {
