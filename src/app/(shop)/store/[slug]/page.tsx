@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { ProductCard } from '@/components/products/product-card'
@@ -127,6 +128,69 @@ function ProductsSkeleton() {
   )
 }
 
+import { ChefHat, Clock, Users as UsersIcon } from 'lucide-react'
+import Image from 'next/image'
+
+async function StoreRecipes({ vendorId, vendorName }: { vendorId: string; vendorName: string }) {
+  const supabase = await createClient()
+
+  const { data: recipes } = await supabase
+    .from('vendor_recipes')
+    .select('id, title, slug, description, image_url, prep_time, cook_time, servings, difficulty')
+    .eq('vendor_id', vendorId)
+    .eq('is_published', true)
+    .order('created_at', { ascending: false })
+    .limit(6)
+
+  if (!recipes || recipes.length === 0) return null
+
+  return (
+    <div className="mt-12">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="h-10 w-10 rounded-xl bg-(--brand-primary-light) flex items-center justify-center">
+          <ChefHat className="h-5 w-5 text-(--brand-primary)" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold text-foreground">Recipes by {vendorName}</h2>
+          <p className="text-sm text-(--color-text-muted)">Try these recipes using our products</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {recipes.map((recipe) => (
+          <div
+            key={recipe.id}
+            className="group rounded-xl border border-(--color-border) bg-(--color-surface) overflow-hidden hover:shadow-lg hover:border-(--brand-primary)/30 transition-all"
+          >
+            <div className="aspect-video bg-(--color-elevated) relative overflow-hidden">
+              {recipe.image_url ? (
+                <Image src={recipe.image_url} alt={recipe.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <ChefHat className="h-10 w-10 text-(--color-text-disabled)" />
+                </div>
+              )}
+              <div className="absolute top-2 right-2 px-2.5 py-1 bg-(--color-surface)/90 backdrop-blur-sm rounded-md text-xs font-medium text-foreground">
+                {recipe.difficulty}
+              </div>
+            </div>
+            <div className="p-4">
+              <h3 className="font-semibold text-foreground group-hover:text-(--brand-primary) transition-colors line-clamp-1">{recipe.title}</h3>
+              {recipe.description && (
+                <p className="text-sm text-(--color-text-muted) mt-1 line-clamp-2">{recipe.description}</p>
+              )}
+              <div className="flex items-center gap-3 mt-3 text-xs text-(--color-text-muted)">
+                <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {recipe.prep_time + recipe.cook_time} min</span>
+                <span className="flex items-center gap-1"><UsersIcon className="h-3.5 w-3.5" /> {recipe.servings} servings</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default async function StorePage({ params, searchParams }: StorePageProps) {
   const { slug } = await params
   const search = await searchParams
@@ -213,6 +277,11 @@ export default async function StorePage({ params, searchParams }: StorePageProps
         {/* Products Grid */}
         <Suspense fallback={<ProductsSkeleton />}>
           <StoreProducts vendorId={vendor.id} searchParams={search} />
+        </Suspense>
+
+        {/* Vendor Recipes */}
+        <Suspense fallback={null}>
+          <StoreRecipes vendorId={vendor.id} vendorName={vendor.business_name} />
         </Suspense>
       </div>
     </div>

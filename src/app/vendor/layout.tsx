@@ -25,6 +25,7 @@ import {
   Bell,
   Users,
   RotateCcw,
+  ChefHat,
   MessageCircle,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
@@ -33,6 +34,7 @@ import { Spinner } from '@/components/ui/Spinner'
 const vendorNavItems = [
   { href: '/vendor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/vendor/products', label: 'Products', icon: Package },
+  { href: '/vendor/recipes', label: 'Recipes', icon: ChefHat },
   { href: '/vendor/orders', label: 'Orders', icon: ShoppingCart },
   { href: '/vendor/returns', label: 'Returns', icon: RotateCcw },
   { href: '/vendor/reviews', label: 'Reviews', icon: Star },
