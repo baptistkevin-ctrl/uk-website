@@ -607,3 +607,85 @@ body {
     transform: none;
   }
 }
+
+/* ── Premium Focus Ring ── */
+.focus-ring {
+  outline: none;
+  transition: box-shadow 200ms ease;
+}
+.focus-ring:focus-visible {
+  box-shadow:
+    0 0 0 2px var(--color-bg),
+    0 0 0 4px var(--brand-primary);
+}
+
+/* ── Section Divider ── */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-border) 20%,
+    var(--color-border) 80%,
+    transparent 100%
+  );
+  margin: 3rem 0;
+}
+
+/* ── Page Section Spacing ── */
+.page-section {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+@media (min-width: 1024px) {
+  .page-section {
+    padding-top: 4rem;
+    padding-bottom: 4rem;
+  }
+}
+
+/* ── Smooth Number Counter ── */
+.counter-animate {
+  font-variant-numeric: tabular-nums;
+  transition: all 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Badge Pulse for Alerts ── */
+.badge-pulse {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+@keyframes badge-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* ── Skeleton Shimmer ── */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-elevated) 0%,
+    var(--color-surface) 50%,
+    var(--color-elevated) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Premium Scrollbar ── */
+.premium-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.premium-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.premium-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+.premium-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
