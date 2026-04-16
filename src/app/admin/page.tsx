@@ -1209,6 +1209,142 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Vendor Leaderboard + Customer Registrations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Vendor Performance Leaderboard */}
+        <div className="bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) border border-(--color-border)">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-lg font-semibold text-foreground flex items-center gap-2">
+              <StoreIcon />
+              Top Vendors This Month
+            </h2>
+            <Link href="/admin/vendors" className="text-xs text-(--brand-primary) hover:underline">View all</Link>
+          </div>
+          {(data as any)?.vendorLeaderboard?.length > 0 ? (
+            <div className="space-y-3">
+              {(data as any).vendorLeaderboard.map((vendor: any, i: number) => (
+                <div key={vendor.id} className="flex items-center gap-3 p-3 bg-background rounded-lg">
+                  <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 font-bold text-sm ${
+                    i === 0 ? 'bg-yellow-100 text-yellow-700' :
+                    i === 1 ? 'bg-gray-100 text-gray-600' :
+                    i === 2 ? 'bg-orange-100 text-orange-700' :
+                    'bg-(--color-elevated) text-(--color-text-muted)'
+                  }`}>
+                    {i + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-foreground text-sm truncate">{vendor.name}</p>
+                    <p className="text-xs text-(--color-text-muted)">{vendor.orders} orders</p>
+                  </div>
+                  <p className="font-bold font-mono text-sm text-(--brand-primary)">{formatPrice(vendor.revenue)}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-(--color-text-muted)">
+              <StoreIcon />
+              <p className="text-sm mt-2">No vendor sales this month</p>
+            </div>
+          )}
+        </div>
+
+        {/* Recent Customer Registrations */}
+        <div className="bg-(--color-surface) rounded-xl p-6 shadow-(--shadow-sm) border border-(--color-border)">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-display text-lg font-semibold text-foreground flex items-center gap-2">
+              <UserPlusIcon />
+              New Customers
+            </h2>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-1 bg-(--color-success-bg) text-(--color-success) text-xs font-bold rounded-full">
+                +{(data as any)?.recentRegistrations?.last24h || 0} today
+              </span>
+              <Link href="/admin/users" className="text-xs text-(--brand-primary) hover:underline">View all</Link>
+            </div>
+          </div>
+          {data?.users?.recent && data.users.recent.length > 0 ? (
+            <div className="space-y-2">
+              {data.users.recent.slice(0, 5).map((user: any) => (
+                <div key={user.id} className="flex items-center gap-3 p-2.5 bg-background rounded-lg">
+                  <div className="h-9 w-9 rounded-full bg-(--brand-primary-light) flex items-center justify-center shrink-0">
+                    <span className="text-sm font-bold text-(--brand-primary)">
+                      {(user.full_name || user.email || '?').charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{user.full_name || 'New User'}</p>
+                    <p className="text-xs text-(--color-text-muted) truncate">{user.email}</p>
+                  </div>
+                  <p className="text-xs text-(--color-text-disabled) shrink-0">
+                    {new Date(user.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6 text-(--color-text-muted)">
+              <UserPlusIcon />
+              <p className="text-sm mt-2">No recent registrations</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Pending Actions Summary */}
+      {data && (
+        <div className="mb-8">
+          {(data.orders.byStatus.pending > 0 || data.vendors.pendingApplications > 0 || (data as any)?.support?.pendingReturns > 0 || data.reviews.pending > 0 || (data as any)?.support?.openTickets > 0) && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {data.orders.byStatus.pending > 0 && (
+                <Link href="/admin/orders?status=pending" className="flex items-center gap-3 p-4 bg-(--color-warning-bg) border border-(--color-warning)/20 rounded-xl hover:border-(--color-warning)/40 transition-colors">
+                  <CartIcon />
+                  <div>
+                    <p className="font-bold text-foreground text-lg">{data.orders.byStatus.pending}</p>
+                    <p className="text-xs text-(--color-text-muted)">Pending Orders</p>
+                  </div>
+                </Link>
+              )}
+              {data.vendors.pendingApplications > 0 && (
+                <Link href="/admin/vendor-applications" className="flex items-center gap-3 p-4 bg-(--color-info-bg) border border-(--color-info)/20 rounded-xl hover:border-(--color-info)/40 transition-colors">
+                  <StoreIcon />
+                  <div>
+                    <p className="font-bold text-foreground text-lg">{data.vendors.pendingApplications}</p>
+                    <p className="text-xs text-(--color-text-muted)">Applications</p>
+                  </div>
+                </Link>
+              )}
+              {(data as any)?.support?.openTickets > 0 && (
+                <Link href="/admin/complaints" className="flex items-center gap-3 p-4 bg-(--color-error)/5 border border-(--color-error)/20 rounded-xl hover:border-(--color-error)/40 transition-colors">
+                  <BellIcon />
+                  <div>
+                    <p className="font-bold text-foreground text-lg">{(data as any).support.openTickets}</p>
+                    <p className="text-xs text-(--color-text-muted)">Open Tickets</p>
+                  </div>
+                </Link>
+              )}
+              {data.reviews.pending > 0 && (
+                <Link href="/admin/reviews" className="flex items-center gap-3 p-4 bg-(--brand-amber)/5 border border-(--brand-amber)/20 rounded-xl hover:border-(--brand-amber)/40 transition-colors">
+                  <StarIcon />
+                  <div>
+                    <p className="font-bold text-foreground text-lg">{data.reviews.pending}</p>
+                    <p className="text-xs text-(--color-text-muted)">Pending Reviews</p>
+                  </div>
+                </Link>
+              )}
+              {(data as any)?.support?.pendingReturns > 0 && (
+                <Link href="/admin/returns" className="flex items-center gap-3 p-4 bg-(--color-elevated) border border-(--color-border) rounded-xl hover:border-(--brand-primary)/40 transition-colors">
+                  <RefreshIcon />
+                  <div>
+                    <p className="font-bold text-foreground text-lg">{(data as any).support.pendingReturns}</p>
+                    <p className="text-xs text-(--color-text-muted)">Pending Returns</p>
+                  </div>
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Top Products and Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Top Selling Products */}

@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
 
       // Vendor orders (for financial data)
       safeQuery(supabase.from('vendor_orders')
-        .select('total_amount, commission_amount, vendor_amount, status, created_at')
+        .select('total_amount, commission_amount, vendor_amount, status, created_at, vendor_id')
         .order('created_at', { ascending: false })),
 
       // Vendor Stripe health
@@ -274,6 +274,34 @@ export async function GET(request: NextRequest) {
     const pendingReturns = pendingReturnsResult.count || 0
     const openTickets = openTicketsResult.count || 0
 
+    // Vendor performance leaderboard (top 5 by this month's revenue)
+    const vendorRevenueMap = new Map<string, { vendorId: string; revenue: number; orders: number }>()
+    for (const vo of thisMonthVendorOrders) {
+      const existing = vendorRevenueMap.get(vo.vendor_id) || { vendorId: vo.vendor_id, revenue: 0, orders: 0 }
+      existing.revenue += vo.vendor_amount || 0
+      existing.orders++
+      vendorRevenueMap.set(vo.vendor_id, existing)
+    }
+
+    const vendorLeaderboard = Array.from(vendorRevenueMap.values())
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 5)
+      .map(v => {
+        const vendor = allVendors.find((av: any) => av.id === v.vendorId)
+        return {
+          id: v.vendorId,
+          name: vendor?.business_name || 'Unknown',
+          revenue: v.revenue,
+          orders: v.orders,
+          status: vendor?.status || 'unknown',
+        }
+      })
+
+    // Recent customer registrations (last 24 hours)
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+    const recentCustomers = (recentUsersResult.data || []).filter((u: any) => u.created_at >= yesterday)
+    const last24hCount = newUsersTodayResult.count || 0
+
     return NextResponse.json({
       overview: {
         totalRevenue,
@@ -323,6 +351,11 @@ export async function GET(request: NextRequest) {
       support: {
         pendingReturns,
         openTickets,
+      },
+      vendorLeaderboard,
+      recentRegistrations: {
+        last24h: last24hCount,
+        customers: recentCustomers,
       },
       reviews: {
         total: totalReviews,
