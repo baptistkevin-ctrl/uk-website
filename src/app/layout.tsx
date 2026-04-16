@@ -4,10 +4,7 @@ import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ClientShell } from "@/components/layout/ClientShell";
-import { CookieConsent } from "@/components/layout/CookieConsent";
-import { OrganizationSchema } from "@/components/seo/OrganizationSchema";
-import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
-import { WebsiteSchema } from "@/components/seo/WebsiteSchema";
+import { ShopOnlyShell } from "@/components/layout/ShopOnlyShell";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -116,13 +113,10 @@ export default function RootLayout({
         </a>
 
         <ClientShell />
-        <OrganizationSchema />
-        <WebsiteSchema />
 
         <main id="main-content">{children}</main>
 
-        <MobileBottomNav />
-        <CookieConsent />
+        <ShopOnlyShell />
         <Analytics />
         <SpeedInsights />
 

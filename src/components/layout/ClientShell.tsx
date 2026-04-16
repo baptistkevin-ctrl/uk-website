@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 import { MiniCart } from "@/components/cart/MiniCart";
 import { ProductQuickViewModal } from "@/components/products/product-quick-view-modal";
 import { QuickReorder } from "@/components/mobile/QuickReorder";
@@ -21,6 +22,21 @@ const CustomCursor = dynamic(
 );
 
 export function ClientShell() {
+  const pathname = usePathname();
+
+  // Admin and vendor dashboards are separate interfaces
+  // Only show toast + progress bar — no shop UI
+  const isDashboard = pathname.startsWith("/admin") || pathname.startsWith("/vendor");
+
+  if (isDashboard) {
+    return (
+      <>
+        <ProgressBar />
+        <ToastContainer />
+      </>
+    );
+  }
+
   return (
     <>
       <ProgressBar />
