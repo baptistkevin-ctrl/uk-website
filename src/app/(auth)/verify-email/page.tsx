@@ -70,9 +70,6 @@ function VerifyEmailPageContent() {
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           setStatus('success')
-          setTimeout(() => {
-            router.push('/')
-          }, 3000)
         }
       })
 
