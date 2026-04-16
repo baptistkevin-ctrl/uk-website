@@ -91,7 +91,7 @@ export default function VendorRecipesPage() {
       servings: String(recipe.servings),
       difficulty: recipe.difficulty,
       cuisine: recipe.cuisine || '',
-      ingredients: recipe.ingredients.length > 0 ? recipe.ingredients : [{ name: '', quantity: '', unit: '', productId: '' }],
+      ingredients: recipe.ingredients.length > 0 ? recipe.ingredients.map(i => ({ ...i, productId: i.productId || '' })) : [{ name: '', quantity: '', unit: '', productId: '' }],
       steps: recipe.steps.length > 0 ? recipe.steps : [''],
       tips: recipe.tips?.length > 0 ? recipe.tips : [''],
     })

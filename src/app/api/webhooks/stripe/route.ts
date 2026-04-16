@@ -447,7 +447,7 @@ async function processVendorPayments(
   // Fetch vendor details
   const { data: vendors } = await supabaseAdmin
     .from('vendors')
-    .select('id, stripe_account_id, commission_rate')
+    .select('id, stripe_account_id, commission_rate, email, business_name')
     .in('id', vendorIds)
 
   if (!vendors || vendors.length === 0) {

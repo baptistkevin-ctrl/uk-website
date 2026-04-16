@@ -14,6 +14,7 @@ interface Profile {
   email: string
   full_name: string | null
   phone: string | null
+  avatar_url: string | null
   created_at: string
 }
 
@@ -160,9 +161,9 @@ export default function ProfilePage() {
             {/* Avatar Section */}
             <div className="flex items-center gap-6">
               <div className="relative">
-                {(profile as Record<string, unknown>)?.avatar_url ? (
+                {profile?.avatar_url ? (
                   <img
-                    src={(profile as Record<string, unknown>).avatar_url as string}
+                    src={profile.avatar_url}
                     alt="Profile"
                     className="w-20 h-20 rounded-full object-cover"
                   />

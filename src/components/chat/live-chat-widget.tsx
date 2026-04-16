@@ -750,7 +750,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
       const proactiveMsg: Message = {
         id: `proactive-${Date.now()}`,
         sender_type: 'bot',
-        sender_name: botSettings.botName || 'FreshBot',
+        sender_name: botSettings?.botName || 'FreshBot',
         content: detail.message,
         message_type: 'text',
         attachments: [],
@@ -763,7 +763,7 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
 
     globalThis.addEventListener('proactive-chat', handleProactiveChat)
     return () => globalThis.removeEventListener('proactive-chat', handleProactiveChat)
-  }, [botSettings.botName])
+  }, [botSettings?.botName])
 
   // Initial load
   useEffect(() => {
