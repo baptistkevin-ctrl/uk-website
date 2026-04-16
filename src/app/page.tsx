@@ -247,92 +247,122 @@ export default async function HomePage() {
         <WeatherPromoBanner />
 
         {/* Section 4: Category Grid */}
-        {categories.length > 0 && <CategoryGrid categories={categories} />}
+        <div className="reveal-section">
+          {categories.length > 0 && <CategoryGrid categories={categories} />}
+        </div>
 
         {/* Section 5: Deal of the Day */}
-        <DealOfTheDay deal={deal} />
+        <div className="reveal-section">
+          <DealOfTheDay deal={deal} />
+        </div>
 
         {/* New This Week */}
-        {newItems.length > 0 && <NewThisWeek products={newItems} />}
+        <div className="reveal-section">
+          {newItems.length > 0 && <NewThisWeek products={newItems} />}
+        </div>
 
         {/* Section 6: Best Sellers Carousel */}
-        {bestSellerProducts.length > 0 && (
-          <BestSellersCarousel products={bestSellerProducts} />
-        )}
+        <div className="reveal-section">
+          {bestSellerProducts.length > 0 && (
+            <BestSellersCarousel products={bestSellerProducts} />
+          )}
+        </div>
 
         {/* Recently Viewed — continue where you left off */}
         <RecentlyViewedBar />
 
         {/* On Sale Products */}
-        {onSaleItems.length > 0 && (
-          <ProductShowcase
-            title="On Sale Now 🏷️"
-            subtitle="Grab these deals before they're gone"
-            viewAllHref="/products?on_sale=true"
-            products={onSaleItems}
-            badgeText="SALE"
-            badgeColor="bg-(--color-sale)"
-          />
-        )}
+        <div className="reveal-section">
+          {onSaleItems.length > 0 && (
+            <ProductShowcase
+              title="On Sale Now 🏷️"
+              subtitle="Grab these deals before they're gone"
+              viewAllHref="/products?on_sale=true"
+              products={onSaleItems}
+              badgeText="SALE"
+              badgeColor="bg-(--color-sale)"
+            />
+          )}
+        </div>
 
         {/* Section 7: Fresh Produce Feature */}
-        {freshProducts.length > 0 && (
-          <FreshProduceFeature products={freshProducts} />
-        )}
+        <div className="reveal-section">
+          {freshProducts.length > 0 && (
+            <FreshProduceFeature products={freshProducts} />
+          )}
+        </div>
 
         {/* Shop by Mood */}
-        <ShopByMood />
+        <div className="reveal-section">
+          <ShopByMood />
+        </div>
 
         {/* Organic Range */}
-        {organicItems.length > 0 && (
-          <ProductShowcase
-            title="Organic Range 🌿"
-            subtitle="Certified organic from local British farms"
-            viewAllHref="/products?is_organic=true"
-            products={organicItems}
-            badgeText="ORGANIC"
-            badgeColor="bg-(--brand-primary)"
-          />
-        )}
+        <div className="reveal-section">
+          {organicItems.length > 0 && (
+            <ProductShowcase
+              title="Organic Range 🌿"
+              subtitle="Certified organic from local British farms"
+              viewAllHref="/products?is_organic=true"
+              products={organicItems}
+              badgeText="ORGANIC"
+              badgeColor="bg-(--brand-primary)"
+            />
+          )}
+        </div>
 
         {/* Budget Picks */}
-        {budgetItems.length > 0 && (
-          <ProductShowcase
-            title="Under £2 💰"
-            subtitle="Great value picks that won't break the bank"
-            viewAllHref="/products?sort=price_asc"
-            products={budgetItems}
-            badgeText="VALUE"
-            badgeColor="bg-(--brand-amber)"
-          />
-        )}
+        <div className="reveal-section">
+          {budgetItems.length > 0 && (
+            <ProductShowcase
+              title="Under £2 💰"
+              subtitle="Great value picks that won't break the bank"
+              viewAllHref="/products?sort=price_asc"
+              products={budgetItems}
+              badgeText="VALUE"
+              badgeColor="bg-(--brand-amber)"
+            />
+          )}
+        </div>
 
         {/* Recipe-to-Cart Carousel */}
-        <RecipeCarousel />
+        <div className="reveal-section">
+          <RecipeCarousel />
+        </div>
 
         {/* Explore All Products — full grid */}
-        {allItems.length > 0 && (
-          <ProductShowcase
-            title="Explore All Products"
-            subtitle="Browse our full range of fresh groceries"
-            viewAllHref="/products"
-            products={allItems}
-            layout="grid"
-            columns={5}
-          />
-        )}
+        <div className="reveal-section">
+          {allItems.length > 0 && (
+            <ProductShowcase
+              title="Explore All Products"
+              subtitle="Browse our full range of fresh groceries"
+              viewAllHref="/products"
+              products={allItems}
+              layout="grid"
+              columns={5}
+            />
+          )}
+        </div>
 
         {/* Stats + Trust — cinematic section */}
-        <StatsBar />
+        <div className="reveal-section">
+          <StatsBar />
+        </div>
 
         {/* Why Choose Us */}
-        <WhyChooseUs />
+        <div className="reveal-section">
+          <WhyChooseUs />
+        </div>
 
         {/* Section 9: Testimonials */}
-        <TestimonialsSection />
+        <div className="reveal-section">
+          <TestimonialsSection />
+        </div>
 
         {/* Newsletter CTA */}
-        <NewsletterSignup />
+        <div className="reveal-section">
+          <NewsletterSignup />
+        </div>
       </main>
 
       <Footer />

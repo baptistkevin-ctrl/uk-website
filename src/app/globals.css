@@ -483,3 +483,127 @@ body {
     display: none !important;
   }
 }
+
+/* =========================================
+   MILLION DOLLAR POLISH — Premium Animations
+   ========================================= */
+
+/* ── Scroll-Driven Reveal Animation ── */
+.reveal-section {
+  opacity: 0;
+  transform: translateY(32px);
+  animation: section-reveal linear both;
+  animation-timeline: view();
+  animation-range: entry 0% entry 35%;
+}
+
+@keyframes section-reveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger children on reveal */
+.reveal-section > *:nth-child(1) { animation-delay: 0ms; }
+.reveal-section > *:nth-child(2) { animation-delay: 60ms; }
+.reveal-section > *:nth-child(3) { animation-delay: 120ms; }
+.reveal-section > *:nth-child(4) { animation-delay: 180ms; }
+
+/* ── Premium Button Hover ── */
+.btn-premium {
+  transition:
+    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 200ms ease,
+    background-color 200ms ease;
+}
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 24px rgba(27, 107, 58, 0.25),
+    0 2px 8px rgba(27, 107, 58, 0.15);
+}
+.btn-premium:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(27, 107, 58, 0.15);
+}
+
+/* Amber button glow */
+.btn-amber-glow:hover {
+  box-shadow:
+    0 8px 24px rgba(232, 134, 26, 0.3),
+    0 2px 8px rgba(232, 134, 26, 0.2);
+}
+
+/* ── Typography Premium ── */
+.text-display {
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.text-headline {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* ── Card Hover Lift ── */
+.card-hover-lift {
+  transition:
+    transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 300ms ease,
+    border-color 300ms ease;
+}
+.card-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* ── Glass Card ── */
+.glass-card {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Gradient Text ── */
+.text-gradient-brand {
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-amber));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Smooth Image Zoom on Hover ── */
+.img-zoom {
+  overflow: hidden;
+}
+.img-zoom img {
+  transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.img-zoom:hover img {
+  transform: scale(1.06);
+}
+
+/* ── Respect reduced motion for all premium animations ── */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-section {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .btn-premium:hover,
+  .card-hover-lift:hover {
+    transform: none;
+  }
+  .img-zoom:hover img {
+    transform: none;
+  }
+}
