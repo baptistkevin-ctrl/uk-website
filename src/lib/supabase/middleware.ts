@@ -24,6 +24,14 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.next({ request })
   }
 
+  // Redirect old /shop/* URLs to /categories/*
+  if (pathname.startsWith('/shop/')) {
+    const slug = pathname.replace('/shop/', '')
+    const url = request.nextUrl.clone()
+    url.pathname = `/categories/${slug}`
+    return NextResponse.redirect(url, 301)
+  }
+
   // Threat detection for API routes (skip webhooks - they use their own signature verification)
   if (pathname.startsWith('/api/') && !pathname.startsWith('/api/webhooks/')) {
     // Validate request size
