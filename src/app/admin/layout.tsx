@@ -137,6 +137,13 @@ export default function AdminLayout({
   const { user, loading: authLoading } = useAuth()
 
   useEffect(() => {
+    // Skip auth check for admin login page
+    if (pathname === '/admin/login') {
+      setCheckingAccess(false)
+      setIsAdmin(true) // Allow rendering without sidebar
+      return
+    }
+
     const checkAdminAccess = async () => {
       // Wait for auth to finish loading
       if (authLoading) {
@@ -144,7 +151,7 @@ export default function AdminLayout({
       }
 
       if (!user) {
-        router.push('/login?redirect=/admin')
+        router.push('/admin/login')
         return
       }
 
@@ -216,6 +223,11 @@ export default function AdminLayout({
 
   if (!isAdmin) {
     return null
+  }
+
+  // Render login page without sidebar
+  if (pathname === '/admin/login') {
+    return <>{children}</>
   }
 
   const isActive = (href: string) => {
