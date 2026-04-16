@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import {
   Store,
   Search,
@@ -193,7 +194,9 @@ export default function AdminVendorsPage() {
                       <Store className="h-5 w-5 text-(--brand-primary)" />
                     </div>
                     <div>
-                      <p className="font-medium text-foreground">{vendor.business_name}</p>
+                      <Link href={`/admin/vendors/${vendor.id}`} className="font-medium text-foreground hover:text-(--brand-primary) transition-colors">
+                        {vendor.business_name}
+                      </Link>
                       <p className="text-sm text-(--color-text-muted)">/{vendor.slug}</p>
                     </div>
                   </div>

@@ -110,6 +110,24 @@ export async function PUT(request: NextRequest) {
       )
     }
 
+    // Send notification email if requested
+    if (body.notify_message && data.email) {
+      try {
+        const { sendEmail } = await import('@/lib/email/send-email')
+        await sendEmail({
+          to: data.email,
+          subject: `Message from UK Grocery Store Admin`,
+          html: `<h2>Message from UK Grocery Store</h2>
+            <p>Dear ${data.business_name},</p>
+            <p>${body.notify_message.replace(/\n/g, '<br>')}</p>
+            <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
+            <p style="color:#888;font-size:12px;">This message was sent by the UK Grocery Store admin team.</p>`,
+        })
+      } catch {
+        // Non-critical
+      }
+    }
+
     return NextResponse.json(data)
   } catch (error) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
