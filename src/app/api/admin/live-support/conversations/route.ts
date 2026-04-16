@@ -76,6 +76,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ conversations: conversations || [] })
   } catch (error) {
     console.error('Live support API error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ conversations: [] })
   }
 }

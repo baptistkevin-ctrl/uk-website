@@ -57,23 +57,27 @@ export async function GET(request: NextRequest) {
 
     // Only mark as read on initial load (not during polling)
     if (!since) {
-      await supabaseAdmin
-        .from('chat_messages')
-        .update({ is_read: true, read_at: new Date().toISOString() })
-        .eq('conversation_id', conversationId)
-        .eq('is_read', false)
-        .neq('sender_type', 'agent')
+      try {
+        await supabaseAdmin
+          .from('chat_messages')
+          .update({ is_read: true, read_at: new Date().toISOString() })
+          .eq('conversation_id', conversationId)
+          .eq('is_read', false)
+          .neq('sender_type', 'agent')
 
-      await supabaseAdmin
-        .from('chat_conversations')
-        .update({ unread_agent: 0 })
-        .eq('id', conversationId)
+        await supabaseAdmin
+          .from('chat_conversations')
+          .update({ unread_agent: 0 })
+          .eq('id', conversationId)
+      } catch {
+        // Non-critical — don't fail if mark-as-read fails
+      }
     }
 
     return NextResponse.json({ messages: messages || [] })
   } catch (error) {
     console.error('Get messages error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ messages: [] })
   }
 }
 
