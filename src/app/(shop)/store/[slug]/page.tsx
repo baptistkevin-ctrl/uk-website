@@ -5,8 +5,9 @@ import { createClient } from '@/lib/supabase/server'
 import { ProductCard } from '@/components/products/product-card'
 import { StoreBanner, SortSelect } from '@/components/store'
 import { VendorChatButton } from '@/components/chat/vendor-chat-button'
+import { StoreReviews } from '@/components/store/StoreReviews'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Package, ArrowUpDown } from 'lucide-react'
+import { Package, ArrowUpDown, CheckCircle, Star } from 'lucide-react'
 
 // ISR: revalidate store pages every 2 minutes
 export const revalidate = 120
@@ -283,6 +284,47 @@ export default async function StorePage({ params, searchParams }: StorePageProps
         <Suspense fallback={null}>
           <StoreRecipes vendorId={vendor.id} vendorName={vendor.business_name} />
         </Suspense>
+
+        {/* About This Seller */}
+        <div className="mt-12 rounded-xl border border-(--color-border) bg-(--color-surface) p-6">
+          <h2 className="text-xl font-bold text-foreground mb-4">About {vendor.business_name}</h2>
+          {vendor.description && (
+            <p className="text-(--color-text-secondary) mb-4">{vendor.description}</p>
+          )}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="text-center p-3 bg-background rounded-lg">
+              <p className="text-2xl font-bold font-mono text-foreground">{productCount || 0}</p>
+              <p className="text-xs text-(--color-text-muted)">Products</p>
+            </div>
+            <div className="text-center p-3 bg-background rounded-lg">
+              <div className="flex items-center justify-center gap-1">
+                <Star className="h-5 w-5 fill-(--brand-amber) text-(--brand-amber)" />
+                <p className="text-2xl font-bold font-mono text-foreground">{vendor.rating || 'N/A'}</p>
+              </div>
+              <p className="text-xs text-(--color-text-muted)">{vendor.review_count || 0} reviews</p>
+            </div>
+            <div className="text-center p-3 bg-background rounded-lg">
+              <p className="text-2xl font-bold font-mono text-foreground">
+                {new Date(vendor.created_at).getFullYear()}
+              </p>
+              <p className="text-xs text-(--color-text-muted)">Member Since</p>
+            </div>
+            <div className="text-center p-3 bg-background rounded-lg">
+              {vendor.is_verified ? (
+                <div className="flex items-center justify-center gap-1">
+                  <CheckCircle className="h-5 w-5 text-(--color-success)" />
+                  <p className="text-sm font-semibold text-(--color-success)">Verified</p>
+                </div>
+              ) : (
+                <p className="text-sm text-(--color-text-muted)">Unverified</p>
+              )}
+              <p className="text-xs text-(--color-text-muted) mt-1">Seller Status</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Store Reviews */}
+        <StoreReviews storeSlug={slug} />
       </div>
     </div>
   )
