@@ -739,6 +739,32 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
     return () => globalThis.removeEventListener('open-order-chat', handleOpenOrderChat)
   }, [vendorId, botSettings])
 
+  // Listen for proactive chat triggers
+  useEffect(() => {
+    const handleProactiveChat = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      if (!detail?.message) return
+
+      setIsOpen(true)
+      // Add proactive message as a bot message
+      const proactiveMsg: Message = {
+        id: `proactive-${Date.now()}`,
+        sender_type: 'bot',
+        sender_name: botSettings.botName || 'FreshBot',
+        content: detail.message,
+        message_type: 'text',
+        attachments: [],
+        metadata: { trigger: detail.trigger },
+        is_read: false,
+        created_at: new Date().toISOString(),
+      }
+      setMessages(prev => [...prev, proactiveMsg])
+    }
+
+    globalThis.addEventListener('proactive-chat', handleProactiveChat)
+    return () => globalThis.removeEventListener('proactive-chat', handleProactiveChat)
+  }, [botSettings.botName])
+
   // Initial load
   useEffect(() => {
     if (isOpen && !initialLoadDoneRef.current) {
@@ -1371,6 +1397,23 @@ export function LiveChatWidget({ vendorId, vendorName, productSlug }: LiveChatWi
                 Submit
               </button>
             </div>
+
+            {/* Email transcript */}
+            <button
+              onClick={async () => {
+                if (!activeConversation) return
+                try {
+                  await fetch('/api/chat/transcript', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ conversation_id: activeConversation.id }),
+                  })
+                } catch {}
+              }}
+              className="mt-3 w-full text-center text-xs text-(--color-text-muted) hover:text-[#25D366] transition-colors py-2"
+            >
+              Email me this transcript
+            </button>
           </div>
         </>
       )}
