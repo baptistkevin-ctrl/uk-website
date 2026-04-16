@@ -167,6 +167,105 @@ async function buildOrderContext(orderNumber: string, userId?: string): Promise<
   }
 }
 
+// Look up loyalty points for authenticated user
+async function buildLoyaltyContext(userId: string): Promise<string> {
+  try {
+    const { getSupabaseAdmin } = await import('@/lib/supabase/server')
+    const supabaseAdmin = getSupabaseAdmin()
+
+    const { data: loyalty } = await supabaseAdmin
+      .from('loyalty_accounts')
+      .select('current_points, lifetime_points, tier')
+      .eq('user_id', userId)
+      .single()
+
+    if (!loyalty) return '\n\n[Customer has no loyalty account yet. Encourage them to start earning points!]'
+
+    let context = '\n\n## LOYALTY DATA (use this to answer):\n'
+    context += `- **Current Points:** ${loyalty.current_points?.toLocaleString() || 0}\n`
+    context += `- **Lifetime Points:** ${loyalty.lifetime_points?.toLocaleString() || 0}\n`
+    if (loyalty.tier) context += `- **Tier:** ${loyalty.tier}\n`
+    context += `- **Points Value:** £${((loyalty.current_points || 0) / 100).toFixed(2)} (100 points = £1)\n`
+    context += `- Remind them they earn points on every purchase!\n`
+
+    return context
+  } catch {
+    return ''
+  }
+}
+
+// Look up recent orders for authenticated user
+async function buildRecentOrdersContext(userId: string): Promise<string> {
+  try {
+    const { getSupabaseAdmin } = await import('@/lib/supabase/server')
+    const supabaseAdmin = getSupabaseAdmin()
+
+    const { data: orders } = await supabaseAdmin
+      .from('orders')
+      .select('order_number, status, total_pence, created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    if (!orders || orders.length === 0) return '\n\n[Customer has no orders yet.]'
+
+    const statusLabels: Record<string, string> = {
+      pending: 'Awaiting confirmation',
+      confirmed: 'Confirmed',
+      processing: 'Being packed',
+      out_for_delivery: 'Out for delivery',
+      delivered: 'Delivered',
+      cancelled: 'Cancelled',
+    }
+
+    let context = '\n\n## RECENT ORDERS (use this to answer):\n'
+    for (const order of orders) {
+      context += `- **${order.order_number}** — ${statusLabels[order.status] || order.status} — £${(order.total_pence / 100).toFixed(2)} — ${new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}\n`
+    }
+
+    return context
+  } catch {
+    return ''
+  }
+}
+
+// Look up return/refund status for authenticated user
+async function buildReturnContext(userId: string): Promise<string> {
+  try {
+    const { getSupabaseAdmin } = await import('@/lib/supabase/server')
+    const supabaseAdmin = getSupabaseAdmin()
+
+    const { data: returns } = await supabaseAdmin
+      .from('returns')
+      .select('return_number, status, refund_amount_pence, created_at, orders(order_number)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(3)
+
+    if (!returns || returns.length === 0) return '\n\n[Customer has no return requests.]'
+
+    const statusLabels: Record<string, string> = {
+      pending: 'Pending review',
+      approved: 'Approved — refund processing',
+      rejected: 'Rejected',
+      refunded: 'Refund completed',
+    }
+
+    let context = '\n\n## RETURN/REFUND DATA (use this to answer):\n'
+    for (const ret of returns) {
+      const order = ret.orders as unknown as { order_number: string } | null
+      context += `- **Return ${ret.return_number || 'N/A'}** — ${statusLabels[ret.status] || ret.status}`
+      if (order) context += ` — Order #${order.order_number}`
+      context += ` — Refund: £${(ret.refund_amount_pence / 100).toFixed(2)}`
+      context += ` — ${new Date(ret.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}\n`
+    }
+
+    return context
+  } catch {
+    return ''
+  }
+}
+
 // Build context from products database
 async function buildProductContext(query: string): Promise<string> {
   try {
@@ -281,14 +380,39 @@ export async function chat(
       systemInstruction: SYSTEM_PROMPT
     })
 
-    // Build context: order lookup + product search
-    let orderContext = ''
+    // Detect intent and build relevant context
+    const intent = detectIntent(message)
+    const userId = context.userId as string | undefined
+
+    // Build context based on what the customer is asking about
+    const contextParts: string[] = []
+
+    // Order lookup by number
     const orderNumber = extractOrderNumber(message)
     if (orderNumber) {
-      orderContext = await buildOrderContext(orderNumber)
+      contextParts.push(await buildOrderContext(orderNumber))
     }
 
-    const productContext = await buildProductContext(message)
+    // Recent orders (for "my orders", "order history", "track order" without number)
+    if (userId && (intent === 'track_order' || intent === 'delivery_info') && !orderNumber) {
+      contextParts.push(await buildRecentOrdersContext(userId))
+    }
+
+    // Loyalty points
+    if (userId && intent === 'loyalty') {
+      contextParts.push(await buildLoyaltyContext(userId))
+    }
+
+    // Returns/refunds
+    if (userId && intent === 'returns') {
+      contextParts.push(await buildReturnContext(userId))
+    }
+
+    // Product search
+    if (intent === 'product_search' || intent === 'general') {
+      const productContext = await buildProductContext(message)
+      if (productContext) contextParts.push(productContext)
+    }
 
     // Create chat with history
     const chatSession = model.startChat({
@@ -303,7 +427,7 @@ export async function chat(
     })
 
     // Enhanced message with context
-    const combinedContext = [orderContext, productContext].filter(Boolean).join('\n')
+    const combinedContext = contextParts.filter(Boolean).join('\n')
     const enhancedMessage = combinedContext
       ? `${message}\n\n[Context from store database:${combinedContext}]`
       : message

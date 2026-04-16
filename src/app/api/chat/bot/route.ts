@@ -86,35 +86,51 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Call Gemini AI
-      const aiResponse = await geminiChat(message, conversationHistory, context)
+      // Call Gemini AI with user context for data lookups
+      const enrichedContext = {
+        ...context,
+        userId: user?.id || null,
+      }
+      const aiResponse = await geminiChat(message, conversationHistory, enrichedContext)
 
       // Build quick replies based on intent
       let quickReplies: { text: string; value: string }[] = []
       if (aiResponse.intent === 'track_order') {
         quickReplies = [
-          { text: 'View my orders', value: 'view_orders' },
+          { text: 'View my orders', value: 'Show me my recent orders' },
           { text: 'Talk to agent', value: 'contact_human' }
         ]
       } else if (aiResponse.intent === 'delivery_info') {
         quickReplies = [
-          { text: 'Track my order', value: 'track_order' },
-          { text: 'Change delivery', value: 'change_delivery' }
+          { text: 'Track my order', value: 'Where is my order?' },
+          { text: 'Delivery options', value: 'What delivery options do you offer?' }
         ]
       } else if (aiResponse.intent === 'returns') {
         quickReplies = [
-          { text: 'Start a return', value: 'start_return' },
-          { text: 'Check refund status', value: 'refund_status' }
+          { text: 'Start a return', value: 'How do I start a return?' },
+          { text: 'My refund status', value: 'What is my refund status?' }
+        ]
+      } else if (aiResponse.intent === 'loyalty') {
+        quickReplies = [
+          { text: 'How to earn more', value: 'How do I earn more loyalty points?' },
+          { text: 'Redeem points', value: 'How do I redeem my points?' }
         ]
       } else if (aiResponse.intent === 'product_search') {
         quickReplies = [
-          { text: 'View all categories', value: 'categories' },
-          { text: 'Today\'s deals', value: 'deals' }
+          { text: 'Browse categories', value: 'What categories do you have?' },
+          { text: 'Today\'s deals', value: 'What deals are available today?' }
+        ]
+      } else if (aiResponse.intent === 'greeting') {
+        quickReplies = [
+          { text: 'Track my order', value: 'Where is my order?' },
+          { text: 'Browse products', value: 'What products do you have?' },
+          { text: 'My loyalty points', value: 'How many loyalty points do I have?' },
+          { text: 'Talk to agent', value: 'I want to speak to a real person' }
         ]
       } else if (!aiResponse.shouldHandoff) {
         quickReplies = [
-          { text: 'This helped!', value: 'thanks' },
-          { text: 'Talk to agent', value: 'contact_human' }
+          { text: 'This helped!', value: 'Thanks, that helped!' },
+          { text: 'Talk to agent', value: 'I want to speak to a real person' }
         ]
       }
 
