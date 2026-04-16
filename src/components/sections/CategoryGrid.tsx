@@ -38,7 +38,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
           {tiles.map((category, index) => (
             <Link
               key={category.slug}
-              href={`/shop/${category.slug}`}
+              href={`/categories/${category.slug}`}
               className="reveal-up stagger-child group relative overflow-hidden rounded-xl aspect-4/3"
               style={{ '--delay': `${index * 80}ms` } as React.CSSProperties}
             >

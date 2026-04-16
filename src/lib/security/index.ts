@@ -39,7 +39,6 @@ export {
   generateCsrfToken,
   getCsrfTokenFromCookies,
   isCsrfExempt,
-  csrfExemptRoutes,
   type CsrfResult
 } from './csrf'
 

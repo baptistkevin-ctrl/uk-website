@@ -28,7 +28,7 @@ export function ProductSchema({ product }: ProductSchemaProps) {
     },
     offers: {
       "@type": "Offer",
-      url: `https://uk-grocery-store.com/shop/product/${product.slug}`,
+      url: `https://uk-grocery-store.com/products/${product.slug}`,
       priceCurrency: "GBP",
       price: product.price.toFixed(2),
       priceValidUntil: new Date(Date.now() + 86400000 * 30)
