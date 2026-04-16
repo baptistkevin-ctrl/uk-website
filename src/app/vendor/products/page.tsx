@@ -15,6 +15,8 @@ import {
   EyeOff,
   AlertCircle,
   Download,
+  Upload,
+  FileSpreadsheet,
 } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
@@ -42,6 +44,91 @@ export default function VendorProducts() {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [bulkLoading, setBulkLoading] = useState(false)
+  const [importing, setImporting] = useState(false)
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setImporting(true)
+    try {
+      const text = await file.text()
+      const lines = text.split('\n').filter(l => l.trim())
+
+      if (lines.length < 2) {
+        toast.warning('CSV file is empty or has no data rows')
+        setImporting(false)
+        return
+      }
+
+      // Parse CSV headers
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase())
+      const nameIdx = headers.findIndex(h => h === 'name' || h === 'product name')
+      const priceIdx = headers.findIndex(h => h.includes('price') && !h.includes('compare'))
+      const compareIdx = headers.findIndex(h => h.includes('compare'))
+      const stockIdx = headers.findIndex(h => h.includes('stock'))
+      const skuIdx = headers.findIndex(h => h === 'sku')
+      const brandIdx = headers.findIndex(h => h === 'brand')
+      const descIdx = headers.findIndex(h => h.includes('description') && !h.includes('short'))
+      const shortDescIdx = headers.findIndex(h => h.includes('short'))
+      const unitIdx = headers.findIndex(h => h === 'unit')
+      const organicIdx = headers.findIndex(h => h.includes('organic'))
+      const veganIdx = headers.findIndex(h => h.includes('vegan'))
+
+      if (nameIdx === -1) {
+        toast.error('CSV must have a "Name" column')
+        setImporting(false)
+        return
+      }
+
+      // Parse rows
+      const products = []
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',').map(c => c.trim().replace(/^"|"$/g, ''))
+        const name = cols[nameIdx]
+        if (!name) continue
+
+        products.push({
+          name,
+          price: priceIdx >= 0 ? cols[priceIdx]?.replace('£', '') : '0',
+          compare_at_price: compareIdx >= 0 ? cols[compareIdx]?.replace('£', '') : '',
+          stock_quantity: stockIdx >= 0 ? cols[stockIdx] : '0',
+          sku: skuIdx >= 0 ? cols[skuIdx] : '',
+          brand: brandIdx >= 0 ? cols[brandIdx] : '',
+          description: descIdx >= 0 ? cols[descIdx] : '',
+          short_description: shortDescIdx >= 0 ? cols[shortDescIdx] : '',
+          unit: unitIdx >= 0 ? cols[unitIdx] : 'each',
+          is_organic: organicIdx >= 0 ? cols[organicIdx] : 'No',
+          is_vegan: veganIdx >= 0 ? cols[veganIdx] : 'No',
+        })
+      }
+
+      if (products.length === 0) {
+        toast.warning('No valid products found in CSV')
+        setImporting(false)
+        return
+      }
+
+      const res = await fetch('/api/vendor/products/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ products }),
+      })
+
+      const result = await res.json()
+      if (res.ok) {
+        toast.success(`Imported ${result.imported} products${result.errors > 0 ? `, ${result.errors} failed` : ''}`)
+        fetchProducts()
+      } else {
+        toast.error(result.error || 'Import failed')
+      }
+    } catch (err) {
+      toast.error('Failed to process CSV file')
+    } finally {
+      setImporting(false)
+      e.target.value = ''
+    }
+  }
 
   useEffect(() => {
     fetchProducts()
@@ -163,7 +250,12 @@ export default function VendorProducts() {
           <h1 className="text-2xl font-bold text-foreground">Products</h1>
           <p className="text-(--color-text-secondary)">{products.length} total products</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <label className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-(--color-border) bg-(--color-surface) text-sm font-medium text-(--color-text-secondary) hover:bg-(--color-elevated) transition-colors cursor-pointer ${importing ? 'opacity-50 pointer-events-none' : ''}`}>
+            <input type="file" accept=".csv" onChange={handleImport} className="hidden" disabled={importing} />
+            {importing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+            Import CSV
+          </label>
           <Button
             variant="outline"
             onClick={() => window.open('/api/vendor/products/export', '_blank')}
