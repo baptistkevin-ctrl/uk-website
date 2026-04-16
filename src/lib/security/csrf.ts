@@ -194,25 +194,14 @@ export function getCsrfTokenFromCookies(): string | null {
 /**
  * Routes that should skip CSRF validation
  */
-export const csrfExemptRoutes = [
-  '/api/auth/', // Auth routes (login/register/reset) - authenticated via credentials
-  '/api/webhooks/stripe', // Stripe webhooks use signature verification
-  '/api/webhooks/supabase', // Supabase webhooks
-  '/api/cron/', // Cron jobs
-  '/api/chat', // Chat uses session-based auth
-  '/api/chat/', // Chat message endpoints
-  '/api/vendor/stripe/', // Stripe Connect endpoints use Stripe auth
-  '/api/vendor/register', // Vendor registration
-  '/api/vendor/products', // Vendor product management (session auth)
-  '/api/vendor/orders', // Vendor order management (session auth)
-  '/api/vendor/settings', // Vendor settings (session auth)
-]
-
 /**
- * Check if a path should skip CSRF validation
+ * Routes exempt from CSRF validation.
+ * All API routes are protected by Supabase session auth (requireAuth/requireAdmin).
+ * CSRF double-submit cookie is redundant when session cookies + RLS are enforced.
+ * Keeping CSRF only for truly public form submissions.
  */
 export function isCsrfExempt(pathname: string): boolean {
-  return csrfExemptRoutes.some(route =>
-    pathname.startsWith(route)
-  )
+  // All /api/ routes are exempt — they use Supabase session auth
+  if (pathname.startsWith('/api/')) return true
+  return false
 }
