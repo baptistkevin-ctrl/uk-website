@@ -79,11 +79,13 @@ interface TeamMember {
 }
 
 const roleColors: Record<string, string> = {
-  super_admin: 'bg-(--color-info-bg) text-(--color-info)',
+  super_admin: 'bg-(--brand-amber)/10 text-(--brand-amber)',
   admin: 'bg-(--color-info-bg) text-(--color-info)',
   manager: 'bg-(--brand-primary-light) text-(--brand-primary)',
-  staff: 'bg-(--color-elevated) text-foreground',
+  supervisor: 'bg-(--color-success-bg) text-(--color-success)',
   support: 'bg-(--brand-amber-soft) text-(--brand-amber)',
+  warehouse: 'bg-(--color-elevated) text-(--color-text-secondary)',
+  staff: 'bg-(--color-elevated) text-foreground',
 }
 
 const statusIcons: Record<string, typeof CheckCircle> = {
@@ -106,6 +108,8 @@ const defaultPermissions: Record<string, Permission> = {
   customers: { view: true, create: false, edit: false, delete: false },
   categories: { view: true, create: false, edit: false, delete: false },
   vendors: { view: true, create: false, edit: false, delete: false },
+  complaints: { view: true, create: false, edit: false, delete: false },
+  finance: { view: false, create: false, edit: false, delete: false, export: false },
   reports: { view: false, create: false, edit: false, delete: false, export: false },
   settings: { view: false, create: false, edit: false, delete: false },
   team: { view: false, create: false, edit: false, delete: false },
@@ -333,7 +337,7 @@ export default function TeamPage() {
             Team Management
           </h1>
           <p className="text-(--color-text-secondary) mt-1">
-            Manage staff members and their permissions
+            Manage staff members, departments, and permissions
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -410,6 +414,29 @@ export default function TeamPage() {
         </Card>
       </div>
 
+      {/* Department Breakdown */}
+      {members.length > 0 && (
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-sm font-semibold text-foreground mb-3">Departments</p>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(
+                members.reduce((acc, m) => {
+                  const dept = m.department || 'unassigned'
+                  acc[dept] = (acc[dept] || 0) + 1
+                  return acc
+                }, {} as Record<string, number>)
+              ).sort((a, b) => b[1] - a[1]).map(([dept, count]) => (
+                <div key={dept} className="px-3 py-1.5 bg-background rounded-lg border border-(--color-border) text-xs">
+                  <span className="font-medium text-foreground capitalize">{dept.replace(/_/g, ' ')}</span>
+                  <span className="ml-1.5 text-(--color-text-muted)">{count}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Filters */}
       <Card>
         <CardContent className="p-4">
@@ -444,8 +471,10 @@ export default function TeamPage() {
                 <SelectItem value="super_admin">Super Admin</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
                 <SelectItem value="manager">Manager</SelectItem>
-                <SelectItem value="staff">Staff</SelectItem>
+                <SelectItem value="supervisor">Supervisor</SelectItem>
                 <SelectItem value="support">Support</SelectItem>
+                <SelectItem value="warehouse">Warehouse</SelectItem>
+                <SelectItem value="staff">Staff</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -631,11 +660,13 @@ export default function TeamPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="super_admin">Super Admin</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="manager">Manager</SelectItem>
-                    <SelectItem value="staff">Staff</SelectItem>
-                    <SelectItem value="support">Support</SelectItem>
+                    <SelectItem value="super_admin">Super Admin — Full platform access</SelectItem>
+                    <SelectItem value="admin">Admin — Manage orders, vendors, customers</SelectItem>
+                    <SelectItem value="manager">Manager — Department head access</SelectItem>
+                    <SelectItem value="supervisor">Supervisor — Team lead with edit access</SelectItem>
+                    <SelectItem value="support">Support Agent — Handle tickets & chat</SelectItem>
+                    <SelectItem value="warehouse">Warehouse Staff — Orders & inventory only</SelectItem>
+                    <SelectItem value="staff">Staff — View-only access</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -646,12 +677,18 @@ export default function TeamPage() {
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="management">Management</SelectItem>
                     <SelectItem value="operations">Operations</SelectItem>
                     <SelectItem value="customer_service">Customer Service</SelectItem>
-                    <SelectItem value="warehouse">Warehouse</SelectItem>
+                    <SelectItem value="warehouse">Warehouse & Logistics</SelectItem>
                     <SelectItem value="marketing">Marketing</SelectItem>
-                    <SelectItem value="finance">Finance</SelectItem>
-                    <SelectItem value="it">IT</SelectItem>
+                    <SelectItem value="finance">Finance & Accounting</SelectItem>
+                    <SelectItem value="it">IT & Engineering</SelectItem>
+                    <SelectItem value="hr">Human Resources</SelectItem>
+                    <SelectItem value="legal">Legal & Compliance</SelectItem>
+                    <SelectItem value="quality">Quality Control</SelectItem>
+                    <SelectItem value="procurement">Procurement</SelectItem>
+                    <SelectItem value="vendor_relations">Vendor Relations</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
