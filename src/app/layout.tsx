@@ -6,6 +6,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ClientShell } from "@/components/layout/ClientShell";
 import { CookieConsent } from "@/components/layout/CookieConsent";
 import { OrganizationSchema } from "@/components/seo/OrganizationSchema";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { WebsiteSchema } from "@/components/seo/WebsiteSchema";
 import "./globals.css";
 
@@ -120,6 +121,7 @@ export default function RootLayout({
 
         <main id="main-content">{children}</main>
 
+        <MobileBottomNav />
         <CookieConsent />
         <Analytics />
         <SpeedInsights />
