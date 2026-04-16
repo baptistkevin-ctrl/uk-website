@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import Image from 'next/image'
 import {
   Search,
@@ -339,7 +340,9 @@ export default function UsersPage() {
                             </div>
                           )}
                           <div>
-                            <p className="font-medium text-foreground">{user.full_name || 'No name'}</p>
+                            <Link href={`/admin/users/${user.id}`} className="font-medium text-foreground hover:text-(--brand-primary) transition-colors">
+                              {user.full_name || 'No name'}
+                            </Link>
                             <p className="text-sm text-(--color-text-muted)">{user.email}</p>
                           </div>
                         </div>
