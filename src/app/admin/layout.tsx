@@ -92,6 +92,7 @@ const sidebarSections: SidebarSection[] = [
     title: 'Support',
     items: [
       { href: '/admin/live-support', label: 'Live Support', icon: Headphones },
+      { href: '/admin/support-analytics', label: 'Support Analytics', icon: BarChart3 },
       { href: '/admin/chatbot', label: 'Chatbot', icon: Bot },
       { href: '/admin/questions', label: 'Q&A', icon: MessageCircleQuestion },
     ],
