@@ -37,6 +37,7 @@ export default function NewVendorProductPage() {
   const [scannerOpen, setScannerOpen] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
+    short_description: '',
     description: '',
     price: '',
     compare_at_price: '',
@@ -76,6 +77,7 @@ export default function NewVendorProductPage() {
     try {
       const productData = {
         ...formData,
+        short_description: formData.short_description || null,
         price_pence: Math.round(parseFloat(formData.price) * 100),
         compare_at_price_pence: formData.compare_at_price
           ? Math.round(parseFloat(formData.compare_at_price) * 100)
@@ -188,14 +190,27 @@ export default function NewVendorProductPage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="short_description">Short Description</Label>
+                  <Input
+                    id="short_description"
+                    value={formData.short_description}
+                    onChange={(e) => updateField('short_description', e.target.value)}
+                    className="mt-1"
+                    placeholder="A brief one-liner shown on product cards (max 120 chars)"
+                    maxLength={120}
+                  />
+                  <p className="text-xs text-(--color-text-muted) mt-1">{formData.short_description.length}/120 characters</p>
+                </div>
+
+                <div>
+                  <Label htmlFor="description">Full Description</Label>
                   <textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => updateField('description', e.target.value)}
                     rows={4}
                     className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg focus:ring-2 focus:ring-(--brand-primary) focus:border-(--brand-primary)"
-                    placeholder="Describe your product..."
+                    placeholder="Detailed product description — ingredients, origin, storage instructions..."
                   />
                 </div>
 
@@ -262,9 +277,15 @@ export default function NewVendorProductPage() {
                   <span className="text-sm text-(--color-text-muted)">{uploading ? 'Uploading...' : 'Upload Image'}</span>
                 </label>
               </div>
-              <p className="mt-3 text-sm text-(--color-text-muted)">
-                First image will be used as the main product image
-              </p>
+              <div className="mt-3 bg-(--color-info-bg) border border-(--color-info)/20 rounded-lg p-3">
+                <p className="text-xs font-medium text-(--color-info) mb-1">Image Guidelines</p>
+                <ul className="text-xs text-(--color-text-secondary) space-y-0.5">
+                  <li>• First image = main product photo (shown on cards & search)</li>
+                  <li>• Use white background or natural setting</li>
+                  <li>• Min 800x800px, max 5MB per image</li>
+                  <li>• Upload 3+ images to increase sales by 40%</li>
+                </ul>
+              </div>
             </div>
 
             {/* Pricing */}
@@ -459,6 +480,35 @@ export default function NewVendorProductPage() {
                   </label>
                 ))}
               </div>
+            </div>
+
+            {/* Listing Tips */}
+            <div className="bg-(--brand-primary)/5 border border-(--brand-primary)/20 rounded-xl p-5">
+              <h3 className="font-semibold text-foreground text-sm mb-3 flex items-center gap-2">
+                <span className="text-lg">💡</span> Listing Tips
+              </h3>
+              <ul className="space-y-2 text-xs text-(--color-text-secondary)">
+                <li className="flex items-start gap-2">
+                  <span className="text-(--brand-primary) font-bold mt-0.5">1</span>
+                  <span>Use clear, high-quality photos — products with 3+ images sell 40% more</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-(--brand-primary) font-bold mt-0.5">2</span>
+                  <span>Write a descriptive title — include brand, size/weight, and key feature</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-(--brand-primary) font-bold mt-0.5">3</span>
+                  <span>Set a competitive price — check similar products on the platform</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-(--brand-primary) font-bold mt-0.5">4</span>
+                  <span>Add dietary info (organic, vegan, etc.) — customers filter by these</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-(--brand-primary) font-bold mt-0.5">5</span>
+                  <span>Keep stock updated — out-of-stock products hurt your seller rating</span>
+                </li>
+              </ul>
             </div>
 
             {/* Actions */}

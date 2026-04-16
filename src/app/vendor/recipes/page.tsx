@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import {
   Plus, Pencil, Trash2, Loader2, ChefHat, X, Clock, Users,
-  Flame, Eye, EyeOff, Save,
+  Flame, Eye, EyeOff, Save, Upload,
 } from 'lucide-react'
 import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
@@ -246,8 +246,40 @@ export default function VendorRecipesPage() {
                   <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg text-sm" placeholder="A quick weeknight favourite..." />
                 </div>
                 <div>
-                  <Label>Image URL</Label>
-                  <Input value={form.image_url} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))} placeholder="https://..." className="mt-1" />
+                  <Label>Recipe Image</Label>
+                  {form.image_url ? (
+                    <div className="mt-1 relative w-full aspect-video rounded-lg overflow-hidden bg-(--color-elevated)">
+                      <img src={form.image_url} alt="Recipe" className="w-full h-full object-cover" />
+                      <button type="button" onClick={() => setForm(f => ({ ...f, image_url: '' }))} className="absolute top-2 right-2 p-1.5 bg-(--color-error) text-white rounded-full">
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="mt-1 flex flex-col items-center justify-center w-full aspect-video border-2 border-dashed border-(--color-border) rounded-lg hover:border-(--brand-primary) hover:bg-(--brand-primary-light) transition-colors cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0]
+                          if (!file) return
+                          try {
+                            const fd = new FormData()
+                            fd.append('file', file)
+                            const res = await fetch('/api/upload', { method: 'POST', body: fd })
+                            if (res.ok) {
+                              const { url } = await res.json()
+                              setForm(f => ({ ...f, image_url: url }))
+                            }
+                          } catch { /* ignore */ }
+                          e.target.value = ''
+                        }}
+                      />
+                      <Upload className="h-8 w-8 text-(--color-text-disabled) mb-2" />
+                      <span className="text-sm text-(--color-text-muted)">Click to upload recipe photo</span>
+                      <span className="text-xs text-(--color-text-disabled) mt-1">JPEG, PNG, or WebP (max 5MB)</span>
+                    </label>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div><Label>Prep (min)</Label><Input type="number" value={form.prep_time} onChange={e => setForm(f => ({ ...f, prep_time: e.target.value }))} className="mt-1" /></div>
@@ -259,6 +291,24 @@ export default function VendorRecipesPage() {
                       <option>Easy</option><option>Medium</option><option>Hard</option>
                     </select>
                   </div>
+                  <div>
+                    <Label>Cuisine</Label>
+                    <select value={form.cuisine} onChange={e => setForm(f => ({ ...f, cuisine: e.target.value }))} className="mt-1 w-full px-3 py-2 border border-(--color-border) rounded-lg text-sm">
+                      <option value="">Select cuisine</option>
+                      <option>British</option><option>Italian</option><option>Indian</option><option>Chinese</option><option>Mexican</option><option>Thai</option><option>Japanese</option><option>Mediterranean</option><option>American</option><option>French</option><option>Other</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Recipe Tips Panel */}
+                <div className="bg-(--brand-amber)/5 border border-(--brand-amber)/20 rounded-lg p-4">
+                  <p className="text-xs font-semibold text-(--brand-amber) mb-2">Recipe Tips</p>
+                  <ul className="space-y-1 text-xs text-(--color-text-secondary)">
+                    <li>• Add a clear, appetising photo — recipes with images get 5x more views</li>
+                    <li>• Link ingredients to your products so customers can buy directly</li>
+                    <li>• Write step-by-step instructions that anyone can follow</li>
+                    <li>• Include prep and cook times to help customers plan</li>
+                  </ul>
                 </div>
               </div>
 
