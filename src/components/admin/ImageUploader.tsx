@@ -93,29 +93,9 @@ export default function ImageUploader({ images, onChange, maxImages = 5 }: Image
     onChange(newImages)
   }
 
-  // Search Unsplash images
+  // Search Unsplash images (disabled in production — use direct upload)
   const searchUnsplash = async () => {
-    if (!unsplashQuery.trim()) return
-
-    setUnsplashLoading(true)
-    setUnsplashError('')
-    setUnsplashImages([])
-
-    try {
-      const res = await fetch(`/api/unsplash?query=${encodeURIComponent(unsplashQuery)}`)
-
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || 'Search failed')
-      }
-
-      const data = await res.json()
-      setUnsplashImages(data.images)
-    } catch (err) {
-      setUnsplashError(err instanceof Error ? err.message : 'Search failed')
-    }
-
-    setUnsplashLoading(false)
+    setUnsplashError('Stock image search is not available. Please upload your own images for the best results.')
   }
 
   // Select Unsplash image
