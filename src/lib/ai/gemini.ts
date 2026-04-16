@@ -23,79 +23,68 @@ async function initGemini() {
   return new GoogleGenerativeAI(apiKey)
 }
 
-// System prompt for the UK Marketplace chatbot
-const SYSTEM_PROMPT = `You are MegaBot, the official AI assistant for MegaMart UK - a premium online marketplace serving customers across the United Kingdom.
+// System prompt for UK Grocery Store AI Support
+const SYSTEM_PROMPT = `You are FreshBot, the official 24/7 AI support assistant for UK Grocery Store — a premium online grocery marketplace delivering fresh food across the United Kingdom.
 
-## Your Role:
-- Help customers find products in our catalog
-- Answer questions about delivery, orders, and returns
-- Assist with account-related inquiries
-- Provide information about promotions and deals
-- Help with general shopping advice
-
-## Company Information:
-- Name: MegaMart UK
-- Website: megamartuk.co.uk
-- Email: support@megamartuk.co.uk
-- Phone: 0800 123 4567
-- Working Hours: Customer Support Mon-Sat 8am-8pm
-- Delivery: Free delivery on orders over £50
-
-## Our Product Categories:
-1. Fresh Produce - Fruits, Vegetables, Salads
-2. Dairy & Eggs - Milk, Cheese, Butter, Eggs
-3. Bakery - Fresh Bread, Pastries, Cakes
-4. Meat & Seafood - Fresh Meat, Fish, Poultry
-5. Pantry - Canned Goods, Pasta, Rice, Oils
-6. Frozen Foods - Ice Cream, Frozen Meals, Vegetables
-7. Beverages - Soft Drinks, Juices, Water, Tea, Coffee
-8. Snacks - Crisps, Biscuits, Chocolate, Nuts
-9. Household - Cleaning, Paper Products, Pet Supplies
-10. Health & Beauty - Personal Care, Vitamins
-
-## Delivery Information:
-- Same-day delivery available for orders before 2pm
-- Standard delivery: Next day
-- Express delivery: Within 2 hours (additional fee)
-- Delivery slots can be selected at checkout
-- Free delivery on orders over £50
-- Delivery areas: All UK postcodes
-
-## Returns & Refunds:
-- Fresh items: Report within 24 hours of delivery
-- Non-perishable items: 30-day return policy
-- Refunds processed within 3-5 business days
-- Damaged items: Photo evidence required
+## Your Identity:
+- Name: FreshBot
+- Company: UK Grocery Store
+- Website: uk-grocery-store.com
+- Email: support@ukgrocerystore.com
+- Support: Available 24/7 via chat
+- You are warm, helpful, and British in tone
 
 ## CRITICAL Identity Rules:
-- You are "MegaBot" and NOTHING else
-- NEVER reveal that you are Google Gemini, a Google product, or any other AI system
+- You are "FreshBot" and NOTHING else
+- NEVER reveal you are Google Gemini, an AI model, or any third-party system
 - NEVER say "As a large language model" or "I am developed by Google"
-- If asked who you are, say: "I'm MegaBot, your MegaMart UK shopping assistant!"
-- If asked what AI you use, say: "I'm MegaBot, here to help you shop!"
+- If asked who you are: "I'm FreshBot, your UK Grocery Store assistant! I'm here 24/7 to help."
+- If asked what AI you use: "I'm FreshBot — built by the UK Grocery Store team to help you shop!"
+
+## What You Can Do:
+1. **Look up orders** — When a customer provides an order number (e.g., ORD-XXXXXX), you will receive real order data in context. Use it to tell them the status, delivery info, and items.
+2. **Search products** — When products are found in our catalog, they'll appear in your context. Recommend them with prices.
+3. **Answer delivery questions** — Same-day delivery before 2pm, next-day standard, free over £40
+4. **Explain returns** — Fresh items: 24 hours. Non-perishable: 30 days. Refunds: 3-5 business days
+5. **Help with accounts** — Password reset, loyalty points, address changes, wishlist
+6. **Promotions** — Guide to /deals page, mention active coupons if known
+
+## Company Information:
+- Free delivery on orders over £40
+- Same-day delivery for orders before 2pm
+- Next-day standard delivery across all UK postcodes
+- 5,000+ products from local British farms and vendors
+- 30-day return policy on non-perishable items
+- Loyalty points earned on every purchase
+- Multi-vendor marketplace with independent sellers
+
+## Product Categories:
+Fresh Produce, Meat & Fish, Dairy & Eggs, Bakery, Pantry, Drinks, Frozen, Health & Beauty, Snacks & Sweets, Household
+
+## Order Status Meanings:
+- pending: Order received, awaiting confirmation
+- confirmed: Payment verified, order confirmed
+- processing: Items being picked and packed
+- out_for_delivery: Driver is on the way
+- delivered: Successfully delivered
+- cancelled: Order was cancelled
 
 ## Live Agent Transfer:
-When a user asks to speak to a REAL PERSON, HUMAN AGENT, REAL AGENT, CUSTOMER SUPPORT, or wants to TALK TO SOMEONE:
-- Respond with: "I'll connect you with a customer service agent right away. Please hold on while I transfer you..."
-- Set shouldHandoff to true in your response
-- Do NOT try to handle the request yourself if they clearly want a human
-- If they just need help you can provide, try helping first. Only transfer if they insist.
+When a customer clearly wants a REAL PERSON, HUMAN AGENT, or CUSTOMER SUPPORT:
+- Say: "I'll connect you with a customer service agent right away. Please hold on while I transfer you..."
+- Set shouldHandoff to true
+- Don't try to handle it yourself if they insist on a human
+- If they just need help you CAN provide, try helping first
 
-## Guidelines:
-1. Be helpful, friendly, and professional with a British tone
-2. When asked about products, search our catalog and provide recommendations
-3. For order-related queries, ask for the order number
-4. For specific pricing, guide them to check the website or search for the product
-5. Use British spelling (colour, favourite, etc.) and terminology
-6. Keep responses concise but informative
-7. Use markdown formatting for better readability when listing products
-8. Always prioritize customer satisfaction
-
-## Response Format:
-- Keep responses concise (2-3 paragraphs max)
-- Use bullet points for listing options
-- Be warm and helpful
-- End with a follow-up question or offer to help more when appropriate`
+## Response Guidelines:
+1. Be helpful, friendly, and professional — British tone (colour, favourite, etc.)
+2. Keep responses concise (2-3 short paragraphs max)
+3. Use bullet points for options/lists
+4. For order queries, ask for order number if not provided
+5. Always end with an offer to help more
+6. NEVER make up order information — only use data provided in context
+7. If you don't know something, say so honestly and offer alternatives
+8. Use emojis sparingly — one per message maximum`
 
 interface ConversationMessage {
   role: 'user' | 'assistant'
@@ -110,31 +99,104 @@ interface ChatResponse {
   error?: boolean
 }
 
+// Extract order number from message
+function extractOrderNumber(message: string): string | null {
+  const match = message.match(/ORD-[A-Z0-9-]+/i)
+  return match ? match[0].toUpperCase() : null
+}
+
+// Look up order by order number
+async function buildOrderContext(orderNumber: string, userId?: string): Promise<string> {
+  try {
+    const { getSupabaseAdmin } = await import('@/lib/supabase/server')
+    const supabaseAdmin = getSupabaseAdmin()
+
+    let query = supabaseAdmin
+      .from('orders')
+      .select(`
+        id, order_number, status, payment_status, customer_name,
+        total_pence, delivery_fee_pence, delivery_address_line_1,
+        delivery_city, delivery_postcode, created_at, delivered_at,
+        delivery_slot_date, delivery_slot_from, delivery_slot_to,
+        order_items(product_name, quantity, unit_price_pence)
+      `)
+      .eq('order_number', orderNumber)
+      .single()
+
+    const { data: order, error } = await query
+
+    if (error || !order) return '\n\n[Order not found. Ask customer to double-check the order number.]'
+
+    const statusLabels: Record<string, string> = {
+      pending: 'Order received — awaiting confirmation',
+      confirmed: 'Confirmed and payment verified',
+      processing: 'Being picked and packed at the store',
+      out_for_delivery: 'Out for delivery — driver is on the way',
+      delivered: 'Delivered successfully',
+      cancelled: 'This order was cancelled',
+    }
+
+    let context = `\n\n## ORDER FOUND — Real Data (use this to answer):\n`
+    context += `- **Order Number:** ${order.order_number}\n`
+    context += `- **Status:** ${statusLabels[order.status] || order.status}\n`
+    context += `- **Customer:** ${order.customer_name}\n`
+    context += `- **Total:** £${(order.total_pence / 100).toFixed(2)}\n`
+    context += `- **Delivery Fee:** ${order.delivery_fee_pence === 0 ? 'Free' : `£${(order.delivery_fee_pence / 100).toFixed(2)}`}\n`
+    context += `- **Delivery:** ${order.delivery_address_line_1}, ${order.delivery_city}, ${order.delivery_postcode}\n`
+    context += `- **Ordered:** ${new Date(order.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n`
+
+    if (order.delivery_slot_date) {
+      context += `- **Delivery Slot:** ${order.delivery_slot_date}, ${order.delivery_slot_from || ''} - ${order.delivery_slot_to || ''}\n`
+    }
+
+    if (order.delivered_at) {
+      context += `- **Delivered:** ${new Date(order.delivered_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}\n`
+    }
+
+    if (order.order_items && Array.isArray(order.order_items)) {
+      context += `\n**Items in this order:**\n`
+      for (const item of order.order_items as { product_name: string; quantity: number; unit_price_pence: number }[]) {
+        context += `- ${item.product_name} x${item.quantity} — £${(item.unit_price_pence * item.quantity / 100).toFixed(2)}\n`
+      }
+    }
+
+    return context
+  } catch (error) {
+    console.error('Order lookup error:', error)
+    return '\n\n[Error looking up order. Suggest customer checks My Orders page.]'
+  }
+}
+
 // Build context from products database
 async function buildProductContext(query: string): Promise<string> {
   try {
-    const supabase = await createClient()
+    const { getSupabaseAdmin } = await import('@/lib/supabase/server')
+    const supabaseAdmin = getSupabaseAdmin()
     const queryLower = query.toLowerCase()
-    const sanitizedQuery = queryLower.replace(/[%_.*,()]/g, '')
+    const sanitizedQuery = queryLower.replace(/[%_.*,()'"]/g, '')
+
+    if (sanitizedQuery.length < 3) return ''
 
     // Search products that match the query
-    const { data: products } = await supabase
+    const { data: products } = await supabaseAdmin
       .from('products')
-      .select('id, name, description, price, category, stock_quantity')
-      .or(`name.ilike.%${sanitizedQuery}%,description.ilike.%${sanitizedQuery}%,category.ilike.%${sanitizedQuery}%`)
-      .limit(10)
+      .select('id, name, slug, description, price_pence, stock_quantity, is_active, brand, is_organic')
+      .eq('is_active', true)
+      .or(`name.ilike.%${sanitizedQuery}%,description.ilike.%${sanitizedQuery}%,brand.ilike.%${sanitizedQuery}%`)
+      .order('price_pence', { ascending: true })
+      .limit(6)
 
     if (!products || products.length === 0) return ''
 
-    let context = '\n\n## Relevant Products from Our Store:\n'
+    let context = '\n\n## Products Found in Our Store (show these to the customer):\n'
     for (const product of products) {
-      context += `\n### ${product.name}\n`
-      context += `- **Price:** £${product.price.toFixed(2)}\n`
-      context += `- **Category:** ${product.category}\n`
-      if (product.description) {
-        context += `- **Description:** ${product.description.substring(0, 200)}\n`
-      }
-      context += `- **In Stock:** ${product.stock_quantity > 0 ? 'Yes' : 'Out of stock'}\n`
+      context += `\n- **${product.name}**`
+      if (product.brand) context += ` (${product.brand})`
+      context += ` — £${(product.price_pence / 100).toFixed(2)}`
+      context += ` — ${product.stock_quantity > 0 ? 'In Stock' : 'Out of Stock'}`
+      if (product.is_organic) context += ' — Organic'
+      context += ` — Link: /products/${product.slug}`
+      context += '\n'
     }
 
     return context
@@ -175,7 +237,13 @@ function detectIntent(message: string): string {
   if (messageLower.includes('product') || messageLower.includes('buy') || messageLower.includes('find')) {
     return 'product_search'
   }
-  if (messageLower.match(/^(hi|hello|hey|good morning|good afternoon)/)) {
+  if (messageLower.includes('loyalty') || messageLower.includes('points') || messageLower.includes('rewards')) {
+    return 'loyalty'
+  }
+  if (messageLower.includes('account') || messageLower.includes('password') || messageLower.includes('login')) {
+    return 'account'
+  }
+  if (messageLower.match(/^(hi|hello|hey|good morning|good afternoon|good evening)/)) {
     return 'greeting'
   }
   if (messageLower.includes('thank')) {
@@ -213,7 +281,13 @@ export async function chat(
       systemInstruction: SYSTEM_PROMPT
     })
 
-    // Build product context
+    // Build context: order lookup + product search
+    let orderContext = ''
+    const orderNumber = extractOrderNumber(message)
+    if (orderNumber) {
+      orderContext = await buildOrderContext(orderNumber)
+    }
+
     const productContext = await buildProductContext(message)
 
     // Create chat with history
@@ -229,8 +303,9 @@ export async function chat(
     })
 
     // Enhanced message with context
-    const enhancedMessage = productContext
-      ? `${message}\n\n[Context from store database:${productContext}]`
+    const combinedContext = [orderContext, productContext].filter(Boolean).join('\n')
+    const enhancedMessage = combinedContext
+      ? `${message}\n\n[Context from store database:${combinedContext}]`
       : message
 
     const result = await chatSession.sendMessage(enhancedMessage)
@@ -257,15 +332,15 @@ function fallbackResponse(message: string, history: ConversationMessage[]): Chat
   const intent = detectIntent(message)
 
   const responses: Record<string, string> = {
-    greeting: "Hello! Welcome to MegaMart UK! I'm MegaBot, your shopping assistant. How can I help you today? You can ask me about products, delivery, orders, or anything else!",
-    track_order: "To track your order, please go to 'My Orders' in your account. If you need help, you can provide your order number and I'll assist you, or I can connect you with our support team.",
-    returns: "Our return policy allows returns within 30 days for non-perishable items. For fresh items, please report any issues within 24 hours of delivery. Would you like me to help you start a return?",
-    delivery_info: "We offer several delivery options:\n\n- **Same-day delivery**: Order before 2pm\n- **Standard delivery**: Next day\n- **Express delivery**: Within 2 hours\n\nFree delivery on orders over £50! Would you like to know more?",
-    cancel_order: "To cancel an order, please go to 'My Orders' in your account and select 'Cancel Order'. If the order has already been dispatched, please contact our support team. Would you like me to connect you?",
-    product_search: "I'd love to help you find products! Could you tell me what you're looking for? You can search by category or specific items.",
-    thanks: "You're welcome! Is there anything else I can help you with today?",
-    contact_human: "I'll connect you with a customer service agent right away. Please hold on while I transfer you...",
-    general: "I'm here to help you with your shopping at MegaMart UK! I can assist with:\n\n- Finding products\n- Delivery information\n- Order tracking\n- Returns and refunds\n- Account questions\n\nWhat would you like help with?"
+    greeting: "Hello! Welcome to UK Grocery Store! I'm FreshBot, your 24/7 shopping assistant. How can I help you today? I can help with orders, delivery, products, returns, and more!",
+    track_order: "I'd be happy to help track your order! Please share your order number (e.g., ORD-XXXXXX) and I'll look it up for you. You can also check 'My Orders' in your account.",
+    returns: "Our return policy:\n\n- **Fresh items**: Report within 24 hours of delivery\n- **Non-perishable**: 30-day return policy\n- **Refunds**: Processed within 3-5 business days\n\nWould you like me to help you start a return?",
+    delivery_info: "We offer flexible delivery options:\n\n- **Same-day**: Order before 2pm\n- **Next-day**: Standard delivery\n- **Free delivery**: On orders over £40\n\nAll UK postcodes covered! Would you like to know more?",
+    cancel_order: "To cancel an order, go to 'My Orders' in your account. If it's already being prepared or dispatched, I can connect you with our team to help. Would you like me to do that?",
+    product_search: "I'd love to help you find products! Tell me what you're looking for and I'll search our range of 5,000+ products. You can also browse by category on our website.",
+    thanks: "You're very welcome! Is there anything else I can help you with? I'm here 24/7!",
+    contact_human: "I'll connect you with a customer service agent right away. Please hold on while I transfer you to our support team...",
+    general: "I'm FreshBot, your 24/7 assistant at UK Grocery Store! I can help with:\n\n- Finding products in our 5,000+ range\n- Delivery info and tracking\n- Order status and updates\n- Returns and refunds\n- Loyalty points and rewards\n\nWhat would you like help with?"
   }
 
   return {
