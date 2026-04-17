@@ -74,13 +74,15 @@ export default function AdminVendorApplicationsPage() {
         })
       })
 
+      const data = await res.json()
       if (res.ok) {
         setApplications(prev => prev.filter(a => a.id !== id))
         setSelectedApp(null)
         setAdminNotes('')
-        toast.success(status === 'approved' ? 'Application approved and vendor account created!' : 'Application rejected')
+        toast.success(data.message || (status === 'approved' ? 'Application approved and vendor account created!' : 'Application rejected'))
+        // Stay on this page — don't navigate
+        return
       } else {
-        const data = await res.json()
         toast.error(data.error || 'Failed to process application')
       }
     } catch (error) {
