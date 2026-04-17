@@ -120,7 +120,7 @@ function CheckoutSuccessContent() {
       {/* Estimated delivery */}
       <p className="mb-8 text-center text-sm text-(--color-text-muted)">
         <Truck size={14} className="mr-1 inline-block" />
-        Estimated delivery: <span className="font-medium text-foreground">Within 2 hours</span>
+        Your delivery details will be sent to your email
       </p>
 
       {/* Action buttons */}

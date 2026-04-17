@@ -161,6 +161,16 @@ export default function CheckoutPage() {
       return
     }
 
+    if (!selectedDeliverySlot) {
+      setError('Please select a delivery slot')
+      return
+    }
+
+    if (deliveryZone?.min_order_pence && subtotal < deliveryZone.min_order_pence) {
+      setError(`Minimum order for your area is ${formatPrice(deliveryZone.min_order_pence)}`)
+      return
+    }
+
     setIsProcessing(true)
     setError(null)
 
@@ -721,7 +731,7 @@ export default function CheckoutPage() {
                     type="submit"
                     className="w-full h-12 text-base bg-(--brand-primary) hover:bg-(--brand-primary-hover) shadow-lg"
                     size="lg"
-                    disabled={isProcessing}
+                    disabled={isProcessing || !selectedDeliverySlot}
                   >
                     {isProcessing ? (
                       <>
@@ -731,10 +741,14 @@ export default function CheckoutPage() {
                     ) : (
                       <>
                         <CreditCard className="mr-2 h-5 w-5" />
-                        Pay {formatPrice(total)}
+                        Pay {formatPrice(total - couponDiscount)}
                       </>
                     )}
                   </Button>
+
+                  {!selectedDeliverySlot && (
+                    <p className="text-center text-sm text-(--color-warning)">Please select a delivery slot above to continue</p>
+                  )}
 
                   <div className="flex items-center justify-center gap-2 text-xs text-(--color-text-muted)">
                     <Shield className="h-4 w-4" />
