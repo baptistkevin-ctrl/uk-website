@@ -132,6 +132,7 @@ export default function AdminLayout({
   const [isAdmin, setIsAdmin] = useState(false)
   const [userRole, setUserRole] = useState<'admin' | 'super_admin' | null>(null)
   const [alertCounts, setAlertCounts] = useState<Record<string, number>>({})
+  const [notifOpen, setNotifOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
@@ -390,15 +391,52 @@ export default function AdminLayout({
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Notifications */}
-              <Link href="/admin/orders" className="relative p-2.5 text-(--color-text-secondary) hover:text-foreground rounded-lg hover:bg-(--color-elevated) transition-colors">
-                <Bell className="w-5 h-5" />
-                {Object.values(alertCounts).reduce((a, b) => a + b, 0) > 0 && (
-                  <span className="absolute top-1 right-1 h-5 min-w-5 px-1 rounded-full bg-(--color-error) text-white text-[10px] font-bold flex items-center justify-center border-2 border-(--color-surface)">
-                    {Object.values(alertCounts).reduce((a, b) => a + b, 0) > 99 ? '99+' : Object.values(alertCounts).reduce((a, b) => a + b, 0)}
-                  </span>
+              {/* Notifications Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setNotifOpen(!notifOpen)}
+                  className="relative p-2.5 text-(--color-text-secondary) hover:text-foreground rounded-lg hover:bg-(--color-elevated) transition-colors"
+                >
+                  <Bell className="w-5 h-5" />
+                  {Object.values(alertCounts).reduce((a, b) => a + b, 0) > 0 && (
+                    <span className="absolute top-1 right-1 h-5 min-w-5 px-1 rounded-full bg-(--color-error) text-white text-[10px] font-bold flex items-center justify-center border-2 border-(--color-surface)">
+                      {Object.values(alertCounts).reduce((a, b) => a + b, 0) > 99 ? '99+' : Object.values(alertCounts).reduce((a, b) => a + b, 0)}
+                    </span>
+                  )}
+                </button>
+                {notifOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
+                    <div className="absolute right-0 top-full mt-2 w-80 bg-(--color-surface) border border-(--color-border) rounded-xl shadow-xl z-50 overflow-hidden">
+                      <div className="px-4 py-3 border-b border-(--color-border)">
+                        <h3 className="font-semibold text-foreground text-sm">Notifications</h3>
+                      </div>
+                      <div className="max-h-80 overflow-y-auto">
+                        {Object.entries(alertCounts).filter(([, count]) => count > 0).length === 0 ? (
+                          <div className="p-6 text-center text-(--color-text-muted) text-sm">All caught up!</div>
+                        ) : (
+                          Object.entries(alertCounts)
+                            .filter(([, count]) => count > 0)
+                            .map(([path, count]) => {
+                              const label = sidebarLinks.find(l => l.href === path)?.label || path
+                              return (
+                                <Link
+                                  key={path}
+                                  href={path}
+                                  onClick={() => setNotifOpen(false)}
+                                  className="flex items-center justify-between px-4 py-3 hover:bg-(--color-elevated) transition-colors border-b border-(--color-border) last:border-0"
+                                >
+                                  <span className="text-sm text-foreground">{count} {label.toLowerCase()}</span>
+                                  <span className="text-xs text-(--color-text-muted)">View &rarr;</span>
+                                </Link>
+                              )
+                            })
+                        )}
+                      </div>
+                    </div>
+                  </>
                 )}
-              </Link>
+              </div>
 
               {/* Profile */}
               <button className="flex items-center gap-3 p-2 pr-4 rounded-lg hover:bg-(--color-elevated) transition-colors">

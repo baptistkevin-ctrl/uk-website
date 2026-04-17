@@ -205,7 +205,6 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Profile already reset in step 0 above
-    }
 
     // Log audit event
     if (auth.user && auth.profile) {
