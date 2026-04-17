@@ -23,8 +23,13 @@ export default function ResetPasswordPage() {
       const supabase = createClient()
       const { data: { session } } = await supabase.auth.getSession()
 
-      // If there's a session from the recovery flow, it's valid
-      setIsValidSession(!!session)
+      // Only allow if this is a recovery session (has recovery_sent_at or came from password reset email)
+      const isRecovery = !!session && (
+        !!session.user?.recovery_sent_at ||
+        window.location.hash.includes('type=recovery') ||
+        new URLSearchParams(window.location.search).get('type') === 'recovery'
+      )
+      setIsValidSession(isRecovery)
     }
 
     checkSession()

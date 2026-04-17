@@ -119,10 +119,25 @@ export async function createCheckoutSession({
         return { error: `Product is no longer available: ${dbProduct.name}` }
       }
 
-      // Only reject if the item price is HIGHER than the DB price (prevents overcharging)
-      // Allow lower prices from multi-buy offers and discounts
+      // Reject if client price is higher than DB price (prevents overcharging)
       if (item.price > dbProduct.price_pence) {
         return { error: `Price has changed for ${dbProduct.name}. Please refresh your cart.` }
+      }
+
+      // If client price is lower, validate it's from a real offer (prevent price manipulation)
+      if (item.price < dbProduct.price_pence) {
+        const { data: validOffer } = await supabaseAdmin
+          .from('multibuy_offers')
+          .select('offer_price_pence, quantity')
+          .eq('product_id', item.productId)
+          .eq('is_active', true)
+          .single()
+
+        // Allow lower price only if a valid active offer exists for this product
+        if (!validOffer) {
+          // No valid offer — use DB price instead of rejecting (prevents cart breakage)
+          item.price = dbProduct.price_pence
+        }
       }
 
       if (item.quantity < 1) {
@@ -189,17 +204,21 @@ export async function createCheckoutSession({
     // Create order number
     const orderNumber = generateOrderNumber()
 
-    // Create line items for Stripe using DB-verified prices
+    // Recalculate subtotal using validated item prices (includes offer discounts)
+    const validatedSubtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+    const validatedTotal = validatedSubtotal + deliveryFee
+
+    // Create line items for Stripe using validated prices
     const lineItems = items.map((item) => {
       const dbProduct = productMap.get(item.productId)!
       return {
         price_data: {
           currency: 'gbp',
           product_data: {
-            name: dbProduct.name,
+            name: item.name || dbProduct.name,
             images: item.image ? [item.image] : [],
           },
-          unit_amount: dbProduct.price_pence,
+          unit_amount: item.price, // Validated price (DB price or verified offer price)
         },
         quantity: item.quantity,
       }

@@ -58,8 +58,16 @@ function LoginFormContent() {
 
       const redirectParam = searchParams.get('redirectTo')
       if (redirectParam && redirectParam.startsWith('/') && !redirectParam.startsWith('//')) {
-        window.location.href = redirectParam
-        return
+        // Validate redirect is same-origin to prevent open redirect attacks
+        try {
+          const url = new URL(redirectParam, window.location.origin)
+          if (url.origin === window.location.origin) {
+            window.location.href = redirectParam
+            return
+          }
+        } catch {
+          // Invalid URL, fall through to default redirect
+        }
       }
 
       const res = await fetch('/api/user/profile')

@@ -8,7 +8,7 @@ import { useCart } from '@/hooks/use-cart'
 import { formatPrice } from '@/lib/utils/format'
 import { CartItem } from './CartItem'
 
-const FREE_DELIVERY_THRESHOLD = 4000
+const FREE_DELIVERY_THRESHOLD = 5000 // £50 — matches checkout
 
 export function MiniCart() {
   const {
