@@ -165,6 +165,12 @@ export async function DELETE(request: NextRequest) {
     }
 
     // Delete all related records in correct order (foreign key safe)
+    // 0. Reset user profile FIRST (profiles.vendor_id references vendors)
+    await supabaseAdmin
+      .from('profiles')
+      .update({ is_vendor: false, vendor_id: null, role: 'customer' })
+      .eq('id', vendor.user_id)
+
     // 1. Delete vendor orders
     await supabaseAdmin.from('vendor_orders').delete().eq('vendor_id', id)
 
@@ -198,19 +204,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to delete vendor record: ' + vendorError.message }, { status: 500 })
     }
 
-    // Reset user profile last (after vendor is gone)
-    const { error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .update({
-        is_vendor: false,
-        vendor_id: null,
-        role: 'customer'
-      })
-      .eq('id', vendor.user_id)
-
-    if (profileError) {
-      console.error('Reset profile error:', profileError)
-      // Non-fatal — vendor is already deleted, log but continue
+    // Profile already reset in step 0 above
     }
 
     // Log audit event
