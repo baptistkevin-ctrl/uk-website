@@ -139,7 +139,7 @@ export default function AdminLayout({
 
   useEffect(() => {
     // Skip auth check for admin login page
-    if (pathname === '/login/admin') {
+    if (pathname === '/auth/sa-portal') {
       setCheckingAccess(false)
       setIsAdmin(true) // Allow rendering without sidebar
       return
@@ -152,7 +152,7 @@ export default function AdminLayout({
       }
 
       if (!user) {
-        router.push('/login/admin')
+        router.push('/auth/sa-portal')
         return
       }
 
@@ -207,7 +207,7 @@ export default function AdminLayout({
   const handleLogout = async () => {
     const supabase = (await import('@/lib/supabase/client')).createClient()
     await supabase.auth.signOut()
-    router.push('/login/admin')
+    router.push('/auth/sa-portal')
     router.refresh()
   }
 
@@ -227,7 +227,7 @@ export default function AdminLayout({
   }
 
   // Render login page without sidebar
-  if (pathname === '/login/admin') {
+  if (pathname === '/auth/sa-portal') {
     return <>{children}</>
   }
 

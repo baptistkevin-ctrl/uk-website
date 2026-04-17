@@ -164,7 +164,7 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
     const url = request.nextUrl.clone()
-    url.pathname = '/login/admin'
+    url.pathname = '/auth/sa-portal'
     url.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(url)
   }

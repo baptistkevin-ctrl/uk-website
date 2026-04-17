@@ -65,9 +65,7 @@ function LoginFormContent() {
       const res = await fetch('/api/user/profile')
       if (res.ok) {
         const profile = await res.json()
-        if (profile.role === 'admin' || profile.role === 'super_admin') {
-          window.location.href = '/admin'
-        } else if (profile.is_vendor || profile.role === 'vendor') {
+        if (profile.is_vendor || profile.role === 'vendor') {
           window.location.href = '/vendor/dashboard'
         } else {
           window.location.href = '/'
