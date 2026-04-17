@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
 
 // Profile type for user profiles
 export interface UserProfile {
@@ -40,7 +40,6 @@ export async function requireAuth(request?: NextRequest): Promise<AuthResult> {
     }
 
     // Get user profile with role — use admin client to bypass RLS
-    const { getSupabaseAdmin } = await import('@/lib/supabase/server')
     const adminClient = getSupabaseAdmin()
     const { data: profile } = await adminClient
       .from('profiles')
