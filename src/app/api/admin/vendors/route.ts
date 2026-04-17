@@ -164,17 +164,30 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Vendor not found' }, { status: 404 })
     }
 
-    // Delete in correct order: products first, then vendor, then reset profile
-    const { error: productsError } = await supabaseAdmin
+    // Delete all related records in correct order (foreign key safe)
+    // 1. Delete vendor orders
+    await supabaseAdmin.from('vendor_orders').delete().eq('vendor_id', id)
+
+    // 2. Delete order items linked to vendor products
+    const { data: vendorProducts } = await supabaseAdmin
       .from('products')
-      .delete()
+      .select('id')
       .eq('vendor_id', id)
 
-    if (productsError) {
-      console.error('Delete vendor products error:', productsError)
-      return NextResponse.json({ error: 'Failed to delete vendor products' }, { status: 500 })
+    if (vendorProducts && vendorProducts.length > 0) {
+      const productIds = vendorProducts.map(p => p.id)
+      await supabaseAdmin.from('order_items').delete().in('product_id', productIds)
+      await supabaseAdmin.from('product_reviews').delete().in('product_id', productIds)
+      await supabaseAdmin.from('product_categories').delete().in('product_id', productIds)
     }
 
+    // 3. Delete products
+    await supabaseAdmin.from('products').delete().eq('vendor_id', id)
+
+    // 4. Delete vendor application
+    await supabaseAdmin.from('vendor_applications').delete().eq('user_id', vendor.user_id)
+
+    // 5. Delete vendor record
     const { error: vendorError } = await supabaseAdmin
       .from('vendors')
       .delete()
@@ -182,7 +195,7 @@ export async function DELETE(request: NextRequest) {
 
     if (vendorError) {
       console.error('Delete vendor error:', vendorError)
-      return NextResponse.json({ error: 'Failed to delete vendor record' }, { status: 500 })
+      return NextResponse.json({ error: 'Failed to delete vendor record: ' + vendorError.message }, { status: 500 })
     }
 
     // Reset user profile last (after vendor is gone)
