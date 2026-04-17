@@ -1,12 +1,14 @@
 import { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://uk-grocery-store.com'
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ukgrocerystore.com'
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) return null
+  return createClient(url, key)
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static pages
@@ -112,6 +114,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: 'monthly' as const,
     priority: 0.6,
   }))
+
+  const supabase = getSupabase()
+  if (!supabase) return [...staticPages, ...blogPages]
 
   // Fetch products
   const { data: products } = await supabase

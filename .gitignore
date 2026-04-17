@@ -62,3 +62,5 @@ scripts/
 .env*.local
 .claude/
 products_export.csv
+
+.vercel
