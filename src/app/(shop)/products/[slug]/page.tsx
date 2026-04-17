@@ -566,7 +566,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           brand: product.brand || undefined,
           slug: product.slug,
           price: product.price_pence / 100,
-          inStock: product.stock_quantity ?? 999,
+          inStock: isOutOfStock ? 0 : (product.stock_quantity ?? 999),
           rating: product.avg_rating || undefined,
           reviewCount: product.review_count || undefined,
         }}

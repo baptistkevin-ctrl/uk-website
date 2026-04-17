@@ -84,6 +84,12 @@ async function ProductGrid({ searchParams }: { searchParams: Awaited<ProductsPag
       query = query.order('is_featured', { ascending: false }).order('name', { ascending: true })
   }
 
+  // Pagination — limit to 24 products per page
+  const page = Math.max(1, parseInt(searchParams.page || '1') || 1)
+  const perPage = 24
+  const offset = (page - 1) * perPage
+  query = query.range(offset, offset + perPage - 1)
+
   const { data: products, error } = await query
 
   if (error) {

@@ -11,6 +11,8 @@ import { CategoryFilters, ActiveFilterTags } from '@/components/product/Category
 import { BreadcrumbSchema } from '@/components/seo/BreadcrumbSchema'
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import { SortDropdown } from '@/components/product/SortDropdown'
+import { MobileFilterButton } from '@/components/product/MobileFilterButton'
 
 // ISR: revalidate category product pages every 2 minutes
 export const revalidate = 120
@@ -18,6 +20,9 @@ export const revalidate = 120
 interface CategoryPageProps {
   params: Promise<{
     slug: string
+  }>
+  searchParams: Promise<{
+    sort?: string
   }>
 }
 
@@ -65,8 +70,9 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   }
 }
 
-export default async function CategoryPage({ params }: CategoryPageProps) {
+export default async function CategoryPage({ params, searchParams }: CategoryPageProps) {
   const { slug } = await params
+  const { sort } = await searchParams
   const supabase = getSupabaseAdmin()
 
   // Fetch category
@@ -99,6 +105,15 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
       .order('name')
 
     products = data || []
+
+    // Apply sort
+    if (sort === 'price-low') {
+      products.sort((a: any, b: any) => a.price_pence - b.price_pence)
+    } else if (sort === 'price-high') {
+      products.sort((a: any, b: any) => b.price_pence - a.price_pence)
+    } else if (sort === 'newest') {
+      products.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    }
   }
 
   // Fetch subcategories
@@ -194,16 +209,13 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     {products.length === 1 ? 'product' : 'products'}
                   </p>
 
-                  <select
-                    className="text-sm bg-(--color-surface) border border-(--color-border) rounded-lg px-3 py-2.5 text-(--color-text-secondary) focus:outline-none focus:ring-2 focus:ring-(--brand-primary)/30"
-                    defaultValue="name"
-                  >
-                    <option value="name">Sort by: Name</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="newest">Newest First</option>
-                    <option value="popular">Most Popular</option>
-                  </select>
+                  <div className="flex items-center gap-2">
+                    <MobileFilterButton
+                      brands={[...new Set(products.map((p: { brand?: string | null }) => p.brand).filter(Boolean) as string[])]}
+                      maxPrice={Math.max(...products.map((p: { price_pence: number }) => p.price_pence), 0) / 100}
+                    />
+                    <SortDropdown />
+                  </div>
                 </div>
 
                 {/* Product Grid */}
