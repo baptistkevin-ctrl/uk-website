@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { toast } from '@/hooks/use-toast'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Store,
@@ -129,8 +130,8 @@ function StoresPageContent() {
       setStores(data.stores)
       setPagination(data.pagination)
       setCities(data.filters.cities)
-    } catch (error) {
-      console.error('Error fetching stores:', error)
+    } catch {
+      toast.error('Failed to load stores')
     } finally {
       setLoading(false)
     }

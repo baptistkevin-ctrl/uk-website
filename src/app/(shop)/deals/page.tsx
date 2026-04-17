@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { Zap, Clock, Flame, Sparkles } from 'lucide-react'
 import { DealCard, DealBanner } from '@/components/deals'
@@ -133,10 +134,12 @@ async function UpcomingDeals() {
           >
             <div className="aspect-square relative bg-(--color-surface) rounded-lg overflow-hidden mb-3">
               {deal.product?.image_url && (
-                <img
+                <Image
                   src={deal.product.image_url}
-                  alt={deal.product.name}
-                  className="object-cover w-full h-full"
+                  alt={deal.product.name || 'Upcoming deal'}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 50vw, 25vw"
                 />
               )}
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">

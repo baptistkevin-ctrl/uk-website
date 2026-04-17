@@ -113,8 +113,8 @@ export function Header() {
             <GlobalSearch variant="header" placeholder="Search for groceries..." />
           </div>
 
-          {/* Delivery postcode — desktop only */}
-          <div className="hidden md:block relative shrink-0">
+          {/* Delivery postcode */}
+          <div className="relative shrink-0">
             <button
               onClick={() => setPostcodeOpen(!postcodeOpen)}
               aria-label={`Change delivery postcode — currently ${postcode}`}
