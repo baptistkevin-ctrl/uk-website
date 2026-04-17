@@ -39,8 +39,10 @@ export async function requireAuth(request?: NextRequest): Promise<AuthResult> {
       }
     }
 
-    // Get user profile with role
-    const { data: profile } = await supabase
+    // Get user profile with role — use admin client to bypass RLS
+    const { getSupabaseAdmin } = await import('@/lib/supabase/server')
+    const adminClient = getSupabaseAdmin()
+    const { data: profile } = await adminClient
       .from('profiles')
       .select('id, role, email, full_name')
       .eq('id', user.id)
