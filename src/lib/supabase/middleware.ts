@@ -5,10 +5,6 @@ import {
   checkRateLimit,
   rateLimitConfigs,
   addRateLimitHeaders,
-  checkCsrf,
-  isCsrfExempt,
-  setCsrfTokenCookie,
-  generateCsrfToken,
   logRateLimitViolation,
   threatCheck,
   validateContentLength,
@@ -250,13 +246,6 @@ export async function updateSession(request: NextRequest) {
     } catch {
       // If check fails, don't block — fail open
     }
-  }
-
-  // Set CSRF token cookie if not present, and expose via response header
-  if (!request.cookies.get('csrf_token')) {
-    const csrfToken = await generateCsrfToken()
-    supabaseResponse = setCsrfTokenCookie(supabaseResponse, csrfToken)
-    supabaseResponse.headers.set('x-csrf-token', csrfToken)
   }
 
   return supabaseResponse
