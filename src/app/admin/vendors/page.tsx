@@ -304,7 +304,8 @@ export default function AdminVendorsPage() {
                   ) : (
                     <button
                       onClick={() => { setEditingId(vendor.id); setEditCommission(vendor.commission_rate.toString()) }}
-                      className={`text-sm font-medium px-2 py-1 rounded hover:bg-(--brand-primary-light) ${
+                      title="Click to edit commission rate"
+                      className={`text-sm font-medium px-2 py-1 rounded border border-dashed border-transparent hover:border-(--color-border) hover:bg-(--brand-primary-light) cursor-pointer ${
                         vendor.commission_rate <= 5 ? 'text-(--color-info)' :
                         vendor.commission_rate <= 10 ? 'text-(--brand-primary)' :
                         'text-foreground'
