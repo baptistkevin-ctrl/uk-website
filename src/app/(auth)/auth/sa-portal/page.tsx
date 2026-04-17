@@ -18,6 +18,19 @@ export default function AdminLoginPage() {
     setLoading(true)
     setError(null)
 
+    // Client-side validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!email || !emailRegex.test(email)) {
+      setError('Please enter a valid email address')
+      setLoading(false)
+      return
+    }
+    if (!password || password.length < 6) {
+      setError('Password is required')
+      setLoading(false)
+      return
+    }
+
     try {
       const supabase = createClient()
 
@@ -103,6 +116,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
+                  autoComplete="email"
                   placeholder="admin@ukgrocerystore.com"
                   className="w-full h-12 pl-11 pr-4 rounded-xl border border-(--color-border) bg-background text-foreground placeholder:text-(--color-text-muted) focus:border-(--brand-primary) focus:ring-2 focus:ring-(--brand-primary)/20 outline-none transition-all"
                 />
@@ -122,6 +136,7 @@ export default function AdminLoginPage() {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
+                  autoComplete="current-password"
                   placeholder="Enter your password"
                   className="w-full h-12 pl-11 pr-12 rounded-xl border border-(--color-border) bg-background text-foreground placeholder:text-(--color-text-muted) focus:border-(--brand-primary) focus:ring-2 focus:ring-(--brand-primary)/20 outline-none transition-all"
                 />

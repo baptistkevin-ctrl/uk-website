@@ -134,6 +134,7 @@ function VendorLoginTab() {
           <Input
             id="login-email"
             type="email"
+            autoComplete="email"
             placeholder="vendor@example.com"
             className="pl-10 h-12 border-(--color-border) focus:border-purple-500 focus:ring-purple-500"
             {...register('email')}
@@ -156,6 +157,7 @@ function VendorLoginTab() {
           <Input
             id="login-password"
             type={showPassword ? 'text' : 'password'}
+            autoComplete="current-password"
             placeholder="Enter your password"
             className="pl-10 pr-10 h-12 border-(--color-border) focus:border-purple-500 focus:ring-purple-500"
             {...register('password')}

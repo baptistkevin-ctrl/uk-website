@@ -39,6 +39,9 @@ export async function POST(request: NextRequest) {
       if (password.length < 8) {
         return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
       }
+      if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+        return NextResponse.json({ error: 'Password must include uppercase, lowercase, and a number' }, { status: 400 })
+      }
 
       // Create the user account via Supabase Admin
       const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({

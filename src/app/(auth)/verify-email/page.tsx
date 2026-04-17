@@ -70,6 +70,7 @@ function VerifyEmailPageContent() {
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           setStatus('success')
+          subscription.unsubscribe() // Clean up immediately on success
         }
       })
 
@@ -79,13 +80,19 @@ function VerifyEmailPageContent() {
         setEmail(user.email || null)
         if (user.email_confirmed_at) {
           setStatus('success')
+          subscription.unsubscribe()
         }
       }
 
-      // Cleanup subscription after a timeout if nothing happens
-      setTimeout(() => {
+      // Cleanup subscription after timeout if nothing happens
+      const timeout = setTimeout(() => {
         subscription.unsubscribe()
-      }, 10000)
+      }, 30000) // 30 seconds
+
+      return () => {
+        clearTimeout(timeout)
+        subscription.unsubscribe()
+      }
     }
 
     checkVerification()
