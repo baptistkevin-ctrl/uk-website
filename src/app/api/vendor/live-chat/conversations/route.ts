@@ -50,8 +50,17 @@ export async function GET(request: NextRequest) {
           customer_email
         )
       `)
-      .eq('vendor_id', vendor.id)
       .eq('channel_type', channelType)
+
+    // For vendor_admin chats, match by user_id (vendor's user)
+    // For customer_vendor chats, match by vendor_id
+    if (channelType === 'vendor_admin') {
+      query = query.eq('user_id', user.id)
+    } else {
+      query = query.eq('vendor_id', vendor.id)
+    }
+
+    query = query
       .order('last_message_at', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
 
