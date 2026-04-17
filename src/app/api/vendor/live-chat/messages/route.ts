@@ -34,15 +34,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Conversation ID required' }, { status: 400 })
     }
 
-    // Verify conversation belongs to this vendor
+    // Verify conversation belongs to this vendor (by vendor_id or user_id)
     const { data: conversation } = await supabaseAdmin
       .from('chat_conversations')
-      .select('id, vendor_id, channel_type')
+      .select('id, vendor_id, channel_type, user_id')
       .eq('id', conversationId)
-      .eq('vendor_id', vendor.id)
       .single()
 
-    if (!conversation) {
+    if (!conversation || (conversation.vendor_id !== vendor.id && conversation.user_id !== user.id)) {
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
     }
 
@@ -120,14 +119,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify conversation belongs to this vendor
-    const { data: conversation } = await supabaseAdmin
+    // For customer_vendor: match by vendor_id
+    // For vendor_admin: match by user_id (vendor is the requester)
+    let convQuery = supabaseAdmin
       .from('chat_conversations')
-      .select('id, vendor_id, channel_type, unread_customer, unread_agent')
+      .select('id, vendor_id, channel_type, unread_customer, unread_agent, user_id')
       .eq('id', conversation_id)
-      .eq('vendor_id', vendor.id)
-      .single()
+
+    const { data: conversation } = await convQuery.single()
 
     if (!conversation) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
+    }
+
+    // Ownership check
+    const isOwner = conversation.vendor_id === vendor.id || conversation.user_id === user.id
+    if (!isOwner) {
       return NextResponse.json({ error: 'Conversation not found' }, { status: 404 })
     }
 
