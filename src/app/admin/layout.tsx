@@ -207,7 +207,7 @@ export default function AdminLayout({
   const handleLogout = async () => {
     const supabase = (await import('@/lib/supabase/client')).createClient()
     await supabase.auth.signOut()
-    router.push('/login')
+    router.push('/login/admin')
     router.refresh()
   }
 

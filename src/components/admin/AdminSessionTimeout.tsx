@@ -33,7 +33,7 @@ export function AdminSessionTimeout() {
       const { createClient } = await import('@/lib/supabase/client')
       const supabase = createClient()
       await supabase.auth.signOut()
-      router.push('/login?reason=session_expired')
+      router.push('/login/admin?reason=session_expired')
     }, TIMEOUT_MS)
   }
 
