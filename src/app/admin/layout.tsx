@@ -138,7 +138,7 @@ export default function AdminLayout({
 
   useEffect(() => {
     // Skip auth check for admin login page
-    if (pathname === '/admin/login') {
+    if (pathname === '/admin-login') {
       setCheckingAccess(false)
       setIsAdmin(true) // Allow rendering without sidebar
       return
@@ -151,7 +151,7 @@ export default function AdminLayout({
       }
 
       if (!user) {
-        router.push('/admin/login')
+        router.push('/admin-login')
         return
       }
 
@@ -226,7 +226,7 @@ export default function AdminLayout({
   }
 
   // Render login page without sidebar
-  if (pathname === '/admin/login') {
+  if (pathname === '/admin-login') {
     return <>{children}</>
   }
 
