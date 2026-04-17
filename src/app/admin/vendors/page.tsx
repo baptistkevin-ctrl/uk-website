@@ -219,10 +219,19 @@ export default function AdminVendorsPage() {
                       <Store className="h-5 w-5 text-(--brand-primary)" />
                     </div>
                     <div>
-                      <Link href={`/admin/vendors/${vendor.id}`} className="font-medium text-foreground hover:text-(--brand-primary) transition-colors">
+                      <Link href={`/admin/vendors/${vendor.id}`} className="font-medium text-(--brand-primary) hover:underline transition-colors">
                         {vendor.business_name}
                       </Link>
-                      <p className="text-sm text-(--color-text-muted)">/{vendor.slug}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-(--color-text-muted)">/{vendor.slug}</p>
+                        <Link
+                          href={`/store/${vendor.slug}`}
+                          target="_blank"
+                          className="text-xs text-(--color-info) hover:underline"
+                        >
+                          View Store
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </td>
