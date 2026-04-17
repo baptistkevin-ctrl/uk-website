@@ -95,28 +95,52 @@ export async function GET(request: NextRequest) {
     if (slotsError) {
       console.error('Error fetching slots:', slotsError)
 
-      // Fallback: direct query
-      const { data: fallbackSlots, error: fallbackError } = await supabase
+      // Fallback: direct query using actual column names
+      const { data: fallbackSlots } = await supabase
         .from('delivery_slots')
         .select('*')
         .eq('zone_id', targetZoneId)
         .eq('is_available', true)
-        .gte('delivery_date', startDate)
-        .order('delivery_date')
+        .gte('date', startDate)
+        .order('date')
         .order('start_time')
         .limit(100)
 
+      // Group fallback slots by date
+      const fallbackByDate: Record<string, any[]> = {}
+      for (const slot of fallbackSlots || []) {
+        const d = slot.date
+        if (!fallbackByDate[d]) fallbackByDate[d] = []
+        fallbackByDate[d].push({
+          slot_id: slot.id,
+          delivery_date: slot.date,
+          start_time: slot.start_time,
+          end_time: slot.end_time,
+          price_pence: slot.delivery_fee_pence || 0,
+          is_express: slot.is_express || false,
+          available: slot.max_orders - slot.current_orders,
+        })
+      }
+
       return NextResponse.json({
         zone,
-        slots: fallbackSlots || [],
-        slotsByDate: {}
+        slots: (fallbackSlots || []).map(s => ({
+          slot_id: s.id,
+          delivery_date: s.date,
+          start_time: s.start_time,
+          end_time: s.end_time,
+          price_pence: s.delivery_fee_pence || 0,
+          is_express: s.is_express || false,
+          available: s.max_orders - s.current_orders,
+        })),
+        slotsByDate: fallbackByDate
       })
     }
 
     // Group slots by date for easier frontend rendering
-    const slotsByDate: Record<string, typeof slots> = {}
+    const slotsByDate: Record<string, any[]> = {}
     for (const slot of slots || []) {
-      const date = slot.delivery_date
+      const date = slot.delivery_date || slot.date
       if (!slotsByDate[date]) {
         slotsByDate[date] = []
       }
