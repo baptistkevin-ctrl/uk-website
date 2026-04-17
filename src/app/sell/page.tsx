@@ -71,7 +71,11 @@ export default function SellPage() {
     product_categories: [] as string[],
     expected_monthly_sales: '',
     website_url: '',
-    phone: ''
+    phone: '',
+    // Registration fields (only used when not logged in)
+    full_name: '',
+    email: '',
+    password: '',
   })
 
   useEffect(() => {
@@ -92,13 +96,25 @@ export default function SellPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) { router.push('/vendor/login'); return }
+
+    // Validate registration fields for new users
+    if (!user) {
+      if (!formData.full_name.trim()) { toast.error('Full name is required'); return }
+      if (!formData.email.trim()) { toast.error('Email is required'); return }
+      if (formData.password.length < 8) { toast.error('Password must be at least 8 characters'); return }
+    }
+
     setLoading(true)
     try {
       const res = await fetch('/api/vendor/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(user ? formData : {
+          ...formData,
+          full_name: formData.full_name,
+          email: formData.email,
+          password: formData.password,
+        })
       })
       const data = await res.json()
       if (res.ok) {
@@ -124,7 +140,6 @@ export default function SellPage() {
   }
 
   const handleStartSelling = () => {
-    if (!user) { router.push('/vendor/login'); return }
     setShowForm(true)
     setTimeout(() => document.getElementById('register')?.scrollIntoView({ behavior: 'smooth' }), 100)
   }
@@ -416,6 +431,31 @@ export default function SellPage() {
               </div>
 
               <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5">
+                {/* Account creation fields — only shown when not logged in */}
+                {!user && (
+                  <div className="space-y-4 pb-5 mb-5 border-b border-(--color-border)">
+                    <p className="text-sm font-medium text-foreground">Create your account</p>
+                    <div>
+                      <Label htmlFor="full_name" className="flex items-center gap-2 mb-1.5">Full Name *</Label>
+                      <Input id="full_name" value={formData.full_name}
+                        onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                        placeholder="Your full name" required autoComplete="name" className="h-12" />
+                    </div>
+                    <div>
+                      <Label htmlFor="email" className="flex items-center gap-2 mb-1.5">Email *</Label>
+                      <Input id="email" type="email" value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="you@example.com" required autoComplete="email" className="h-12" />
+                    </div>
+                    <div>
+                      <Label htmlFor="password" className="flex items-center gap-2 mb-1.5">Password *</Label>
+                      <Input id="password" type="password" value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        placeholder="Min 8 characters" required autoComplete="new-password" className="h-12" />
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <Label htmlFor="business_name" className="flex items-center gap-2 mb-1.5">
                     <Building2 className="h-4 w-4" /> Business Name *
