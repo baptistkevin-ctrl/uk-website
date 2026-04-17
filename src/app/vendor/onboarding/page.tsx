@@ -52,7 +52,7 @@ function VendorOnboardingContent() {
       const data = await res.json()
 
       if (!data.isVendor) {
-        router.push('/sell')
+        router.push('/vendor/login')
         return
       }
 

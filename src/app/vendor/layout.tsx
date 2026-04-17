@@ -105,7 +105,7 @@ export default function VendorLayout({
         }
       } catch (error) {
         console.error('Vendor check error:', error)
-        router.push('/sell')
+        router.push('/vendor/login')
       } finally {
         setLoading(false)
       }
