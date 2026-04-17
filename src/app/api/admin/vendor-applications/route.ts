@@ -49,15 +49,13 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Application ID and status are required' }, { status: 400 })
     }
 
-    // Update application
+    // Update application — only set fields that exist in the table
+    const updateData: Record<string, unknown> = { status }
+    if (admin_notes) updateData.admin_notes = admin_notes
+
     const { data: application, error: appError } = await supabaseAdmin
       .from('vendor_applications')
-      .update({
-        status,
-        admin_notes,
-        reviewed_by: adminUser?.id,
-        reviewed_at: new Date().toISOString()
-      })
+      .update(updateData)
       .eq('id', id)
       .select('*, user:user_id(email, full_name)')
       .single()
