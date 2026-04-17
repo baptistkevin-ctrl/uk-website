@@ -190,7 +190,7 @@ export default function AdminTransactionsPage() {
         t.created_at,
       ])
 
-      const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+      const csv = [headers, ...rows].map((r: string[]) => r.map((c: string) => `"${c}"`).join(',')).join('\n')
       const blob = new Blob([csv], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')

@@ -519,8 +519,9 @@ export default function AdminDashboard() {
   const conversionRate = data ? ((data.overview.totalOrders / Math.max(data.users.total, 1)) * 100).toFixed(1) : '0'
 
   // Calculate real average rating from recent reviews
-  const avgRating = data?.reviews.recent?.length > 0
-    ? (data.reviews.recent.reduce((sum: number, r: any) => sum + (r.rating || 0), 0) / data.reviews.recent.length).toFixed(1)
+  const recentReviews = data?.reviews?.recent || []
+  const avgRating = recentReviews.length > 0
+    ? (recentReviews.reduce((sum: number, r: any) => sum + (r.rating || 0), 0) / recentReviews.length).toFixed(1)
     : null
 
   const statCards = data ? [
@@ -833,7 +834,7 @@ export default function AdminDashboard() {
           <SystemHealthCard title="API Server" status="healthy" icon={ServerIcon} details={`Uptime: ${data ? 'Online' : 'Checking...'}`} />
           <SystemHealthCard title="Database" status="healthy" icon={DatabaseIcon} details={`Products: ${data?.products.total || 0} records`} />
           <SystemHealthCard title="Active Orders" status={data && data.orders.byStatus.pending > 5 ? 'warning' : 'healthy'} icon={GlobeIcon} details={`${data?.orders.byStatus.pending || 0} pending`} />
-          <SystemHealthCard title="Security" status={data && data.support.openTickets > 0 ? 'warning' : 'healthy'} icon={ShieldIcon} details={`${data?.support.openTickets || 0} open tickets`} />
+          <SystemHealthCard title="Security" status={(data as any)?.support?.openTickets > 0 ? 'warning' : 'healthy'} icon={ShieldIcon} details={`${(data as any)?.support?.openTickets || 0} open tickets`} />
         </div>
       </div>
 

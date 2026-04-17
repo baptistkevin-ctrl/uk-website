@@ -140,15 +140,15 @@ export default function LoyaltyPage() {
     const history: { id: string; reason: string; xp: number }[] = []
 
     store.badges
-      .filter(b => b.unlocked)
+      .filter(b => b.unlockedAt)
       .forEach(b => {
-        history.push({ id: `badge-${b.id}`, reason: `Unlocked '${b.name}'`, xp: b.xpReward || 0 })
+        history.push({ id: `badge-${b.badge.id}`, reason: `Unlocked '${b.badge.name}'`, xp: b.badge.xpReward || 0 })
       })
 
     store.challenges
       .filter(c => c.completed)
       .forEach(c => {
-        history.push({ id: `challenge-${c.id}`, reason: c.title, xp: c.xpReward || 0 })
+        history.push({ id: `challenge-${c.challenge.id}`, reason: c.challenge.title, xp: c.challenge.xpReward || 0 })
       })
 
     return history.slice(0, 10)
