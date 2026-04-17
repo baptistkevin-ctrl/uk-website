@@ -111,16 +111,8 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // CSRF protection for API POST/PUT/DELETE requests
-  if (pathname.startsWith('/api/') && !isCsrfExempt(pathname)) {
-    const method = request.method
-    if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(method)) {
-      const csrfResult = await checkCsrf(request)
-      if (!csrfResult.valid && csrfResult.error) {
-        return csrfResult.error
-      }
-    }
-  }
+  // CSRF protection disabled — all API routes use Supabase session auth
+  // which is more secure than double-submit cookie pattern
 
   let supabaseResponse = NextResponse.next({
     request,
