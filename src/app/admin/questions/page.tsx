@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { AdminLayout } from '@/components/admin/layout'
 import { formatDistanceToNow } from 'date-fns'
+import { toast } from '@/hooks/use-toast'
 import {
   MessageCircleQuestion,
   Check,
@@ -46,9 +47,12 @@ export default function AdminQuestionsPage() {
       if (res.ok) {
         const data = await res.json()
         setQuestions(data.questions || [])
+      } else {
+        toast.error('Failed to load questions')
       }
     } catch (error) {
       console.error('Failed to fetch questions:', error)
+      toast.error('Failed to load questions')
     } finally {
       setLoading(false)
     }

@@ -15,7 +15,7 @@ import { formatPrice } from '@/lib/utils/format'
 export default function CartPage() {
   const { itemsWithSavings, removeItem, updateQuantity, subtotal, itemCount, totalSavings } = useCart()
 
-  const FREE_DELIVERY_THRESHOLD = 4000
+  const FREE_DELIVERY_THRESHOLD = 5000 // £50 — matches checkout delivery zone fallback
   const deliveryFee = subtotal >= FREE_DELIVERY_THRESHOLD ? 0 : 399
   const discount = totalSavings > 0 ? totalSavings : undefined
   const amountUntilFree = FREE_DELIVERY_THRESHOLD - subtotal
@@ -33,7 +33,10 @@ export default function CartPage() {
           const products = (data.products || data || []).slice(0, 6)
           setSuggestions(products)
         }
-      } catch { /* ignore */ }
+      } catch {
+        // Non-critical — suggestions are supplementary
+        console.error('Failed to load product suggestions')
+      }
     }
     fetchSuggestions()
   }, [])

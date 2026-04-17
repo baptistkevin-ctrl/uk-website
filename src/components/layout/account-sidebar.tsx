@@ -33,7 +33,8 @@ const accountLinks = [
   { href: '/account/spending', label: 'Spending', icon: TrendingUp },
   { href: '/account/notifications', label: 'Notifications', icon: Bell },
   { href: '/account/tickets', label: 'Tickets', icon: MessageSquare },
-  { href: '/account/payments', label: 'Payments', icon: CreditCard },
+  // Payments page hidden until Stripe saved-cards integration is implemented
+  // { href: '/account/payments', label: 'Payments', icon: CreditCard },
   { href: '/account/security', label: 'Security', icon: Shield },
   { href: '/account/settings', label: 'Settings', icon: Settings },
 ]

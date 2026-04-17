@@ -68,8 +68,8 @@ export default function WishlistPage() {
           setActiveWishlist(data.wishlists[0].id)
         }
       }
-    } catch (error) {
-      console.error('Error fetching wishlists:', error)
+    } catch {
+      toast.error('Failed to load wishlists')
     } finally {
       setIsLoading(false)
     }

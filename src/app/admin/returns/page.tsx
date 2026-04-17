@@ -78,7 +78,7 @@ export default function AdminReturnsPage() {
       const res = await fetch('/api/admin/returns', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ returnId, status: newStatus }),
+        body: JSON.stringify({ id: returnId, status: newStatus }),
       })
       if (res.ok) {
         fetchReturns()

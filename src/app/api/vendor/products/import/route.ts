@@ -39,8 +39,9 @@ export async function POST(request: NextRequest) {
         const name = row.name?.trim()
         if (!name) { errors.push('Row skipped: missing name'); errorCount++; continue }
 
-        const pricePence = Math.round(parseFloat(row.price || '0') * 100)
-        if (pricePence <= 0) { errors.push(`"${name}": invalid price`); errorCount++; continue }
+        const parsedPrice = parseFloat(row.price || '0')
+        if (isNaN(parsedPrice) || parsedPrice <= 0) { errors.push(`"${name}": invalid or missing price`); errorCount++; continue }
+        const pricePence = Math.round(parsedPrice * 100)
 
         // Generate slug
         const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
@@ -66,7 +67,7 @@ export async function POST(request: NextRequest) {
             short_description: row.short_description || null,
             description: row.description || null,
             price_pence: pricePence,
-            compare_at_price_pence: row.compare_at_price ? Math.round(parseFloat(row.compare_at_price) * 100) : null,
+            compare_at_price_pence: row.compare_at_price && !isNaN(parseFloat(row.compare_at_price)) ? Math.round(parseFloat(row.compare_at_price) * 100) : null,
             stock_quantity: parseInt(row.stock_quantity || '0') || 0,
             low_stock_threshold: parseInt(row.low_stock_threshold || '10') || 10,
             unit: row.unit || 'each',

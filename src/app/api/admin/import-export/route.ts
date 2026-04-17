@@ -1,28 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
 // Get import/export jobs
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
 
-    // Verify admin
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    const supabase = getSupabaseAdmin()
 
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') // import, export
@@ -63,23 +51,10 @@ export async function GET(request: NextRequest) {
 // Create export job
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
 
-    // Verify admin
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    const supabase = getSupabaseAdmin()
 
     const body = await request.json()
     const { job_type, entity_type, file_format = 'csv', filters = {} } = body
@@ -97,7 +72,7 @@ export async function POST(request: NextRequest) {
         file_format,
         status: 'processing',
         started_at: new Date().toISOString(),
-        created_by: user.id
+        created_by: auth.user!.id
       })
       .select()
       .single()

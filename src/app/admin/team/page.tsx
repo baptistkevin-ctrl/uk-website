@@ -126,6 +126,17 @@ export default function TeamPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [selectedMember, setSelectedMember] = useState<TeamMember | null>(null)
   const [saving, setSaving] = useState(false)
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
+
+  // Check if current user is super_admin
+  useEffect(() => {
+    fetch('/api/user/profile')
+      .then(res => res.ok ? res.json() : null)
+      .then(profile => {
+        if (profile?.role === 'super_admin') setIsSuperAdmin(true)
+      })
+      .catch(() => {})
+  }, [])
 
   // Form state
   const [form, setForm] = useState({
@@ -345,7 +356,11 @@ export default function TeamPage() {
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button onClick={() => { resetForm(); setIsAddOpen(true) }}>
+          <Button
+            onClick={() => { resetForm(); setIsAddOpen(true) }}
+            disabled={!isSuperAdmin}
+            title={!isSuperAdmin ? 'Only super admins can add team members' : undefined}
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Member
           </Button>
@@ -562,9 +577,9 @@ export default function TeamPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(member)}>
+                        <DropdownMenuItem onClick={() => openEdit(member)} disabled={!isSuperAdmin}>
                           <Edit2 className="h-4 w-4 mr-2" />
-                          Edit
+                          {isSuperAdmin ? 'Edit' : 'Edit (Super Admin only)'}
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         {member.status !== 'active' && (

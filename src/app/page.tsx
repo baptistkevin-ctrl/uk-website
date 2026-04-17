@@ -24,8 +24,22 @@ import { CategoryBubbles } from "@/components/mobile/CategoryBubbles";
 import { BuyAgainBar } from "@/components/mobile/BuyAgainBar";
 import { RecentlyViewedBar } from "@/components/mobile/RecentlyViewedBar";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "UK Grocery Store — Fresh Food Delivered to Your Door",
+  description:
+    "Shop fresh produce, meat, dairy, bakery, and pantry essentials online. Free delivery on orders over £50. Same-day and next-day delivery across the UK.",
+  openGraph: {
+    title: "UK Grocery Store — Fresh Food Delivered",
+    description:
+      "Shop fresh groceries online with free delivery over £50. Same-day and next-day delivery across the UK.",
+    type: "website",
+    url: "https://uk-grocery-store.com",
+  },
+};
 
 export default async function HomePage() {
   const supabase = getSupabaseAdmin();

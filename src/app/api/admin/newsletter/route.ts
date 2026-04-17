@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireAdmin } from '@/lib/auth/verify'
 import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
@@ -6,23 +7,10 @@ export const dynamic = 'force-dynamic'
 // Get newsletter stats and subscribers
 export async function GET(request: NextRequest) {
   try {
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
+
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check admin role
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!['admin', 'super_admin'].includes(profile?.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
 
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') || 'subscribers'
@@ -129,23 +117,10 @@ export async function GET(request: NextRequest) {
 // Create campaign
 export async function POST(request: NextRequest) {
   try {
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
+
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check admin role
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!['admin', 'super_admin'].includes(profile?.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
 
     const body = await request.json()
     const { name, subject, preview_text, content_html, content_text, template_id, segment_filter, scheduled_at } = body
@@ -176,7 +151,7 @@ export async function POST(request: NextRequest) {
         status: scheduled_at ? 'scheduled' : 'draft',
         scheduled_at,
         total_recipients: recipientCount || 0,
-        created_by: user.id
+        created_by: auth.user!.id
       })
       .select()
       .single()
@@ -196,22 +171,10 @@ export async function POST(request: NextRequest) {
 // Send a campaign
 export async function PATCH(request: NextRequest) {
   try {
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
+
     const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!['admin', 'super_admin'].includes(profile?.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
 
     const { campaignId, action } = await request.json()
 

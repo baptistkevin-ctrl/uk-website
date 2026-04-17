@@ -79,8 +79,8 @@ function VendorOnboardingContent() {
           stripe_payouts_enabled: data.payoutsEnabled,
         } : prev)
       }
-    } catch (error) {
-      console.error('Refresh error:', error)
+    } catch {
+      toast.error('Failed to refresh Stripe status')
     } finally {
       setRefreshing(false)
     }

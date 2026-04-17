@@ -231,6 +231,7 @@ export default function AdminOrdersPage() {
 
     setBulkUpdating(true)
     let successCount = 0
+    let failCount = 0
 
     for (const id of selectedOrders) {
       try {
@@ -240,13 +241,20 @@ export default function AdminOrdersPage() {
           body: JSON.stringify({ status: newStatus }),
         })
         if (res.ok) successCount++
-      } catch { /* continue */ }
+        else failCount++
+      } catch { failCount++ }
     }
 
     setSelectedOrders(new Set())
     setBulkUpdating(false)
     fetchOrders()
-    toast.success(`${successCount} orders updated to "${newStatus.replace(/_/g, ' ')}"`)
+
+    if (successCount > 0) {
+      toast.success(`${successCount} order${successCount > 1 ? 's' : ''} updated to "${newStatus.replace(/_/g, ' ')}"`)
+    }
+    if (failCount > 0) {
+      toast.error(`${failCount} order${failCount > 1 ? 's' : ''} failed to update`)
+    }
   }
 
   // Bulk delete selected orders

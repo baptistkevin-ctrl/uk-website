@@ -74,45 +74,82 @@ export async function POST(request: NextRequest) {
 
     // Step 6: Create account if doesn't exist
     if (!stripeAccountId) {
-      step = 'create_account'
-      const account = await stripe.accounts.create({
-        type: 'express',
-        country: 'GB',
-        email: vendor.email,
-        capabilities: {
-          card_payments: { requested: true },
-          transfers: { requested: true },
-        },
-        business_type: 'individual',
-        business_profile: {
-          name: vendor.business_name,
-          url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/store/${vendor.slug}`,
-        },
-        metadata: {
-          vendor_id: vendor.id,
-          user_id: user.id,
-        },
-      })
-
-      stripeAccountId = account.id
-
-      // Save Stripe account ID
-      step = 'save_account_id'
-      await supabaseAdmin
+      // Re-check DB to prevent race condition (another request may have created one)
+      step = 'recheck_account'
+      const { data: freshVendor } = await supabaseAdmin
         .from('vendors')
-        .update({
-          stripe_account_id: stripeAccountId,
-          updated_at: new Date().toISOString()
-        })
+        .select('stripe_account_id')
         .eq('id', vendor.id)
+        .single()
+
+      if (freshVendor?.stripe_account_id) {
+        stripeAccountId = freshVendor.stripe_account_id
+      } else {
+        step = 'create_account'
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL
+        if (!appUrl) {
+          return NextResponse.json({
+            error: 'App URL not configured',
+            step,
+            details: 'NEXT_PUBLIC_APP_URL environment variable is not set',
+          }, { status: 500 })
+        }
+
+        const account = await stripe.accounts.create({
+          type: 'express',
+          country: 'GB',
+          email: vendor.email,
+          capabilities: {
+            card_payments: { requested: true },
+            transfers: { requested: true },
+          },
+          business_type: 'individual',
+          business_profile: {
+            name: vendor.business_name,
+            url: `${appUrl}/store/${vendor.slug}`,
+          },
+          metadata: {
+            vendor_id: vendor.id,
+            user_id: user.id,
+          },
+        })
+
+        stripeAccountId = account.id
+
+        // Conditional update — only save if no other request beat us
+        step = 'save_account_id'
+        const { data: updated } = await supabaseAdmin
+          .from('vendors')
+          .update({
+            stripe_account_id: stripeAccountId,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', vendor.id)
+          .is('stripe_account_id', null)
+          .select('stripe_account_id')
+          .single()
+
+        // If conditional update failed, another request created an account — use that one
+        if (!updated) {
+          const { data: existing } = await supabaseAdmin
+            .from('vendors')
+            .select('stripe_account_id')
+            .eq('id', vendor.id)
+            .single()
+
+          if (existing?.stripe_account_id) {
+            stripeAccountId = existing.stripe_account_id
+          }
+        }
+      }
     }
 
     // Step 7: Create onboarding link
     step = 'create_link'
     const accountLink = await stripe.accountLinks.create({
       account: stripeAccountId,
-      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/vendor/onboarding?refresh=true`,
-      return_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://uk-grocery-store.com'}/vendor/onboarding?success=true`,
+      refresh_url: `${process.env.NEXT_PUBLIC_APP_URL}/vendor/onboarding?refresh=true`,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL}/vendor/onboarding?success=true`,
       type: 'account_onboarding',
     })
 

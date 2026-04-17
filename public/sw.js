@@ -10,7 +10,7 @@
  * - Background sync for cart operations
  */
 
-const CACHE_VERSION = 'v2.0.0';
+const CACHE_VERSION = 'v2.1.0';
 const STATIC_CACHE = `ukgrocery-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `ukgrocery-dynamic-${CACHE_VERSION}`;
 const IMAGE_CACHE = `ukgrocery-images-${CACHE_VERSION}`;

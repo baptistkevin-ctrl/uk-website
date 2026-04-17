@@ -231,9 +231,13 @@ export default function AdminDealsPage() {
         setDeals(deals.map(d =>
           d.id === deal.id ? { ...d, is_active: !d.is_active } : d
         ))
+        toast.success(deal.is_active ? 'Deal deactivated' : 'Deal activated')
+      } else {
+        const data = await res.json().catch(() => ({}))
+        toast.error(data.error || 'Failed to update deal')
       }
-    } catch (error) {
-      console.error('Error toggling deal:', error)
+    } catch {
+      toast.error('Failed to update deal')
     }
   }
 

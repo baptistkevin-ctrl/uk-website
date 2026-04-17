@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,25 +11,12 @@ export async function POST(
 ) {
   try {
     const { id: conversationId } = await params
-    const supabase = await createClient()
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
+
+    const supabase = getSupabaseAdmin()
     const body = await request.json()
     const { status = 'resolved' } = body
-
-    // Verify admin/agent access
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, full_name')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
 
     // Validate status
     const validStatus = ['resolved', 'closed'].includes(status) ? status : 'resolved'

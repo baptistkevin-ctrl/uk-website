@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { toast } from '@/hooks/use-toast'
 import {
   ArrowRightLeft,
   Search,
@@ -158,30 +159,49 @@ export default function AdminTransactionsPage() {
     }
   }
 
-  const exportCSV = () => {
-    const headers = ['Order Number', 'Customer', 'Email', 'Total', 'Subtotal', 'Delivery Fee', 'Discount', 'Payment Status', 'Stripe ID', 'Paid At', 'Created At']
-    const rows = transactions.map(t => [
-      t.order_number,
-      t.customer_name,
-      t.customer_email,
-      (t.total_pence / 100).toFixed(2),
-      (t.subtotal_pence / 100).toFixed(2),
-      (t.delivery_fee_pence / 100).toFixed(2),
-      (t.discount_pence / 100).toFixed(2),
-      t.payment_status,
-      t.stripe_payment_intent_id || '',
-      t.paid_at || '',
-      t.created_at,
-    ])
+  const exportCSV = async () => {
+    try {
+      // Fetch ALL matching transactions (not just current page)
+      const params = new URLSearchParams({
+        page: '1',
+        limit: '10000',
+        ...(paymentFilter !== 'all' && { paymentStatus: paymentFilter }),
+        ...(searchQuery && { search: searchQuery }),
+        ...(dateFrom && { dateFrom }),
+        ...(dateTo && { dateTo }),
+      })
 
-    const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `transactions-${new Date().toISOString().split('T')[0]}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+      const response = await fetch(`/api/admin/transactions?${params}`)
+      const data = await response.json()
+      const allTransactions = data.transactions || transactions
+
+      const headers = ['Order Number', 'Customer', 'Email', 'Total', 'Subtotal', 'Delivery Fee', 'Discount', 'Payment Status', 'Stripe ID', 'Paid At', 'Created At']
+      const rows = allTransactions.map((t: any) => [
+        t.order_number,
+        t.customer_name,
+        t.customer_email,
+        (t.total_pence / 100).toFixed(2),
+        (t.subtotal_pence / 100).toFixed(2),
+        (t.delivery_fee_pence / 100).toFixed(2),
+        (t.discount_pence / 100).toFixed(2),
+        t.payment_status,
+        t.stripe_payment_intent_id || '',
+        t.paid_at || '',
+        t.created_at,
+      ])
+
+      const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+      const blob = new Blob([csv], { type: 'text/csv' })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `transactions-${new Date().toISOString().split('T')[0]}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success(`Exported ${allTransactions.length} transactions`)
+    } catch {
+      toast.error('Failed to export transactions')
+    }
   }
 
   const getPageNumbers = () => {

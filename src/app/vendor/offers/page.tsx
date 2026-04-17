@@ -60,11 +60,15 @@ export default function VendorOffersPage() {
   const fetchOffers = async () => {
     try {
       const res = await fetch('/api/vendor/offers')
+      if (!res.ok) {
+        toast.error('Failed to load offers')
+        return
+      }
       const data = await res.json()
       setOffers(data.offers || [])
       setProducts(data.products || [])
-    } catch (error) {
-      console.error('Error fetching offers:', error)
+    } catch {
+      toast.error('Failed to load offers')
     }
     setLoading(false)
   }

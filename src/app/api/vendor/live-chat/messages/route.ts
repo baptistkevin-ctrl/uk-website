@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching vendor messages:', error)
-      return NextResponse.json({ messages: [] })
+      return NextResponse.json({ error: 'Failed to fetch messages', messages: [] }, { status: 500 })
     }
 
     // Only mark as read on initial load (not during polling)

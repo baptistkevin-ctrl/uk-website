@@ -70,11 +70,15 @@ export default function VendorDealsPage() {
     setLoading(true)
     try {
       const res = await fetch('/api/vendor/deals')
+      if (!res.ok) {
+        toast.error('Failed to load deals')
+        return
+      }
       const data = await res.json()
       setDeals(data.deals || [])
       setProducts(data.products || [])
-    } catch (error) {
-      console.error('Fetch deals error:', error)
+    } catch {
+      toast.error('Failed to load deals')
     }
     setLoading(false)
   }

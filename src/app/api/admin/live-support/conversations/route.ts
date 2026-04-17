@@ -1,29 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
 // Get all conversations for agents
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    // Verify admin/agent access
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
 
     const supabaseAdmin = getSupabaseAdmin()
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
 
     // Fetch conversations
     const { searchParams } = new URL(request.url)

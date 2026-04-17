@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { formatDistanceToNow } from 'date-fns'
+import { toast } from '@/hooks/use-toast'
 import {
   BellRing,
   Search,
@@ -55,9 +56,11 @@ export default function VendorStockAlertsPage() {
         const data = await res.json()
         setAlerts(data.alerts || [])
         setStats(data.stats)
+      } else {
+        toast.error('Failed to load stock alerts')
       }
-    } catch (error) {
-      console.error('Failed to fetch stock alerts:', error)
+    } catch {
+      toast.error('Failed to load stock alerts')
     } finally {
       setLoading(false)
     }
@@ -78,9 +81,12 @@ export default function VendorStockAlertsPage() {
 
       if (res.ok) {
         await fetchAlerts()
+      } else {
+        const data = await res.json().catch(() => ({}))
+        toast.error(data.error || 'Failed to update alert')
       }
-    } catch (error) {
-      console.error('Failed to update alert:', error)
+    } catch {
+      toast.error('Failed to update alert')
     } finally {
       setUpdatingId(null)
     }

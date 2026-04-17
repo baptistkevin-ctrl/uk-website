@@ -322,12 +322,15 @@ export default function AdminAbandonedCartsPage() {
                 <div>
                   <p className="text-sm text-(--color-text-muted) mb-2">Items</p>
                   <div className="space-y-2">
-                    {selectedCart.cart_items?.map((item, idx) => (
+                    {(Array.isArray(selectedCart.cart_items) ? selectedCart.cart_items : []).map((item, idx) => (
                       <div key={idx} className="flex justify-between text-sm">
-                        <span>{item.name} x{item.quantity}</span>
-                        <span className="font-medium">{formatPrice(item.price_pence * item.quantity)}</span>
+                        <span>{item?.name || 'Unknown item'} x{item?.quantity || 0}</span>
+                        <span className="font-medium">{formatPrice((item?.price_pence || 0) * (item?.quantity || 0))}</span>
                       </div>
                     ))}
+                    {!Array.isArray(selectedCart.cart_items) && (
+                      <p className="text-sm text-(--color-text-muted)">Cart items unavailable</p>
+                    )}
                   </div>
                 </div>
                 <div className="pt-4 border-t flex justify-between">

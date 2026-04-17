@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     template: "%s | UK Grocery Store",
   },
   description:
-    "Shop fresh produce, meat, dairy, and pantry essentials online. Free delivery on orders over £40. Next-day delivery across the UK.",
+    "Shop fresh produce, meat, dairy, and pantry essentials online. Free delivery on orders over £50. Next-day delivery across the UK.",
   keywords: [
     "online grocery UK",
     "fresh food delivery",

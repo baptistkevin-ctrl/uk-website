@@ -135,17 +135,24 @@ export default function LoyaltyPage() {
   // Charities
   const availableCharities = store.charities.length > 0 ? store.charities : CHARITIES
 
-  // XP History — derive from challenges/badges or use mock
+  // XP History — derive from completed challenges and unlocked badges
   const xpHistory = useMemo(() => {
-    // The store doesn't have xpHistory in the new shape, so provide sample data
-    return [
-      { id: '1', reason: 'Placed order', xp: 25 },
-      { id: '2', reason: "Unlocked 'Eco Warrior'", xp: 200 },
-      { id: '3', reason: 'Weekly challenge complete', xp: 30 },
-      { id: '4', reason: 'Left a product review', xp: 15 },
-      { id: '5', reason: 'Referred a friend', xp: 100 },
-    ]
-  }, [])
+    const history: { id: string; reason: string; xp: number }[] = []
+
+    store.badges
+      .filter(b => b.unlocked)
+      .forEach(b => {
+        history.push({ id: `badge-${b.id}`, reason: `Unlocked '${b.name}'`, xp: b.xpReward || 0 })
+      })
+
+    store.challenges
+      .filter(c => c.completed)
+      .forEach(c => {
+        history.push({ id: `challenge-${c.id}`, reason: c.title, xp: c.xpReward || 0 })
+      })
+
+    return history.slice(0, 10)
+  }, [store.badges, store.challenges])
 
   /* ── Loading skeleton ─────────────────────────────────────────────── */
   if (store.isLoading && store.badges.length === 0) {

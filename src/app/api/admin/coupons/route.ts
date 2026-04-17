@@ -1,28 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { couponAudit } from '@/lib/security/audit'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check if admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!['admin', 'super_admin'].includes(profile?.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    const supabase = getSupabaseAdmin()
 
     const searchParams = request.nextUrl.searchParams
     const page = Math.max(1, parseInt(searchParams.get('page') || '1') || 1)
@@ -62,23 +50,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check if admin
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, email')
-      .eq('id', user.id)
-      .single()
-
-    if (!['admin', 'super_admin'].includes(profile?.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    const supabase = getSupabaseAdmin()
 
     const body = await request.json()
     const {
@@ -113,8 +88,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Percentage discount cannot exceed 100%' }, { status: 400 })
     }
 
-    if (!['percentage', 'fixed'].includes(discount_type)) {
-      return NextResponse.json({ error: 'Discount type must be "percentage" or "fixed"' }, { status: 400 })
+    if (!['percentage', 'fixed', 'fixed_amount', 'free_shipping'].includes(discount_type)) {
+      return NextResponse.json({ error: 'Invalid discount type' }, { status: 400 })
     }
 
     // Check if code already exists
@@ -156,7 +131,7 @@ export async function POST(request: NextRequest) {
 
     await couponAudit.logCreate(
       request,
-      { id: user.id, email: profile?.email || '', role: profile?.role || 'admin' },
+      { id: auth.user!.id, email: auth.profile!.email || '', role: auth.profile!.role || 'admin' },
       coupon.id,
       coupon.code,
       { discount_type: coupon.discount_type, discount_value: coupon.discount_value, expires_at: coupon.expires_at }

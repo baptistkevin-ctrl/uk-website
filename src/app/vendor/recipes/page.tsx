@@ -70,8 +70,12 @@ export default function VendorRecipesPage() {
         const data = await res.json()
         setRecipes(data.recipes || [])
         setProducts(data.products || [])
+      } else {
+        toast.error('Failed to load recipes')
       }
-    } catch { /* ignore */ }
+    } catch {
+      toast.error('Failed to load recipes')
+    }
     finally { setLoading(false) }
   }
 

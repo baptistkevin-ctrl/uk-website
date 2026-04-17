@@ -110,8 +110,7 @@ export async function POST(request: NextRequest) {
 
     if (existingApp) {
       return NextResponse.json({
-        error: `You already have a ${existingApp.status} vendor application`,
-        applicationId: existingApp.id
+        error: 'You already have a vendor application on file. Please check your email or contact support for updates.',
       }, { status: 400 })
     }
 
@@ -125,7 +124,6 @@ export async function POST(request: NextRequest) {
     if (existingVendor) {
       return NextResponse.json({
         error: 'You are already registered as a vendor',
-        vendorId: existingVendor.id
       }, { status: 400 })
     }
 
@@ -147,6 +145,12 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (appError) {
+      // Handle duplicate key (race condition: another request inserted first)
+      if (appError.code === '23505' || appError.message?.includes('duplicate') || appError.message?.includes('unique')) {
+        return NextResponse.json({
+          error: 'You already have a vendor application on file',
+        }, { status: 400 })
+      }
       console.error('Application error:', appError)
       return NextResponse.json({ error: 'Failed to submit application' }, { status: 500 })
     }

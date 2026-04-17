@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { checkCsrf } from "@/lib/security/csrf";
+
 import { z } from "zod";
 
 const responseSchema = z.object({
@@ -12,10 +12,6 @@ const responseSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    // CSRF validation
-    const csrf = await checkCsrf(request);
-    if (!csrf.valid) return csrf.error;
-
     const supabase = await createClient();
     const {
       data: { user },

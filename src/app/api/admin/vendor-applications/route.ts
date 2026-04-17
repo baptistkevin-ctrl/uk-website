@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
-import { createClient } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
 import { vendorAudit } from '@/lib/security/audit'
 
@@ -39,15 +38,8 @@ export async function PUT(request: NextRequest) {
   if (!authResult.success) return authResult.error!
 
   const supabaseAdmin = getSupabaseAdmin()
-  const supabase = await createClient()
-  const { data: { user: adminUser } } = await supabase.auth.getUser()
-
-  // Get admin profile for audit
-  const { data: adminProfile } = await supabase
-    .from('profiles')
-    .select('role, email')
-    .eq('id', adminUser?.id || '')
-    .single()
+  const adminUser = authResult.user
+  const adminProfile = authResult.profile
 
   try {
     const body = await request.json()
@@ -76,6 +68,20 @@ export async function PUT(request: NextRequest) {
 
     // If approved, create vendor record
     if (status === 'approved') {
+      // Check if vendor already exists for this user (prevent double-approve)
+      const { data: existingVendor } = await supabaseAdmin
+        .from('vendors')
+        .select('id')
+        .eq('user_id', application.user_id)
+        .single()
+
+      if (existingVendor) {
+        return NextResponse.json({
+          application,
+          message: 'Application approved (vendor account already exists)'
+        })
+      }
+
       // Generate slug from business name
       const slug = application.business_name
         .toLowerCase()

@@ -16,7 +16,9 @@ export const metadata = {
   description: 'Browse our product categories',
 }
 
-// Professional stock images for categories (Unsplash)
+// Fallback images for categories without DB images.
+// These are used ONLY when a category has no image_url set in the database.
+// To remove: upload images via admin panel for each category.
 const categoryImages: Record<string, string> = {
   'fruits': 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600&h=400&fit=crop&q=80',
   'fresh-fruits': 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=600&h=400&fit=crop&q=80',

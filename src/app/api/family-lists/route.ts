@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
-import { checkCsrf } from '@/lib/security/csrf'
+
 import { sanitizeText } from '@/lib/security'
 import { validateData, formatZodErrors } from '@/lib/validation/schemas'
 
@@ -115,9 +115,6 @@ export async function GET() {
 // POST /api/family-lists — Create a new family list
 export async function POST(request: NextRequest) {
   try {
-    const csrf = await checkCsrf(request)
-    if (!csrf.valid) return csrf.error!
-
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 

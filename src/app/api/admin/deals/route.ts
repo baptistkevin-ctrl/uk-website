@@ -1,70 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
-import { createServerClient } from '@supabase/ssr'
+import { requireAdmin } from '@/lib/auth/verify'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { dealAudit } from '@/lib/security/audit'
 
 export const dynamic = 'force-dynamic'
 
-function getSupabaseAdmin() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
-
-async function getSupabaseServer() {
-  const cookieStore = await cookies()
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-      },
-    }
-  )
-}
-
-async function isAdmin() {
-  const supabase = await getSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) return false
-
-  const supabaseAdmin = getSupabaseAdmin()
-  const { data: profile } = await supabaseAdmin
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  return profile?.role === 'admin' || profile?.role === 'super_admin'
-}
-
-async function getAdminUser(): Promise<{ id: string; email: string; role: string } | null> {
-  const supabase = await getSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-
-  const supabaseAdmin = getSupabaseAdmin()
-  const { data: profile } = await supabaseAdmin
-    .from('profiles')
-    .select('role, email')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || (profile.role !== 'admin' && profile.role !== 'super_admin')) return null
-  return { id: user.id, email: profile.email || user.email || '', role: profile.role }
-}
-
 // GET - Get all deals (admin view)
 export async function GET(request: NextRequest) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const searchParams = request.nextUrl.searchParams
   const status = searchParams.get('status') || 'all' // all, active, upcoming, expired
@@ -72,10 +16,10 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') || '20') || 20))
   const offset = (page - 1) * limit
 
-  const supabaseAdmin = getSupabaseAdmin()
+  const supabase = getSupabaseAdmin()
   const now = new Date().toISOString()
 
-  let query = supabaseAdmin
+  let query = supabase
     .from('flash_deals')
     .select(`
       *,
@@ -119,9 +63,8 @@ export async function GET(request: NextRequest) {
 
 // POST - Create a new deal
 export async function POST(request: NextRequest) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const body = await request.json()
   const {
@@ -195,24 +138,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to create deal' }, { status: 500 })
   }
 
-  const adminUser = await getAdminUser()
-  if (adminUser) {
-    await dealAudit.logCreate(request, adminUser, deal.id, deal.title, {
-      product_id: deal.product_id,
-      deal_price_pence: deal.deal_price_pence,
-      starts_at: deal.starts_at,
-      ends_at: deal.ends_at,
-    })
-  }
+  await dealAudit.logCreate(request, { id: auth.user!.id, email: auth.profile!.email, role: auth.profile!.role }, deal.id, deal.title, {
+    product_id: deal.product_id,
+    deal_price_pence: deal.deal_price_pence,
+    starts_at: deal.starts_at,
+    ends_at: deal.ends_at,
+  })
 
   return NextResponse.json({ deal })
 }
 
 // PUT - Update a deal
 export async function PUT(request: NextRequest) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const body = await request.json()
   const { id, ...updates } = body
@@ -263,19 +202,15 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to update deal' }, { status: 500 })
   }
 
-  const adminUser = await getAdminUser()
-  if (adminUser) {
-    await dealAudit.logUpdate(request, adminUser, id, deal.title, oldDeal || {}, updates)
-  }
+  await dealAudit.logUpdate(request, { id: auth.user!.id, email: auth.profile!.email, role: auth.profile!.role }, id, deal.title, oldDeal || {}, updates)
 
   return NextResponse.json({ deal })
 }
 
 // DELETE - Delete a deal
 export async function DELETE(request: NextRequest) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const searchParams = request.nextUrl.searchParams
   const id = searchParams.get('id')
@@ -296,10 +231,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to delete deal' }, { status: 500 })
   }
 
-  const adminUser = await getAdminUser()
-  if (adminUser) {
-    await dealAudit.logDelete(request, adminUser, id, `deal:${id}`)
-  }
+  await dealAudit.logDelete(request, { id: auth.user!.id, email: auth.profile!.email, role: auth.profile!.role }, id, `deal:${id}`)
 
   return NextResponse.json({ success: true })
 }

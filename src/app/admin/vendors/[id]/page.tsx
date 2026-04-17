@@ -57,40 +57,31 @@ export default function VendorDetailPage() {
   useEffect(() => {
     async function fetchVendor() {
       try {
-        // Fetch vendor info
-        const vendorRes = await fetch('/api/admin/vendors')
-        if (!vendorRes.ok) return
-        const vendors = await vendorRes.json()
-        const vendor = Array.isArray(vendors) ? vendors.find((v: any) => v.id === vendorId) : null
-        if (!vendor) return
+        const res = await fetch(`/api/admin/vendors/${vendorId}`)
+        if (!res.ok) return
 
-        // Fetch vendor stats from dashboard
-        const dashRes = await fetch('/api/admin/dashboard')
-        const dashData = dashRes.ok ? await dashRes.json() : null
-
-        // Get vendor orders
-        const vendorOrders = (dashData?.vendorLeaderboard || []).find((v: any) => v.id === vendorId)
-
-        // Build stats from available data
-        const stats = {
-          totalProducts: 0,
-          activeProducts: 0,
-          totalOrders: vendorOrders?.orders || 0,
-          totalRevenue: vendorOrders?.revenue || 0,
-          totalCommission: 0,
-          totalPaidOut: 0,
-          pendingPayout: 0,
-          avgRating: vendor.rating || 0,
-        }
+        const result = await res.json()
 
         setData({
-          vendor,
-          stats,
+          vendor: result.vendor,
+          stats: {
+            totalProducts: result.stats.totalProducts,
+            activeProducts: result.stats.activeProducts,
+            totalOrders: result.stats.totalOrders,
+            totalRevenue: result.stats.totalRevenue,
+            totalCommission: 0,
+            totalPaidOut: 0,
+            pendingPayout: 0,
+            avgRating: result.vendor.rating || 0,
+          },
           recentOrders: [],
           topProducts: [],
         })
-      } catch { /* ignore */ }
-      finally { setLoading(false) }
+      } catch {
+        console.error('Failed to fetch vendor')
+      } finally {
+        setLoading(false)
+      }
     }
     fetchVendor()
   }, [vendorId])

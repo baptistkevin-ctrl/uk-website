@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Eye,
 } from 'lucide-react'
+import { toast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -77,9 +78,11 @@ export default function ReturnsPage() {
       if (res.ok) {
         const data = await res.json()
         setReturns(data.returns || [])
+      } else {
+        toast.error('Failed to load returns')
       }
-    } catch (error) {
-      console.error('Failed to fetch returns:', error)
+    } catch {
+      toast.error('Failed to load returns')
     } finally {
       setLoading(false)
     }
@@ -96,9 +99,13 @@ export default function ReturnsPage() {
       })
       if (res.ok) {
         fetchReturns()
+        toast.success('Return request cancelled')
+      } else {
+        const data = await res.json().catch(() => ({}))
+        toast.error(data.error || 'Failed to cancel return')
       }
-    } catch (error) {
-      console.error('Failed to cancel return:', error)
+    } catch {
+      toast.error('Failed to cancel return')
     } finally {
       setCancelling(null)
     }

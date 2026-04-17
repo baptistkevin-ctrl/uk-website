@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 import { sanitizeText } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
@@ -7,24 +8,10 @@ export const dynamic = 'force-dynamic'
 // Get messages for a conversation
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    // Verify admin/agent access
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
 
     const supabaseAdmin = getSupabaseAdmin()
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
 
     const { searchParams } = new URL(request.url)
     const conversationId = searchParams.get('conversation_id')
@@ -84,24 +71,12 @@ export async function GET(request: NextRequest) {
 // Send a message as agent
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-
-    // Verify admin/agent access
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
 
     const supabaseAdmin = getSupabaseAdmin()
-    const { data: profile } = await supabaseAdmin
-      .from('profiles')
-      .select('role, full_name')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    const user = auth.user!
+    const profile = auth.profile!
 
     const body = await request.json()
     const { conversation_id, content } = body

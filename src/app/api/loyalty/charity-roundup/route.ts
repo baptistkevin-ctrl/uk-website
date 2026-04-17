@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { checkCsrf } from "@/lib/security/csrf"
+
 import { CHARITIES } from "@/lib/loyalty/gamification-engine"
 
 export const dynamic = "force-dynamic"
@@ -8,10 +8,6 @@ export const dynamic = "force-dynamic"
 // POST /api/loyalty/charity-roundup — record a charity round-up donation
 export async function POST(request: NextRequest) {
   try {
-    // CSRF protection
-    const csrf = await checkCsrf(request)
-    if (!csrf.valid) return csrf.error!
-
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 

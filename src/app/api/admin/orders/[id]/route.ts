@@ -41,6 +41,58 @@ export async function GET(
   return NextResponse.json({ ...order, items })
 }
 
+// PATCH - Update order status
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
+
+  const { id } = await params
+  const supabaseAdmin = getSupabaseAdmin()
+  const body = await request.json()
+  const { status } = body
+
+  if (!status) {
+    return NextResponse.json({ error: 'Status is required' }, { status: 400 })
+  }
+
+  const { data: currentOrder } = await supabaseAdmin
+    .from('orders')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (!currentOrder) {
+    return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('orders')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  if (auth.user && auth.profile) {
+    await orderAudit.logUpdate(
+      request,
+      { id: auth.user.id, email: auth.user.email || '', role: auth.profile.role },
+      id,
+      currentOrder.order_number || id,
+      { status: currentOrder.status },
+      { status }
+    )
+  }
+
+  return NextResponse.json(data)
+}
+
 // DELETE order
 export async function DELETE(
   request: NextRequest,

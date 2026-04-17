@@ -12,7 +12,9 @@ import {
   MoreVertical,
   ExternalLink,
   Mail,
-  Loader2
+  Loader2,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -45,6 +47,8 @@ export default function AdminVendorsPage() {
   const [search, setSearch] = useState('')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editCommission, setEditCommission] = useState('')
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => {
     fetchVendors()
@@ -109,6 +113,27 @@ export default function AdminVendorsPage() {
       }
     } catch (error) {
       console.error('Update commission error:', error)
+    }
+  }
+
+  const deleteVendor = async (id: string) => {
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/admin/vendors?id=${id}`, { method: 'DELETE' })
+      const data = await res.json()
+
+      if (res.ok) {
+        setVendors(prev => prev.filter(v => v.id !== id))
+        setDeleteConfirm(null)
+        toast.success('Vendor deleted successfully')
+      } else {
+        toast.error(data.error || 'Failed to delete vendor')
+      }
+    } catch (error) {
+      console.error('Delete error:', error)
+      toast.error('Failed to delete vendor')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -301,6 +326,15 @@ export default function AdminVendorsPage() {
                         Reactivate
                       </Button>
                     ) : null}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setDeleteConfirm(vendor.id)}
+                      className="text-(--color-error) border-(--color-border) hover:bg-(--color-error-bg)"
+                      title="Delete vendor"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </td>
               </tr>
@@ -314,6 +348,64 @@ export default function AdminVendorsPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-(--color-surface) rounded-2xl shadow-xl max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-(--color-error-bg) flex items-center justify-center">
+                <AlertTriangle className="h-6 w-6 text-(--color-error)" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Delete Vendor</h3>
+                <p className="text-sm text-(--color-text-muted)">This action cannot be undone</p>
+              </div>
+            </div>
+
+            <p className="text-sm text-(--color-text-secondary) mb-2">
+              Are you sure you want to permanently delete{' '}
+              <strong className="text-foreground">
+                {vendors.find(v => v.id === deleteConfirm)?.business_name}
+              </strong>?
+            </p>
+
+            <div className="bg-(--color-elevated) rounded-lg p-3 mb-6 text-sm text-(--color-text-muted) space-y-1">
+              <p>This will:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>Delete the vendor account permanently</li>
+                <li>Remove all their products from the store</li>
+                <li>Reset the user back to a customer role</li>
+              </ul>
+            </div>
+
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteConfirm(null)}
+                disabled={deleting}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => deleteVendor(deleteConfirm)}
+                disabled={deleting}
+                className="flex-1 bg-(--color-error) hover:bg-(--color-error)/90 text-white"
+              >
+                {deleting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Vendor
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

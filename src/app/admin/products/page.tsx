@@ -95,14 +95,22 @@ export default function AdminProductsPage() {
     if (!confirm('Are you sure you want to delete this product?')) return
 
     setDeleting(id)
-    const res = await fetch(`/api/products/${id}`, { method: 'DELETE' })
-    if (res.ok) {
-      setProducts(products.filter((p) => p.id !== id))
-      setSelectedProducts(prev => {
-        const newSet = new Set(prev)
-        newSet.delete(id)
-        return newSet
-      })
+    try {
+      const res = await fetch(`/api/products/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        setProducts(products.filter((p) => p.id !== id))
+        setSelectedProducts(prev => {
+          const newSet = new Set(prev)
+          newSet.delete(id)
+          return newSet
+        })
+        toast.success('Product deleted')
+      } else {
+        const data = await res.json().catch(() => ({}))
+        toast.error(data.error || 'Failed to delete product')
+      }
+    } catch {
+      toast.error('Failed to delete product')
     }
     setDeleting(null)
   }

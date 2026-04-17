@@ -143,15 +143,20 @@ export async function PUT(request: NextRequest) {
     // If items should be restocked
     for (const item of currentReturn.return_items) {
       if (item.restock) {
-        await supabaseAdmin
+        const { data: product } = await supabaseAdmin
           .from('products')
-          .update({
-            stock_quantity: supabaseAdmin.rpc('increment_stock', {
-              product_id: item.product_id,
-              amount: item.quantity
-            })
-          })
+          .select('stock_quantity')
           .eq('id', item.product_id)
+          .single()
+
+        if (product) {
+          await supabaseAdmin
+            .from('products')
+            .update({
+              stock_quantity: (product.stock_quantity || 0) + item.quantity
+            })
+            .eq('id', item.product_id)
+        }
       }
     }
   }

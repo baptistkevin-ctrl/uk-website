@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
-import { checkCsrf } from '@/lib/security/csrf'
+
 import { sanitizeText } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
@@ -122,12 +122,6 @@ export async function GET(request: NextRequest) {
 // PUT /api/picker-chat/preferences - Set preferences for items in an order
 export async function PUT(request: NextRequest) {
   try {
-    // CSRF validation
-    const csrfResult = await checkCsrf(request)
-    if (!csrfResult.valid) {
-      return csrfResult.error!
-    }
-
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 

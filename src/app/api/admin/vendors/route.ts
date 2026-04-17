@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase/server'
 import { requireAdmin } from '@/lib/auth/verify'
-import { vendorAudit } from '@/lib/security'
+import { vendorAudit, escapeHtml } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
@@ -118,8 +118,8 @@ export async function PUT(request: NextRequest) {
           to: data.email,
           subject: `Message from UK Grocery Store Admin`,
           html: `<h2>Message from UK Grocery Store</h2>
-            <p>Dear ${data.business_name},</p>
-            <p>${body.notify_message.replace(/\n/g, '<br>')}</p>
+            <p>Dear ${escapeHtml(data.business_name)},</p>
+            <p>${escapeHtml(body.notify_message).replace(/\n/g, '<br>')}</p>
             <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
             <p style="color:#888;font-size:12px;">This message was sent by the UK Grocery Store admin team.</p>`,
         })
@@ -129,6 +129,90 @@ export async function PUT(request: NextRequest) {
     }
 
     return NextResponse.json(data)
+  } catch (error) {
+    return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
+  }
+}
+
+// DELETE vendor (super_admin only)
+export async function DELETE(request: NextRequest) {
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
+
+  if (auth.profile?.role !== 'super_admin') {
+    return NextResponse.json({ error: 'Only super admins can delete vendors' }, { status: 403 })
+  }
+
+  const supabaseAdmin = getSupabaseAdmin()
+
+  try {
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json({ error: 'Vendor ID is required' }, { status: 400 })
+    }
+
+    // Get vendor details before deletion
+    const { data: vendor } = await supabaseAdmin
+      .from('vendors')
+      .select('*, user:user_id(email, full_name)')
+      .eq('id', id)
+      .single()
+
+    if (!vendor) {
+      return NextResponse.json({ error: 'Vendor not found' }, { status: 404 })
+    }
+
+    // Delete in correct order: products first, then vendor, then reset profile
+    const { error: productsError } = await supabaseAdmin
+      .from('products')
+      .delete()
+      .eq('vendor_id', id)
+
+    if (productsError) {
+      console.error('Delete vendor products error:', productsError)
+      return NextResponse.json({ error: 'Failed to delete vendor products' }, { status: 500 })
+    }
+
+    const { error: vendorError } = await supabaseAdmin
+      .from('vendors')
+      .delete()
+      .eq('id', id)
+
+    if (vendorError) {
+      console.error('Delete vendor error:', vendorError)
+      return NextResponse.json({ error: 'Failed to delete vendor record' }, { status: 500 })
+    }
+
+    // Reset user profile last (after vendor is gone)
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .update({
+        is_vendor: false,
+        vendor_id: null,
+        role: 'customer'
+      })
+      .eq('id', vendor.user_id)
+
+    if (profileError) {
+      console.error('Reset profile error:', profileError)
+      // Non-fatal — vendor is already deleted, log but continue
+    }
+
+    // Log audit event
+    if (auth.user && auth.profile) {
+      await vendorAudit.logAction(
+        request,
+        { id: auth.user.id, email: auth.user.email || '', role: auth.profile.role },
+        'vendor_deleted',
+        id,
+        vendor.business_name,
+        { user_id: vendor.user_id, email: vendor.email }
+      )
+    }
+
+    return NextResponse.json({ message: 'Vendor deleted successfully' })
   } catch (error) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }

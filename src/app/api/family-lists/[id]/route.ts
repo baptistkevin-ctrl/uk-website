@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
-import { checkCsrf } from '@/lib/security/csrf'
+
 import { sanitizeText } from '@/lib/security'
 import { validateData, formatZodErrors } from '@/lib/validation/schemas'
 
@@ -144,9 +144,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const csrf = await checkCsrf(request)
-    if (!csrf.valid) return csrf.error!
-
     const { id: listId } = await params
 
     const supabase = await createClient()
@@ -211,9 +208,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const csrf = await checkCsrf(request)
-    if (!csrf.valid) return csrf.error!
-
     const { id: listId } = await params
 
     const supabase = await createClient()

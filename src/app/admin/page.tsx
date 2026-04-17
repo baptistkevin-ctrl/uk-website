@@ -515,8 +515,13 @@ export default function AdminDashboard() {
   const revenueSparkline = data ? data.charts.salesByDay.map(d => d.revenue) : [0, 0, 0, 0, 0, 0, 0]
   const ordersSparkline = data ? data.charts.salesByDay.map(d => d.orders) : [0, 0, 0, 0, 0, 0, 0]
 
-  // Calculate conversion rate (mock - would need real page view data)
-  const conversionRate = data ? ((data.overview.totalOrders / Math.max(data.users.total * 5, 1)) * 100).toFixed(1) : '0'
+  // Conversion rate: orders as percentage of registered users (order-to-customer ratio)
+  const conversionRate = data ? ((data.overview.totalOrders / Math.max(data.users.total, 1)) * 100).toFixed(1) : '0'
+
+  // Calculate real average rating from recent reviews
+  const avgRating = data?.reviews.recent?.length > 0
+    ? (data.reviews.recent.reduce((sum: number, r: any) => sum + (r.rating || 0), 0) / data.reviews.recent.length).toFixed(1)
+    : null
 
   const statCards = data ? [
     {
@@ -825,10 +830,10 @@ export default function AdminDashboard() {
           <LiveIndicator />
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <SystemHealthCard title="API Server" status="healthy" icon={ServerIcon} details="Response time: 45ms" />
-          <SystemHealthCard title="Database" status="healthy" icon={DatabaseIcon} details="Connections: 23/100" />
-          <SystemHealthCard title="CDN Status" status="healthy" icon={GlobeIcon} details="Cache hit: 94.2%" />
-          <SystemHealthCard title="Security" status="healthy" icon={ShieldIcon} details="No threats detected" />
+          <SystemHealthCard title="API Server" status="healthy" icon={ServerIcon} details={`Uptime: ${data ? 'Online' : 'Checking...'}`} />
+          <SystemHealthCard title="Database" status="healthy" icon={DatabaseIcon} details={`Products: ${data?.products.total || 0} records`} />
+          <SystemHealthCard title="Active Orders" status={data && data.orders.byStatus.pending > 5 ? 'warning' : 'healthy'} icon={GlobeIcon} details={`${data?.orders.byStatus.pending || 0} pending`} />
+          <SystemHealthCard title="Security" status={data && data.support.openTickets > 0 ? 'warning' : 'healthy'} icon={ShieldIcon} details={`${data?.support.openTickets || 0} open tickets`} />
         </div>
       </div>
 
@@ -980,12 +985,12 @@ export default function AdminDashboard() {
             <span className="text-white/60 text-sm">Satisfaction</span>
           </div>
           <div className="text-4xl font-bold mb-1">
-            {data ? (data.reviews.total > 0 ? '4.8' : 'N/A') : 'N/A'}
+            {avgRating || 'N/A'}
           </div>
           <p className="text-white/60 text-sm">Average customer rating</p>
           <div className="mt-4 flex gap-1">
             {[1, 2, 3, 4, 5].map(star => (
-              <svg key={star} width="16" height="16" viewBox="0 0 24 24" fill={star <= 4 ? 'white' : 'rgba(255,255,255,0.3)'} stroke="none">
+              <svg key={star} width="16" height="16" viewBox="0 0 24 24" fill={avgRating && star <= Math.round(parseFloat(avgRating)) ? 'white' : 'rgba(255,255,255,0.3)'} stroke="none">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
             ))}

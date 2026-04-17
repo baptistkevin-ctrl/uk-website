@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { checkCsrf } from "@/lib/security/csrf";
+
 import {
   FREQUENCY_OPTIONS,
   SUBSCRIPTION_DISCOUNT,
@@ -84,9 +84,6 @@ export async function GET() {
 // POST /api/subscriptions — Create a subscription
 export async function POST(request: NextRequest) {
   try {
-    const csrf = await checkCsrf(request);
-    if (!csrf.valid) return csrf.error!;
-
     const supabase = await createClient();
     const {
       data: { user },

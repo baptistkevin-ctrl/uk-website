@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { checkCsrf } from "@/lib/security/csrf";
+
 import {
   FREQUENCY_OPTIONS,
   type SubscriptionFrequency,
@@ -28,9 +28,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const csrf = await checkCsrf(request);
-    if (!csrf.valid) return csrf.error!;
-
     const { id: subscriptionId } = await params;
 
     const supabase = await createClient();
@@ -200,9 +197,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const csrf = await checkCsrf(request);
-    if (!csrf.valid) return csrf.error!;
-
     const { id: subscriptionId } = await params;
 
     const supabase = await createClient();

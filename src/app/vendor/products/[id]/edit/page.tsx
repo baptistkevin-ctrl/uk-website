@@ -90,9 +90,11 @@ export default function EditVendorProductPage({ params }: { params: Promise<{ id
     try {
       // Fetch categories
       const catRes = await fetch('/api/categories')
-      const catData = await catRes.json()
-      if (Array.isArray(catData)) {
-        setCategories(catData)
+      if (catRes.ok) {
+        const catData = await catRes.json()
+        setCategories(Array.isArray(catData) ? catData : [])
+      } else {
+        setCategories([])
       }
 
       // Fetch product

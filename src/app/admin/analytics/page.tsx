@@ -22,6 +22,8 @@ interface AnalyticsData {
   totalRevenue: number
   totalOrders: number
   totalProducts: number
+  activeProducts: number
+  outOfStock: number
   totalCustomers: number
   revenueGrowth: number
   ordersGrowth: number
@@ -49,6 +51,8 @@ export default function AdminAnalyticsPage() {
     totalRevenue: 0,
     totalOrders: 0,
     totalProducts: 0,
+    activeProducts: 0,
+    outOfStock: 0,
     totalCustomers: 0,
     revenueGrowth: 0,
     ordersGrowth: 0,
@@ -120,10 +124,17 @@ export default function AdminAnalyticsPage() {
       // Get unique customers
       const uniqueCustomers = new Set(orders.map((o: { customer_email: string }) => o.customer_email)).size
 
+      // Product stats
+      const productList = Array.isArray(products) ? products : []
+      const activeProducts = productList.filter((p: any) => p.is_active).length
+      const outOfStock = productList.filter((p: any) => p.is_active && (p.stock_quantity || 0) <= 0).length
+
       setData({
         totalRevenue,
         totalOrders: currentOrders.length,
-        totalProducts: products.length || 0,
+        totalProducts: productList.length,
+        activeProducts,
+        outOfStock,
         totalCustomers: uniqueCustomers,
         revenueGrowth,
         ordersGrowth,
@@ -354,11 +365,11 @@ export default function AdminAnalyticsPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-(--color-text-muted)">Active Products</span>
-                  <span className="font-medium text-(--brand-primary)">—</span>
+                  <span className="font-medium text-(--brand-primary)">{data.activeProducts}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-(--color-text-muted)">Out of Stock</span>
-                  <span className="font-medium text-(--color-error)">—</span>
+                  <span className="font-medium text-(--color-error)">{data.outOfStock}</span>
                 </div>
               </div>
             </div>
@@ -410,7 +421,11 @@ export default function AdminAnalyticsPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-(--color-text-muted)">Conversion Rate</span>
-                  <span className="font-medium">—</span>
+                  <span className="font-medium">
+                    {data.totalCustomers > 0
+                      ? `${((data.totalOrders / data.totalCustomers) * 100).toFixed(1)}%`
+                      : 'N/A'}
+                  </span>
                 </div>
               </div>
             </div>

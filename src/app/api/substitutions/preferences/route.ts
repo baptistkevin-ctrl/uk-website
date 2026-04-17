@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { checkCsrf } from "@/lib/security/csrf";
+
 import {
   DEFAULT_PREFERENCES,
   type SubstitutionPreferences,
@@ -65,10 +65,6 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    // CSRF validation
-    const csrf = await checkCsrf(request);
-    if (!csrf.valid) return csrf.error;
-
     const supabase = await createClient();
     const {
       data: { user },

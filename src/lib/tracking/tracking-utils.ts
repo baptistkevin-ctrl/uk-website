@@ -23,12 +23,12 @@ export const STATUS_DESCRIPTIONS: Record<OrderStatusKey, string> = {
   delivered: "Your order has been delivered. Enjoy!",
 };
 
-/** Simulated driver profiles for demo/testing */
+/** Driver profiles — placeholder until real driver management is integrated */
 export const DEMO_DRIVERS = [
-  { name: "James W.", rating: 4.9, vehicle: "Electric Van", photo: "/drivers/driver1.jpg", phone: "+44 7700 900001" },
-  { name: "Sarah M.", rating: 4.8, vehicle: "Cargo Bike", photo: "/drivers/driver2.jpg", phone: "+44 7700 900002" },
-  { name: "Mohammed A.", rating: 4.9, vehicle: "Electric Van", photo: "/drivers/driver3.jpg", phone: "+44 7700 900003" },
-  { name: "Emily R.", rating: 4.7, vehicle: "Electric Van", photo: "/drivers/driver4.jpg", phone: "+44 7700 900004" },
+  { name: "Driver", rating: 4.9, vehicle: "Delivery Van", photo: "/icons/icon.svg", phone: "" },
+  { name: "Driver", rating: 4.8, vehicle: "Delivery Van", photo: "/icons/icon.svg", phone: "" },
+  { name: "Driver", rating: 4.9, vehicle: "Delivery Van", photo: "/icons/icon.svg", phone: "" },
+  { name: "Driver", rating: 4.7, vehicle: "Delivery Van", photo: "/icons/icon.svg", phone: "" },
 ] as const;
 
 /** Common UK postcode area centroids for location simulation */

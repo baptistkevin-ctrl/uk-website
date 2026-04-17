@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
-import { checkCsrf } from '@/lib/security/csrf'
+
 import { validateData, formatZodErrors } from '@/lib/validation/schemas'
 
 export const dynamic = 'force-dynamic'
@@ -16,9 +16,6 @@ const joinListSchema = z.object({
 // POST /api/family-lists/join — Join a list via share code
 export async function POST(request: NextRequest) {
   try {
-    const csrf = await checkCsrf(request)
-    if (!csrf.valid) return csrf.error!
-
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 

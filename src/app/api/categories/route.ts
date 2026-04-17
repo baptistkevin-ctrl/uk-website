@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient, getSupabaseAdmin } from '@/lib/supabase/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,29 +28,10 @@ export async function GET(request: Request) {
   return NextResponse.json(data)
 }
 
-// Helper to verify admin role
-async function requireAdminAuth() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-
-  const supabaseAdmin = getSupabaseAdmin()
-  const { data: profile } = await supabaseAdmin
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile || !['admin', 'super_admin'].includes(profile.role)) return null
-  return user
-}
-
 // POST - Create new category (admin only)
 export async function POST(request: NextRequest) {
-  const user = await requireAdminAuth()
-  if (!user) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const supabaseAdmin = getSupabaseAdmin()
 
@@ -95,10 +77,8 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update category (admin only)
 export async function PUT(request: NextRequest) {
-  const user = await requireAdminAuth()
-  if (!user) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const supabaseAdmin = getSupabaseAdmin()
 
@@ -159,10 +139,8 @@ export async function PUT(request: NextRequest) {
 
 // DELETE - Delete category (admin only)
 export async function DELETE(request: NextRequest) {
-  const user = await requireAdminAuth()
-  if (!user) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
+  const auth = await requireAdmin(request)
+  if (!auth.success) return auth.error
 
   const supabaseAdmin = getSupabaseAdmin()
   const { searchParams } = new URL(request.url)

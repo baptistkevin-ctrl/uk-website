@@ -61,12 +61,16 @@ export default function NewVendorProductPage() {
   const fetchCategories = async () => {
     try {
       const res = await fetch('/api/categories')
-      const data = await res.json()
-      if (Array.isArray(data)) {
-        setCategories(data)
+      if (!res.ok) {
+        toast.error('Failed to load categories')
+        setCategories([])
+        return
       }
-    } catch (error) {
-      console.error('Fetch categories error:', error)
+      const data = await res.json()
+      setCategories(Array.isArray(data) ? data : [])
+    } catch {
+      toast.error('Failed to load categories')
+      setCategories([])
     }
   }
 

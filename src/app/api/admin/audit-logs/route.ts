@@ -1,27 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
 
-    // Verify admin
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    const supabase = getSupabaseAdmin()
 
     const { searchParams } = new URL(request.url)
     const page = Math.max(1, parseInt(searchParams.get('page') || '1') || 1)
@@ -89,23 +77,10 @@ export async function GET(request: NextRequest) {
 // Helper function to create audit log entries
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
 
-    // Verify admin
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, email')
-      .eq('id', user.id)
-      .single()
-
-    if (!profile || !['admin', 'super_admin'].includes(profile.role)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    const supabase = getSupabaseAdmin()
 
     const body = await request.json()
     const { action, entity_type, entity_id, entity_name, old_values, new_values, metadata, notes } = body
@@ -117,9 +92,9 @@ export async function POST(request: NextRequest) {
     const { data: log, error } = await supabase
       .from('audit_logs')
       .insert({
-        user_id: user.id,
-        user_email: profile.email,
-        user_role: profile.role,
+        user_id: auth.user!.id,
+        user_email: auth.profile!.email,
+        user_role: auth.profile!.role,
         action,
         entity_type,
         entity_id,

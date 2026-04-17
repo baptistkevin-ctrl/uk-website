@@ -70,9 +70,11 @@ export default function VendorGiftCardsPage() {
         const data = await res.json()
         setGiftCards(data.giftCards || [])
         setStats(data.stats)
+      } else {
+        toast.error('Failed to load gift cards')
       }
-    } catch (error) {
-      console.error('Failed to fetch gift cards:', error)
+    } catch {
+      toast.error('Failed to load gift cards')
     } finally {
       setLoading(false)
     }
