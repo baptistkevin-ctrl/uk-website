@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { getSupabaseAdmin } from '@/lib/supabase/server'
+import { requireAdmin } from '@/lib/auth/verify'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,23 +11,10 @@ export async function PUT(
 ) {
   try {
     const { id } = await params
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check admin role
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    const supabase = getSupabaseAdmin()
 
     const body = await request.json()
     const { status, priority, assigned_to, tags } = body
@@ -85,7 +73,7 @@ export async function PUT(
           .from('ticket_messages')
           .insert({
             ticket_id: id,
-            sender_id: user.id,
+            sender_id: auth.user!.id,
             sender_type: 'system',
             message: statusMessages[status]
           })
@@ -106,23 +94,10 @@ export async function POST(
 ) {
   try {
     const { id } = await params
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const auth = await requireAdmin(request)
+    if (!auth.success) return auth.error
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check admin role
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (profile?.role !== 'admin' && profile?.role !== 'super_admin') {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
+    const supabase = getSupabaseAdmin()
 
     const body = await request.json()
     const { message, is_internal, canned_response_id } = body
@@ -150,7 +125,7 @@ export async function POST(
     const { data: messageId, error } = await supabase
       .rpc('add_ticket_message', {
         p_ticket_id: id,
-        p_sender_id: user.id,
+        p_sender_id: auth.user!.id,
         p_sender_type: 'agent',
         p_message: messageText,
         p_is_internal: is_internal || false,
