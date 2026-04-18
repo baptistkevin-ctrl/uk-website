@@ -75,9 +75,9 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                   <span className="text-sm lg:text-base font-semibold text-white block">
                     {category.name}
                   </span>
-                  {category.itemCount != null && (
+                  {(category.itemCount ?? 0) > 0 && (
                     <span className="text-xs text-white/70">
-                      {category.itemCount}+ items
+                      {category.itemCount} items
                     </span>
                   )}
                 </div>

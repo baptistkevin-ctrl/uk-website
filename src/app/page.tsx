@@ -44,20 +44,20 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const supabase = getSupabaseAdmin();
 
-  // Fetch categories
+  // Fetch categories with product counts
   const { data: dbCategories } = await supabase
     .from("categories")
-    .select("*")
+    .select("*, product_categories(count)")
     .eq("is_active", true)
     .is("parent_id", null)
     .order("display_order", { ascending: true })
     .limit(8);
 
-  const categories = (dbCategories ?? []).map((cat) => ({
+  const categories = (dbCategories ?? []).map((cat: any) => ({
     name: cat.name,
     slug: cat.slug,
     imageUrl: cat.image_url ?? undefined,
-    itemCount: cat.product_count ?? 0,
+    itemCount: cat.product_categories?.[0]?.count ?? 0,
   }));
 
   // Fetch active deal of the day
