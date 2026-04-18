@@ -114,7 +114,7 @@ export default function RootLayout({
 
         <ClientShell />
 
-        <main id="main-content">{children}</main>
+        <main id="main-content" className="pb-20 lg:pb-0">{children}</main>
 
         <ShopOnlyShell />
         <Analytics />

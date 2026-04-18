@@ -114,7 +114,7 @@ export function Header() {
           </div>
 
           {/* Delivery postcode */}
-          <div className="relative shrink-0">
+          <div className="relative shrink-0 hidden sm:block">
             <button
               onClick={() => setPostcodeOpen(!postcodeOpen)}
               aria-label={`Change delivery postcode — currently ${postcode}`}

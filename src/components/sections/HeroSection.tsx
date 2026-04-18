@@ -132,7 +132,7 @@ export function HeroSection() {
 
   return (
     <section
-      className="relative min-h-[420px] lg:min-h-[580px] overflow-hidden flex items-center"
+      className="relative min-h-[420px] lg:min-h-[580px] overflow-hidden flex items-center w-full max-w-full"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       aria-roledescription="carousel"
@@ -423,17 +423,17 @@ export function HeroSection() {
       {/* ── Slide Controls ── */}
       <button
         onClick={prev}
-        className="absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-(--color-surface)/10 backdrop-blur-md border border-white/15 flex items-center justify-center text-white/70 hover:bg-(--color-surface)/20 hover:text-white transition-all"
+        className="absolute left-2 sm:left-4 lg:left-8 top-[60%] sm:top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-black/30 backdrop-blur-md border border-white/15 flex items-center justify-center text-white/80 hover:bg-black/50 hover:text-white transition-all"
         aria-label="Previous slide"
       >
-        <ChevronLeft className="h-5 w-5" />
+        <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
       </button>
       <button
         onClick={next}
-        className="absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-(--color-surface)/10 backdrop-blur-md border border-white/15 flex items-center justify-center text-white/70 hover:bg-(--color-surface)/20 hover:text-white transition-all"
+        className="absolute right-2 sm:right-4 lg:right-8 top-[60%] sm:top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-black/30 backdrop-blur-md border border-white/15 flex items-center justify-center text-white/80 hover:bg-black/50 hover:text-white transition-all"
         aria-label="Next slide"
       >
-        <ChevronRight className="h-5 w-5" />
+        <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
       </button>
 
       {/* Slide progress dots */}
