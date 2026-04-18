@@ -158,7 +158,7 @@ export function Footer() {
 
         {/* Trust Badges */}
         <div className="border-t border-white/10 pt-8 mt-12">
-          <div className="flex flex-wrap gap-8 justify-center lg:justify-start">
+          <div className="flex flex-wrap gap-4 sm:gap-8 justify-center lg:justify-start">
             {trustBadges.map((badge) => (
               <div key={badge.text} className="flex items-center gap-2 text-white/70">
                 <badge.icon className="h-5 w-5 text-(--brand-primary)" />
@@ -171,14 +171,14 @@ export function Footer() {
         {/* Payment Methods + App Downloads */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-8">
           {/* Payment Icons */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-white/40 mr-2">We accept</span>
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 justify-center sm:justify-start">
+            <span className="text-xs text-white/40 mr-1 sm:mr-2">We accept</span>
             {['Visa', 'Mastercard', 'Amex', 'Apple Pay', 'Google Pay'].map((method) => (
               <div
                 key={method}
-                className="h-8 px-2.5 rounded bg-white/10 border border-white/10 flex items-center justify-center"
+                className="h-7 sm:h-8 px-2 sm:px-2.5 rounded bg-white/10 border border-white/10 flex items-center justify-center"
               >
-                <span className="text-[10px] font-semibold text-white/60">{method}</span>
+                <span className="text-[9px] sm:text-[10px] font-semibold text-white/60">{method}</span>
               </div>
             ))}
           </div>

@@ -30,10 +30,10 @@ export function StatsBar() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
         {/* Stats row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0 lg:divide-x lg:divide-white/10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-0 lg:divide-x lg:divide-white/10">
           {STATS.map((stat) => (
             <div key={stat.label} className="text-center lg:px-8">
-              <p className="font-display text-4xl lg:text-5xl font-bold text-white tracking-tight">
+              <p className="font-display text-2xl sm:text-3xl lg:text-5xl font-bold text-white tracking-tight">
                 {stat.value}
               </p>
               <p className="text-xs uppercase tracking-[0.15em] text-white/40 mt-2 font-medium">
@@ -47,13 +47,13 @@ export function StatsBar() {
         <div className="my-10 lg:my-14 border-t border-white/10" />
 
         {/* Trust row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {TRUST.map(({ icon: Icon, title }) => (
-            <div key={title} className="flex items-center gap-3 justify-center">
-              <div className="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-                <Icon className="h-5 w-5 text-(--brand-amber)" />
+            <div key={title} className="flex items-center gap-2 sm:gap-3 justify-center">
+              <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-(--brand-amber)" />
               </div>
-              <span className="text-sm font-medium text-white/70">{title}</span>
+              <span className="text-xs sm:text-sm font-medium text-white/70">{title}</span>
             </div>
           ))}
         </div>

@@ -26,8 +26,8 @@ export function CategoryBubbles() {
   return (
     <section className="pt-5 pb-4 lg:hidden bg-(--color-surface) relative">
       {/* Right fade hint to show more items */}
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-linear-to-l from-(--color-surface) to-transparent z-10 pointer-events-none" />
-      <div className="flex gap-4 overflow-x-auto scrollbar-none px-4 pb-1">
+      <div className="absolute right-0 top-0 bottom-0 w-6 bg-linear-to-l from-(--color-surface) to-transparent z-10 pointer-events-none" />
+      <div className="flex gap-3 sm:gap-4 overflow-x-auto scrollbar-none px-4 pb-1 pr-10">
         {categories.map((cat) => {
           const href = cat.slug.startsWith('..') ? cat.slug.replace('..', '') : `/categories/${cat.slug}`
           return (

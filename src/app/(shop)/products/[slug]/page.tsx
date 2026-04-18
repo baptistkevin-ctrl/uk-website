@@ -384,24 +384,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
 
             {/* Trust Badges */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-8">
-              <div className="text-center p-4 bg-(--color-elevated) rounded-xl">
-                <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Truck className="h-5 w-5 text-(--brand-primary)" />
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-4 mb-8">
+              <div className="text-center p-2.5 sm:p-4 bg-(--color-elevated) rounded-xl">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center mx-auto mb-1.5 sm:mb-2">
+                  <Truck className="h-4 w-4 sm:h-5 sm:w-5 text-(--brand-primary)" />
                 </div>
                 <p className="text-xs font-medium text-(--color-text-secondary)">Free Delivery</p>
                 <p className="text-xs text-(--color-text-muted)">Over £50</p>
               </div>
-              <div className="text-center p-4 bg-(--color-elevated) rounded-xl">
-                <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Shield className="h-5 w-5 text-(--brand-primary)" />
+              <div className="text-center p-2.5 sm:p-4 bg-(--color-elevated) rounded-xl">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center mx-auto mb-1.5 sm:mb-2">
+                  <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-(--brand-primary)" />
                 </div>
                 <p className="text-xs font-medium text-(--color-text-secondary)">Quality</p>
                 <p className="text-xs text-(--color-text-muted)">Guaranteed</p>
               </div>
-              <div className="text-center p-4 bg-(--color-elevated) rounded-xl">
-                <div className="w-10 h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center mx-auto mb-2">
-                  <Clock className="h-5 w-5 text-(--brand-primary)" />
+              <div className="text-center p-2.5 sm:p-4 bg-(--color-elevated) rounded-xl">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-(--brand-primary-light) rounded-lg flex items-center justify-center mx-auto mb-1.5 sm:mb-2">
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-(--brand-primary)" />
                 </div>
                 <p className="text-xs font-medium text-(--color-text-secondary)">Same Day</p>
                 <p className="text-xs text-(--color-text-muted)">Delivery</p>
@@ -515,7 +515,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <div className="mt-12">
             <Separator className="mb-8" />
             <h2 className="text-xl font-bold text-foreground mb-6">Customers Also Viewed</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
               {relatedProducts.map((rp: { id: string; name: string; slug: string; image_url: string | null; price_pence: number; compare_at_price_pence: number | null }) => (
                 <Link key={rp.id} href={`/products/${rp.slug}`} className="group rounded-xl border border-(--color-border) bg-(--color-surface) overflow-hidden hover:shadow-md hover:border-(--brand-primary) transition-all">
                   <div className="aspect-square bg-(--color-elevated) relative overflow-hidden">

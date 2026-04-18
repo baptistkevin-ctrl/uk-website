@@ -53,7 +53,7 @@ export function FreshProduceFeature({ products }: FreshProduceFeatureProps) {
         </div>
 
         {/* Product Grid — modern asymmetric layout */}
-        <div className="reveal-up grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        <div className="reveal-up grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
           {products.slice(0, 5).map((product, i) => (
             <Link
               key={product.slug}

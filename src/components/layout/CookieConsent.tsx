@@ -48,7 +48,7 @@ export function CookieConsent() {
           mx-auto p-4 sm:p-5
           bg-(--color-surface) border border-(--color-border)
           max-w-lg mb-4 rounded-2xl shadow-(--shadow-2xl)
-          max-sm:max-w-none max-sm:mx-3 max-sm:mb-20
+          max-sm:max-w-none max-sm:mx-3 max-sm:mb-28
           max-md:max-w-none max-md:mb-0 max-md:rounded-b-none max-md:rounded-t-(--radius-2xl)
         "
       >

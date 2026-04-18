@@ -37,7 +37,7 @@ export function NewThisWeek({ products }: { products: NewProduct[] }) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3 lg:gap-4">
           {products.map((product) => (
             <Link
               key={product.id}

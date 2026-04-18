@@ -111,7 +111,7 @@ export function RecipeCarousel() {
                   key={recipe.id}
                   href={`/recipes/${recipe.slug}`}
                   className={cn(
-                    'shrink-0 w-[240px] sm:w-[260px] lg:w-[280px] group',
+                    'shrink-0 w-50 sm:w-60 lg:w-70 group',
                     'rounded-xl border border-(--color-border)',
                     'bg-(--color-surface) overflow-hidden',
                     'hover:shadow-(--shadow-md) transition-all duration-300 ease-(--ease-premium)',

@@ -96,6 +96,7 @@ export function HeroSection() {
   const [productIdx, setProductIdx] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
 
   /* ── Slide navigation ── */
   const goTo = useCallback(
@@ -135,6 +136,13 @@ export function HeroSection() {
       className="relative min-h-[420px] lg:min-h-[580px] overflow-hidden flex items-center w-full max-w-full"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={(e) => setTouchStart(e.touches[0].clientX)}
+      onTouchEnd={(e) => {
+        if (touchStart === null) return;
+        const diff = touchStart - e.changedTouches[0].clientX;
+        if (Math.abs(diff) > 50) diff > 0 ? next() : prev();
+        setTouchStart(null);
+      }}
       aria-roledescription="carousel"
       aria-label="Hero slideshow"
     >
@@ -165,8 +173,8 @@ export function HeroSection() {
       ))}
 
       {/* ── Overlays ── */}
-      <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/55 to-black/25" />
-      <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/55 to-black/25 max-sm:from-black/85 max-sm:via-black/65 max-sm:to-black/45" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/50 via-transparent to-transparent max-sm:from-black/60" />
       <div className="absolute inset-0 bg-linear-to-br from-(--brand-dark)/30 via-transparent to-(--brand-amber)/5" />
 
       {/* ── Content ── */}
@@ -231,10 +239,10 @@ export function HeroSection() {
                 href={slide.ctaSecondary.href}
                 className={cn(
                   "inline-flex items-center justify-center",
-                  "bg-(--color-surface)/10 backdrop-blur-sm border border-white/25 text-white",
+                  "bg-white/15 backdrop-blur-md border border-white/30 text-white",
                   "rounded-lg px-7 py-3.5 text-sm font-medium",
                   "transition-all duration-(--duration-base) ease-(--ease-premium)",
-                  "hover:bg-(--color-surface)/20 hover:border-white/40"
+                  "hover:bg-white/25 hover:border-white/50"
                 )}
               >
                 {slide.ctaSecondary.label}
@@ -423,14 +431,14 @@ export function HeroSection() {
       {/* ── Slide Controls ── */}
       <button
         onClick={prev}
-        className="absolute left-2 sm:left-4 lg:left-8 top-[60%] sm:top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-black/30 backdrop-blur-md border border-white/15 flex items-center justify-center text-white/80 hover:bg-black/50 hover:text-white transition-all"
+        className="absolute left-2 sm:left-4 lg:left-8 top-[40%] sm:top-1/2 -translate-y-1/2 z-20 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-black/40 backdrop-blur-md border border-white/15 flex items-center justify-center text-white/80 hover:bg-black/50 hover:text-white transition-all max-[480px]:hidden"
         aria-label="Previous slide"
       >
         <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
       </button>
       <button
         onClick={next}
-        className="absolute right-2 sm:right-4 lg:right-8 top-[60%] sm:top-1/2 -translate-y-1/2 z-20 h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-black/30 backdrop-blur-md border border-white/15 flex items-center justify-center text-white/80 hover:bg-black/50 hover:text-white transition-all"
+        className="absolute right-2 sm:right-4 lg:right-8 top-[40%] sm:top-1/2 -translate-y-1/2 z-20 h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-black/40 backdrop-blur-md border border-white/15 flex items-center justify-center text-white/80 hover:bg-black/50 hover:text-white transition-all max-[480px]:hidden"
         aria-label="Next slide"
       >
         <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />

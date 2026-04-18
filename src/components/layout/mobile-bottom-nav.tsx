@@ -40,10 +40,14 @@ export function MobileBottomNav() {
           const content = (
             <div
               className={cn(
-                'flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors min-w-12',
-                active ? 'text-(--brand-primary)' : 'text-(--color-text-disabled)'
+                'relative flex flex-col items-center justify-center flex-1 h-full gap-0.5 transition-colors',
+                active ? 'text-(--brand-primary)' : 'text-(--color-text-muted)'
               )}
             >
+              {/* Active indicator bar */}
+              {active && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-6 rounded-full bg-(--brand-primary)" />
+              )}
               <div className="relative">
                 <tab.icon className="h-5 w-5" strokeWidth={active ? 2.5 : 1.5} />
                 {isCartTab && itemCount > 0 && (
@@ -52,7 +56,7 @@ export function MobileBottomNav() {
                   </span>
                 )}
               </div>
-              <span className={cn('text-[11px] leading-tight', active && 'font-semibold')}>
+              <span className={cn('text-[10px] leading-tight', active ? 'font-semibold' : 'font-medium')}>
                 {tab.label}
               </span>
             </div>

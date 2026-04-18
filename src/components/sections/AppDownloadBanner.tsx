@@ -19,7 +19,7 @@ export function AppDownloadBanner() {
           <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-(--brand-primary)/10 blur-3xl" />
           <div className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full bg-(--brand-amber)/8 blur-3xl" />
 
-          <div className="relative z-10 p-8 sm:p-12 lg:p-16">
+          <div className="relative z-10 p-6 sm:p-10 lg:p-16">
             <div className="lg:grid lg:grid-cols-12 lg:gap-12 items-center">
               {/* Left content */}
               <div className="lg:col-span-7">
@@ -69,7 +69,7 @@ export function AppDownloadBanner() {
                   {FEATURES.map(({ icon: Icon, title, desc }, i) => (
                     <div
                       key={title}
-                      className="rounded-2xl bg-white/6 backdrop-blur-sm border border-white/8 p-5 hover:bg-white/10 transition-colors duration-200"
+                      className="rounded-2xl bg-white/6 backdrop-blur-sm border border-white/8 p-3 sm:p-5 hover:bg-white/10 transition-colors duration-200"
                     >
                       <div className="h-9 w-9 rounded-lg bg-(--brand-amber)/15 flex items-center justify-center mb-3">
                         <Icon className="h-4.5 w-4.5 text-(--brand-amber)" />

@@ -149,7 +149,7 @@ export function MobileDrawer({ open, onOpenChange }: MobileDrawerProps) {
         <Dialog.Content
           className={cn(
             'fixed right-0 top-0 z-(--z-overlay) h-full',
-            'w-[320px] sm:w-95',
+            'w-[85vw] max-w-[320px] sm:w-95',
             'bg-(--color-surface)',
             'shadow-(--shadow-2xl)',
             'overflow-y-auto',

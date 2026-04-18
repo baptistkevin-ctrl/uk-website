@@ -39,7 +39,7 @@ export function NewsletterSignup() {
         <div className="rounded-3xl border border-(--color-border) bg-(--color-surface) overflow-hidden">
           <div className="lg:grid lg:grid-cols-2">
             {/* Left — Green panel */}
-            <div className="bg-(--brand-dark) p-8 sm:p-10 lg:p-14 relative overflow-hidden">
+            <div className="bg-(--brand-dark) p-6 sm:p-10 lg:p-14 relative overflow-hidden">
               {/* Decorative circles */}
               <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full border border-white/5" />
               <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full border border-white/5" />
@@ -76,7 +76,7 @@ export function NewsletterSignup() {
             </div>
 
             {/* Right — Form panel */}
-            <div className="p-8 sm:p-10 lg:p-14 flex flex-col justify-center">
+            <div className="p-6 sm:p-10 lg:p-14 flex flex-col justify-center">
               {state !== "done" ? (
                 <>
                   <h3 className="font-display text-2xl font-semibold text-foreground">

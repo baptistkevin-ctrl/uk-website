@@ -112,7 +112,7 @@ export function TestimonialsSection() {
             <div
               key={`${testimonial.name}-${startIndex}`}
               className={cn(
-                "rounded-2xl border border-(--color-border) bg-(--color-surface) p-6 lg:p-7",
+                "rounded-2xl border border-(--color-border) bg-(--color-surface) p-4 sm:p-6 lg:p-7",
                 "transition-all duration-500",
                 isTransitioning ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0"
               )}

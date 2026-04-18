@@ -153,11 +153,11 @@ export function ProductShowcase({
 
         {/* Products */}
         {layout === 'scroll' ? (
-          <div className="flex gap-3 lg:gap-4 overflow-x-auto scrollbar-hide pb-2">
+          <div className="flex gap-2.5 sm:gap-3 lg:gap-4 overflow-x-auto scrollbar-hide pb-2">
             {products.map((product) => (
               <div
                 key={product.id}
-                className="shrink-0 w-50 sm:w-55 lg:w-60"
+                className="shrink-0 w-40 sm:w-50 lg:w-60"
               >
                 <ProductCard
                   product={product}
@@ -170,7 +170,7 @@ export function ProductShowcase({
         ) : (
           <div
             className={cn(
-              'grid grid-cols-2 sm:grid-cols-3 gap-3 lg:gap-4',
+              'grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3 lg:gap-4',
               COLUMN_MAP[columns]
             )}
           >

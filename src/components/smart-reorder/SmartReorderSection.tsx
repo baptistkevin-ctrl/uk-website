@@ -89,7 +89,7 @@ function ReorderSkeleton() {
         </div>
 
         {/* Card skeletons */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
@@ -419,7 +419,7 @@ export function SmartReorderSection() {
         </div>
 
         {/* Product grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3">
           {data.items.slice(0, 10).map((item) => (
             <ItemCard
               key={item.id}

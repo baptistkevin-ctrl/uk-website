@@ -54,7 +54,7 @@ export function AnnouncementBar() {
 
   return (
     <div className="relative bg-(--brand-dark)">
-      <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 px-10 py-2">
+      <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 px-4 sm:px-10 py-2">
         <a
           href={msg.link}
           className="inline-flex items-center gap-2 text-[13px] text-white/70 hover:text-white transition-colors group"

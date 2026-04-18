@@ -70,7 +70,7 @@ export function Header() {
         )}
       >
         {/* ── Main bar ───────────────────────────────── */}
-        <div className="mx-auto max-w-7xl h-16 flex items-center gap-4 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl h-16 flex items-center gap-2 sm:gap-3 md:gap-4 px-3 sm:px-6 lg:px-8">
           {/* Mobile hamburger */}
           <button
             onClick={() => setDrawerOpen(true)}
@@ -142,7 +142,7 @@ export function Header() {
             {postcodeOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setPostcodeOpen(false)} />
-                <div className="absolute top-full right-0 mt-2 w-72 rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-xl) p-4 z-50">
+                <div className="absolute top-full right-0 mt-2 w-[calc(100vw-2rem)] sm:w-72 max-w-sm rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-xl) p-4 z-50">
                   <p className="text-sm font-semibold text-foreground mb-1">Enter your postcode</p>
                   <p className="text-xs text-(--color-text-muted) mb-3">We'll show delivery availability for your area</p>
                   <form onSubmit={(e) => {

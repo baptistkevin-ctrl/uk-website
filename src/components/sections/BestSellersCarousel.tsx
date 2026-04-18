@@ -111,13 +111,13 @@ export function BestSellersCarousel({ products }: BestSellersCarouselProps) {
         <div className="relative overflow-hidden">
           <div
             ref={scrollRef}
-            className="flex gap-3 lg:gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+            className="flex gap-2.5 sm:gap-3 lg:gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
           >
             {products.map((product) => (
               <Link
                 key={product.id}
                 href={`/products/${product.slug}`}
-                className="shrink-0 w-50 sm:w-55 lg:w-60 group"
+                className="shrink-0 w-40 sm:w-50 lg:w-60 group"
               >
                 {/* Image */}
                 <div className="relative aspect-square rounded-xl overflow-hidden bg-(--color-elevated)">

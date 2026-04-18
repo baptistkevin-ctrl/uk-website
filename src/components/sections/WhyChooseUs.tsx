@@ -67,11 +67,11 @@ export function WhyChooseUs() {
             </p>
 
             {/* Features grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-8">
               {FEATURES.map((feature) => (
                 <div
                   key={feature.title}
-                  className="group flex gap-4 p-4 rounded-xl hover:bg-(--color-elevated) transition-colors duration-200"
+                  className="group flex gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-(--color-elevated) transition-colors duration-200"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--brand-primary)/8 group-hover:bg-(--brand-primary)/15 transition-colors">
                     <feature.icon className="h-5 w-5 text-(--brand-primary)" />
