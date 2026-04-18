@@ -10,7 +10,7 @@
  * - Background sync for cart operations
  */
 
-const CACHE_VERSION = 'v3.0.0';
+const CACHE_VERSION = 'v4.0.0';
 const STATIC_CACHE = `ukgrocery-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `ukgrocery-dynamic-${CACHE_VERSION}`;
 const IMAGE_CACHE = `ukgrocery-images-${CACHE_VERSION}`;
@@ -133,7 +133,9 @@ self.addEventListener('fetch', (event) => {
   } else if (isImageRequest(request)) {
     event.respondWith(staleWhileRevalidate(request, IMAGE_CACHE));
   } else if (isStaticAsset(url)) {
-    event.respondWith(cacheFirstStrategy(request));
+    // Use network-first for JS/CSS — Next.js uses content-hashed filenames,
+    // so cache-first can serve stale bundles after a new deployment
+    event.respondWith(networkFirstWithOffline(request));
   } else {
     event.respondWith(networkFirstWithOffline(request));
   }
