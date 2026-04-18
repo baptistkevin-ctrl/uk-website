@@ -171,8 +171,8 @@ export function HeroSection() {
 
       {/* ── Content ── */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 w-full">
-        <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-center">
-          {/* ────── Left column — text (7 cols) ────── */}
+        <div className="md:grid md:grid-cols-2 lg:grid-cols-12 md:gap-6 lg:gap-8 items-center">
+          {/* ────── Left column — text ────── */}
           <div className="lg:col-span-7">
             {/* Eyebrow */}
             <div
@@ -253,8 +253,8 @@ export function HeroSection() {
           </div>
 
           {/* ────── Right column — Rotating Featured Product (5 cols) ────── */}
-          <div className="hidden lg:flex lg:col-span-5 justify-center">
-            <div className="relative w-[360px]">
+          <div className="hidden md:flex lg:col-span-5 justify-center">
+            <div className="relative w-[280px] lg:w-[360px]">
               {/* Main glass card */}
               <div
                 className={cn(

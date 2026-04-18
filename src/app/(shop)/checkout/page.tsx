@@ -342,9 +342,9 @@ export default function CheckoutPage() {
         )}
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
             {/* Checkout Form */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="md:col-span-2 space-y-6">
               {error && (
                 <div className="p-4 rounded-xl bg-(--color-error-bg) border border-(--color-error) text-(--color-error)">
                   {error}

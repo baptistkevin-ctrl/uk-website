@@ -108,10 +108,10 @@ function ProductCard({
 }
 
 const COLUMN_MAP: Record<number, string> = {
-  3: 'lg:grid-cols-3',
-  4: 'lg:grid-cols-4',
-  5: 'lg:grid-cols-5',
-  6: 'lg:grid-cols-6',
+  3: 'md:grid-cols-3',
+  4: 'md:grid-cols-3 lg:grid-cols-4',
+  5: 'md:grid-cols-3 lg:grid-cols-5',
+  6: 'md:grid-cols-4 lg:grid-cols-6',
 }
 
 export function ProductShowcase({
