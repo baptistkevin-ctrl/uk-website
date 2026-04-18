@@ -414,7 +414,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <Truck className="h-5 w-5 text-(--brand-primary) shrink-0" />
                 <div>
                   <p className="text-sm font-semibold text-foreground">{deliveryEstimate}</p>
-                  <p className="text-xs text-(--color-text-muted)">Free delivery on orders over £40</p>
+                  <p className="text-xs text-(--color-text-muted)">Free delivery on orders over £50</p>
                 </div>
               </div>
             )}

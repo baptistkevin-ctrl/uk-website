@@ -123,11 +123,11 @@ export default function DeliveryPage() {
                   </thead>
                   <tbody className="text-(--color-text-secondary)">
                     <tr className="border-b border-(--color-border)">
-                      <td className="py-3 px-4">Under £40</td>
+                      <td className="py-3 px-4">Under £50</td>
                       <td className="py-3 px-4 text-right">£4.99</td>
                     </tr>
                     <tr className="border-b border-(--color-border)">
-                      <td className="py-3 px-4">£40 - £50</td>
+                      <td className="py-3 px-4">£50 - £50</td>
                       <td className="py-3 px-4 text-right">£2.99</td>
                     </tr>
                     <tr>

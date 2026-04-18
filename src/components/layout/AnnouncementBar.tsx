@@ -17,7 +17,7 @@ function getSeasonalMessage(): { text: string; icon: LucideIcon; highlight: stri
 }
 
 const baseMessages: { text: string; icon: LucideIcon; highlight: string; link: string }[] = [
-  { text: "Free delivery on orders over", icon: Truck, highlight: "£40", link: "/delivery" },
+  { text: "Free delivery on orders over", icon: Truck, highlight: "£50", link: "/delivery" },
   { text: "Over 500", icon: Leaf, highlight: "organic products", link: "/products?is_organic=true" },
   { text: "Same-day delivery in", icon: Zap, highlight: "London", link: "/delivery" },
   { text: "Get 10% off —", icon: Gift, highlight: "Join free today", link: "/register" },

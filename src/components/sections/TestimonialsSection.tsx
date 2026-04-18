@@ -22,7 +22,7 @@ const TESTIMONIALS = [
   { name: "Sophie D.", location: "Brighton", rating: 4, quote: "Love the sustainability features. Knowing the carbon footprint of my basket helps me make better choices." },
   { name: "Ryan P.", location: "Newcastle", rating: 5, quote: "Switched from Ocado six months ago. Better prices, just as good quality, and the app is much easier to use." },
   { name: "Hannah J.", location: "York", rating: 5, quote: "The community recipes section is wonderful. Found so many new family favourites through other shoppers." },
-  { name: "Michael S.", location: "Sheffield", rating: 5, quote: "Free delivery on orders over £40 is very reasonable. Plus the loyalty rewards are genuinely worth it." },
+  { name: "Michael S.", location: "Sheffield", rating: 5, quote: "Free delivery on orders over £50 is very reasonable. Plus the loyalty rewards are genuinely worth it." },
   { name: "Fatima Z.", location: "Coventry", rating: 5, quote: "Finally a grocery store with proper allergen filtering. I can shop without anxiety about my daughter's nut allergy." },
   { name: "William C.", location: "Norwich", rating: 5, quote: "The weekend cooking section always inspires me. Bought a whole sea bass last week and it was incredibly fresh." },
 ] as const;

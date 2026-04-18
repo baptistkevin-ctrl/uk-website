@@ -9,7 +9,7 @@ const STATS = [
 ] as const;
 
 const TRUST = [
-  { icon: Truck, title: "Free delivery over £40" },
+  { icon: Truck, title: "Free delivery over £50" },
   { icon: ShieldCheck, title: "Freshness guaranteed" },
   { icon: RotateCcw, title: "30-day returns" },
   { icon: MessageCircle, title: "24/7 live support" },

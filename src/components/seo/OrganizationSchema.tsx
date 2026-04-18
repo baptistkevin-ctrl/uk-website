@@ -6,7 +6,7 @@ export function OrganizationSchema() {
     url: "https://uk-grocery-store.com",
     logo: "https://uk-grocery-store.com/logo.png",
     description:
-      "Fresh groceries delivered across the UK. Free delivery over £40.",
+      "Fresh groceries delivered across the UK. Free delivery over £50.",
     telephone: "+44-XXXX-XXXXXX",
     email: "hello@uk-grocery-store.com",
     address: {

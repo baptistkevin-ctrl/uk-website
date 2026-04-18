@@ -2,7 +2,7 @@ import { Truck, ShieldCheck, RotateCcw, MessageCircle } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 const TRUST_ITEMS: { icon: LucideIcon; title: string; description: string }[] = [
-  { icon: Truck, title: "Free Delivery", description: "On orders over £40" },
+  { icon: Truck, title: "Free Delivery", description: "On orders over £50" },
   { icon: ShieldCheck, title: "Freshness Guarantee", description: "Or your money back" },
   { icon: RotateCcw, title: "Easy Returns", description: "30-day hassle-free" },
   { icon: MessageCircle, title: "24/7 Support", description: "We're always here" },

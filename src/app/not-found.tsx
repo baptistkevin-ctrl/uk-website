@@ -81,7 +81,7 @@ export default function NotFound() {
         <div className="mt-12 flex items-center justify-center gap-6 text-(--color-text-disabled) text-xs">
           <div className="flex items-center gap-1.5">
             <Truck className="h-4 w-4" />
-            <span>Free delivery over £40</span>
+            <span>Free delivery over £50</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Tag className="h-4 w-4" />

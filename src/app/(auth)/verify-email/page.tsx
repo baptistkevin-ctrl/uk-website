@@ -163,7 +163,7 @@ function VerifyEmailPageContent() {
                 <div className="w-8 h-8 rounded-full bg-(--brand-primary)/10 flex items-center justify-center shrink-0">
                   <span className="text-sm">🚚</span>
                 </div>
-                <p className="text-sm text-(--color-text-secondary)"><span className="font-semibold text-foreground">Free delivery</span> on your first order over £40</p>
+                <p className="text-sm text-(--color-text-secondary)"><span className="font-semibold text-foreground">Free delivery</span> on your first order over £50</p>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-(--brand-primary)/10 flex items-center justify-center shrink-0">

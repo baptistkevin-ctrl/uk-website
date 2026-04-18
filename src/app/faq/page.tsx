@@ -20,7 +20,7 @@ const faqs = [
   {
     question: "What is the minimum order value?",
     answer:
-      "There is no minimum order value. However, orders under £40 will incur a delivery fee. Orders over £50 qualify for free delivery.",
+      "There is no minimum order value. However, orders under £50 will incur a delivery fee. Orders over £50 qualify for free delivery.",
   },
   {
     question: "How do I track my order?",

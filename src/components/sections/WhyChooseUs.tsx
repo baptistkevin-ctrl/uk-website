@@ -10,7 +10,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 const FEATURES: { icon: LucideIcon; title: string; description: string; stat: string }[] = [
-  { icon: Truck, title: "Same-Day Delivery", description: "Order before 2pm for delivery today. Free on orders over £40.", stat: "2hr avg." },
+  { icon: Truck, title: "Same-Day Delivery", description: "Order before 2pm for delivery today. Free on orders over £50.", stat: "2hr avg." },
   { icon: Leaf, title: "Farm Fresh Quality", description: "Sourced from 200+ local British farms. Delivered within 24 hours.", stat: "200+ farms" },
   { icon: BadgePoundSterling, title: "Best Price Promise", description: "We match competitors' prices. Found it cheaper? We'll refund the difference.", stat: "100% match" },
   { icon: Recycle, title: "Eco-Friendly", description: "Carbon-neutral delivery with electric vans and cargo bikes.", stat: "0 emissions" },

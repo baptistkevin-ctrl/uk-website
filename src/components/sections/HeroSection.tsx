@@ -26,7 +26,7 @@ const SLIDES = [
     eyebrow: "Fresh from British farms — delivered today",
     headline: "Fresh Groceries,",
     headlineAccent: "Delivered to Your Door",
-    subtitle: "Shop 5,000+ premium products from local British farms. Free delivery on orders over £40.",
+    subtitle: "Shop 5,000+ premium products from local British farms. Free delivery on orders over £50.",
     cta: { label: "Shop Now", href: "/products" },
     ctaSecondary: { label: "View Deals", href: "/deals" },
   },
@@ -82,7 +82,7 @@ const SLIDE_INTERVAL = 6000;
 const PRODUCT_INTERVAL = 5000;
 
 const trustPills = [
-  { label: "Free delivery over £40", icon: Truck },
+  { label: "Free delivery over £50", icon: Truck },
   { label: "Same-day delivery", icon: Clock },
   { label: "Freshness guaranteed", icon: ShieldCheck },
   { label: "4.9★ Rated", icon: Star },
@@ -366,7 +366,7 @@ export function HeroSection() {
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-foreground">Free Delivery</p>
-                    <p className="text-[11px] text-(--color-text-muted)">Orders over £40</p>
+                    <p className="text-[11px] text-(--color-text-muted)">Orders over £50</p>
                   </div>
                 </div>
 

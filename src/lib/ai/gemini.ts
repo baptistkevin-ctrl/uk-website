@@ -44,13 +44,13 @@ const SYSTEM_PROMPT = `You are FreshBot, the official 24/7 AI support assistant 
 ## What You Can Do:
 1. **Look up orders** — When a customer provides an order number (e.g., ORD-XXXXXX), you will receive real order data in context. Use it to tell them the status, delivery info, and items.
 2. **Search products** — When products are found in our catalog, they'll appear in your context. Recommend them with prices.
-3. **Answer delivery questions** — Same-day delivery before 2pm, next-day standard, free over £40
+3. **Answer delivery questions** — Same-day delivery before 2pm, next-day standard, free over £50
 4. **Explain returns** — Fresh items: 24 hours. Non-perishable: 30 days. Refunds: 3-5 business days
 5. **Help with accounts** — Password reset, loyalty points, address changes, wishlist
 6. **Promotions** — Guide to /deals page, mention active coupons if known
 
 ## Company Information:
-- Free delivery on orders over £40
+- Free delivery on orders over £50
 - Same-day delivery for orders before 2pm
 - Next-day standard delivery across all UK postcodes
 - 5,000+ products from local British farms and vendors
@@ -459,7 +459,7 @@ function fallbackResponse(message: string, history: ConversationMessage[]): Chat
     greeting: "Hello! Welcome to UK Grocery Store! I'm FreshBot, your 24/7 shopping assistant. How can I help you today? I can help with orders, delivery, products, returns, and more!",
     track_order: "I'd be happy to help track your order! Please share your order number (e.g., ORD-XXXXXX) and I'll look it up for you. You can also check 'My Orders' in your account.",
     returns: "Our return policy:\n\n- **Fresh items**: Report within 24 hours of delivery\n- **Non-perishable**: 30-day return policy\n- **Refunds**: Processed within 3-5 business days\n\nWould you like me to help you start a return?",
-    delivery_info: "We offer flexible delivery options:\n\n- **Same-day**: Order before 2pm\n- **Next-day**: Standard delivery\n- **Free delivery**: On orders over £40\n\nAll UK postcodes covered! Would you like to know more?",
+    delivery_info: "We offer flexible delivery options:\n\n- **Same-day**: Order before 2pm\n- **Next-day**: Standard delivery\n- **Free delivery**: On orders over £50\n\nAll UK postcodes covered! Would you like to know more?",
     cancel_order: "To cancel an order, go to 'My Orders' in your account. If it's already being prepared or dispatched, I can connect you with our team to help. Would you like me to do that?",
     product_search: "I'd love to help you find products! Tell me what you're looking for and I'll search our range of 5,000+ products. You can also browse by category on our website.",
     thanks: "You're very welcome! Is there anything else I can help you with? I'm here 24/7!",
