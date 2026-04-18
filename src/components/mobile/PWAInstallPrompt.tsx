@@ -89,7 +89,7 @@ export function PWAInstallPrompt() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          className="fixed bottom-20 left-4 right-4 z-50 lg:hidden"
+          className="fixed bottom-24 left-3 right-3 z-40 lg:hidden"
         >
           <div className="bg-(--color-surface) rounded-2xl border border-(--color-border) shadow-xl p-4">
             <button

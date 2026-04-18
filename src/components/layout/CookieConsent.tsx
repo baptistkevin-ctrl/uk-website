@@ -45,24 +45,23 @@ export function CookieConsent() {
     >
       <div
         className="
-          mx-auto p-5
+          mx-auto p-4 sm:p-5
           bg-(--color-surface) border border-(--color-border)
           max-w-lg mb-4 rounded-2xl shadow-(--shadow-2xl)
+          max-sm:max-w-none max-sm:mx-3 max-sm:mb-20
           max-md:max-w-none max-md:mb-0 max-md:rounded-b-none max-md:rounded-t-(--radius-2xl)
         "
       >
-        <div className="flex items-start gap-3">
-          <span className="text-2xl leading-none shrink-0" aria-hidden="true">
+        <div className="flex flex-col sm:flex-row items-start gap-3">
+          <span className="text-2xl leading-none shrink-0 hidden sm:block" aria-hidden="true">
             🍪
           </span>
           <div className="min-w-0">
-            <h2 className="text-base font-semibold text-foreground">
-              We value your privacy
+            <h2 className="text-sm sm:text-base font-semibold text-foreground">
+              🍪 We value your privacy
             </h2>
-            <p className="mt-1.5 text-sm text-(--color-text-secondary) leading-relaxed">
-              We use cookies to enhance your browsing experience, serve
-              personalised content, and analyse our traffic. By clicking
-              &lsquo;Accept All&rsquo;, you consent to our use of cookies.{" "}
+            <p className="mt-1 sm:mt-1.5 text-xs sm:text-sm text-(--color-text-secondary) leading-relaxed">
+              We use cookies to enhance your experience and analyse traffic.{" "}
               <Link
                 href="/cookies"
                 className="text-(--brand-primary) hover:underline font-medium"
@@ -71,7 +70,7 @@ export function CookieConsent() {
               </Link>
             </p>
 
-            <div className="flex gap-2 mt-4">
+            <div className="flex gap-2 mt-3 sm:mt-4">
               <button
                 onClick={() => handleConsent("all")}
                 className="
