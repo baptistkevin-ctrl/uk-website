@@ -10,7 +10,7 @@
  * - Background sync for cart operations
  */
 
-const CACHE_VERSION = 'v5.0.0';
+const CACHE_VERSION = 'v5.1.0';
 const STATIC_CACHE = `ukgrocery-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `ukgrocery-dynamic-${CACHE_VERSION}`;
 const IMAGE_CACHE = `ukgrocery-images-${CACHE_VERSION}`;
@@ -238,7 +238,8 @@ function isStaticAsset(url) {
 
 /**
  * Cache-First Strategy
- * Best for static assets that rarely change
+ * Best for static assets that rarely change.
+ * Returns a proper error response on failure — never returns HTML for non-HTML requests.
  */
 async function cacheFirstStrategy(request) {
   try {
@@ -255,7 +256,13 @@ async function cacheFirstStrategy(request) {
     return networkResponse;
   } catch (error) {
     console.error('[ServiceWorker] Cache-first failed:', error);
-    return caches.match('/offline');
+
+    // Only return offline page for navigation requests — never for JS/CSS/assets
+    if (request.mode === 'navigate') {
+      return getOfflineFallback();
+    }
+
+    return new Response('', { status: 503, statusText: 'Offline' });
   }
 }
 

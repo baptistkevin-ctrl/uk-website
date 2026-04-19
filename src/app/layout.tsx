@@ -120,10 +120,33 @@ export default function RootLayout({
         <Analytics />
         <SpeedInsights />
 
-        {/* Service Worker Registration */}
+        {/* Service Worker Registration — force-update stale workers */}
         <Script id="sw-register" strategy="afterInteractive">{`
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').catch(() => {});
+            navigator.serviceWorker.register('/sw.js').then(function(reg) {
+              // Force immediate check for a new SW on every page load
+              reg.update();
+
+              // When a new SW is found and installed, activate it immediately
+              reg.addEventListener('updatefound', function() {
+                var newWorker = reg.installing;
+                if (newWorker) {
+                  newWorker.addEventListener('statechange', function() {
+                    if (newWorker.state === 'activated') {
+                      // New SW is active — reload to pick up fresh assets
+                      window.location.reload();
+                    }
+                  });
+                }
+              });
+            }).catch(function() {});
+
+            // If a waiting SW exists from a previous visit, activate it now
+            navigator.serviceWorker.ready.then(function(reg) {
+              if (reg.waiting) {
+                reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+              }
+            });
           }
         `}</Script>
 

@@ -1,7 +1,15 @@
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
+  // Redirect www to non-www (prevents SW scope mismatch + DNS issues)
+  const host = request.headers.get('host') || '';
+  if (host.startsWith('www.')) {
+    const nonWwwUrl = new URL(request.url);
+    nonWwwUrl.host = host.replace('www.', '');
+    return NextResponse.redirect(nonWwwUrl, 301);
+  }
+
   return await updateSession(request)
 }
 
