@@ -10,7 +10,7 @@
  * - Background sync for cart operations
  */
 
-const CACHE_VERSION = 'v4.0.0';
+const CACHE_VERSION = 'v5.0.0';
 const STATIC_CACHE = `ukgrocery-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `ukgrocery-dynamic-${CACHE_VERSION}`;
 const IMAGE_CACHE = `ukgrocery-images-${CACHE_VERSION}`;
@@ -42,25 +42,96 @@ const NO_CACHE_ROUTES = [
 const MAX_DYNAMIC_CACHE_ITEMS = 50;
 const MAX_IMAGE_CACHE_ITEMS = 100;
 
+// Network timeout for navigation requests (ms)
+const NAVIGATION_TIMEOUT = 8000;
+
+/**
+ * Inline offline fallback HTML — zero dependencies, always works.
+ * Used when network fails AND no cached page AND /offline isn't cached.
+ */
+const OFFLINE_FALLBACK_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline — UK Grocery Store</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:#fafafa;color:#1a1a1a;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+    .card{max-width:420px;width:100%;text-align:center;background:#fff;border-radius:16px;padding:48px 32px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+    .icon{width:72px;height:72px;margin:0 auto 24px;background:#FEF3E2;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .icon svg{width:36px;height:36px;color:#E07B0A}
+    h1{font-size:22px;font-weight:700;margin-bottom:8px;color:#111}
+    p{font-size:15px;color:#666;line-height:1.5;margin-bottom:28px}
+    .brand{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:24px}
+    .brand-icon{width:32px;height:32px;background:#1B6B3A;border-radius:8px;display:flex;align-items:center;justify-content:center}
+    .brand-icon svg{width:20px;height:20px;color:#fff}
+    .brand span{font-size:18px;font-weight:700;color:#1B6B3A}
+    button{width:100%;padding:14px;background:#1B6B3A;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;cursor:pointer;transition:background .2s}
+    button:hover{background:#155a30}
+    .status{margin-top:24px;font-size:13px;color:#999;display:flex;align-items:center;justify-content:center;gap:8px}
+    .dot{width:8px;height:8px;border-radius:50%;background:#ef4444;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728M5.636 18.364a9 9 0 010-12.728m2.828 9.9a5 5 0 010-7.072m7.072 0a5 5 0 010 7.072M13 12a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+    </div>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg fill="currentColor" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      </div>
+      <span>UK Grocery Store</span>
+    </div>
+    <h1>You're Offline</h1>
+    <p>Please check your internet connection and try again. Your cart items are saved and will sync when you reconnect.</p>
+    <button onclick="window.location.reload()">Try Again</button>
+    <div class="status"><span class="dot"></span>Waiting for connection...</div>
+  </div>
+  <script>window.addEventListener('online',function(){window.location.reload()})</script>
+</body>
+</html>`;
+
 /**
  * Install Event - Cache static assets
+ * Caches each asset individually so one failure doesn't block the rest.
+ * Always stores the inline offline fallback so we never show a blank page.
  */
 self.addEventListener('install', (event) => {
   console.log('[ServiceWorker] Installing...');
 
   event.waitUntil(
     caches.open(STATIC_CACHE)
-      .then((cache) => {
+      .then(async (cache) => {
         console.log('[ServiceWorker] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
+
+        // Always store the inline offline fallback first — this never fails
+        await cache.put(
+          new Request('/_offline-fallback'),
+          new Response(OFFLINE_FALLBACK_HTML, {
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          })
+        );
+
+        // Cache each static asset individually — don't let one failure break all
+        await Promise.allSettled(
+          STATIC_ASSETS.map(async (url) => {
+            try {
+              const response = await fetch(url);
+              if (response.ok) {
+                await cache.put(url, response);
+              }
+            } catch (err) {
+              console.warn('[ServiceWorker] Failed to cache:', url, err);
+            }
+          })
+        );
+
         console.log('[ServiceWorker] Static assets cached');
-        return self.skipWaiting();
       })
-      .catch((error) => {
-        console.error('[ServiceWorker] Install failed:', error);
-      })
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -230,11 +301,16 @@ async function networkFirstStrategy(request) {
 
 /**
  * Network-First with Offline Fallback
- * Best for HTML pages
+ * Best for HTML pages — includes timeout and guaranteed fallback
  */
 async function networkFirstWithOffline(request) {
+  const isNavigation = request.mode === 'navigate';
+
   try {
-    const networkResponse = await fetch(request);
+    // For navigation requests, add a timeout so users don't stare at a blank screen
+    const networkResponse = isNavigation
+      ? await fetchWithTimeout(request, NAVIGATION_TIMEOUT)
+      : await fetch(request);
 
     if (networkResponse.ok) {
       const cache = await caches.open(DYNAMIC_CACHE);
@@ -246,18 +322,66 @@ async function networkFirstWithOffline(request) {
   } catch (error) {
     console.log('[ServiceWorker] Network failed for page:', request.url);
 
+    // Try cached version first
     const cachedResponse = await caches.match(request);
     if (cachedResponse) {
       return cachedResponse;
     }
 
-    // Return offline page for navigation requests
-    if (request.mode === 'navigate') {
-      return caches.match('/offline');
+    // For navigation requests, serve offline fallback
+    if (isNavigation) {
+      return getOfflineFallback();
     }
 
     return new Response('Offline', { status: 503 });
   }
+}
+
+/**
+ * Fetch with timeout — rejects if network takes too long
+ */
+function fetchWithTimeout(request, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      controller.abort();
+      reject(new Error('Network timeout'));
+    }, timeoutMs);
+
+    fetch(request, { signal: controller.signal })
+      .then((response) => {
+        clearTimeout(timer);
+        resolve(response);
+      })
+      .catch((err) => {
+        clearTimeout(timer);
+        reject(err);
+      });
+  });
+}
+
+/**
+ * Get offline fallback — tries /offline page first, then inline HTML.
+ * Guarantees a response is ALWAYS returned (never undefined/blank).
+ */
+async function getOfflineFallback() {
+  // Try the cached Next.js offline page
+  const offlinePage = await caches.match('/offline');
+  if (offlinePage) {
+    return offlinePage;
+  }
+
+  // Fall back to the inline HTML (always available — stored during install)
+  const inlineFallback = await caches.match('/_offline-fallback');
+  if (inlineFallback) {
+    return inlineFallback;
+  }
+
+  // Absolute last resort — return inline HTML directly
+  return new Response(OFFLINE_FALLBACK_HTML, {
+    status: 503,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' }
+  });
 }
 
 /**
@@ -268,6 +392,14 @@ async function staleWhileRevalidate(request, cacheName) {
   const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
 
+  const placeholderSvg = new Response(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+      <rect fill="#f3f4f6" width="200" height="200"/>
+      <text fill="#9ca3af" font-family="sans-serif" font-size="14" text-anchor="middle" x="100" y="105">Image unavailable</text>
+    </svg>`,
+    { headers: { 'Content-Type': 'image/svg+xml' } }
+  );
+
   const fetchPromise = fetch(request)
     .then((networkResponse) => {
       if (networkResponse.ok) {
@@ -276,18 +408,7 @@ async function staleWhileRevalidate(request, cacheName) {
       }
       return networkResponse;
     })
-    .catch(() => {
-      // Return placeholder image if offline and no cache
-      if (!cachedResponse) {
-        return new Response(
-          `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-            <rect fill="#f3f4f6" width="200" height="200"/>
-            <text fill="#9ca3af" font-family="sans-serif" font-size="14" text-anchor="middle" x="100" y="105">Image unavailable</text>
-          </svg>`,
-          { headers: { 'Content-Type': 'image/svg+xml' } }
-        );
-      }
-    });
+    .catch(() => placeholderSvg);
 
   return cachedResponse || fetchPromise;
 }
