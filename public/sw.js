@@ -10,7 +10,7 @@
  * - Background sync for cart operations
  */
 
-const CACHE_VERSION = 'v5.1.0';
+const CACHE_VERSION = 'v6.0.0';
 const STATIC_CACHE = `ukgrocery-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `ukgrocery-dynamic-${CACHE_VERSION}`;
 const IMAGE_CACHE = `ukgrocery-images-${CACHE_VERSION}`;
@@ -136,7 +136,7 @@ self.addEventListener('install', (event) => {
 });
 
 /**
- * Activate Event - Clean up old caches
+ * Activate Event - Clean up old caches and force-reload stale tabs
  */
 self.addEventListener('activate', (event) => {
   console.log('[ServiceWorker] Activating...');
@@ -162,6 +162,17 @@ self.addEventListener('activate', (event) => {
       .then(() => {
         console.log('[ServiceWorker] Activated');
         return self.clients.claim();
+      })
+      .then(() => {
+        // Force-reload all open tabs so they pick up the new SW and fresh assets.
+        // This is critical when upgrading from a stale SW (e.g. v1.1.0) that served
+        // broken cached HTML — without this, users see a broken page until manual refresh.
+        return self.clients.matchAll({ type: 'window' }).then((clients) => {
+          clients.forEach((client) => {
+            console.log('[ServiceWorker] Reloading client:', client.url);
+            client.navigate(client.url);
+          });
+        });
       })
   );
 });
